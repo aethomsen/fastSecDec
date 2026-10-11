@@ -178,4 +178,44 @@ evaluations on tracked coefficient uncertainty, before accepting an estimate.
 It is reproducible from the saved artifact at sector 0, point
 `[1.9821906045953033e-6, 0.009410550281948912]`. No later integration lane is
 reported as passed. This distinct failure remains under investigation, and the
-private factory/V3 source has not yet been adopted into the shared implementation.
+private factory/V3 source was not adopted while this failure remained unresolved.
+
+### Source-derived constant coefficient
+
+The subsequent diagnostic locates the first rejection at 256 bits, before the
+final tracking-range refusal: rebuilding `q_0` from separately rounded original
+coefficients reduces its stored precision to 239 bits. Native Float arithmetic
+intentionally reduces precision after cancellation. The normalized root then
+stagnates under the unchanged solver target. This is not evidence of a native
+solver or arithmetic defect.
+
+Exact preparation already supplies `E_0=P(a)=Q(0)` from the same source
+coefficient expressions. The narrow correction uses this entire native complex
+tracked value for `q_0`, avoiding that repeated numerical cancellation. It does
+not clear uncertainty, reset precision, change root selectors or relax solver
+tolerances. The original coefficient derivative hooks remain applicable because
+`E_0` is a source-derived dependent control, not an independent polynomial input.
+
+Fourteen maintained callback and codec groups pass in 0.97 seconds, including
+the captured failing coordinate, independent exact-fiber comparisons at 128/256
+bits, non-dyadic closed faces and incoming real/imaginary uncertainty. Strict
+library/test lint and formatting pass. A fresh default-native process restores
+the saved families without GCAD; a second process evaluates the formerly failing
+saved row and accepts its complete vector at 256 bits. These checks establish
+the scoped correction, not full CLI acceptance or a general conditioning bound.
+
+The coordinator verified two source pairs and 49 additional pins in handoff
+`7f4779daff83c1765484a4f95899a2a9dab398b9e1ade71734139b6896acbaa5`,
+and 56 diagnostic/native-source/executable pins in
+`d9feeb9775992f5e35db906b6f1ee1c26ed493bd0aa2ae20840570baccf9b609`.
+Independent reviews confirm the exact identity and preserved tracking. The
+complete automatic-factory matrix was rerun separately against a fresh binary:
+[all four lanes pass](no-deformation-regular-family-factory.md), including full
+vectors and covariance. Earlier failures remain retained evidence.
+
+The existing shift-output validity check still precedes replacement of `q_0`.
+It can therefore conservatively refuse an invalid reconstruction even if its
+replacement would be valid; no reachable instance was demonstrated in this
+slice. Other shifted coefficients and genuinely uncertain source inputs can
+still be ill-conditioned. No universal accuracy or runtime improvement follows
+from this particular correction.

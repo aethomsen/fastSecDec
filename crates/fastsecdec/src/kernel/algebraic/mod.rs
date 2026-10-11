@@ -2,6 +2,7 @@
 //! branch contract; saved execution restores this association, not its proof.
 mod numeric;
 mod program;
+mod shifted;
 #[cfg(feature = "threshold-decomposition")]
 pub use numeric::Number;
 use program::resolve;
@@ -48,9 +49,10 @@ fn failed(error: String) {
 pub(crate) fn register() {
     let _ = *numeric::ROOT;
     let _ = *numeric::ROOT_V2;
+    let _ = *numeric::ROOT_V3;
 }
 pub(crate) fn is_root(symbol: symbolica::atom::Symbol) -> bool {
-    symbol == *numeric::ROOT || symbol == *numeric::ROOT_V2
+    symbol == *numeric::ROOT || symbol == *numeric::ROOT_V2 || symbol == *numeric::ROOT_V3
 }
 
 #[cfg(all(test, feature = "threshold-decomposition"))]
@@ -58,3 +60,6 @@ mod tests;
 
 #[cfg(all(test, feature = "threshold-decomposition"))]
 mod affine_tests;
+
+#[cfg(all(test, feature = "threshold-decomposition"))]
+mod shifted_tests;

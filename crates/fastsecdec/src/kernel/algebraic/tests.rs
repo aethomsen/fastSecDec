@@ -5,8 +5,9 @@ use symbolica::{atom::Atom, domains::rational::Rational, evaluate::OptimizationS
 fn callback_scope_and_bounded_codec() {
     assert!(super::is_root(*ROOT));
     assert!(!super::is_root(symbol!("other::selected_root_v1")));
+    assert!(super::is_root(*super::numeric::ROOT_V3));
     assert!(!super::is_root(symbol!(
-        "fastsecdec::algebraic::selected_root_v3"
+        "fastsecdec::algebraic::selected_root_v4"
     )));
     super::failed("outer root".into());
     crate::contour::functions::dynamic::failure("outer contour".into());

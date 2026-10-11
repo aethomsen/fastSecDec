@@ -349,6 +349,10 @@ pub enum AlgebraicCallbackRecipe {
     AffineRationalBracketV2,
     /// Loaded sectors contain both preserved V1 and affine V2 helpers.
     MixedStaticBracketsV1V2,
+    /// Static rational bracket with native coefficient shift once per request.
+    AffineCoefficientShiftV3,
+    /// Loaded sectors retain V3 together with one or both historical recipes.
+    MixedStaticBracketsWithV3,
 }
 
 impl super::KernelSet {
@@ -356,18 +360,22 @@ impl super::KernelSet {
     pub fn algebraic_callback_recipe(&self) -> Option<AlgebraicCallbackRecipe> {
         let mut v1 = false;
         let mut v2 = false;
+        let mut v3 = false;
         for (_, owner) in self.sectors.iter().flat_map(|s| s.algebraic.owners()) {
             match owner.recipe_version() {
                 1 => v1 = true,
                 2 => v2 = true,
+                3 => v3 = true,
                 _ => unreachable!("admitted root recipe"),
             }
         }
-        match (v1, v2) {
-            (false, false) => None,
-            (true, false) => Some(AlgebraicCallbackRecipe::StaticExactF64BracketV1),
-            (false, true) => Some(AlgebraicCallbackRecipe::AffineRationalBracketV2),
-            (true, true) => Some(AlgebraicCallbackRecipe::MixedStaticBracketsV1V2),
+        match (v1, v2, v3) {
+            (false, false, false) => None,
+            (true, false, false) => Some(AlgebraicCallbackRecipe::StaticExactF64BracketV1),
+            (false, true, false) => Some(AlgebraicCallbackRecipe::AffineRationalBracketV2),
+            (true, true, false) => Some(AlgebraicCallbackRecipe::MixedStaticBracketsV1V2),
+            (false, false, true) => Some(AlgebraicCallbackRecipe::AffineCoefficientShiftV3),
+            (_, _, true) => Some(AlgebraicCallbackRecipe::MixedStaticBracketsWithV3),
         }
     }
     /// Algebraic roots currently require native tracked whole-vector validation.

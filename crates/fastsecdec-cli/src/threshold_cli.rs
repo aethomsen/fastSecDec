@@ -144,6 +144,37 @@ mod tests {
     }
 
     #[test]
+    fn maintained_sextic_preserves_native_cube_and_explicit_lifting_order() {
+        let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("../../examples/no_deformation/regular_sextic.toml");
+        let loaded = crate::input::load(&path).unwrap();
+        assert!(loaded.card.generation.threshold_enabled());
+        assert!(loaded.runtime_parameters.is_empty());
+        assert_eq!(
+            loaded.integrand.domain(),
+            fastsecdec::parametric::ParametricDomain::UnitCube
+        );
+        assert_eq!(loaded.integrand.parameters().len(), 2);
+        let options = loaded.card.threshold_decomposition.native(&[]).unwrap();
+        assert_eq!(options.solver.order, ["v0", "v1"]);
+        let request = options
+            .gcad_first_request(
+                &loaded.integrand,
+                &fastsecdec::generation::GenerationOptions::default(),
+            )
+            .unwrap();
+        assert_eq!(request.domain().coordinates().len(), 2);
+        assert!(matches!(
+            request.domain().origin(),
+            fastsecdec::threshold::gcad::DomainOrigin::NativeUnitCube
+        ));
+        assert_eq!(
+            request.prepared_terms()[0].factors()[0].semantics(),
+            fastsecdec::parametric::FactorSemantics::Causal
+        );
+    }
+
+    #[test]
     fn maintained_bubble_uses_native_graph_and_explicit_generation_kinematics() {
         let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
             .join("../../examples/no_deformation/threshold_bubble.toml");

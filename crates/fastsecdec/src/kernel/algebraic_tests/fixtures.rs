@@ -6,6 +6,9 @@ pub(super) fn family_digits(shifted: bool, digits: u64) -> secant::NormalizedFam
     family_recipe(shifted, digits, false)
 }
 pub(super) fn family_recipe(shifted: bool, digits: u64, affine: bool) -> secant::NormalizedFamily {
+    family_version(shifted, digits, if affine { 2 } else { 1 })
+}
+pub(super) fn family_version(shifted: bool, digits: u64, version: u32) -> secant::NormalizedFamily {
     let (x, y, e, s, t) = symbol!(
         "kernel_root_c::x",
         "kernel_root_c::y",
@@ -53,10 +56,11 @@ pub(super) fn family_recipe(shifted: bool, digits: u64, affine: bool) -> secant:
     if shifted {
         limits.unit_margin = &delta / &Rational::from(4);
     }
-    let admit = if affine {
-        secant::NormalizedFamily::admit_affine
-    } else {
-        secant::NormalizedFamily::admit
+    let admit = match version {
+        1 => secant::NormalizedFamily::admit,
+        2 => secant::NormalizedFamily::admit_affine,
+        3 => secant::NormalizedFamily::admit_affine_shifted,
+        _ => unreachable!("test recipe"),
     };
     admit(owner, vec![s, t], limits).unwrap()
 }

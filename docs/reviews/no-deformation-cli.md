@@ -6,6 +6,12 @@ continuation. It does not claim arbitrary algebraic cells, parametric chamber
 rebinding, source/cell selection or the general endpoint resolver. Those remain
 required delivery work. Unsupported cases return an explicit diagnostic.
 
+The subsequent [regular-family factory](no-deformation-regular-family-factory.md)
+extends this same workflow to complete fixed unit-cube families with two or
+three regular algebraic cells. Its sextic example passes all four normal/serial
+generation–integration combinations. The historical bubble evidence below
+remains distinct from that extension and from the unfinished general resolver.
+
 Both generation schedules use the existing caller-owned process supervisor.
 One preparer owns global solve/verification/continuation; compilation children
 load one detached native work record each. The coordinator receives compact

@@ -2,6 +2,7 @@
 pub mod callback;
 mod certificate;
 pub mod program;
+pub(crate) use certificate::ProposalError;
 pub use certificate::{BracketProposal, RegularSection, SectionSide};
 
 use std::{

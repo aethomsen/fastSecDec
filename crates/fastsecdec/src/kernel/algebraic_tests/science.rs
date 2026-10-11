@@ -10,16 +10,20 @@ use symbolica::{
 };
 #[test]
 fn full_laurent_vector_matches_independent_quintic_integral() {
-    quintic(false);
+    quintic(1);
 }
 #[test]
 fn affine_v2_full_vector_and_fresh_restore_match_quintic_oracle() {
-    quintic(true);
+    quintic(2);
 }
-fn quintic(affine: bool) {
+#[test]
+fn shifted_v3_full_vector_and_fresh_restore_match_quintic_oracle() {
+    quintic(3);
+}
+fn quintic(version: u32) {
     let temporary = tempfile::tempdir().unwrap();
-    super::artifacts::factory_recipe(temporary.path(), affine);
-    if affine {
+    super::artifacts::factory_version(temporary.path(), version);
+    if version >= 2 {
         let output = std::process::Command::new(std::env::current_exe().unwrap())
             .args([
                 "--ignored",
@@ -160,6 +164,6 @@ fn quintic(affine: bool) {
     }
     println!(
         "{}",
-        serde_json::json!({"native_primitive_identity":true,"independent_root_interval":[roots[0].interval.0.to_string(),roots[0].interval.1.to_string()],"finite_imaginary_oracle":oracle,"runs":rows})
+        serde_json::json!({"recipe_version":version,"native_primitive_identity":true,"independent_root_interval":[roots[0].interval.0.to_string(),roots[0].interval.1.to_string()],"finite_imaginary_oracle":oracle,"runs":rows})
     );
 }

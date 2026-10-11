@@ -7,7 +7,7 @@ use std::sync::Arc;
 use symbolica::evaluate::OptimizationSettings;
 impl RootProgram {
     pub fn prepare(section: &RegularSection, settings: OptimizationSettings) -> Result<Arc<Self>> {
-        Self::prepare_section(section, settings, false)
+        Self::prepare_section(section, settings, 1)
     }
     /// Normalize a certified, static rational bracket to [0,1]. This preserves
     /// the original physical branch and does not add a density Jacobian.
@@ -15,12 +15,20 @@ impl RootProgram {
         section: &RegularSection,
         settings: OptimizationSettings,
     ) -> Result<Arc<Self>> {
-        Self::prepare_section(section, settings, true)
+        Self::prepare_section(section, settings, 2)
+    }
+    /// Static affine normalization with native coefficient shifting once per
+    /// root request. Saved V1/V2 arithmetic remains independently supported.
+    pub fn prepare_affine_shifted(
+        section: &RegularSection,
+        settings: OptimizationSettings,
+    ) -> Result<Arc<Self>> {
+        Self::prepare_section(section, settings, 3)
     }
     fn prepare_section(
         section: &RegularSection,
         settings: OptimizationSettings,
-        affine: bool,
+        version: u32,
     ) -> Result<Arc<Self>> {
         let source = section.source();
         let raw = source.decomposition().native_result();
@@ -53,10 +61,11 @@ impl RootProgram {
             section.orientation(),
         ))
         .map_err(native)?;
-        let prepare = if affine {
-            Self::prepare_affine_from_certificate
-        } else {
-            Self::prepare_from_certificate
+        let prepare = match version {
+            1 => Self::prepare_from_certificate,
+            2 => Self::prepare_affine_from_certificate,
+            3 => Self::prepare_shifted_from_certificate,
+            _ => unreachable!("private root recipe"),
         };
         prepare(
             section.coefficients().len() - 1,

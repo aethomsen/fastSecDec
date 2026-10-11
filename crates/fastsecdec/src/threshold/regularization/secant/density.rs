@@ -94,40 +94,51 @@ pub(super) fn admit(
     owner: Arc<VerifiedDecomposition>,
     coordinates: Vec<Symbol>,
     limits: Limits,
-    affine_root: bool,
+    root_recipe: RootRecipe,
 ) -> Result<NormalizedFamily> {
-    let mut budget = Budget::new(limits.geometry.clone());
-    if let Some(cancel) = &limits.cancellation {
-        budget = budget.with_cancellation(cancel.clone());
-    }
-    let geometry = geometry::admit(&owner, &coordinates, &limits, &mut budget)?
-        .into_iter()
-        .map(ChartGeometry::Single)
-        .collect();
-    assemble(owner, coordinates, limits, affine_root, budget, geometry)
+    attempt(owner, coordinates, None, limits, root_recipe)
+        .map_err(|error| error.into_error(unsupported))
 }
 pub(super) fn admit_pair(
     owner: Arc<VerifiedDecomposition>,
     coordinates: Vec<Symbol>,
     proposals: [regular::BracketProposal; 2],
     limits: Limits,
-    affine_root: bool,
+    root_recipe: RootRecipe,
 ) -> Result<NormalizedFamily> {
+    attempt(owner, coordinates, Some(proposals), limits, root_recipe)
+        .map_err(|error| error.into_error(unsupported))
+}
+pub(super) fn attempt(
+    owner: Arc<VerifiedDecomposition>,
+    coordinates: Vec<Symbol>,
+    proposals: Option<[regular::BracketProposal; 2]>,
+    limits: Limits,
+    root_recipe: RootRecipe,
+) -> ProposalResult<NormalizedFamily> {
     let mut budget = Budget::new(limits.geometry.clone());
     if let Some(cancel) = &limits.cancellation {
         budget = budget.with_cancellation(cancel.clone());
     }
-    let geometry = paired::admit(&owner, &coordinates, proposals, &limits, &mut budget)?
-        .into_iter()
-        .map(ChartGeometry::Paired)
-        .collect();
-    assemble(owner, coordinates, limits, affine_root, budget, geometry)
+    let geometry = match proposals {
+        None => geometry::admit(&owner, &coordinates, &limits, &mut budget)?
+            .into_iter()
+            .map(ChartGeometry::Single)
+            .collect(),
+        Some(proposals) => paired::admit(&owner, &coordinates, proposals, &limits, &mut budget)?
+            .into_iter()
+            .map(ChartGeometry::Paired)
+            .collect(),
+    };
+    assemble(owner, coordinates, limits, root_recipe, budget, geometry)
+        .map_err(regular::ProposalError::Failure)
 }
+
 fn assemble(
     owner: Arc<VerifiedDecomposition>,
     coordinates: Vec<Symbol>,
     limits: Limits,
-    affine_root: bool,
+    root_recipe: RootRecipe,
     budget: Budget,
     geometry: Vec<ChartGeometry>,
 ) -> Result<NormalizedFamily> {
@@ -162,10 +173,10 @@ fn assemble(
             "numerator helper role collides with complete source",
         ));
     }
-    let prepare = if affine_root {
-        RootProgram::prepare_affine
-    } else {
-        RootProgram::prepare
+    let prepare = match root_recipe {
+        RootRecipe::Physical => RootProgram::prepare,
+        RootRecipe::Affine => RootProgram::prepare_affine,
+        RootRecipe::ShiftedAffine => RootProgram::prepare_affine_shifted,
     };
     let unit_atoms = coordinates
         .iter()

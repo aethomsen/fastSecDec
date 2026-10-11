@@ -329,3 +329,58 @@ fn raw_checkpoint_from_different_issued_overrides_is_refused() {
         checkpoint
     );
 }
+
+#[test]
+fn threshold_prepared_shape_is_bound_to_the_native_publication() {
+    for regular in [false, true] {
+        let dir = tempfile::tempdir().unwrap();
+        let input = dir.path().join("input.toml");
+        if regular {
+            fs::write(
+                &input,
+                include_str!("../../../../../examples/no_deformation/regular_sextic.toml"),
+            )
+            .unwrap();
+        } else {
+            card(&input);
+        }
+        let output = dir.path().join("shape.fsd");
+        let mut journal = Journal::open(&input, &output, false, "shape").unwrap();
+        let request = Request::PrepareThreshold {
+            input: input.clone(),
+            workers: 1,
+            overrides: Default::default(),
+            attempt: "shape".into(),
+            prior: None,
+        };
+        journal
+            .request("threshold-prepare-shape", request.clone())
+            .unwrap();
+        jobs::execute(
+            &journal.job_path("threshold-prepare-shape"),
+            &mut |_| Ok(()),
+        )
+        .unwrap();
+        let Response::PreparedThreshold(prepared) =
+            journal.accept("threshold-prepare-shape", &request).unwrap()
+        else {
+            panic!("bad prepare")
+        };
+        jobs::threshold::validate_prepared(&journal.root, &prepared).unwrap();
+        assert_eq!(
+            prepared.native.integration_dimensions,
+            if regular { 2 } else { 1 }
+        );
+        for field in 0..4 {
+            let mut forged = prepared.clone();
+            match field {
+                0 => forged.native.original_dimensions += 1,
+                1 => forged.native.integration_dimensions += 1,
+                2 => forged.native.cells += 1,
+                3 => forged.native.endpoint_charts += 1,
+                _ => unreachable!(),
+            }
+            assert!(jobs::threshold::validate_prepared(&journal.root, &forged).is_err());
+        }
+    }
+}

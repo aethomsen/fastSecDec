@@ -167,11 +167,14 @@ pub(super) fn factory(path: &std::path::Path) -> serde_json::Value {
     factory_recipe(path, false)
 }
 pub(super) fn factory_recipe(path: &std::path::Path, affine: bool) -> serde_json::Value {
+    factory_version(path, if affine { 2 } else { 1 })
+}
+pub(super) fn factory_version(path: &std::path::Path, version: u32) -> serde_json::Value {
     use crate::kernel::{KernelSet, ThresholdCompilationPlan};
     std::fs::create_dir_all(path).unwrap();
     let mut results = Vec::new();
     for backend in [EvaluatorBackend::Eager, EvaluatorBackend::Symjit] {
-        let family = family_recipe(false, 20, affine);
+        let family = super::fixtures::family_version(false, 20, version);
         let proof = Arc::downgrade(family.owner());
         let root = family
             .callback_scope()
@@ -237,10 +240,11 @@ pub(super) fn factory_recipe(path: &std::path::Path, affine: bool) -> serde_json
         assert_eq!(kernels.sectors().len(), 2);
         assert_eq!(
             kernels.algebraic_callback_recipe(),
-            Some(if affine {
-                crate::kernel::AlgebraicCallbackRecipe::AffineRationalBracketV2
-            } else {
-                crate::kernel::AlgebraicCallbackRecipe::StaticExactF64BracketV1
+            Some(match version {
+                1 => crate::kernel::AlgebraicCallbackRecipe::StaticExactF64BracketV1,
+                2 => crate::kernel::AlgebraicCallbackRecipe::AffineRationalBracketV2,
+                3 => crate::kernel::AlgebraicCallbackRecipe::AffineCoefficientShiftV3,
+                _ => unreachable!("test recipe"),
             })
         );
         assert!(

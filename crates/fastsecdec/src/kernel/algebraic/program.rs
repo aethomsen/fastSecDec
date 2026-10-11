@@ -2,7 +2,7 @@
 //! on restore. The contract digest binds the branch, not just polynomial degree.
 use super::Error;
 #[cfg(feature = "threshold-decomposition")]
-use super::numeric::{ROOT, ROOT_V2};
+use super::numeric::{ROOT, ROOT_V2, ROOT_V3};
 use std::{cell::RefCell, collections::BTreeMap, sync::Arc};
 #[cfg(feature = "threshold-decomposition")]
 use symbolica::evaluate::{EvaluatorComposer, OptimizationSettings, Slot};
@@ -12,12 +12,13 @@ use symbolica::{
     evaluate::{ExpressionEvaluator, Instruction},
     symbol,
 };
-type Exact = ExpressionEvaluator<Complex<Rational>>;
+pub(super) type Exact = ExpressionEvaluator<Complex<Rational>>;
 type Result<T> = std::result::Result<T, Error>;
 const CONTRACT: &str = "fastsecdec::algebraic::contract_v1_";
 #[derive(Debug)]
 pub struct RootProgram {
     pub(super) exact: Exact,
+    pub(super) shift: Option<Exact>,
     pub(super) version: u32,
     pub(super) lower: Rational,
     pub(super) upper: Rational,
@@ -49,6 +50,7 @@ struct Saved {
     upper: Rational,
     degree: usize,
     exact: Exact,
+    shift: Option<Exact>,
 }
 fn scalar_admission(q: &Rational) -> bool {
     q.numerator_ref().significant_bits() <= MAX_RATIONAL_BITS
@@ -61,7 +63,7 @@ fn header_admission(
     lower: &Rational,
     upper: &Rational,
 ) -> Result<()> {
-    if !matches!(version, 1 | 2)
+    if !matches!(version, 1..=3)
         || degree == 0
         || degree > MAX_DEGREE
         || contract.is_empty()
@@ -69,13 +71,13 @@ fn header_admission(
         || lower >= upper
         || !scalar_admission(lower)
         || !scalar_admission(upper)
-        || (version == 2 && !scalar_admission(&(upper - lower)))
+        || (version >= 2 && !scalar_admission(&(upper - lower)))
     {
         return Err(Error::Invalid(
             "root helper bounded preparation schema".into(),
         ));
     }
-    if version == 2 {
+    if version >= 2 {
         // Endpoint controls contain native exact powers a^i,b^i. Refuse a
         // conservative scalar-size bound before those powers are allocated.
         for q in [lower, upper] {
@@ -109,6 +111,9 @@ fn header_admission(
             }
         }
     }
+    if version == 3 {
+        super::shifted::preflight(degree, lower, upper)?;
+    }
     Ok(())
 }
 impl RootProgram {
@@ -131,6 +136,16 @@ impl RootProgram {
         settings: OptimizationSettings,
     ) -> Result<Arc<Self>> {
         Self::prepare_recipe(2, degree, lower, upper, contract, settings)
+    }
+    #[cfg(feature = "threshold-decomposition")]
+    pub(crate) fn prepare_shifted_from_certificate(
+        degree: usize,
+        lower: Rational,
+        upper: Rational,
+        contract: Vec<u8>,
+        settings: OptimizationSettings,
+    ) -> Result<Arc<Self>> {
+        Self::prepare_recipe(3, degree, lower, upper, contract, settings)
     }
     #[cfg(feature = "threshold-decomposition")]
     fn prepare_recipe(
@@ -156,31 +171,38 @@ impl RootProgram {
                 .build()
                 .map_err(|e| Error::Native(e.to_string()))
         };
-        let body = build(&[polynomial.clone(), polynomial.derivative(z)], &inputs)?;
-        let exact = if version == 1 {
-            body
+        let (exact, shift) = if version == 3 {
+            let (body, shift) =
+                super::shifted::prepare(&polynomial, z, &inputs, &lower, &upper, &settings)?;
+            (body, Some(shift))
         } else {
-            // Measured compact native composition preserves the original
-            // coefficient schema without a dense binomial transform.
-            let width = &upper - &lower;
-            let image = Atom::num(lower.clone()) + Atom::num(width.clone()) * Atom::var(z);
-            let affine = build(&[image], &[Atom::var(z)])?;
-            let scale = build(&[Atom::num(width) * Atom::var(z)], &[Atom::var(z)])?;
-            let mut compose = EvaluatorComposer::new(degree + 2);
-            let physical = compose
-                .append(&affine, &[Slot::Param(0)])
-                .map_err(|e| Error::Native(e.to_string()))?[0];
-            let mut slots = vec![physical];
-            slots.extend((1..degree + 2).map(Slot::Param));
-            let values = compose
-                .append(&body, &slots)
-                .map_err(|e| Error::Native(e.to_string()))?;
-            let qs = compose
-                .append(&scale, &[values[1]])
-                .map_err(|e| Error::Native(e.to_string()))?[0];
-            compose
-                .finish(&[values[0], qs, physical], settings)
-                .map_err(|e| Error::Native(e.to_string()))?
+            let body = build(&[polynomial.clone(), polynomial.derivative(z)], &inputs)?;
+            let exact = if version == 1 {
+                body
+            } else {
+                // Measured compact native composition preserves the original
+                // coefficient schema without a dense binomial transform.
+                let width = &upper - &lower;
+                let image = Atom::num(lower.clone()) + Atom::num(width.clone()) * Atom::var(z);
+                let affine = build(&[image], &[Atom::var(z)])?;
+                let scale = build(&[Atom::num(width) * Atom::var(z)], &[Atom::var(z)])?;
+                let mut compose = EvaluatorComposer::new(degree + 2);
+                let physical = compose
+                    .append(&affine, &[Slot::Param(0)])
+                    .map_err(|e| Error::Native(e.to_string()))?[0];
+                let mut slots = vec![physical];
+                slots.extend((1..degree + 2).map(Slot::Param));
+                let values = compose
+                    .append(&body, &slots)
+                    .map_err(|e| Error::Native(e.to_string()))?;
+                let qs = compose
+                    .append(&scale, &[values[1]])
+                    .map_err(|e| Error::Native(e.to_string()))?[0];
+                compose
+                    .finish(&[values[0], qs, physical], settings)
+                    .map_err(|e| Error::Native(e.to_string()))?
+            };
+            (exact, None)
         };
         let saved = Saved {
             version,
@@ -189,14 +211,19 @@ impl RootProgram {
             upper,
             degree,
             exact,
+            shift,
         };
         let bracket = bincode::serde::encode_to_vec(
             (&saved.lower, &saved.upper),
             bincode::config::standard(),
         )
         .map_err(|e| Error::Native(e.to_string()))?;
-        let exact = bincode::serde::encode_to_vec(&saved.exact, bincode::config::standard())
-            .map_err(|e| Error::Native(e.to_string()))?;
+        let exact = if let Some(shift) = &saved.shift {
+            bincode::serde::encode_to_vec((&saved.exact, shift), bincode::config::standard())
+        } else {
+            bincode::serde::encode_to_vec(&saved.exact, bincode::config::standard())
+        }
+        .map_err(|e| Error::Native(e.to_string()))?;
         let bytes = bincode::encode_to_vec(
             Wire {
                 version,
@@ -229,7 +256,7 @@ impl RootProgram {
         )
         .map_err(|e| Error::Invalid(e.to_string()))?;
         if read != bytes.len()
-            || !matches!(wire.version, 1 | 2)
+            || !matches!(wire.version, 1..=3)
             || wire.degree == 0
             || wire.degree > MAX_DEGREE
             || wire.contract.is_empty()
@@ -248,11 +275,21 @@ impl RootProgram {
             return Err(Error::Invalid("trailing root bracket bytes".into()));
         }
         header_admission(wire.version, wire.degree, wire.contract, &lower, &upper)?;
-        let (exact, read): (Exact, usize) = bincode::serde::decode_from_slice(
-            wire.exact,
-            bincode::config::standard().with_limit::<MAX_HELPER_BYTES>(),
-        )
-        .map_err(|e| Error::Invalid(e.to_string()))?;
+        let (exact, shift, read) = if wire.version == 3 {
+            let ((body, shift), read): ((Exact, Exact), usize) = bincode::serde::decode_from_slice(
+                wire.exact,
+                bincode::config::standard().with_limit::<MAX_HELPER_BYTES>(),
+            )
+            .map_err(|e| Error::Invalid(e.to_string()))?;
+            (body, Some(shift), read)
+        } else {
+            let (body, read): (Exact, usize) = bincode::serde::decode_from_slice(
+                wire.exact,
+                bincode::config::standard().with_limit::<MAX_HELPER_BYTES>(),
+            )
+            .map_err(|e| Error::Invalid(e.to_string()))?;
+            (body, None, read)
+        };
         if read != wire.exact.len() {
             return Err(Error::Invalid("trailing root IR bytes".into()));
         }
@@ -264,12 +301,13 @@ impl RootProgram {
                 upper,
                 degree: wire.degree,
                 exact,
+                shift,
             },
             bytes.to_vec(),
         )
     }
     fn admit(saved: Saved, bytes: Vec<u8>) -> Result<Arc<Self>> {
-        if !matches!(saved.version, 1 | 2)
+        if !matches!(saved.version, 1..=3)
             || saved.degree == 0
             || saved.degree > MAX_DEGREE
             || saved.degree.checked_add(2) != Some(saved.exact.get_input_len())
@@ -279,23 +317,33 @@ impl RootProgram {
         {
             return Err(Error::Invalid("root helper schema".into()));
         }
-        let code = saved.exact.export_instructions();
-        if !code.constant_functions.is_empty()
-            || !code.sub_evaluators.is_empty()
-            || code.constants.iter().any(|c| c.im != 0)
-            || code.instructions.iter().any(|i| {
-                !matches!(
-                    i,
-                    Instruction::Add(..)
-                        | Instruction::Mul(..)
-                        | Instruction::Assign(..)
-                        | Instruction::Pow(_, _, 0.., _)
-                )
+        if (saved.version == 3) != saved.shift.is_some()
+            || saved.shift.as_ref().is_some_and(|shift| {
+                shift.get_input_len() != saved.degree + 1
+                    || shift.get_output_len() != saved.degree + 1
             })
         {
-            return Err(Error::Invalid(
-                "root helper must be native real polynomial arithmetic".into(),
-            ));
+            return Err(Error::Invalid("root coefficient-shift schema".into()));
+        }
+        for program in std::iter::once(&saved.exact).chain(saved.shift.as_ref()) {
+            let code = program.export_instructions();
+            if !code.constant_functions.is_empty()
+                || !code.sub_evaluators.is_empty()
+                || code.constants.iter().any(|c| c.im != 0)
+                || code.instructions.iter().any(|i| {
+                    !matches!(
+                        i,
+                        Instruction::Add(..)
+                            | Instruction::Mul(..)
+                            | Instruction::Assign(..)
+                            | Instruction::Pow(_, _, 0.., _)
+                    )
+                })
+            {
+                return Err(Error::Invalid(
+                    "root helper must be native real polynomial arithmetic".into(),
+                ));
+            }
         }
         // Includes complete native IR, preparation recipe and branch contract. No
         // process-local Symbol IDs or global registry are used for owner selection.
@@ -318,6 +366,7 @@ impl RootProgram {
         Ok(Arc::new(Self {
             version: saved.version,
             exact: saved.exact,
+            shift: saved.shift,
             lower: saved.lower,
             upper: saved.upper,
             degree: saved.degree,
@@ -342,7 +391,7 @@ impl RootProgram {
         }
         let mut args = vec![Atom::num(self.degree), Atom::var(tag), Atom::var(self.tag)];
         args.extend(coefficients.iter().cloned());
-        if self.version == 2 {
+        if self.version >= 2 {
             // These redundant arithmetic controls are constructed from exactly
             // the same coefficient expressions. They are never public inputs
             // with an independent mathematical derivative role.
@@ -355,7 +404,13 @@ impl RootProgram {
                 args.push(residual.expand());
             }
         }
-        Ok(if self.version == 1 { *ROOT } else { *ROOT_V2 }.call_args(args))
+        Ok(match self.version {
+            1 => *ROOT,
+            2 => *ROOT_V2,
+            3 => *ROOT_V3,
+            _ => unreachable!("admitted root recipe"),
+        }
+        .call_args(args))
     }
     pub(crate) fn recipe_version(&self) -> u32 {
         self.version
@@ -400,10 +455,11 @@ impl Scope {
             let tags = callback.tags.iter().map(Atom::as_view).collect::<Vec<_>>();
             let (owner, _) = resolve(&tags)?;
             if callback.symbol
-                != if owner.version == 1 {
-                    *super::numeric::ROOT
-                } else {
-                    *super::numeric::ROOT_V2
+                != match owner.version {
+                    1 => *super::numeric::ROOT,
+                    2 => *super::numeric::ROOT_V2,
+                    3 => *super::numeric::ROOT_V3,
+                    _ => unreachable!("admitted root recipe"),
                 }
             {
                 return Err("root callback recipe differs from its selected owner".into());

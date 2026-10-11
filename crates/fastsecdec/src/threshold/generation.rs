@@ -1,6 +1,8 @@
 //! Caller-run admitted threshold preparation. The expensive native owners live
 //! only in this call; the returned descriptors contain no global CAD proof.
 mod configuration;
+mod regular;
+pub use regular::{DiscoveryLimits, DiscoveryProgress, RegularFamilyPreparation};
 mod family;
 mod graph;
 pub use family::{prepare_family, resume_family, resume_family_evidence};
@@ -32,6 +34,13 @@ pub enum Error {
     #[error(transparent)]
     Regularization(#[from] regularization::Error),
     #[error(transparent)]
+    RegularFamily(#[from] regularization::secant::Error),
+    #[error("regular-family discovery incomplete ({reason}): {progress:?}")]
+    DiscoveryIncomplete {
+        reason: &'static str,
+        progress: DiscoveryProgress,
+    },
+    #[error(transparent)]
     Kernel(#[from] crate::kernel::KernelError),
     #[error(transparent)]
     Record(#[from] crate::generation::streaming::StreamingError),
@@ -53,6 +62,7 @@ pub struct PreparationOptions {
     pub compilation: CompilationSettings,
     pub regularization: regularization::Limits,
     pub unit: Symbol,
+    pub regular_family: Option<RegularFamilyPreparation>,
     /// Deliberate certified specialization, never implicit integration bindings.
     pub fixed_fiber: BTreeMap<Symbol, Rational>,
     pub represented: Option<(represented::NumericalMeaning, represented::Limits)>,
@@ -69,6 +79,7 @@ impl PreparationOptions {
             compilation: Default::default(),
             regularization: Default::default(),
             unit,
+            regular_family: None,
             fixed_fiber: BTreeMap::new(),
             represented: None,
             graph_payloads: None,
@@ -110,6 +121,8 @@ pub struct Progress {
     /// Original native family point conversion; absent on all older paths.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub family_input: Option<represented::family::Progress>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub regular_family: Option<DiscoveryProgress>,
     pub completed: usize,
     pub total: Option<usize>,
     pub elapsed_seconds: f64,
@@ -176,6 +189,7 @@ struct Reporter<'a, F> {
     stage: Stage,
     graph_input: Option<represented::graph::Progress>,
     family_input: Option<represented::family::Progress>,
+    regular_family: Option<DiscoveryProgress>,
     configuration: Option<crate::generation::streaming::RecordRef>,
     receipts: EvidenceReceipts,
     timings: Vec<Timing>,
@@ -201,6 +215,7 @@ impl<F: FnMut(&Progress) -> ControlFlow<()>> Reporter<'_, F> {
             stage: self.stage,
             graph_input: self.graph_input,
             family_input: self.family_input,
+            regular_family: self.regular_family,
             completed,
             total,
             elapsed_seconds: self.start.elapsed().as_secs_f64(),
@@ -288,7 +303,7 @@ pub fn prepare(
     })
 }
 fn prepare_with<F: FnMut(&Progress) -> ControlFlow<()>>(
-    options: PreparationOptions,
+    mut options: PreparationOptions,
     root: &Path,
     observer: &mut F,
     request: impl FnOnce(&PreparationOptions, &mut Reporter<'_, F>) -> Result<Arc<gcad::GcadRequest>>,
@@ -305,17 +320,14 @@ fn prepare_with<F: FnMut(&Progress) -> ControlFlow<()>>(
         stage: Stage::Input,
         graph_input: None,
         family_input: None,
+        regular_family: None,
         configuration: None,
         receipts: Default::default(),
         timings: Vec::new(),
     };
     reporter.poll(0, None)?;
     let request = request(&options, &mut reporter)?;
-    if request.domain().coordinates().len() != 1 {
-        return Err(Error::Unsupported(
-            "this complete factory currently requires one compact integration coordinate",
-        ));
-    }
+    regular::resolve(&mut options, &request)?;
     let configuration = configuration::write(root, &options)?;
     reporter.configuration = Some(configuration.clone());
     let staged = gcad::staging::StagedRequest::write(root, request)?;
@@ -353,28 +365,59 @@ fn finish<F: FnMut(&Progress) -> ControlFlow<()>>(
     let dimensions = owner.request().input().parameters().len();
     let cells = owner.cells().len();
     reporter.stage(Stage::Regularize, 0, Some(cells))?;
-    let fiber = regularization::RegularizedFiber::admit(
-        owner,
-        options.fixed_fiber,
-        options.unit,
-        options.regularization,
-        |p| reporter.bridge(p),
-    )?;
-    let charts = fiber.charts().len();
-    reporter.stage(Stage::Continue, 0, Some(charts))?;
-    let continued = fiber.continue_symbolically(&options.generation, |p| reporter.bridge(p))?;
-    reporter.stage(Stage::Bind, 0, Some(charts))?;
-    let bound = continued.bind_fiber(|p| reporter.bridge(p))?;
-    reporter.stage(Stage::StageVectors, 0, Some(charts))?;
+    let integration_dimensions = owner.request().domain().coordinates().len();
     let vectors = root.join(work_directory);
     std::fs::create_dir(&vectors)?;
-    let plan = ThresholdCompilationPlan::prepare(
-        &bound,
-        &vectors,
-        options.generation.max_order,
-        options.precision,
-        options.compilation,
-    )?;
+    let (plan, charts) = if let Some(settings) = &options.regular_family {
+        let family = regular::discover(owner, settings, |p| {
+            reporter.regular_family = Some(p);
+            if reporter.poll(p.family_attempts, None).is_ok() {
+                ControlFlow::Continue(())
+            } else {
+                ControlFlow::Break(())
+            }
+        })?;
+        let charts = family.charts().len();
+        reporter.stage(Stage::Continue, 0, Some(charts))?;
+        let continued = family.continue_symbolically(&options.generation)?;
+        reporter.stage(Stage::Bind, charts, Some(charts))?;
+        reporter.stage(Stage::StageVectors, 0, Some(charts))?;
+        let plan = ThresholdCompilationPlan::prepare_family(
+            &continued,
+            &vectors,
+            options.generation.max_order,
+            options.precision,
+            options.compilation,
+        )?;
+        drop(continued);
+        drop(family);
+        (plan, charts)
+    } else {
+        let fiber = regularization::RegularizedFiber::admit(
+            owner,
+            options.fixed_fiber,
+            options.unit,
+            options.regularization,
+            |p| reporter.bridge(p),
+        )?;
+        let charts = fiber.charts().len();
+        reporter.stage(Stage::Continue, 0, Some(charts))?;
+        let continued = fiber.continue_symbolically(&options.generation, |p| reporter.bridge(p))?;
+        reporter.stage(Stage::Bind, 0, Some(charts))?;
+        let bound = continued.bind_fiber(|p| reporter.bridge(p))?;
+        reporter.stage(Stage::StageVectors, 0, Some(charts))?;
+        let plan = ThresholdCompilationPlan::prepare(
+            &bound,
+            &vectors,
+            options.generation.max_order,
+            options.precision,
+            options.compilation,
+        )?;
+        drop(bound);
+        drop(continued);
+        drop(fiber);
+        (plan, charts)
+    };
     let publication = plan.publication_descriptor()?;
     let jobs = plan.job_count();
     if let Some((source, prepared)) = expected
@@ -385,9 +428,6 @@ fn finish<F: FnMut(&Progress) -> ControlFlow<()>>(
         ));
     }
     drop(plan);
-    drop(bound);
-    drop(continued);
-    drop(fiber);
     reporter.stage(Stage::Complete, jobs, Some(jobs))?;
     Ok(PreparedThreshold {
         receipt: PreparationReceipt {
@@ -397,7 +437,7 @@ fn finish<F: FnMut(&Progress) -> ControlFlow<()>>(
             publication,
             strategy: ThresholdStrategy::GcadFirst,
             original_dimensions: dimensions,
-            integration_dimensions: 1,
+            integration_dimensions,
             cells,
             endpoint_charts: charts,
             jobs,
@@ -483,6 +523,7 @@ fn recover<F: FnMut(&Progress) -> ControlFlow<()>>(
         stage: Stage::Input,
         graph_input: None,
         family_input: None,
+        regular_family: None,
         configuration: Some(checkpoint.configuration.clone()),
         receipts: EvidenceReceipts {
             request: Some(checkpoint.evidence.request.clone()),
@@ -577,9 +618,12 @@ fn recover<F: FnMut(&Progress) -> ControlFlow<()>>(
         }
         options.represented = Some(policy);
     }
-    if staged.request().domain().coordinates().len() != 1 {
-        return Err(Error::Unsupported("resume integration dimension"));
+    if staged.request().domain().coordinates().len() == 1 && options.regular_family.is_some() {
+        return Err(Error::Association(
+            "regular-family configuration on legacy rational request",
+        ));
     }
+    regular::resolve(&mut options, staged.request())?;
     reporter.stage(Stage::Verify, 0, Some(raw.cells))?;
     let verified = staged.verify_evidence(root, raw, remaining)?;
     reporter.receipts.verification = Some(verified.observation);

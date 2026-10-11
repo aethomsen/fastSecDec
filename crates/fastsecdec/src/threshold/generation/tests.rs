@@ -10,6 +10,9 @@ use symbolica::{
     symbol,
 };
 
+#[path = "regular_tests.rs"]
+mod regular_tests;
+
 #[path = "graph_tests.rs"]
 mod graph_tests;
 

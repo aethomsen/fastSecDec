@@ -37,6 +37,14 @@ pub struct ThresholdPublicationDescriptor {
 pub struct ThresholdPublicationPlan {
     descriptor: ThresholdPublicationDescriptor,
     summary: crate::kernel::indexed::ThresholdArchiveSummary,
+    shape: PreparationShape,
+}
+/// Derived structural facts only; no extra all-chart manifest or native Atoms.
+struct PreparationShape {
+    original_dimensions: usize,
+    integration_dimensions: BTreeSet<usize>,
+    cells: usize,
+    endpoint_charts: usize,
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -263,10 +271,37 @@ impl ThresholdPublicationPlan {
                 return Err(failure("publication work inventory mismatch"));
             }
         }
+        let manifest = tables.manifest();
+        let shape = PreparationShape {
+            original_dimensions: manifest.preparation.original_coordinates.len(),
+            integration_dimensions: manifest
+                .endpoint_charts
+                .iter()
+                .map(|chart| chart.map.geometry().coordinates.len())
+                .collect(),
+            cells: manifest.cells.len(),
+            endpoint_charts: manifest.endpoint_charts.len(),
+        };
         Ok(Self {
             descriptor,
             summary,
+            shape,
         })
+    }
+    /// Original input roles in the structurally checked native parent directory.
+    pub fn original_dimensions(&self) -> usize {
+        self.shape.original_dimensions
+    }
+    /// Distinct endpoint-chart dimensions, without loading native expression tables.
+    /// These counts do not restore a geometry or continuation certificate.
+    pub fn integration_dimensions(&self) -> impl Iterator<Item = usize> + '_ {
+        self.shape.integration_dimensions.iter().copied()
+    }
+    pub fn cell_count(&self) -> usize {
+        self.shape.cells
+    }
+    pub fn endpoint_chart_count(&self) -> usize {
+        self.shape.endpoint_charts
     }
     pub fn descriptor(&self) -> &ThresholdPublicationDescriptor {
         &self.descriptor

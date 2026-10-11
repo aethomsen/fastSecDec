@@ -124,13 +124,28 @@ pub(super) fn positive(
     limits: &Limits,
     b: &Budget,
 ) -> Result<DomainCertificate> {
+    positive_proposal(algebra, p, constraints, domain, limits, b)
+        .map_err(|error| error.into_error(unsupported))
+}
+pub(super) fn positive_proposal(
+    algebra: &Algebra,
+    p: &Poly,
+    constraints: &[Poly],
+    domain: &Domain,
+    limits: &Limits,
+    b: &Budget,
+) -> ProposalResult<DomainCertificate> {
     b.check()?;
     let c = certify_nonzero(algebra, p, domain, &limits.geometry.certificates)
         .map_err(native)?
-        .ok_or_else(|| unsupported("native positive closed-unit margin unavailable"))?;
+        .ok_or(regular::ProposalError::<Error>::Miss(
+            "native positive closed-unit margin unavailable",
+        ))?;
     verify_certificate(algebra, p, constraints, &[], &c).map_err(native)?;
     if c.sign != 1 {
-        return Err(unsupported("native unit margin has wrong sign"));
+        return Err(regular::ProposalError::Miss(
+            "native unit margin has wrong sign",
+        ));
     }
     b.check()?;
     Ok(c)
@@ -143,12 +158,12 @@ fn width(
     domain: &Domain,
     limits: &Limits,
     b: &Budget,
-) -> Result<WidthNormalForm> {
+) -> ProposalResult<WidthNormalForm> {
     if p.is_zero() {
-        return Err(unsupported("identically collapsed cell width"));
+        return Err(unsupported("identically collapsed cell width").into());
     }
     if p.degree(axis) > 0 {
-        return Err(invalid("endpoint width retains eliminated coordinate"));
+        return Err(invalid("endpoint width retains eliminated coordinate").into());
     }
     let powers = (0..axis).map(|i| p.degree_bounds(i).0).collect::<Vec<_>>();
     let mut monomial = p.constant(Rational::one());
@@ -161,10 +176,10 @@ fn width(
     }
     let (residual, remainder) = p.quot_rem(&monomial, false);
     if !remainder.is_zero() || &monomial * &residual != p {
-        return Err(invalid("native width monomial recombination"));
+        return Err(invalid("native width monomial recombination").into());
     }
     let margin = &residual - &residual.constant(limits.unit_margin.clone());
-    let certificate = positive(algebra, &margin, constraints, domain, limits, b)?;
+    let certificate = positive_proposal(algebra, &margin, constraints, domain, limits, b)?;
     Ok(WidthNormalForm {
         endpoint: p,
         monomial,
@@ -173,12 +188,15 @@ fn width(
         certificate,
     })
 }
-pub(super) fn admit(
+pub(super) struct CellInterval {
+    map: Arc<CellMap>,
+    lower_cell: bool,
+    side: SectionSide,
+}
+pub(super) fn topology(
     owner: &Arc<VerifiedDecomposition>,
     coordinates: &[Symbol],
-    limits: &Limits,
-    budget: &mut Budget,
-) -> Result<Vec<Arc<SecantGeometry>>> {
+) -> Result<Vec<CellInterval>> {
     let request = owner.request();
     let n = request.domain().coordinates().len();
     if n == 0
@@ -194,10 +212,6 @@ pub(super) fn admit(
             "first issuer requires complete two-cell inventory; no selected-cell truncation",
         ));
     }
-    if limits.unit_margin <= Rational::zero() {
-        return Err(invalid("positive unit margin required"));
-    }
-    budget.check()?;
     let mut outputs = Vec::new();
     for cell in owner.cells() {
         let map =
@@ -229,9 +243,45 @@ pub(super) fn admit(
                 ));
             }
         };
+        outputs.push(CellInterval {
+            map,
+            lower_cell,
+            side,
+        });
+    }
+    outputs.sort_by_key(|cell| !cell.lower_cell);
+    if !outputs[0].lower_cell
+        || outputs[1].lower_cell
+        || outputs[0].map.native_axes()[n - 1].upper != outputs[1].map.native_axes()[n - 1].lower
+    {
+        return Err(unsupported(
+            "actual cells do not share one exact section and common prefix",
+        ));
+    }
+    Ok(outputs)
+}
+
+pub(super) fn admit(
+    owner: &Arc<VerifiedDecomposition>,
+    coordinates: &[Symbol],
+    limits: &Limits,
+    budget: &mut Budget,
+) -> ProposalResult<Vec<Arc<SecantGeometry>>> {
+    if limits.unit_margin <= Rational::zero() {
+        return Err(invalid("positive unit margin required").into());
+    }
+    budget.check()?;
+    let n = owner.request().domain().coordinates().len();
+    let mut outputs = Vec::new();
+    for CellInterval {
+        map,
+        lower_cell,
+        side,
+    } in topology(owner, coordinates)?
+    {
         // This is the FULL cell-range cylinder, derived from certified constant
         // neighbors0/1. A narrow root-only bracket is never used for the secant.
-        let section = RegularSection::prepare(
+        let section = RegularSection::prepare_proposal(
             map.clone(),
             n - 1,
             side,
@@ -247,7 +297,7 @@ pub(super) fn admit(
         let mut names = raw.order.clone();
         let name = "fastsecdec_secant_root".to_string();
         if names.contains(&name) {
-            return Err(invalid("fresh secant coordinate collision"));
+            return Err(invalid("fresh secant coordinate collision").into());
         }
         names.push(name);
         let algebra = Algebra::new(&names).map_err(native)?;
@@ -261,7 +311,7 @@ pub(super) fn admit(
             .checked_mul(polynomial.degree(n - 1) as usize)
             .is_none_or(|x| x > limits.geometry.max_terms)
         {
-            return Err(Error::ResourceIncomplete("secant support bound".into()));
+            return Err(Error::ResourceIncomplete("secant support bound".into()).into());
         }
         let y = algebra.parse(&names[n - 1]).map_err(native)?;
         let r = algebra.parse(&names[n]).map_err(native)?;
@@ -272,7 +322,7 @@ pub(super) fn admit(
             || secant.replace_with_poly(n - 1, &r)
                 != polynomial.derivative(n - 1).replace_with_poly(n - 1, &r)
         {
-            return Err(invalid("native secant/diagonal identity"));
+            return Err(invalid("native secant/diagonal identity").into());
         }
         let endpoint = if lower_cell {
             Rational::zero()
@@ -297,7 +347,7 @@ pub(super) fn admit(
             &value - &(&gap * &endpoint_secant)
         };
         if identity != root_equation {
-            return Err(invalid("native width identity"));
+            return Err(invalid("native width identity").into());
         }
         let constraints = raw
             .normalized_constraints
@@ -333,9 +383,9 @@ pub(super) fn admit(
         || outputs[0].section.bound() != outputs[1].section.bound()
         || outputs[0].section.coefficients() != outputs[1].section.coefficients()
     {
-        return Err(unsupported(
-            "actual cells do not share one exact section and common prefix",
-        ));
+        return Err(
+            unsupported("actual cells do not share one exact section and common prefix").into(),
+        );
     }
     // Constant0/1 outer faces, the SAME selected interior section and the full
     // two-cell inventory prove this cube partition, independently of samples.

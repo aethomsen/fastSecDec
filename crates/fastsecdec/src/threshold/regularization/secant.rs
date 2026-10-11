@@ -43,6 +43,21 @@ impl std::fmt::Display for Error {
 }
 impl std::error::Error for Error {}
 pub type Result<T> = std::result::Result<T, Error>;
+type ProposalResult<T> = std::result::Result<T, regular::ProposalError<Error>>;
+impl From<regular::Error> for regular::ProposalError<Error> {
+    fn from(error: regular::Error) -> Self {
+        Self::Failure(error.into())
+    }
+}
+impl From<regular::ProposalError<regular::Error>> for regular::ProposalError<Error> {
+    fn from(error: regular::ProposalError<regular::Error>) -> Self {
+        match error {
+            regular::ProposalError::Miss(reason) => Self::Miss(reason),
+            regular::ProposalError::Failure(error) => Self::Failure(error.into()),
+        }
+    }
+}
+
 fn native(e: impl std::fmt::Display) -> Error {
     Error::Native(e.to_string())
 }
@@ -190,6 +205,13 @@ impl NormalizedChart {
         &self.terms
     }
 }
+#[derive(Clone, Copy)]
+enum RootRecipe {
+    Physical,
+    Affine,
+    ShiftedAffine,
+}
+
 pub struct NormalizedFamily {
     owner: Arc<VerifiedDecomposition>,
     coordinates: Vec<Symbol>,
@@ -210,7 +232,7 @@ impl NormalizedFamily {
         coordinates: Vec<Symbol>,
         limits: Limits,
     ) -> Result<Self> {
-        density::admit(owner, coordinates, limits, false)
+        density::admit(owner, coordinates, limits, RootRecipe::Physical)
     }
     /// Issue the same checked family with an explicit normalized static-bracket
     /// root recipe. This changes numerical arithmetic, not geometry or measure.
@@ -219,7 +241,7 @@ impl NormalizedFamily {
         coordinates: Vec<Symbol>,
         limits: Limits,
     ) -> Result<Self> {
-        density::admit(owner, coordinates, limits, true)
+        density::admit(owner, coordinates, limits, RootRecipe::Affine)
     }
     /// Sufficient complete three-cell issuer with two strictly interior,
     /// separated regular branches. Supplied brackets are independently checked.
@@ -229,7 +251,7 @@ impl NormalizedFamily {
         proposals: [regular::BracketProposal; 2],
         limits: Limits,
     ) -> Result<Self> {
-        density::admit_pair(owner, coordinates, proposals, limits, false)
+        density::admit_pair(owner, coordinates, proposals, limits, RootRecipe::Physical)
     }
     /// Same complete paired geometry, using the explicit static affine root recipe.
     pub fn admit_pair_affine(
@@ -238,7 +260,30 @@ impl NormalizedFamily {
         proposals: [regular::BracketProposal; 2],
         limits: Limits,
     ) -> Result<Self> {
-        density::admit_pair(owner, coordinates, proposals, limits, true)
+        density::admit_pair(owner, coordinates, proposals, limits, RootRecipe::Affine)
+    }
+    /// Same checked family with the V3 once-per-request native coefficient shift.
+    pub fn admit_affine_shifted(
+        owner: Arc<VerifiedDecomposition>,
+        coordinates: Vec<Symbol>,
+        limits: Limits,
+    ) -> Result<Self> {
+        density::admit(owner, coordinates, limits, RootRecipe::ShiftedAffine)
+    }
+    /// Same complete paired geometry with the V3 native coefficient shift.
+    pub fn admit_pair_affine_shifted(
+        owner: Arc<VerifiedDecomposition>,
+        coordinates: Vec<Symbol>,
+        proposals: [regular::BracketProposal; 2],
+        limits: Limits,
+    ) -> Result<Self> {
+        density::admit_pair(
+            owner,
+            coordinates,
+            proposals,
+            limits,
+            RootRecipe::ShiftedAffine,
+        )
     }
     pub fn owner(&self) -> &Arc<VerifiedDecomposition> {
         &self.owner
@@ -284,3 +329,36 @@ impl From<super::Error> for Error {
 #[cfg(test)]
 #[path = "secant/tests.rs"]
 mod tests;
+
+/// Complete paired shape view for bounded proposal discovery.
+pub(crate) fn paired_source(
+    owner: &Arc<VerifiedDecomposition>,
+    coordinates: &[Symbol],
+) -> Result<Arc<CellMap>> {
+    let [_, middle, _] = paired::topology(owner, coordinates)?;
+    Ok(middle)
+}
+
+/// Complete single-section shape view, without issuing a section certificate.
+pub(crate) fn single_source_shape(
+    owner: &Arc<VerifiedDecomposition>,
+    coordinates: &[Symbol],
+) -> Result<()> {
+    geometry::topology(owner, coordinates).map(drop)
+}
+
+/// V3 orchestration seam; candidate/immutable-failure categories stay shared.
+pub(crate) fn attempt_affine_shifted(
+    owner: Arc<VerifiedDecomposition>,
+    coordinates: Vec<Symbol>,
+    proposals: Option<[regular::BracketProposal; 2]>,
+    limits: Limits,
+) -> ProposalResult<NormalizedFamily> {
+    density::attempt(
+        owner,
+        coordinates,
+        proposals,
+        limits,
+        RootRecipe::ShiftedAffine,
+    )
+}

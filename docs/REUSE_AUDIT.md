@@ -4166,10 +4166,44 @@ passes 14 maintained callback/codec controls, a matched 8,192-point full-vector
 quintic comparison and fresh default-native restoration. The coordinator
 verified its 18 source/test files and 68 evidence pins in handoff
 `dc69de93df544e25f4f2f26231a63746cbf49bba9d0f9a97a9d59679905af568`.
-The automatic sextic factory still stops on a distinct tracked-uncertainty
-failure after 112 evaluations, before accepting an estimate. Its full
-normal/serial integration gate and shared-source adoption remain pending.
+The first automatic sextic run stopped on a distinct tracked-uncertainty
+failure after 112 evaluations, before accepting an estimate. The diagnosis and
+subsequent correction are recorded below; that failure remains preserved.
 No dependency change is needed by the coefficient-shift construction.
+
+The subsequent failed-row audit identifies cancellation in the reconstructed
+constant coefficient, with native Float retaining 239 of the requested 256 bits.
+The existing source-derived endpoint expression is exactly `Q(0)=P(a)` and
+provides the same coefficient without that cancellation. Reusing its complete
+tracked value passes the original tolerance and adjacent-tier acceptance checks.
+The [linked review](reviews/no-deformation-affine-root-brackets.md#source-derived-constant-coefficient)
+records 14 maintained tests, fresh default-native restoration, independent source
+review and verified receipts. This uses existing Symbolica expressions and
+Numerica tracking; no arithmetic or solver replacement is introduced.
+
+The [automatic-factory review](reviews/no-deformation-regular-family-factory.md)
+records the separate complete numerical gate: all four generation/integration
+schedules pass for the sextic family, including the full vector and covariance.
+The coordinator verified 34 source pairs and 82 evidence pins in handoff
+`902c11bf1d40c913326e2bbd514f4af777d491007faea208478ce0f24fdac958`.
+The consuming workspace passes 36 algebraic-kernel tests and all 88 portable
+consumer tests, plus strict native/portable all-target lint and formatting.
+Discovery delegates whole-domain signs and selectors to existing native owners;
+preparation reuses detached jobs, the indexed writer and existing recovery.
+The global preparation peak remains separate from per-worker residency. This
+milestone does not complete general resolution, runtime parameter chambers or
+the physical multiloop benchmarks.
+
+A separate diagnostic exposed a native formatting panic for a valid zero-error
+number with infinite reported precision. The narrow Display fix is published as
+[Numerica PR #10](https://github.com/symbolica-dev/numerica/pull/10), authored and
+published as ValentinHirschi. Formal reviewer assignment was denied by GitHub;
+review was requested from `benruijl` in a PR comment. Native and portable owner
+suites and the new regressions pass. Strict owner lint has the same 131 findings
+on unchanged upstream and the patch; none is introduced by the fix. This changes
+formatting only and is not adopted into the frozen FastSecDec dependency graph.
+The coordinator verified 27 evidence pins in receipt
+`679d2e37e49cdffd64f69c7e07693c7b234e4a17a26189a99778bc434cfb8e57`.
 
 ## Original-source contact dispatch
 

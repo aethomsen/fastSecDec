@@ -13,6 +13,27 @@ use symgcad::{
     roots::{FiberRoot, isolate_union, refine_once},
 };
 
+/// Only explicit certificate/branch proposal misses may be retried. Other
+/// errors retain their owner type, including unsupported immutable input.
+#[derive(Debug)]
+pub(crate) enum ProposalError<E> {
+    Miss(&'static str),
+    Failure(E),
+}
+impl<E> From<E> for ProposalError<E> {
+    fn from(error: E) -> Self {
+        Self::Failure(error)
+    }
+}
+impl<E> ProposalError<E> {
+    pub(crate) fn into_error(self, unsupported: impl FnOnce(&'static str) -> E) -> E {
+        match self {
+            Self::Miss(reason) => unsupported(reason),
+            Self::Failure(error) => error,
+        }
+    }
+}
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum SectionSide {
     Lower,
@@ -54,6 +75,16 @@ impl RegularSection {
         bracket: BracketProposal,
         b: &mut Budget,
     ) -> Result<Arc<Self>> {
+        Self::prepare_proposal(source, axis, side, bracket, b)
+            .map_err(|error| error.into_error(|reason| Error::Unsupported(reason.into())))
+    }
+    pub(crate) fn prepare_proposal(
+        source: Arc<CellMap>,
+        axis: usize,
+        side: SectionSide,
+        bracket: BracketProposal,
+        b: &mut Budget,
+    ) -> std::result::Result<Arc<Self>, ProposalError<Error>> {
         b.check()?;
         for value in [&bracket.lower, &bracket.upper, &bracket.derivative_margin] {
             b.rational(value)?;
@@ -61,7 +92,8 @@ impl RegularSection {
         if bracket.lower >= bracket.upper || bracket.derivative_margin <= Rational::zero() {
             return Err(Error::Invalid(
                 "ordered bracket and strictly positive derivative margin required".into(),
-            ));
+            )
+            .into());
         }
         let raw = source.decomposition().native_result();
         let axis_record = source
@@ -86,7 +118,8 @@ impl RegularSection {
         if degree == 0 || (axis + 1..raw.order.len()).any(|i| polynomial.degree(i) > 0) {
             return Err(Error::Invalid(
                 "root equation must have positive degree and triangular support".into(),
-            ));
+            )
+            .into());
         }
         if (0..raw.order.len()).any(|i| polynomial.degree(i) as usize > b.limits.max_degree)
             || degree > symgcad::roots::MAX_ROOT_DEGREE
@@ -94,7 +127,8 @@ impl RegularSection {
         {
             return Err(Error::ResourceIncomplete(
                 "section polynomial degree/term allowance".into(),
-            ));
+            )
+            .into());
         }
         let original_constraints = raw
             .normalized_constraints
@@ -107,7 +141,7 @@ impl RegularSection {
         let original_domain =
             derive_domain(&algebra, &original_constraints, &[]).map_err(native)?;
         if original_domain.empty {
-            return Err(Error::Invalid("empty original domain".into()));
+            return Err(Error::Invalid("empty original domain".into()).into());
         }
         let mut cylinder_constraints = Vec::new();
         for i in 0..axis {
@@ -115,7 +149,8 @@ impl RegularSection {
             if polynomial.degree(i) > 0 && (d.lower.is_none() || d.upper.is_none()) {
                 return Err(Error::Unsupported(
                     "used prefix coordinate lacks finite original affine bounds".into(),
-                ));
+                )
+                .into());
             }
             for (endpoint, index, lower) in [
                 (&d.lower, d.lower_constraint, true),
@@ -130,7 +165,8 @@ impl RegularSection {
                     {
                         return Err(Error::Invalid(
                             "prefix bound is not an original single-coordinate consequence".into(),
-                        ));
+                        )
+                        .into());
                     }
                     let endpoint = rational(endpoint).map_err(native)?;
                     b.rational(&endpoint)?;
@@ -151,7 +187,8 @@ impl RegularSection {
                     {
                         return Err(Error::Invalid(
                             "prefix half-space reconstruction failed".into(),
-                        ));
+                        )
+                        .into());
                     }
                     cylinder_constraints.push(bound_poly);
                 }
@@ -173,9 +210,9 @@ impl RegularSection {
                 break;
             }
         }
-        let (orientation, derivative) = admission.ok_or_else(|| {
-            Error::Unsupported("no native uniform derivative-margin certificate".into())
-        })?;
+        let (orientation, derivative) = admission.ok_or(ProposalError::Miss(
+            "no native uniform derivative-margin certificate",
+        ))?;
         let mut endpoints = [None, None];
         for (slot, value) in [bracket.lower.clone(), bracket.upper.clone()]
             .into_iter()
@@ -189,8 +226,8 @@ impl RegularSection {
             let sign = if slot == 0 { -orientation } else { orientation };
             let target = &endpoint * &endpoint.constant(Rational::from(i64::from(sign)));
             endpoints[slot] = Some(
-                positive(&algebra, &target, &cylinder_constraints, &cylinder, b)?.ok_or_else(
-                    || Error::Unsupported("no native uniform endpoint-sign certificate".into()),
+                positive(&algebra, &target, &cylinder_constraints, &cylinder, b)?.ok_or(
+                    ProposalError::Miss("no native uniform endpoint-sign certificate"),
                 )?,
             );
         }
@@ -212,7 +249,8 @@ impl RegularSection {
                     if steps > b.limits.max_refinements {
                         return Err(Error::ResourceIncomplete(
                             "root sign isolation allowance".into(),
-                        ));
+                        )
+                        .into());
                     }
                     refine_once(root);
                 }
@@ -235,8 +273,8 @@ impl RegularSection {
                 break;
             }
             if anchor.interval.1 < bracket.lower || anchor.interval.0 > bracket.upper {
-                return Err(Error::Unsupported(
-                    "certificate bracket selects a different native root".into(),
+                return Err(ProposalError::Miss(
+                    "certificate bracket selects a different native root",
                 ));
             }
             // A bracket endpoint can itself be the unique rational root.
@@ -256,9 +294,9 @@ impl RegularSection {
             }
             steps += 1;
             if steps > b.limits.max_refinements {
-                return Err(Error::ResourceIncomplete(
-                    "root/bracket association allowance".into(),
-                ));
+                return Err(
+                    Error::ResourceIncomplete("root/bracket association allowance".into()).into(),
+                );
             }
             refine_once(&mut anchor);
         }

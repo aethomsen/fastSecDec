@@ -69,38 +69,7 @@ impl CellMap {
                     .into(),
             ));
         }
-        let mut occupied = request
-            .input()
-            .parameters()
-            .iter()
-            .copied()
-            .collect::<BTreeSet<_>>();
-        occupied.insert(request.input().regulator());
-        occupied.extend(request.kinematics().runtime_parameters.iter().copied());
-        occupied.extend(request.kinematics().exact_values.keys().copied());
-        for term in request
-            .input()
-            .terms()
-            .iter()
-            .chain(request.prepared_terms())
-        {
-            occupied.extend(term.prefactor().get_all_symbols(true));
-            for power in term.monomial_powers() {
-                occupied.extend(power.get_all_symbols(true));
-            }
-            for factor in term.factors() {
-                occupied.extend(factor.polynomial().get_all_symbols(true));
-                occupied.extend(factor.exponent().get_all_symbols(true));
-            }
-        }
-        for constraint in request
-            .domain()
-            .strict_positive()
-            .iter()
-            .chain(&request.kinematics().strict_positive)
-        {
-            occupied.extend(constraint.get_all_symbols(true));
-        }
+        let occupied = coordinate_symbols(request);
         if unit_coordinates.iter().any(|s| occupied.contains(s)) {
             return Err(GcadError::Invalid(
                 "unit coordinates collide with an original density/domain symbol".into(),
@@ -173,6 +142,43 @@ impl CellMap {
     pub fn linear(self: &Arc<Self>) -> Result<Arc<LinearCellMap>> {
         LinearCellMap::new(self.clone())
     }
+}
+
+/// Exact occupied native roles shared by cell admission and deferred preparation.
+pub(crate) fn coordinate_symbols(request: &super::gcad::GcadRequest) -> BTreeSet<Symbol> {
+    let mut occupied = request
+        .input()
+        .parameters()
+        .iter()
+        .copied()
+        .collect::<BTreeSet<_>>();
+    occupied.insert(request.input().regulator());
+    occupied.extend(request.kinematics().runtime_parameters.iter().copied());
+    occupied.extend(request.kinematics().exact_values.keys().copied());
+    for term in request
+        .input()
+        .terms()
+        .iter()
+        .chain(request.prepared_terms())
+    {
+        occupied.extend(term.prefactor().get_all_symbols(true));
+        for power in term.monomial_powers() {
+            occupied.extend(power.get_all_symbols(true));
+        }
+        for factor in term.factors() {
+            occupied.extend(factor.polynomial().get_all_symbols(true));
+            occupied.extend(factor.exponent().get_all_symbols(true));
+        }
+    }
+    for constraint in request
+        .domain()
+        .strict_positive()
+        .iter()
+        .chain(&request.kinematics().strict_positive)
+    {
+        occupied.extend(constraint.get_all_symbols(true));
+    }
+    occupied
 }
 
 #[cfg(test)]

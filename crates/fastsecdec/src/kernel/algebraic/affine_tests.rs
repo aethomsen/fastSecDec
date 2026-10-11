@@ -23,7 +23,10 @@ use symbolica::{
     evaluate::{EvaluationDomain, OptimizationSettings},
     symbol,
 };
-fn fixture(degree: i64, shift: Rational) -> (Arc<RegularSection>, Symbol, Rational, Rational) {
+pub(super) fn fixture(
+    degree: i64,
+    shift: Rational,
+) -> (Arc<RegularSection>, Symbol, Rational, Rational) {
     let label = format!("{degree}_{}", shift.to_string().replace('/', "_"));
     let (x, y, e, s, t) = symbol!(
         &format!("affine_bracket{label}::x"),
@@ -90,9 +93,19 @@ fn check<T: Number>(degree: i64, shift: Rational, bits: u32)
 where
     Complex<T>: EvaluationDomain,
 {
+    check_recipe::<T>(degree, shift, bits, false);
+}
+pub(super) fn check_recipe<T: Number>(degree: i64, shift: Rational, bits: u32, shifted: bool)
+where
+    Complex<T>: EvaluationDomain,
+{
     let (section, x, a, b) = fixture(degree, shift.clone());
-    let root =
-        RootProgram::prepare_affine(&section, OptimizationSettings::default().cores(1)).unwrap();
+    let prepare = if shifted {
+        RootProgram::prepare_affine_shifted
+    } else {
+        RootProgram::prepare_affine
+    };
+    let root = prepare(&section, OptimizationSettings::default().cores(1)).unwrap();
     assert!(RootProgram::prepare(&section, OptimizationSettings::default()).is_err());
     let tag = symbol!("affine_v2_test::root");
     let call = root.call(tag, section.coefficients()).unwrap();

@@ -90,6 +90,49 @@ pub(super) static ROOT_V2: LazyLock<Symbol> = LazyLock::new(|| {
             .register_tagged(complex::<ErrorPropagatingFloat<Float>, 2>)
     )
 });
+pub(super) static ROOT_V3: LazyLock<Symbol> = LazyLock::new(|| {
+    symbol!(
+        "fastsecdec::algebraic::selected_root_v3",
+        der = |view, index, out| {
+            let Some(args) = view.as_fun_view() else {
+                return;
+            };
+            if index < 3 {
+                **out = Atom::zero();
+                return;
+            }
+            let Some(count) = args.get_nargs().checked_sub(5) else {
+                return;
+            };
+            if index >= args.get_nargs() || count < 2 {
+                return;
+            }
+            if index >= count + 3 {
+                // Source-derived endpoint controls do not define an independent
+                // coefficient. Public construction derives them from c(x).
+                **out = Atom::zero();
+                return;
+            }
+            let root = view.to_owned();
+            let derivative: Atom = (1..count)
+                .map(|i| Atom::num(i) * args.get(i + 3).to_owned() * root.pow((i - 1) as i64))
+                .sum();
+            **out = -root.pow((index - 3) as i64) / derivative;
+        },
+        eval = EvaluationInfo::new()
+            .with_tags(3)
+            .register_tagged(real::<f64, 3>)
+            .register_tagged(real::<DoubleFloat, 3>)
+            .register_tagged(real::<Float, 3>)
+            .register_tagged(complex::<f64, 3>)
+            .register_tagged(complex::<DoubleFloat, 3>)
+            .register_tagged(complex::<Float, 3>)
+            .register_tagged(real::<ErrorPropagatingFloat<f64>, 3>)
+            .register_tagged(real::<ErrorPropagatingFloat<Float>, 3>)
+            .register_tagged(complex::<ErrorPropagatingFloat<f64>, 3>)
+            .register_tagged(complex::<ErrorPropagatingFloat<Float>, 3>)
+    )
+});
 // Same minimal precision-constructor adapter as existing contour callbacks;
 // arithmetic, root iteration, and derivatives remain native owner operations.
 pub trait Number: Real + RealLike + PartialOrd + EvaluationDomain + Send + Sync {
@@ -181,6 +224,8 @@ pub(super) fn endpoint_control<T: Number>(coordinate: &T, one: &T) -> Option<usi
 #[derive(Clone)]
 struct Scratch<T> {
     program: ExpressionEvaluator<Complex<T>>,
+    shift: Option<ExpressionEvaluator<Complex<T>>>,
+    shifted: Vec<Complex<T>>,
     input: Vec<Complex<T>>,
     output: Vec<Complex<T>>,
     endpoints: [Complex<T>; 2],
@@ -233,8 +278,21 @@ where
             &symbolica::domains::rational::Rational::from((1, 2))
                 .pow(u64::from(bits.saturating_sub(5))),
         );
+        let shift = owner.shift.clone().map(|exact| {
+            exact.map_coeff_with_prec(
+                &|c| Complex::new(T::rational_at(&c.re, bits), T::rational_at(&c.im, bits)),
+                bits,
+            )
+        });
+        let shifted = if shift.is_some() {
+            vec![Complex::new(zero.clone(), zero.clone()); owner.degree + 1]
+        } else {
+            Vec::new()
+        };
         let scratch = Scratch {
             program,
+            shift,
+            shifted,
             input: vec![Complex::new(zero.clone(), zero.clone()); owner.degree + 2],
             output: vec![
                 Complex::new(zero.clone(), zero.clone());
@@ -278,7 +336,7 @@ where
             return Err("regular-section callback scratch poisoned".into());
         }
         let coefficient_count = self.owner.degree + 1;
-        let affine = self.owner.version == 2;
+        let affine = self.owner.version >= 2;
         if count != coefficient_count + if affine { 2 } else { 0 } {
             return Err("regular-section coefficient shape".into());
         }
@@ -322,6 +380,8 @@ where
         }
         let Scratch {
             program,
+            shift,
+            shifted,
             input,
             output,
             endpoints,
@@ -329,6 +389,22 @@ where
             upper,
             options,
         } = &mut *s;
+        if let Some(shift) = shift {
+            shift
+                .try_evaluate(&input[1..], shifted)
+                .map_err(|e| format!("regular-section coefficient shift: {e}"))?;
+            if shifted.iter().any(|v| !v.re.valid() || !v.im.valid()) {
+                return Err(
+                    "regular-section coefficient shift exceeded native uncertainty range".into(),
+                );
+            }
+            // The source-issued endpoint expression is exactly Q(0)=P(a).
+            // Evaluate this coefficient through that native expression to avoid
+            // cancelling rounded independent c_i again. Preserve its complete
+            // complex tracked value; the endpoint is not an independent input.
+            shifted[0] = endpoints[0].clone();
+            input[1..].clone_from_slice(shifted);
+        }
         let mut invalid_tracking = false;
         let solved = nsolve_bracketed(lower.clone(), upper.clone(), options, |z| {
             if !z.valid() {

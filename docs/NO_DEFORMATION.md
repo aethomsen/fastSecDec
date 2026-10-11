@@ -17,7 +17,9 @@ composed linear cell maps and durable proof staging. A restricted, certified
 rational-fiber continuation also reuses symbolic subtraction and has a native
 above-threshold bubble comparison with OneLOop. The corresponding CLI path now
 supports fixed one-dimensional rational cells, indexed artifacts, ordinary and
-serial execution, and recovery. The [runnable bubble](../examples/no_deformation/README.md)
+serial execution, and recovery. A bounded automatic route also supports regular
+algebraic families on the unit cube, as detailed below.
+The [runnable examples](../examples/no_deformation/README.md)
 and [CLI review](reviews/no-deformation-cli.md) describe that supported subset.
 These capabilities are separate from the exporter contract documented below.
 The general endpoint resolver, parametric chambers, complete HEPKit generation
@@ -36,10 +38,12 @@ For a regular branch `P(x,r(x)) = 0`, the first derivative is
 Composed map programs keep these root calls separate from the full density.
 
 The regular-section controls include degrees 7, 11 and 17, and a complete
-fixed sextic three-cell family has a native low-level integration control.
-These controls do not complete automatic high-degree generation. In particular,
-the automatic factory exposed a [narrow-bracket numerical limitation](reviews/no-deformation-affine-root-brackets.md#narrow-bracket-limitation-found-during-factory-integration).
-Its correction and the normal/serial CLI acceptance matrix remain in progress.
+fixed sextic three-cell family now has an [automatic preparation and CLI control](reviews/no-deformation-regular-family-factory.md).
+All four normal/serial generation–integration combinations pass, retaining the
+complete Laurent vector and covariance. The [narrow-bracket arithmetic correction](reviews/no-deformation-affine-root-brackets.md#source-derived-constant-coefficient)
+uses exact source-derived coefficients and preserves native error tracking.
+This factory supports complete fixed unit-cube families with two or three cells;
+it does not yet provide automatic generation for arbitrary algebraic cells.
 
 Root collisions and vanishing `P_r` need the general algebraic endpoint resolver
 and branch normalization; they cannot use the regular implicit derivative above.

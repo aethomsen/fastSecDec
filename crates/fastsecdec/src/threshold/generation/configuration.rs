@@ -1,10 +1,12 @@
 //! Native configuration context. Reuse the ordinary generation-options DTO and
 //! State/Atom codec; no expression strings or second source serializer.
 use super::*;
+mod regular;
 use crate::generation::streaming::{
     RecordRef, StoredGenerationOptions,
     codec::{self, Atoms},
 };
+use regular::StoredRegular;
 use symbolica::atom::Atom;
 const KIND: &str = "threshold-preparation-configuration-v1";
 #[derive(serde::Serialize, serde::Deserialize)]
@@ -24,6 +26,8 @@ struct Stored {
     witness_candidates: usize,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     represented: Option<RepresentedConfiguration>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    regular_family: Option<StoredRegular>,
 }
 /// Optional, explicitly versioned extension. Exact v1 records omit this field;
 /// older strict readers refuse the new represented capability rather than
@@ -49,6 +53,15 @@ pub(super) fn write(root: &Path, options: &PreparationOptions) -> Result<RecordR
         symbols.push(*s);
         atoms.push(&Atom::num(q.clone()));
     }
+    let regular_family = options
+        .regular_family
+        .as_ref()
+        .map(StoredRegular::new)
+        .transpose()?;
+    if let Some(settings) = &options.regular_family {
+        symbols.extend(settings.coordinates.as_ref().expect("checked above"));
+        atoms.push(&Atom::num(settings.limits.unit_margin.clone()));
+    }
     let l = options.regularization;
     let p = l.prefactors;
     Ok(codec::write(
@@ -68,6 +81,7 @@ pub(super) fn write(root: &Path, options: &PreparationOptions) -> Result<RecordR
             terms: p.terms,
             integer_power: p.integer_power,
             witness_candidates: p.witness_candidates,
+            regular_family,
             represented: options
                 .represented
                 .map(|(meaning, limits)| RepresentedConfiguration {
@@ -105,29 +119,53 @@ pub(super) fn read(root: &Path, reference: &RecordRef, maximum: u64) -> Result<P
         }
         None => (None, None),
     };
-    if symbols.len()
-        != stored
-            .bindings
-            .checked_add(1)
-            .ok_or(Error::Association("configuration binding count overflow"))?
-        || atoms.atoms.len() != stored.bindings
-    {
+    let binding_end = stored
+        .bindings
+        .checked_add(1)
+        .ok_or(Error::Association("configuration binding count overflow"))?;
+    let extra = stored
+        .regular_family
+        .as_ref()
+        .map(StoredRegular::coordinate_count)
+        .transpose()?
+        .unwrap_or(0);
+    let symbols_expected = binding_end.checked_add(extra).ok_or(Error::Association(
+        "configuration coordinate count overflow",
+    ))?;
+    let atoms_expected = stored
+        .bindings
+        .checked_add(usize::from(stored.regular_family.is_some()))
+        .ok_or(Error::Association("configuration value count overflow"))?;
+    if symbols.len() != symbols_expected || atoms.atoms.len() != atoms_expected {
         return Err(Error::Association("configuration native table layout"));
     }
     let mut fixed_fiber = BTreeMap::new();
-    for (s, a) in symbols[1..].iter().zip(atoms.atoms) {
+    for (s, a) in symbols[1..binding_end]
+        .iter()
+        .zip(&atoms.atoms[..stored.bindings])
+    {
         let q = Rational::try_from(a.as_view())
             .map_err(|_| Error::Association("nonrational stored fixed fiber"))?;
         if *s == symbols[0] || fixed_fiber.insert(*s, q).is_some() {
             return Err(Error::Association("duplicate fixed fiber/unit role"));
         }
     }
+    let regular_family = stored
+        .regular_family
+        .map(|value| {
+            value.restore(
+                symbols[binding_end..].to_vec(),
+                &atoms.atoms[stored.bindings],
+            )
+        })
+        .transpose()?;
     Ok(PreparationOptions {
         threshold: Default::default(),
         generation: stored.generation.into(),
         precision: stored.precision,
         compilation: stored.compilation,
         unit: symbols[0],
+        regular_family,
         fixed_fiber,
         represented: representation,
         graph_payloads,
@@ -420,6 +458,49 @@ mod tests {
                 &stored,
                 atoms,
                 symbols,
+            )
+            .unwrap();
+            assert!(matches!(
+                read(root.path(), &bad, u64::MAX),
+                Err(Error::Association(_))
+            ));
+        }
+    }
+    #[test]
+    fn regular_configuration_refuses_forged_versions_and_table_counts() {
+        let root = tempfile::tempdir().unwrap();
+        let (s, t) = symbolica::symbol!("regular_config::s", "regular_config::t");
+        let mut options = PreparationOptions::new(t);
+        options.regular_family = Some(RegularFamilyPreparation {
+            coordinates: Some(vec![s, t]),
+            ..Default::default()
+        });
+        options.regular_family.as_mut().unwrap().limits.unit_margin = Rational::from((1, 8));
+        let reference = write(root.path(), &options).unwrap();
+        let restored = read(root.path(), &reference, u64::MAX)
+            .unwrap()
+            .regular_family
+            .unwrap();
+        assert_eq!(restored.limits.unit_margin, Rational::from((1, 8)));
+        assert_eq!(restored.coordinates, Some(vec![s, t]));
+        let (stored, atoms, symbols): (Stored, _, _) =
+            codec::read(root.path(), &reference, KIND).unwrap();
+        for (key, value) in [
+            ("version", serde_json::json!(2)),
+            ("coordinates", serde_json::json!(usize::MAX)),
+        ] {
+            let mut metadata = serde_json::to_value(&stored).unwrap();
+            metadata["regular_family"][key] = value;
+            let modified: Stored = serde_json::from_value(metadata).unwrap();
+            let bad = codec::write(
+                root.path(),
+                "forged-regular",
+                KIND,
+                &modified,
+                Atoms {
+                    atoms: atoms.atoms.clone(),
+                },
+                symbols.clone(),
             )
             .unwrap();
             assert!(matches!(

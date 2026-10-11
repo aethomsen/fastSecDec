@@ -105,14 +105,11 @@ impl PairedGeometry {
     }
 }
 
-pub(super) fn admit(
+/// Shared shape/neighbor admission; no section or endpoint certificate is issued.
+pub(super) fn topology(
     owner: &Arc<VerifiedDecomposition>,
     coordinates: &[Symbol],
-    proposals: [BracketProposal; 2],
-    limits: &Limits,
-    budget: &mut Budget,
-) -> Result<Vec<Arc<PairedGeometry>>> {
-    budget.check()?;
+) -> Result<[Arc<CellMap>; 3]> {
     let request = owner.request();
     let n = request.domain().coordinates().len();
     if n == 0
@@ -124,16 +121,6 @@ pub(super) fn admit(
     if owner.cells().len() != 3 {
         return Err(unsupported(
             "paired issuer requires the complete three-cell inventory",
-        ));
-    }
-    let [lo, hi] = &proposals;
-    if lo.lower <= Rational::zero()
-        || lo.upper >= hi.lower
-        || hi.upper >= Rational::one()
-        || limits.unit_margin <= Rational::zero()
-    {
-        return Err(invalid(
-            "paired brackets must be disjoint and strictly inside the unit interval",
         ));
     }
     let mut outer_lower = None;
@@ -196,19 +183,45 @@ pub(super) fn admit(
     {
         return Err(invalid("paired neighbor branch association"));
     }
+    Ok([lower, middle, upper])
+}
+
+pub(super) fn admit(
+    owner: &Arc<VerifiedDecomposition>,
+    coordinates: &[Symbol],
+    proposals: [BracketProposal; 2],
+    limits: &Limits,
+    budget: &mut Budget,
+) -> ProposalResult<Vec<Arc<PairedGeometry>>> {
+    budget.check()?;
+    let [lo, hi] = &proposals;
+    if lo.lower <= Rational::zero()
+        || lo.upper >= hi.lower
+        || hi.upper >= Rational::one()
+        || limits.unit_margin <= Rational::zero()
+    {
+        return Err(invalid(
+            "paired brackets must be disjoint and strictly inside the unit interval",
+        )
+        .into());
+    }
+    let [lower, middle, upper] = topology(owner, coordinates)?;
+    let n = owner.request().domain().coordinates().len();
+    let axis = n - 1;
     let [lo, hi] = proposals;
-    let a = RegularSection::prepare(middle.clone(), axis, SectionSide::Lower, lo, budget)?;
-    let b = RegularSection::prepare(middle.clone(), axis, SectionSide::Upper, hi, budget)?;
+    let a = RegularSection::prepare_proposal(middle.clone(), axis, SectionSide::Lower, lo, budget)?;
+    let b = RegularSection::prepare_proposal(middle.clone(), axis, SectionSide::Upper, hi, budget)?;
     if a.polynomial() != b.polynomial() || a.bound() == b.bound() {
         return Err(unsupported(
             "paired sections need distinct roots of the same source polynomial",
-        ));
+        )
+        .into());
     }
     let raw = owner.native_result();
     let mut names = raw.order.clone();
     for name in ["fastsecdec_pair_lower", "fastsecdec_pair_upper"] {
         if names.iter().any(|n| n == name) {
-            return Err(invalid("paired formal polynomial variable collision"));
+            return Err(invalid("paired formal polynomial variable collision").into());
         }
         names.push(name.into());
     }
@@ -222,9 +235,9 @@ pub(super) fn admit(
         .and_then(|v| v.checked_mul(polynomial.degree(axis) as usize))
         .is_none_or(|v| v > limits.geometry.max_terms)
     {
-        return Err(Error::ResourceIncomplete(
-            "paired divided-difference support bound".into(),
-        ));
+        return Err(
+            Error::ResourceIncomplete("paired divided-difference support bound".into()).into(),
+        );
     }
     let y = algebra.parse(&names[axis]).map_err(native)?;
     let ra = algebra.parse(&names[n]).map_err(native)?;
@@ -236,13 +249,13 @@ pub(super) fn admit(
     let gap = &rb - &ra;
     let (first, remainder) = (&polynomial - &pa).quot_rem(&ya, false);
     if !remainder.is_zero() {
-        return Err(invalid("native first divided difference"));
+        return Err(invalid("native first divided difference").into());
     }
     let (second, remainder) = (&first - &first.replace_with_poly(axis, &rb)).quot_rem(&yb, false);
     if !remainder.is_zero()
         || &gap * &(&polynomial - &(&(&ya * &yb) * &second)) != &(&(&rb - &y) * &pa) + &(&ya * &pb)
     {
-        return Err(invalid("native second divided-difference recombination"));
+        return Err(invalid("native second divided-difference recombination").into());
     }
     let mut constraints = raw
         .normalized_constraints
@@ -254,8 +267,9 @@ pub(super) fn admit(
         constraints.push(&r.constant(section.bracket().upper.clone()) - r);
     }
     let domain = derive_domain(&algebra, &constraints, &[]).map_err(native)?;
-    let certify =
-        |target: &Poly| geometry::positive(&algebra, target, &constraints, &domain, limits, budget);
+    let certify = |target: &Poly| {
+        geometry::positive_proposal(&algebra, target, &constraints, &domain, limits, budget)
+    };
     let unit = certify(&(&second - &second.constant(limits.unit_margin.clone())))?;
     let gap_certificate = certify(&(&gap - &gap.constant(limits.unit_margin.clone())))?;
     let lower_margin = &a.bracket().lower / &Rational::from(2);

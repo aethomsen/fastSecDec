@@ -80,7 +80,6 @@ pub(in super::super) fn validate_prepared(
     let directory = rooted(root, &prepared.directory)?;
     let checkpoint = prepared.native.checkpoint()?;
     if prepared.native.strategy != fastsecdec::threshold::ThresholdStrategy::GcadFirst
-        || prepared.native.integration_dimensions != 1
         || checkpoint.evidence.request.source_identity
             != prepared.native.publication.source_identity
         || checkpoint.evidence.cells != prepared.native.cells
@@ -99,7 +98,17 @@ pub(in super::super) fn validate_prepared(
         .unwrap()
         .record
         .verify(&directory)?;
-    if publication(root, prepared)?.job_count() != prepared.native.jobs {
+    let plan = publication(root, prepared)?;
+    if plan.original_dimensions() != prepared.native.original_dimensions
+        || !plan
+            .integration_dimensions()
+            .eq(std::iter::once(prepared.native.integration_dimensions))
+        || plan.cell_count() != prepared.native.cells
+        || plan.endpoint_chart_count() != prepared.native.endpoint_charts
+    {
+        return Err("threshold preparation dimensions/cell/chart inventory changed".into());
+    }
+    if plan.job_count() != prepared.native.jobs {
         return Err("threshold preparation job inventory changed".into());
     }
     Ok(())
@@ -188,6 +197,11 @@ pub(super) fn prepare(
         .card
         .threshold_decomposition
         .native(&loaded.runtime_parameters)?;
+    // Existing threshold entrypoint; roots/brackets remain native discovery.
+    // The preparer resolves actual compact dimension and preserves legacy 1D.
+    if loaded.integrand.parameters().len() > 1 {
+        options.regular_family = Some(Default::default());
+    }
     options.generation = generation;
     options.compilation = loaded.card.generation.evaluator;
     let start = Instant::now();
@@ -240,7 +254,13 @@ pub(super) fn prepare(
             timings: timings.clone(),
             coefficient_expansion: None,
             formula_preparation: None,
-            detail: format!("Threshold {:?} · {} completed", p.stage, p.completed),
+            detail: match (p.stage, p.regular_family) {
+                (threshold::Stage::Regularize, Some(d)) => format!(
+                    "Threshold Regularize · dyadic level {} · {} endpoint checks · {} family attempts",
+                    d.dyadic_level, d.endpoint_queries, d.family_attempts
+                ),
+                _ => format!("Threshold {:?} · {} completed", p.stage, p.completed),
+            },
         };
         if let Err(e) = emit(snapshot) {
             error = Some(e.to_string());
