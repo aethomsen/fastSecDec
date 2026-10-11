@@ -1,5 +1,19 @@
 # Ecosystem reuse evidence
 
+## Complete replacement covers for endpoint charts (2026-10-11)
+
+The [chart-cover review](reviews/no-deformation-child-chart-cover.md) records
+reuse of the existing native sector fan, exact polynomial clearing/valuation,
+coordinate composition and original exponent helpers. Complete half-cube
+partitions preserve coverage and boundary ancestry; the sealed chart view keeps
+actual source and root associations. No alternate sector algorithm, graph,
+CAS, root solver or execution pool is introduced.
+
+Independent source/scientific reviews and 25 focused new/inherited controls
+pass. The cover preserves closed-cube unit maps, while leaving physical ray
+poles and all closed-density obligations explicit. It is a preparation API;
+physical cell integration and cross-process proof residency remain later gates.
+
 ## Issued finite numerator coefficients and selective face inputs (2026-10-11)
 
 The [finite-input review](reviews/no-deformation-finite-numerator-inputs.md)

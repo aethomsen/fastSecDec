@@ -5,7 +5,7 @@ use super::{
 };
 use crate::generation::{add_scaled_powers, coordinates_from_parts};
 use fastsecdec_sectors::{ParametricDomain, SectorMap};
-use symbolica::atom::{Atom, AtomCore};
+use symbolica::atom::{Atom, AtomCore, Symbol};
 
 /// Powers for one original term, never a combined or dropped density row.
 #[derive(Debug)]
@@ -110,7 +110,6 @@ pub(super) fn prepare(
         map,
         &selected_target,
     );
-    let parent_units = owner.parent.source().unit_coordinates();
     let mut unit_images = owner
         .target_units
         .iter()
@@ -129,9 +128,60 @@ pub(super) fn prepare(
             image.clone()
         };
     }
+    prepare_images(
+        owner,
+        ChartImages {
+            ordinal,
+            target_units: &owner.target_units,
+            unit_images,
+            extra_jacobian: coordinates.measure_jacobian().clone(),
+            valuation: Some(ValuationCheck {
+                selected: &owner.selected,
+                support_indices: &owner.support_indices,
+                map,
+            }),
+        },
+        work,
+    )
+}
+
+pub(super) struct ValuationCheck<'a> {
+    pub selected: &'a [usize],
+    pub support_indices: &'a [usize],
+    pub map: &'a SectorMap,
+}
+
+pub(super) struct ChartImages<'a> {
+    pub ordinal: usize,
+    pub target_units: &'a [Symbol],
+    pub unit_images: Vec<Atom>,
+    pub extra_jacobian: Atom,
+    pub valuation: Option<ValuationCheck<'a>>,
+}
+
+/// Shared sealed construction from the ancestor identities. Callers establish
+/// open-map coverage and positive measure; this issues no closed-face proof.
+pub(super) fn prepare_images(
+    owner: &EndpointTransport,
+    images: ChartImages<'_>,
+    work: &mut Work<'_>,
+) -> Result<EndpointChart> {
+    let ChartImages {
+        ordinal,
+        target_units,
+        unit_images,
+        extra_jacobian,
+        valuation,
+    } = images;
+    work.check()?;
+    let parent_units = owner.parent.source().unit_coordinates();
+    if target_units.len() != parent_units.len() || unit_images.len() != parent_units.len() {
+        return Err(Error::Invalid(
+            "composed chart coordinate inventory differs".into(),
+        ));
+    }
     let ring = Ring::new(
-        owner
-            .target_units
+        target_units
             .iter()
             .copied()
             .chain(owner.roots.iter().map(|r| r.section.root_symbol()))
@@ -141,21 +191,23 @@ pub(super) fn prepare(
     for (index, identity) in owner.identities.iter().enumerate() {
         let n = pull(identity.numerator(), parent_units, &unit_images);
         let d = pull(identity.denominator(), parent_units, &unit_images);
-        let (factor, minima) = ring.extract(&n, &d, &owner.target_units, work)?;
-        let expected = &map.factor_valuations[owner.support_indices[index]];
-        for (&axis, e) in owner.selected.iter().zip(expected) {
-            if *e != i64::from(minima[axis]) {
-                return Err(Error::Invalid(
-                    "native support-index valuation differs from exact pullback".into(),
-                ));
+        let (factor, minima) = ring.extract(&n, &d, target_units, work)?;
+        if let Some(check) = &valuation {
+            let expected = &check.map.factor_valuations[check.support_indices[index]];
+            for (&axis, e) in check.selected.iter().zip(expected) {
+                if *e != i64::from(minima[axis]) {
+                    return Err(Error::Invalid(
+                        "native support-index valuation differs from exact pullback".into(),
+                    ));
+                }
             }
         }
         factors.push(factor);
     }
     let identity = &owner.identities[owner.measure];
-    let n = pull(identity.numerator(), parent_units, &unit_images) * coordinates.measure_jacobian();
+    let n = pull(identity.numerator(), parent_units, &unit_images) * &extra_jacobian;
     let d = pull(identity.denominator(), parent_units, &unit_images);
-    let (measure, _) = ring.extract(&n, &d, &owner.target_units, work)?;
+    let (measure, _) = ring.extract(&n, &d, target_units, work)?;
     let preparation = owner.parent.source().decomposition().preparation();
     let mut terms = Vec::with_capacity(owner.links.len());
     for (source_index, (term, links)) in preparation.terms().iter().zip(&owner.links).enumerate() {
@@ -239,7 +291,7 @@ pub(super) fn prepare(
     Ok(EndpointChart {
         ordinal,
         unit_images,
-        extra_jacobian: coordinates.measure_jacobian().clone(),
+        extra_jacobian,
         source_images,
         root_equations,
         factors,

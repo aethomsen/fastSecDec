@@ -198,6 +198,13 @@ interfaces preserve the actual source/map owners and do not certify all closed
 faces. See the [body-sharing](reviews/no-deformation-density-body-sharing.md)
 and [finite-input](reviews/no-deformation-finite-numerator-inputs.md) reviews.
 
+`endpoint_transport::cover::EndpointChartCover` can replace one issued chart
+with a complete half-cube partition and selected native sector refinements.
+Its sealed `IssuedEndpointChart` view preserves source and selected-root
+associations for downstream face operations. Ancestor unit maps remain
+polynomial on the closed cube; physical source-coordinate images may still
+have poles. See the [chart-cover review](reviews/no-deformation-child-chart-cover.md).
+
 Select exactly one arithmetic backend: `native` provides GMP/MPFR and supports
 either SymJIT O2 or Symbolica's eager evaluator; `portable` uses the eager
 evaluator with Malachite/Astro. The CLI defaults to SymJIT O2 locally. Python

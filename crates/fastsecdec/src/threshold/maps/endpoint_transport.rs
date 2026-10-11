@@ -7,6 +7,10 @@
 //! in particular evaluating a divergent numerator at infinity and multiplying
 //! by zero is not licensed by the extracted powers.
 mod chart;
+mod cover;
+pub use cover::{
+    ChildBoundary, CoverLeaf, EndpointChartCover, HalfCube, IssuedEndpointChart, SplitInterval,
+};
 mod clearing;
 pub mod numerator;
 #[cfg(test)]

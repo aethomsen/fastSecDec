@@ -19,7 +19,7 @@ use symbolica::{
 
 /// Genuine nonlinear source, with CAD x,z,y deliberately differing from
 /// preparation x,y,z and two distinct homogeneous physical term ledgers.
-fn fixture() -> Arc<NormalizedPrefix> {
+pub(super) fn fixture() -> Arc<NormalizedPrefix> {
     static FIXTURE: OnceLock<Arc<NormalizedPrefix>> = OnceLock::new();
     FIXTURE
         .get_or_init(|| {
