@@ -4355,3 +4355,19 @@ sampled aggregate RSS and precision costs distinct. Its SD is estimator standard
 error, not raw-point variance or a certified accuracy bound. Independent review,
 536 handoff evidence checks and PDF rendering checks pass. The measurements do
 not establish general singular-boundary resolution or no-contour ggHH capability.
+
+## Physical double-box GCAD feasibility
+
+The [independent feasibility review](reviews/no-deformation-gghh-feasibility.md)
+checks the existing native HEPKit graph/Symanzik exporter and direct symGCAD
+optimized solver on the physical D05 double box. The study retains native exact
+kinematics, homogeneous-domain reduction, parameter prefixes, branch provenance
+and ordering heuristics; no alternative graph, elimination or root implementation
+is introduced. Exact on-shell and Gram checks validate the nearby rational point.
+
+The parametric s,t trial and two rational-point orders all stop during projection
+at their external wall limits. None returns a decomposition to verify. Independent
+input, source/API and measurement audits pass at that bounded scope; no complete
+artifact, amplitude or SD follows from it. Native configured limits and actual
+external process limits are recorded separately. Export, solver preparation and
+the unfinished endpoint/integration pipeline remain distinct costs and gates.
