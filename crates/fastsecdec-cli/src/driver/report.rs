@@ -17,6 +17,8 @@ pub struct IntegrationReport {
     pub process_cpu_seconds: Option<f64>,
     pub accuracy_target: fastsecdec::integration::AccuracyTarget,
     pub operational: fastsecdec::integration::OperationalMetrics,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub timed_stop: Option<super::timing::TimedStopReport>,
     pub content_id: String,
     pub elapsed_seconds: f64,
     pub loading_seconds: f64,
@@ -38,6 +40,8 @@ pub struct IntegrationReport {
     pub previous_complete: Option<super::refinement::PreviousProduction>,
     /// Native accepted-sector statistics, with authoritative total covariance.
     pub contributions: ContributionReport,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub weight_diagnostics: Option<fastsecdec::integration::WeightDiagnostics>,
 }
 
 #[derive(Debug, PartialEq, Eq, Serialize)]
@@ -65,6 +69,7 @@ pub(crate) struct ExecutionOutcome {
     pub failure: Option<String>,
     pub resume_status: ResumeStatus,
     pub qmc_design: Option<QmcDesign>,
+    pub timed_stop: Option<super::timing::TimedStopReport>,
 }
 
 pub(crate) fn finish(
@@ -81,8 +86,17 @@ pub(crate) fn finish(
     {
         outcome.failure.get_or_insert_with(|| reason.clone());
     }
+    if (outcome.failure.is_some() || outcome.cancelled)
+        && let Some(timed_stop) = &mut outcome.timed_stop
+    {
+        timed_stop.counts_complete = false;
+    }
     let scoped_target_reached = outcome.failure.is_none()
         && !outcome.cancelled
+        && outcome
+            .timed_stop
+            .as_ref()
+            .is_none_or(|stop| !stop.deadline_reached())
         && snapshot
             .estimate
             .as_ref()
@@ -119,6 +133,7 @@ pub(crate) fn finish(
         process_cpu_seconds: None,
         accuracy_target: outcome.accuracy_target,
         operational: outcome.operational,
+        timed_stop: outcome.timed_stop,
         content_id: artifact.content_id.clone(),
         elapsed_seconds,
         loading_seconds: artifact.loading_seconds,
@@ -133,6 +148,7 @@ pub(crate) fn finish(
         qmc_design: outcome.qmc_design,
         previous_complete: None,
         contributions: observation.contributions,
+        weight_diagnostics: observation.weight_diagnostics,
     })
 }
 

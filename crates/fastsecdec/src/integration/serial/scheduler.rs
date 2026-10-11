@@ -35,6 +35,9 @@ impl SerialSession {
                     target: settings.method.replicas(),
                     next_replica: 0,
                     moments: ReplicaMoments::new(problem.orders.len())?,
+                    weights: Some(crate::integration::weights::WeightStatistics::new(
+                        crate::integration::weights::WeightLayout::new(&problem).len(),
+                    )),
                     previous: None,
                     training: grid.as_ref().map(ContinuousGrid::clone_without_samples),
                     grid,
@@ -129,10 +132,14 @@ impl SerialSession {
                 .checked_add(1)
                 .ok_or_else(|| IntegrationError::Invalid("serial epoch overflow".into()))?;
             s.moments = ReplicaMoments::new(self.problem.orders.len())?;
+            s.weights = Some(crate::integration::weights::WeightStatistics::new(
+                crate::integration::weights::WeightLayout::new(&self.problem).len(),
+            ));
             s.next_replica = 0;
             return Ok(());
         }
         s.previous = Some(AcceptedAllocation {
+            weights: s.weights.clone(),
             estimate: s.moments.estimate(&self.problem, true)?,
             moments: s.moments.clone(),
             replicas: s.moments.count(),
@@ -161,6 +168,9 @@ impl SerialSession {
                 .checked_add(1)
                 .ok_or_else(|| IntegrationError::Invalid("serial epoch overflow".into()))?;
             s.moments = ReplicaMoments::new(self.problem.orders.len())?;
+            s.weights = Some(crate::integration::weights::WeightStatistics::new(
+                crate::integration::weights::WeightLayout::new(&self.problem).len(),
+            ));
             s.pilot = self.settings.method.pilot();
             s.pilot_iteration = 0;
             s.training = if s.pilot {

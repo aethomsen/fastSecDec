@@ -226,3 +226,12 @@ fn checked_count(mut values: impl Iterator<Item = u64>) -> Result<u64> {
             .ok_or_else(|| IntegrationError::Invalid("total point count overflow".into()))
     })
 }
+
+pub(super) fn observation_estimate(session: &QmcSession) -> Result<Option<VectorEstimate>> {
+    crate::integration::observation::observed_estimate(
+        session.estimate(),
+        session.stage,
+        session.runs.is_empty(),
+    )
+    .map(|x| x.0)
+}

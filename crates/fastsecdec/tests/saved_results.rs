@@ -16,6 +16,10 @@ use fastsecdec::{
 };
 
 fn fixture(selected: bool) -> SavedIntegrationResult {
+    fixture_with_diagnostics(selected, false)
+}
+
+fn fixture_with_diagnostics(selected: bool, diagnostics: bool) -> SavedIntegrationResult {
     let manifest = KernelResultManifest {
         threshold_scope: None,
         source_selection: None,
@@ -96,6 +100,7 @@ fn fixture(selected: bool) -> SavedIntegrationResult {
             ResultScope::FullIntegral
         },
         contributions: session.contributions().unwrap(),
+        weight_diagnostics: diagnostics.then(|| session.weight_diagnostics().unwrap()),
         stopping_reason: StoppingReason::PlannedWorkComplete,
         requested_tolerance: None,
         requested_accuracy_target: Default::default(),
@@ -129,10 +134,37 @@ fn fixture(selected: bool) -> SavedIntegrationResult {
 }
 
 #[test]
+fn accepted_weight_payload_round_trips_and_rejects_inconsistent_derived_fields() {
+    let result = fixture_with_diagnostics(false, true);
+    let loaded = read_result(&encode_result(&result).unwrap()).unwrap();
+    assert_eq!(loaded, result);
+    let text = loaded.to_string();
+    assert!(text.contains("Accepted weight diagnostics: Available"));
+    assert!(text.contains("norm relative SE"));
+    let mut bad = loaded.clone();
+    bad.weight_diagnostics.as_mut().unwrap().accepted_points += 1;
+    assert!(bad.validate().is_err());
+    let mut bad = loaded.clone();
+    bad.weight_diagnostics.as_mut().unwrap().orders[0].maximum_ratio = Some(999.0);
+    assert!(bad.validate().is_err());
+    let mut bad = loaded;
+    bad.weight_diagnostics.as_mut().unwrap().orders[0].total_mean_magnitude = None;
+    assert!(bad.validate().is_err());
+}
+
+#[test]
 fn native_round_trip_preserves_covariance_evidence_scope_and_distinct_identities() {
     let result = fixture(false);
     let bytes = encode_result(&result).unwrap();
+    // Version-1 historical documents omit this optional diagnostic payload.
+    assert!(
+        !serde_json::from_slice::<serde_json::Value>(&bytes).unwrap()["result"]
+            .as_object()
+            .unwrap()
+            .contains_key("weight_diagnostics")
+    );
     let loaded = read_result(&bytes).unwrap();
+    assert!(loaded.weight_diagnostics.is_none());
     assert_eq!(loaded, result);
     let covariance = &loaded
         .contributions

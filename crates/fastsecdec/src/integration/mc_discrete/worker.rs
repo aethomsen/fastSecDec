@@ -1,3 +1,4 @@
+use crate::integration::weights::{WeightLayout, WeightStatistics};
 use crate::integration::{McLiveView, Result};
 use numerica::numerical_integration::DiscreteGrid;
 use serde::{Deserialize, Serialize};
@@ -23,6 +24,7 @@ impl HavanaDiscreteTask {
 pub struct HavanaDiscreteReturn {
     pub(crate) task: HavanaDiscreteTask,
     pub(crate) mean: Vec<f64>,
+    pub(crate) weights: Option<WeightStatistics>,
     pub(crate) sector_means: Vec<Vec<f64>>,
     pub(crate) counts: Vec<u64>,
     pub(crate) sector_seconds: Vec<f64>,
@@ -54,6 +56,7 @@ pub struct HavanaDiscreteWorker {
     pub(crate) grid: DiscreteGrid<f64>,
     pub(crate) points: usize,
     pub(crate) outputs: usize,
+    pub(crate) weight_layout: Option<WeightLayout>,
     pub(crate) training: bool,
 }
 impl HavanaDiscreteWorker {

@@ -123,6 +123,12 @@ impl HavanaSession {
                         "Monte Carlo batch is stored under the wrong sector".into(),
                     ));
                 }
+                if let Some(stats) = &record.weights {
+                    stats.validate(
+                        WeightLayout::new(&session.problem).len(),
+                        record.task.points as u64,
+                    )?;
+                }
                 if record.mean.len() != session.problem.orders.len()
                     || record.mean.iter().any(|v| !v.is_finite())
                     || !record.worker_seconds.is_finite()

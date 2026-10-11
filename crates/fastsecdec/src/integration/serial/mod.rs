@@ -10,6 +10,7 @@ mod observation;
 mod reservations;
 mod scheduler;
 mod state;
+mod weights;
 use super::streams;
 
 pub use job::{ReplicaIdentity, SerialReturn, SerialTask};

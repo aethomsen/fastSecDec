@@ -99,6 +99,22 @@ impl QmcSession {
                 ));
             }
             run.seconds()?;
+            if let Some(rows) = &run.weights {
+                if !rows.keys().eq(run.costs.keys()) {
+                    return Err(IntegrationError::Invalid(
+                        "weight packages differ from accepted packages".into(),
+                    ));
+                }
+                for (&start, stats) in rows {
+                    let work = run.canonical_work(start, session.settings.package_points)?;
+                    stats.validate(
+                        start,
+                        work.point_count(),
+                        run.accumulator.plan().rule().points(),
+                        crate::integration::weights::WeightLayout::new(&session.problem).len(),
+                    )?;
+                }
+            }
             let mut starts = BTreeSet::new();
             for work in run.accumulator.completed_work_packages() {
                 if run.canonical_work(work.start(), session.settings.package_points)? != work {

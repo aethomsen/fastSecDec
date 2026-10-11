@@ -31,6 +31,15 @@ impl HavanaDiscreteWorker {
                 "discrete Havana task has a different grid or batch design".into(),
             ));
         }
+        if let Some(layout) = &self.weight_layout {
+            layout.validate(self.outputs)?;
+        }
+        let mut statistics = self
+            .weight_layout
+            .as_ref()
+            .map(|l| WeightStatistics::new(l.len()));
+        let mut absolute = Vec::new();
+        let mut local = Vec::new();
         let started = Instant::now();
         let mut grid = super::super::grid::clone_without_samples(&self.grid)?;
         let mut rng = MonteCarloRng::import(task.rng_state);
@@ -142,6 +151,13 @@ impl HavanaDiscreteWorker {
                     }
                 }
                 total.add(values);
+                if let (Some(layout), Some(stats)) = (&self.weight_layout, &mut statistics) {
+                    layout.magnitudes(values, 1.0, &mut absolute);
+                    // Native grid owns the immutable proposal for this entire batch.
+                    // Undo only inverse discrete selection, as native Havana does.
+                    layout.magnitudes(values, grid.bins[*index].pdf, &mut local);
+                    stats.push(&absolute, &local)?;
+                }
                 sectors[*index].add(values);
                 counts[*index] += 1;
                 let point_seconds = sample_seconds[row]
@@ -176,6 +192,7 @@ impl HavanaDiscreteWorker {
         Ok(HavanaDiscreteReturn {
             task,
             mean,
+            weights: statistics,
             sector_means,
             counts,
             sector_seconds: seconds,

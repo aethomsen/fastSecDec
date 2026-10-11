@@ -1,4 +1,6 @@
 mod checkpoint;
+mod weights;
+use crate::integration::weights::{WeightLayout, WeightStatistics};
 mod observation;
 mod refinement;
 use super::grid::clone_without_samples;
@@ -19,6 +21,8 @@ use std::collections::{BTreeMap, BTreeSet};
 struct BatchRecord {
     task: HavanaDiscreteTask,
     mean: Vec<f64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    weights: Option<WeightStatistics>,
     sector_means: Vec<Vec<f64>>,
     counts: Vec<u64>,
     sector_seconds: Vec<f64>,
@@ -194,6 +198,7 @@ impl HavanaDiscreteSession {
             })?)?,
             points: self.settings.batch.points_per_batch,
             outputs: self.problem.orders.len(),
+            weight_layout: Some(WeightLayout::new(&self.problem)),
             training: self.stage == IntegrationStage::Pilot,
         })
     }
@@ -216,6 +221,12 @@ impl HavanaDiscreteSession {
     }
     fn validate_record(&self, record: &BatchRecord) -> Result<()> {
         self.validate_task(&record.task)?;
+        if let Some(stats) = &record.weights {
+            stats.validate(
+                WeightLayout::new(&self.problem).len(),
+                record.task.points as u64,
+            )?;
+        }
         let n = self.problem.orders.len();
         let sectors = self.problem.sectors.len();
         if record.mean.len() != n
@@ -255,6 +266,7 @@ impl HavanaDiscreteSession {
         let record = BatchRecord {
             task: value.task,
             mean: value.mean,
+            weights: value.weights,
             sector_means: value.sector_means,
             counts: value.counts,
             sector_seconds: value.sector_seconds,

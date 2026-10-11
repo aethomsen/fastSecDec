@@ -47,6 +47,7 @@ pub(crate) struct SerialOutcome {
     pub snapshot: SerialRunSnapshot,
     pub cancelled: bool,
     pub failure: Option<String>,
+    pub timed_stop: Option<super::timing::TimedStopReport>,
 }
 
 #[derive(Serialize, Deserialize)]

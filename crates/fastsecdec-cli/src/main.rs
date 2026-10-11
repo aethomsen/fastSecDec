@@ -262,6 +262,9 @@ struct IntegrationArgs {
     /// Minimum sampling seconds per resident sector; workers remain parallel.
     #[arg(long = "serial", value_name = "SECONDS")]
     serial_seconds: Option<f64>,
+    /// Stop assigning work after SECONDS, then finish active jobs (serial or discrete_mc).
+    #[arg(long, value_name = "SECONDS")]
+    max_seconds: Option<f64>,
     /// Grow points per refinement; false keeps points fixed and appends replicas.
     #[arg(long, action = clap::ArgAction::Set)]
     double_points: Option<bool>,
@@ -453,6 +456,9 @@ impl IntegrationArgs {
         }
         if let Some(seconds) = self.serial_seconds {
             settings.serial_seconds = Some(seconds);
+        }
+        if let Some(seconds) = self.max_seconds {
+            settings.max_seconds = Some(seconds);
         }
         if let Some(double_points) = self.double_points {
             settings.double_points = double_points;

@@ -5,6 +5,7 @@ use numerica::numerical_integration::MonteCarloRng;
 use numerica::numerical_integration::{ContinuousGrid, Sample};
 use serde::{Deserialize, Serialize};
 
+use crate::integration::weights::{WeightLayout, WeightStatistics};
 use crate::integration::{IntegrationError, McLiveView, Result};
 mod batch;
 
@@ -33,6 +34,7 @@ impl HavanaTask {
 pub struct HavanaReturn {
     pub(crate) task: HavanaTask,
     pub(crate) mean: Vec<f64>,
+    pub(crate) weights: Option<WeightStatistics>,
     pub(crate) worker_seconds: f64,
     pub(crate) training: Option<ContinuousGrid<f64>>,
 }
@@ -56,6 +58,7 @@ pub struct HavanaWorker {
     pub(crate) grid: ContinuousGrid<f64>,
     pub(crate) points: usize,
     pub(crate) outputs: usize,
+    pub(crate) weight_layout: Option<WeightLayout>,
     pub(crate) training: bool,
     pub(crate) sample: Sample<f64>,
     pub(crate) values: Vec<f64>,
@@ -171,6 +174,7 @@ mod tests {
             grid,
             points: 256,
             outputs: 2,
+            weight_layout: None,
             training,
             sample: Sample::new(),
             values: Vec::new(),

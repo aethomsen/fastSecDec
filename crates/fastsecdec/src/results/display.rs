@@ -118,6 +118,36 @@ impl SavedIntegrationResult {
         } else {
             writeln!(f, "Authoritative total unavailable")?;
         }
+        if let Some(weights) = &self.weight_diagnostics {
+            writeln!(
+                f,
+                "Accepted weight diagnostics: {:?}; {} production points",
+                weights.status, weights.accepted_points
+            )?;
+            let number = |value: Option<f64>| {
+                value.map_or_else(|| "unavailable".into(), |v| format!("{v:.4e}"))
+            };
+            for row in &weights.orders {
+                let norm = self
+                    .contributions
+                    .total
+                    .as_ref()
+                    .map(|total| total.complex_norm_uncertainty(row.order));
+                writeln!(
+                    f,
+                    "  eps^{}: C {}; max/|I| {}; norm relative SE {}{}",
+                    row.order,
+                    number(row.cancellation_ratio),
+                    number(row.maximum_ratio),
+                    number(norm.as_ref().and_then(|n| n.radial_relative_error)),
+                    if norm.as_ref().is_some_and(|n| n.linearization_warning) {
+                        " (first-order propagation warning)"
+                    } else {
+                        ""
+                    }
+                )?;
+            }
+        }
         writeln!(
             f,
             "Exact offset: {:?}",

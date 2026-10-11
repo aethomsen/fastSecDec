@@ -70,6 +70,9 @@ impl SerialSession {
             points: sector.points,
             dimension: sector.dimension,
             outputs: self.problem.orders.len(),
+            weight_layout: Some(crate::integration::weights::WeightLayout::new(
+                &self.problem,
+            )),
         };
         task.validate()?;
         self.sectors[i] = sector;
@@ -118,6 +121,17 @@ impl SerialSession {
                 "serial return identity, lease, shape or timing differs".into(),
             ));
         }
+        if let Some(stats) = &value.weights {
+            if p.task.weight_layout.is_none() {
+                return Err(IntegrationError::InvalidReturn(
+                    "unrequested weight payload".into(),
+                ));
+            }
+            stats.validate(
+                crate::integration::weights::WeightLayout::new(&self.problem).len(),
+                p.task.points,
+            )?;
+        }
         let expects = matches!(p.task.sampler, Sampler::Mc { training: true, .. });
         if expects != value.training.is_some() {
             return Err(IntegrationError::InvalidReturn(
@@ -136,6 +150,11 @@ impl SerialSession {
             ));
         }
         sector.moments.add(&value.mean)?;
+        match (&mut sector.weights, &value.weights) {
+            (Some(all), Some(row)) => all.merge(row)?,
+            (_, None) => sector.weights = None,
+            (None, Some(_)) => {}
+        }
         if let Some(training) = value.training {
             sector
                 .training

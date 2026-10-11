@@ -11,6 +11,8 @@ use serde::{Deserialize, Serialize};
 pub struct IntegrationObservation {
     pub snapshot: IntegrationSnapshot,
     pub contributions: ContributionReport,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub weight_diagnostics: Option<WeightDiagnostics>,
 }
 
 pub(crate) fn observed_estimate(

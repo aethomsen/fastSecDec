@@ -2,6 +2,7 @@ mod checkpoint;
 mod design;
 mod refinement;
 mod results;
+mod weights;
 
 use std::collections::{BTreeMap, BTreeSet};
 
@@ -37,6 +38,8 @@ pub struct QmcDesign {
 pub(crate) struct SectorRun {
     pub(crate) accumulator: QmcAccumulator,
     pub(crate) costs: BTreeMap<u64, f64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    weights: Option<BTreeMap<u64, crate::integration::weights::WeightPartial>>,
     #[serde(skip)]
     pending: BTreeSet<u64>,
     /// Complete-allocation ends preserve the canonical tail package when more
@@ -168,6 +171,7 @@ impl QmcSession {
                     package_boundaries: vec![0, plan.total_points()],
                     accumulator: QmcAccumulator::new(plan, self.problem.orders.len())?,
                     costs: BTreeMap::new(),
+                    weights: Some(BTreeMap::new()),
                     pending: BTreeSet::new(),
                 })
             })
@@ -228,6 +232,9 @@ impl QmcSession {
             sector_id,
             plan: self.runs[i].accumulator.plan().clone(),
             output_count: self.problem.orders.len(),
+            weight_layout: Some(crate::integration::weights::WeightLayout::new(
+                &self.problem,
+            )),
             periodization: self.settings.periodization,
             point: Vec::new(),
             values: Vec::new(),
@@ -281,7 +288,22 @@ impl QmcSession {
             ));
         }
         precise_sum(run.costs.values().copied().chain([value.worker_seconds]))?;
+        if let Some(stats) = &value.weights {
+            stats.validate(
+                start,
+                value.task.point_count(),
+                run.accumulator.plan().rule().points(),
+                crate::integration::weights::WeightLayout::new(&self.problem).len(),
+            )?;
+        }
         run.accumulator.merge(value.partial)?;
+        match (&mut run.weights, value.weights) {
+            (Some(rows), Some(stats)) => {
+                rows.insert(start, stats);
+            }
+            (_, None) => run.weights = None,
+            (None, Some(_)) => {}
+        }
         run.pending.remove(&start);
         run.costs.insert(start, value.worker_seconds);
         Ok(())

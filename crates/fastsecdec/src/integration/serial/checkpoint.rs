@@ -51,6 +51,15 @@ impl SerialSession {
         }
         for (s, spec) in session.sectors.iter().zip(&problem.sectors) {
             s.moments.validate(problem.orders.len())?;
+            if let Some(stats) = &s.weights {
+                stats.validate(
+                    crate::integration::weights::WeightLayout::new(problem).len(),
+                    s.moments
+                        .count()
+                        .checked_mul(s.points)
+                        .ok_or(IntegrationError::NumericRange)?,
+                )?;
+            }
             if s.id != spec.id
                 || s.dimension != spec.dimension
                 || s.points < 2
@@ -78,6 +87,15 @@ impl SerialSession {
             if let Some(previous) = &s.previous {
                 previous.estimate.validate()?;
                 previous.moments.validate(problem.orders.len())?;
+                if let Some(stats) = &previous.weights {
+                    stats.validate(
+                        crate::integration::weights::WeightLayout::new(problem).len(),
+                        previous
+                            .replicas
+                            .checked_mul(previous.points_per_replica)
+                            .ok_or(IntegrationError::NumericRange)?,
+                    )?;
+                }
                 if previous.estimate.orders != problem.orders
                     || previous.estimate.components != problem.components
                     || !previous.estimate.production_complete
@@ -95,6 +113,15 @@ impl SerialSession {
         let mut identities = std::collections::BTreeSet::new();
         for (&stream, p) in &session.pending {
             p.task.validate()?;
+            if p.task
+                .weight_layout
+                .as_ref()
+                .is_some_and(|l| *l != crate::integration::weights::WeightLayout::new(problem))
+            {
+                return Err(IntegrationError::Invalid(
+                    "restored weight layout differs".into(),
+                ));
+            }
             let task = &p.task;
             let id = &task.identity;
             let s = session

@@ -98,6 +98,9 @@ pub struct SavedIntegrationResult {
     pub manifest: KernelResultManifest,
     pub scope: ResultScope,
     pub contributions: ContributionReport,
+    /// Accepted-production absolute weights. Absent in historical results.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub weight_diagnostics: Option<crate::integration::WeightDiagnostics>,
     pub stopping_reason: StoppingReason,
     pub requested_tolerance: Option<Tolerance>,
     #[serde(

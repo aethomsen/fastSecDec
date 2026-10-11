@@ -43,6 +43,13 @@ struct Slot {
     sampling_seconds: f64,
     live_metrics: Option<TaskMetrics>,
 }
+fn in_flight(slots: &[Option<Slot>]) -> usize {
+    slots
+        .iter()
+        .flatten()
+        .filter(|slot| slot.task.is_some())
+        .count()
+}
 fn snapshot(
     session: &SerialSession,
     slots: &[Option<Slot>],
@@ -206,6 +213,7 @@ pub(crate) fn integrate(
     initial_diagnostics: EvaluationDiagnostics,
     mut observe: impl FnMut(&SerialRunSnapshot) -> CliResult<bool>,
 ) -> CliResult<SerialOutcome> {
+    let mut timed_stop = crate::driver::timing::TimedStop::new(settings.max_seconds)?;
     let catalogue=artifact.catalogue().ok_or("serial integration requires a sector-addressable artifact; regenerate this legacy artifact")?;
     let minimum = settings
         .serial_seconds
@@ -285,6 +293,7 @@ pub(crate) fn integrate(
         contour_pilots.insert(report.kernel_content_id.clone(), report);
     }
     'integration: loop {
+        timed_stop.observe(started.elapsed(), in_flight(&slots));
         let mut changed = false;
         for slot in slots.iter_mut().flatten() {
             loop {
@@ -453,7 +462,19 @@ pub(crate) fn integrate(
             )?)?;
             publication = Instant::now();
         }
-        if cancelled || session.meets_target()? || session.exhausted() {
+        if cancelled {
+            break;
+        }
+        if session.meets_target()? || session.exhausted() {
+            if timed_stop.enabled() {
+                timed_stop.begin_drain(started.elapsed());
+            } else {
+                break;
+            }
+        }
+        timed_stop.observe(started.elapsed(), in_flight(&slots));
+        if timed_stop.stopping() && in_flight(&slots) == 0 {
+            timed_stop.drained(started.elapsed());
             break;
         }
         if last_checkpoint.elapsed() >= Duration::from_secs(5) {
@@ -471,6 +492,9 @@ pub(crate) fn integrate(
         }
         let mut scheduled = false;
         for index in 0..slots.len() {
+            if timed_stop.observe(started.elapsed(), in_flight(&slots)) {
+                break;
+            }
             if slots[index].as_ref().is_some_and(|s| s.task.is_some()) {
                 continue;
             }
@@ -564,6 +588,10 @@ pub(crate) fn integrate(
                 .iter()
                 .all(|s| s.as_ref().is_none_or(|s| s.task.is_none()))
         {
+            if timed_stop.stopping() {
+                timed_stop.drained(started.elapsed());
+                break;
+            }
             failure = Some(
                 "serial scheduler has no admissible work before convergence or exhaustion".into(),
             );
@@ -571,6 +599,7 @@ pub(crate) fn integrate(
         }
         std::thread::sleep(Duration::from_millis(10));
     }
+    let counts_complete = !cancelled && failure.is_none() && in_flight(&slots) == 0;
     // Reap every child before abandoning/reissuing its exact random reservation.
     for slot in &mut slots {
         let Some(mut slot) = slot.take() else {
@@ -619,5 +648,6 @@ pub(crate) fn integrate(
         snapshot: result,
         cancelled,
         failure,
+        timed_stop: timed_stop.report(started.elapsed(), counts_complete),
     })
 }

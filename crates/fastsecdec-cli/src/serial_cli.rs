@@ -110,6 +110,7 @@ pub(crate) fn integrate(
             failure: outcome.failure,
             resume_status: driver::ResumeStatus::CheckpointSaved,
             qmc_design: None,
+            timed_stop: outcome.timed_stop,
         },
     )?;
     report.loading_seconds = loading_seconds;

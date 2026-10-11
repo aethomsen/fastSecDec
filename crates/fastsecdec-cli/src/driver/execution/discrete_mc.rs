@@ -40,6 +40,7 @@ pub(super) fn run(context: Context<'_>) -> CliResult<IntegrationReport> {
         mut replay,
         operations,
     } = context;
+    let mut timed_stop = crate::driver::timing::TimedStop::new(settings.max_seconds)?;
     let initialization = operations.coordinator(false);
     let steering = settings.discrete_mc.clone().unwrap_or_default();
     if steering.pilot_iterations == 0
@@ -96,6 +97,7 @@ pub(super) fn run(context: Context<'_>) -> CliResult<IntegrationReport> {
     }
     let mut cancelled = false;
     let mut failure = None;
+    let mut all_returns_complete = true;
     // Lazily cache only sectors actually selected by each caller-owned worker.
     // Caches survive grid adaptation; their worst-case size is all visited
     // sectors per worker, not a claim of one evaluator context per worker.
@@ -124,6 +126,10 @@ pub(super) fn run(context: Context<'_>) -> CliResult<IntegrationReport> {
         if failure.is_some() || cancelled {
             break;
         }
+        if timed_stop.observe(started.elapsed(), 0) {
+            timed_stop.drained(started.elapsed());
+            break;
+        }
         let grid_span = operations.coordinator(false);
         if slots.is_empty() && !problem.sectors.is_empty() {
             slots = (0..settings.workers)
@@ -146,6 +152,10 @@ pub(super) fn run(context: Context<'_>) -> CliResult<IntegrationReport> {
             if cancelled {
                 break 'rounds;
             }
+            if timed_stop.observe(started.elapsed(), 0) {
+                timed_stop.drained(started.elapsed());
+                break 'rounds;
+            }
             let schedule_span = operations.coordinator(false);
             let tasks = (0..settings.workers)
                 .filter_map(|_| session.next_work())
@@ -162,6 +172,7 @@ pub(super) fn run(context: Context<'_>) -> CliResult<IntegrationReport> {
                 }
             }
             drop(prepare_span);
+            let wave_tasks = tasks.len();
             let returns = wave::run(
                 &pool,
                 &mut slots,
@@ -172,6 +183,9 @@ pub(super) fn run(context: Context<'_>) -> CliResult<IntegrationReport> {
                 settings.evaluation_batch_size,
                 session.stage(),
                 |activity, collect_live, completed| {
+                    // A deadline stops the next wave, never this wave's native
+                    // random batches. Only cancellation/failure signals abort.
+                    timed_stop.observe(started.elapsed(), wave_tasks);
                     dashboard.integration_work(activity);
                     if completed {
                         live_ledger.update(collect_live().into_iter());
@@ -203,12 +217,14 @@ pub(super) fn run(context: Context<'_>) -> CliResult<IntegrationReport> {
                     Ok(cancelled || failure.is_some())
                 },
             )?;
+            all_returns_complete &= returns.len() == wave_tasks;
             dashboard.integration_work(Vec::new());
             let admission = operations.coordinator(false);
             for returned in returns {
                 let completed = match returned {
                     Ok(completed) => completed,
                     Err(error) => {
+                        all_returns_complete = false;
                         failure
                             .get_or_insert_with(|| format!("discrete MC worker panicked: {error}"));
                         continue;
@@ -216,6 +232,7 @@ pub(super) fn run(context: Context<'_>) -> CliResult<IntegrationReport> {
                 };
                 diagnostics.merge(&completed.diagnostics)?;
                 if completed.aborted_prefix {
+                    all_returns_complete = false;
                     live_ledger.discard(None, completed.batch);
                     continue;
                 }
@@ -239,6 +256,7 @@ pub(super) fn run(context: Context<'_>) -> CliResult<IntegrationReport> {
                     Ok(())
                 })();
                 if let Err(error) = accepted {
+                    all_returns_complete = false;
                     live_ledger.discard(None, batch);
                     failure.get_or_insert_with(|| error.to_string());
                 }
@@ -265,6 +283,10 @@ pub(super) fn run(context: Context<'_>) -> CliResult<IntegrationReport> {
                 &mut failure,
             )?;
             if cancelled || failure.is_some() {
+                break 'rounds;
+            }
+            if timed_stop.observe(started.elapsed(), 0) {
+                timed_stop.drained(started.elapsed());
                 break 'rounds;
             }
             if last_checkpoint.elapsed().as_secs() >= 5
@@ -316,6 +338,8 @@ pub(super) fn run(context: Context<'_>) -> CliResult<IntegrationReport> {
             }
         };
         if meets || round + 1 >= settings.ordinary_max_rounds() {
+            timed_stop.begin_drain(started.elapsed());
+            timed_stop.drained(started.elapsed());
             break;
         }
         save_checkpoint(
@@ -361,6 +385,10 @@ pub(super) fn run(context: Context<'_>) -> CliResult<IntegrationReport> {
         ResumeStatus::CheckpointSaved
     };
     drop(checkpoint_span);
+    let timed_report = timed_stop.report(
+        started.elapsed(),
+        !cancelled && failure.is_none() && all_returns_complete,
+    );
     let mut report = finish(
         artifact,
         session.diagnostic_observation()?,
@@ -376,6 +404,7 @@ pub(super) fn run(context: Context<'_>) -> CliResult<IntegrationReport> {
             failure,
             resume_status,
             qmc_design: None,
+            timed_stop: timed_report,
         },
     )?;
     if session.stage() != IntegrationStage::Production || !session.is_complete() {
@@ -383,3 +412,6 @@ pub(super) fn run(context: Context<'_>) -> CliResult<IntegrationReport> {
     }
     final_report(dashboard, report)
 }
+
+#[cfg(test)]
+mod tests;

@@ -220,6 +220,7 @@ pub(super) fn run(context: Context<'_>, method: &str) -> CliResult<IntegrationRe
             failure,
             resume_status: ResumeStatus::CheckpointSaved,
             qmc_design: Some(session.design()),
+            timed_stop: None,
         },
     )?;
     if session.stage() != IntegrationStage::Production || !session.is_complete() {

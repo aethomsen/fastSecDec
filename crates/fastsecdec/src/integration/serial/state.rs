@@ -87,6 +87,8 @@ pub struct SerialSettings {
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct AcceptedAllocation {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub(crate) weights: Option<crate::integration::weights::WeightStatistics>,
     pub estimate: VectorEstimate,
     pub(super) moments: ReplicaMoments,
     pub replicas: u64,
@@ -97,6 +99,8 @@ pub struct AcceptedAllocation {
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub(super) struct SectorState {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub(crate) weights: Option<crate::integration::weights::WeightStatistics>,
     pub id: u64,
     pub dimension: usize,
     pub pilot: bool,

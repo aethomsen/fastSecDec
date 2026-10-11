@@ -64,6 +64,7 @@ pub(in crate::display) fn render(
     };
     let regions = Layout::vertical([
         Constraint::Length(header_height),
+        Constraint::Length(1),
         Constraint::Length(3),
         Constraint::Length(serial_height),
         Constraint::Min(5),
@@ -73,14 +74,18 @@ pub(in crate::display) fn render(
     ])
     .split(area);
     header(frame, regions[0], data, order, colors);
-    progress(frame, regions[1], data, colors, cancelling);
+    frame.render_widget(
+        Paragraph::new(super::weights::line(data, order)).style(colors.foreground(GOLD)),
+        regions[1],
+    );
+    progress(frame, regions[2], data, colors, cancelling);
     if let Some(serial) = &data.serial {
-        super::super::serial_view::render(frame, regions[2], serial, colors);
+        super::super::serial_view::render(frame, regions[3], serial, colors);
     }
-    super::sectors::render(frame, regions[3], data, view, colors);
-    super::metrics::selected(frame, regions[4], data, view, colors);
-    super::metrics::global(frame, regions[5], data, colors);
-    help(frame, regions[6], colors, cancelling);
+    super::sectors::render(frame, regions[4], data, view, colors);
+    super::metrics::selected(frame, regions[5], data, view, colors);
+    super::metrics::global(frame, regions[6], data, colors);
+    help(frame, regions[7], colors, cancelling);
 }
 
 fn header(frame: &mut Frame<'_>, area: Rect, data: &Cached, order: i32, colors: ColorPolicy) {
@@ -106,7 +111,7 @@ fn header(frame: &mut Frame<'_>, area: Rect, data: &Cached, order: i32, colors: 
     );
     let title = if area.height < 5 {
         format!(
-            " {} · ε{} · rel {} · {} / {} ",
+            " {} · ε{} · joint rel {} · {} / {} ",
             if data.scope.is_full_integral() {
                 "Full sum"
             } else {
@@ -152,7 +157,7 @@ fn header(frame: &mut Frame<'_>, area: Rect, data: &Cached, order: i32, colors: 
     };
     let preview = data.live.is_some();
     let live_label = format!(
-        "{} · rel {}",
+        "{} · joint rel {}",
         if preview {
             if data.scope.is_full_integral() {
                 "Full preview"
@@ -383,6 +388,7 @@ fn compact(
 ) {
     let parts = Layout::vertical([
         Constraint::Length(5),
+        Constraint::Length(1),
         Constraint::Min(3),
         Constraint::Length(4),
         Constraint::Length(2),
@@ -410,7 +416,11 @@ fn compact(
         )),
         parts[0],
     );
-    super::sectors::render(frame, parts[1], data, view, colors);
+    frame.render_widget(
+        Paragraph::new(super::weights::line(data, view.order(data))).style(colors.foreground(GOLD)),
+        parts[1],
+    );
+    super::sectors::render(frame, parts[2], data, view, colors);
     let fs = fractions(Some(&data.operational.diagnostics));
     frame.render_widget(
         Paragraph::new(vec![
@@ -424,7 +434,7 @@ fn compact(
         ])
         .style(colors.foreground(PURPLE))
         .block(card(" Invocation outcomes ", PURPLE, colors)),
-        parts[2],
+        parts[3],
     );
-    help(frame, parts[3], colors, cancelling);
+    help(frame, parts[4], colors, cancelling);
 }

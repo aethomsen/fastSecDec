@@ -101,6 +101,7 @@ impl SerialSession {
         Ok(IntegrationObservation {
             snapshot,
             contributions,
+            weight_diagnostics: Some(self.weight_diagnostics()?),
         })
     }
 }

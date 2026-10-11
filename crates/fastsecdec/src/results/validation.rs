@@ -135,6 +135,20 @@ impl SavedIntegrationResult {
                 )?;
             }
         }
+        if let Some(weights) = &self.weight_diagnostics {
+            let points = report.sectors.iter().try_fold(0_u64, |sum, sector| {
+                sum.checked_add(sector.used_points).ok_or_else(|| {
+                    ResultError::Invalid("accepted weight point count overflow".into())
+                })
+            })?;
+            weights.validate(
+                &report.orders,
+                &report.components,
+                &report.exact_coefficients,
+                report.total.as_ref(),
+                points,
+            )?;
+        }
         if let Some(tolerance) = self.requested_tolerance {
             tolerance.validate()?;
         }

@@ -22,6 +22,7 @@ mod render;
 mod sectors;
 #[cfg(test)]
 mod tests;
+mod weights;
 pub(super) use render::render;
 use std::{cmp::Ordering, collections::BTreeSet};
 

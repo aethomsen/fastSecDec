@@ -114,6 +114,7 @@ fn final_report(
         &fastsecdec::integration::IntegrationObservation {
             snapshot: report.snapshot.clone(),
             contributions: report.contributions.clone(),
+            weight_diagnostics: report.weight_diagnostics.clone(),
         },
         report.elapsed_seconds,
     )?;

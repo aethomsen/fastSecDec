@@ -1,4 +1,6 @@
 mod checkpoint;
+mod weights;
+use crate::integration::weights::{WeightLayout, WeightStatistics};
 mod contributions;
 mod observation;
 mod refinement;
@@ -23,6 +25,8 @@ use super::{HavanaReturn, HavanaSettings, HavanaTask, HavanaWorker};
 struct BatchRecord {
     task: HavanaTask,
     mean: Vec<f64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    weights: Option<WeightStatistics>,
     worker_seconds: f64,
 }
 
@@ -185,6 +189,7 @@ impl HavanaSession {
             grid: self.runs[i].grid.clone_without_samples(),
             points: self.settings.points_per_batch,
             outputs: self.problem.orders.len(),
+            weight_layout: Some(WeightLayout::new(&self.problem)),
             training: self.stage == IntegrationStage::Pilot,
             sample: Sample::new(),
             values: Vec::new(),
@@ -226,6 +231,12 @@ impl HavanaSession {
                 "invalid, duplicate or incomplete Havana return".into(),
             ));
         }
+        if let Some(stats) = &value.weights {
+            stats.validate(
+                WeightLayout::new(&self.problem).len(),
+                value.task.points as u64,
+            )?;
+        }
         if let Some(grid) = &value.training {
             run.training
                 .is_mergeable(grid)
@@ -245,6 +256,7 @@ impl HavanaSession {
             BatchRecord {
                 task: value.task,
                 mean: value.mean,
+                weights: value.weights,
                 worker_seconds: value.worker_seconds,
             },
         );

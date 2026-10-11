@@ -9,6 +9,7 @@ mod selection_tests;
 pub(crate) mod serial;
 #[cfg(test)]
 mod tests;
+pub(crate) mod timing;
 
 #[cfg(test)]
 pub use execution::integrate;

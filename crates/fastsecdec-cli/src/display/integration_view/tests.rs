@@ -119,6 +119,30 @@ fn mean_only_qmc_labels_fit_then_disappear_when_native_error_is_available() {
 }
 
 #[test]
+fn accepted_weight_and_norm_line_waits_for_evidence_and_preserves_snapshot() {
+    let mut session = qmc();
+    let initial = cached(&session);
+    assert!(super::weights::line(&initial, 0).contains("C —"));
+    assert!(super::weights::line(&initial, 0).contains("norm rel —"));
+    shift(&mut session);
+    shift(&mut session);
+    let accepted = cached(&session);
+    let before = serde_json::to_value(&accepted.observation).unwrap();
+    let line = super::weights::line(&accepted, 0);
+    assert!(line.contains("C 1.000"), "{line}");
+    assert!(!line.contains("max/|I| —"), "{line}");
+    assert!(!line.contains("norm rel —"), "{line}");
+    for width in [80, 120, 160, 240] {
+        let (buffer, _) = draw(&accepted, width, 36, false);
+        let rendered = text(&buffer);
+        assert!(rendered.contains("C 1.000"), "{width}:\n{rendered}");
+        assert!(rendered.contains("max/|I|"), "{width}:\n{rendered}");
+        assert!(rendered.contains("norm rel"), "{width}:\n{rendered}");
+    }
+    assert_eq!(serde_json::to_value(&accepted.observation).unwrap(), before);
+}
+
+#[test]
 fn sector_columns_keep_complete_unicode_suffixes_and_matching_mouse_regions() {
     let mut session = qmc();
     shift(&mut session);

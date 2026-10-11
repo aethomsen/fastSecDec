@@ -8,6 +8,8 @@ mod adaptive;
 mod config;
 mod contributions;
 mod estimate;
+mod estimate_norm;
+pub use estimate_norm::ComplexNormUncertainty;
 mod live;
 pub mod mc;
 pub mod mc_discrete;
@@ -18,7 +20,9 @@ mod qmc;
 mod refinement_tests;
 pub mod serial;
 mod streams;
+mod weights;
 mod worker;
+pub use weights::{WeightDiagnosticStatus, WeightDiagnostics, WeightOrderDiagnostics};
 
 pub use crate::status::CoefficientComponent;
 pub use accuracy::{AccuracyAssessment, AccuracyTarget};

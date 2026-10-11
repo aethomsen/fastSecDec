@@ -43,6 +43,7 @@ pub(super) struct RestoredCheckpoint {
 pub(super) fn settings_identity(settings: &IntegrationInput) -> CliResult<serde_json::Value> {
     let mut value = serde_json::to_value(settings)?;
     value.as_object_mut().unwrap().remove("workers");
+    value.as_object_mut().unwrap().remove("max_seconds");
     value.as_object_mut().unwrap().remove("contour_diagnostics");
     value
         .as_object_mut()
@@ -65,6 +66,18 @@ pub(super) fn settings_identity(settings: &IntegrationInput) -> CliResult<serde_
         value["max_rounds"] = settings.ordinary_max_rounds().into();
     }
     Ok(value)
+}
+
+#[cfg(test)]
+#[test]
+fn invocation_deadline_does_not_change_checkpoint_statistical_identity() {
+    let baseline = IntegrationInput::default();
+    let mut timed = baseline.clone();
+    timed.max_seconds = Some(600.);
+    assert_eq!(
+        settings_identity(&baseline).unwrap(),
+        settings_identity(&timed).unwrap()
+    );
 }
 
 #[cfg(test)]

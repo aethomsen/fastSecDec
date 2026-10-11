@@ -52,6 +52,20 @@ pub fn assemble_manifest(
         "operational_timings".into(),
         serde_json::to_value(&report.operational)?,
     );
+    if let Some(total) = &report.contributions.total {
+        let norms: std::collections::BTreeMap<_, _> = total
+            .orders
+            .iter()
+            .copied()
+            .collect::<std::collections::BTreeSet<_>>()
+            .into_iter()
+            .map(|order| (order, total.complex_norm_uncertainty(order)))
+            .collect();
+        provenance.attributes.insert(
+            "complex_norm_uncertainty".into(),
+            serde_json::to_value(norms)?,
+        );
+    }
     provenance.attributes.insert(
         "process_cpu_seconds".into(),
         serde_json::to_value(report.process_cpu_seconds)?,
@@ -70,6 +84,11 @@ pub fn assemble_manifest(
             .attributes
             .insert("generation_timings".into(), serde_json::to_value(timings)?);
     }
+    if let Some(timed_stop) = &report.timed_stop {
+        provenance
+            .attributes
+            .insert("timed_stop".into(), serde_json::to_value(timed_stop)?);
+    }
     if let Some(reference) = reference {
         provenance.attributes.insert(
             "reference_file".into(),
@@ -83,6 +102,7 @@ pub fn assemble_manifest(
         manifest,
         scope: settings.scope.clone(),
         contributions: report.contributions.clone(),
+        weight_diagnostics: report.weight_diagnostics.clone(),
         stopping_reason: report
             .snapshot
             .stop_reason

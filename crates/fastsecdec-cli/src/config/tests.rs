@@ -3,6 +3,38 @@ use fastsecdec::generation::{CoefficientExpansionMethod, CoefficientExpansionOpt
 use fastsecdec::parametric::FamilyPreparationPolicy;
 
 #[test]
+fn timed_drain_is_explicit_positive_and_supported_by_the_selected_scheduler() {
+    let mut settings = super::IntegrationInput::default();
+    assert_eq!(settings.max_seconds, None);
+    assert!(
+        !serde_json::to_value(&settings)
+            .unwrap()
+            .as_object()
+            .unwrap()
+            .contains_key("max_seconds")
+    );
+    settings.max_seconds = Some(600.);
+    assert!(settings.validate_execution().is_err());
+    settings.serial_seconds = Some(1.);
+    assert!(settings.validate_execution().is_ok());
+    for value in [
+        0.,
+        -1.,
+        f64::NAN,
+        f64::INFINITY,
+        f64::MAX,
+        f64::MIN_POSITIVE,
+    ] {
+        settings.max_seconds = Some(value);
+        assert!(settings.validate_execution().is_err());
+    }
+    settings.max_seconds = Some(600.);
+    settings.serial_seconds = None;
+    settings.method = "discrete_mc".into();
+    assert!(settings.validate_execution().is_ok());
+}
+
+#[test]
 fn maintained_kite_card_uses_native_input_and_horner_ten_with_optional_source_subset() {
     let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("../../examples/contour/scalar_benchmarks/kite.toml");

@@ -27,6 +27,14 @@ impl HavanaWorker {
                 "Havana task belongs to another integral, grid or production design".into(),
             ));
         }
+        if let Some(layout) = &self.weight_layout {
+            layout.validate(self.outputs)?;
+        }
+        let mut statistics = self
+            .weight_layout
+            .as_ref()
+            .map(|l| WeightStatistics::new(l.len()));
+        let mut absolute = Vec::new();
         let started = Instant::now();
         let mut grid = self.grid.clone_without_samples();
         let mut rng = MonteCarloRng::import(task.rng_state);
@@ -80,6 +88,10 @@ impl HavanaWorker {
                     };
                 }
                 accumulator.add(&weighted_values);
+                if let (Some(layout), Some(stats)) = (&self.weight_layout, &mut statistics) {
+                    layout.magnitudes(&weighted_values, 1.0, &mut absolute);
+                    stats.push(&absolute, &absolute)?;
+                }
                 if self.training {
                     let mut envelope = values.iter().map(|v| v.abs()).fold(0.0, f64::max);
                     if already_weighted {
@@ -109,6 +121,7 @@ impl HavanaWorker {
         Ok(HavanaReturn {
             task,
             mean,
+            weights: statistics,
             worker_seconds: started.elapsed().as_secs_f64(),
             training: self.training.then_some(grid),
         })

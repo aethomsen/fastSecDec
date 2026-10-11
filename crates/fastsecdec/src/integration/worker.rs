@@ -3,7 +3,10 @@ use std::{fmt::Display, time::Instant};
 use fastsecdec_qmc::{Korobov2, Korobov3, QmcPartial, QmcPlan, QmcWorkPackage};
 use serde::{Deserialize, Serialize};
 
-use super::{IntegrationError, Periodization, Result};
+use super::{
+    IntegrationError, Periodization, Result,
+    weights::{WeightLayout, WeightPartial},
+};
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct QmcTask {
@@ -31,6 +34,8 @@ pub struct QmcReturn {
     pub(crate) task: QmcTask,
     pub(crate) partial: QmcPartial,
     pub(crate) worker_seconds: f64,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub(crate) weights: Option<WeightPartial>,
 }
 
 impl QmcReturn {
@@ -44,6 +49,7 @@ impl QmcReturn {
             task,
             partial: partial.finish()?,
             worker_seconds,
+            weights: None,
         })
     }
     pub fn task(&self) -> &QmcTask {
@@ -64,6 +70,8 @@ pub struct QmcWorker {
     pub(crate) sector_id: u64,
     pub(crate) plan: QmcPlan,
     pub(crate) output_count: usize,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub(crate) weight_layout: Option<WeightLayout>,
     pub(crate) periodization: Periodization,
     #[serde(skip)]
     pub(crate) point: Vec<f64>,
@@ -151,6 +159,22 @@ impl QmcWorker {
             ));
         }
         let mut partial = QmcPartial::new(&self.plan, task.work, self.output_count)?;
+        if let Some(layout) = &self.weight_layout {
+            layout.validate(self.output_count)?;
+        }
+        let mut statistics = self
+            .weight_layout
+            .as_ref()
+            .map(|layout| {
+                WeightPartial::new(
+                    task.work.start(),
+                    task.point_count(),
+                    self.plan.rule().points(),
+                    layout.len(),
+                )
+            })
+            .transpose()?;
+        let mut magnitudes = Vec::new();
         self.point.resize(self.plan.dimension(), 0.0);
         let mut points = Vec::new();
         let mut weights = Vec::new();
@@ -186,8 +210,16 @@ impl QmcWorker {
                     }
                 }
                 partial.push(values)?;
+                if let (Some(layout), Some(stats)) = (&self.weight_layout, &mut statistics) {
+                    layout.magnitudes(values, 1.0, &mut magnitudes);
+                    let shift =
+                        (start + row as u64) / self.plan.rule().points() - stats.first_shift;
+                    stats.groups[shift as usize].push(&magnitudes, &magnitudes)?;
+                }
             }
         }
-        QmcReturn::from_partial(task, partial, started.elapsed().as_secs_f64())
+        let mut returned = QmcReturn::from_partial(task, partial, started.elapsed().as_secs_f64())?;
+        returned.weights = statistics;
+        Ok(returned)
     }
 }

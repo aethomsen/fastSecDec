@@ -120,6 +120,20 @@ independence_evidence = "The stored test target was not derived from this run."
     );
     let saved = read_result(&fs::read(&result_path).unwrap()).unwrap();
     assert_eq!(
+        serde_json::to_value(&saved.weight_diagnostics).unwrap(),
+        report["weight_diagnostics"]
+    );
+    let norm = saved
+        .contributions
+        .total
+        .as_ref()
+        .unwrap()
+        .complex_norm_uncertainty(0);
+    assert_eq!(
+        saved.provenance.attributes["complex_norm_uncertainty"]["0"],
+        serde_json::to_value(norm).unwrap()
+    );
+    assert_eq!(
         serde_json::to_value(&saved.contributions.total).unwrap(),
         report["estimate"]
     );
@@ -238,6 +252,7 @@ fn numerical_fixture(selected: bool) -> SavedIntegrationResult {
         session.submit(returned).unwrap();
     }
     SavedIntegrationResult {
+        weight_diagnostics: None,
         manifest: KernelResultManifest {
             threshold_scope: None,
             source_selection: None,

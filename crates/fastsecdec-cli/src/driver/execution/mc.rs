@@ -305,6 +305,7 @@ pub(super) fn run(context: Context<'_>, method: &str) -> CliResult<IntegrationRe
             failure,
             resume_status,
             qmc_design: None,
+            timed_stop: None,
         },
     )?;
     if session.stage() != IntegrationStage::Production || !session.is_complete() {

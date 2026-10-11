@@ -4705,6 +4705,24 @@ introduced. Independent source/math/reuse review, 30 numerator tests and strict
 workspace Clippy pass. Existing branch/face admission and serialization remain
 unchanged; the full physical endpoint atlas is still a separate acceptance gate.
 
+## Accepted-weight diagnostics and timed integration (2026-10-11)
+
+The [weight-diagnostic review](reviews/integration-weight-diagnostics.md) records
+the Numerica API, source and executable probes behind the bounded mean-only
+sidecar, full complex-norm covariance propagation, native exact-arithmetic range
+fallback, and independent HEPKit/presentation review. Existing sampling,
+covariance, stream reservations and checkpoint admission remain authoritative.
+The existing Python observation serializer forwards the native fields without
+a separate numerical implementation. Legacy pointwise information stays absent.
+
+The [timed-drain review](reviews/timed-integration-draining.md) verifies that the
+CLI stops new reservations at its optional deadline and accepts all complete
+outstanding returns. It does not add a library-owned scheduler or change RNG
+streams. Successful drained runs distinguish complete operational call counts
+from accepted production diagnostics; failures retain conservative lower bounds.
+Scientific, saved-result, actual-process and CLI gates pass, together with strict
+workspace/all-target Clippy, formatting and the optimized native release.
+
 ## HEPKit native feature-graph build (2026-10-11)
 
 The Python leaf build exposed ambiguous right-hand collections in eight native

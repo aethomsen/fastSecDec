@@ -284,6 +284,9 @@ pub struct IntegrationInput {
     /// Minimum sampling residence, excluding loading/JIT and pauses.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub serial_seconds: Option<f64>,
+    /// Stop assigning work after this invocation time, then drain complete jobs.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub max_seconds: Option<f64>,
     /// Grow points per replica; false appends replicas of the frozen design.
     pub double_points: bool,
     /// Omission means one ordinary allocation or unlimited serial allocations.
@@ -348,6 +351,7 @@ impl Default for IntegrationInput {
             accuracy_target: Default::default(),
             production_seconds: 10.0,
             serial_seconds: None,
+            max_seconds: None,
             double_points: true,
             max_rounds: None,
             replay: Default::default(),
@@ -378,6 +382,19 @@ impl IntegrationInput {
 
     pub fn validate_execution(&self) -> crate::CliResult<()> {
         self.contour.validate()?;
+        if let Some(seconds) = self.max_seconds {
+            if !seconds.is_finite() || seconds <= 0.0 {
+                return Err("max_seconds must be finite and greater than zero".into());
+            }
+            if std::time::Duration::try_from_secs_f64(seconds)
+                .map_or(true, |duration| duration.is_zero())
+            {
+                return Err("max_seconds is outside the supported clock duration range".into());
+            }
+            if self.serial_seconds.is_none() && self.method.replace('-', "_") != "discrete_mc" {
+                return Err("max_seconds requires --serial or --method discrete_mc; other schedulers do not yet support timed draining".into());
+            }
+        }
         if self.workers == 0 || self.max_rounds == Some(0) || self.evaluation_batch_size == 0 {
             return Err("workers, max_rounds and evaluation_batch_size must be positive".into());
         }

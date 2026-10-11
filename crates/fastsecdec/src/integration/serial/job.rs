@@ -42,6 +42,8 @@ pub struct SerialTask {
     pub(super) points: u64,
     pub(super) dimension: usize,
     pub(super) outputs: usize,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub(super) weight_layout: Option<crate::integration::weights::WeightLayout>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -49,6 +51,8 @@ pub struct SerialReturn {
     pub(super) identity: ReplicaIdentity,
     pub(super) task_digest: [u8; 32],
     pub(super) mean: Vec<f64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub(super) weights: Option<crate::integration::weights::WeightStatistics>,
     pub(super) training: Option<ContinuousGrid<f64>>,
     pub(super) worker_seconds: f64,
 }
@@ -109,6 +113,9 @@ impl SerialTask {
                 "invalid serial job identity or dimensions".into(),
             ));
         }
+        if let Some(layout) = &self.weight_layout {
+            layout.validate(self.outputs)?;
+        }
         match &self.sampler {
             Sampler::Qmc { plan, .. } => {
                 if plan.dimension() != self.dimension
@@ -155,7 +162,7 @@ impl SerialTask {
     ) -> Result<SerialReturn> {
         self.validate()?;
         let digest = self.digest()?;
-        let (mean, training, worker_seconds) = match &self.sampler {
+        let (mean, training, worker_seconds, weights) = match &self.sampler {
             Sampler::Qmc {
                 plan,
                 periodization,
@@ -166,6 +173,7 @@ impl SerialTask {
                     sector_id: self.identity.sector_id,
                     plan: plan.clone(),
                     output_count: self.outputs,
+                    weight_layout: self.weight_layout.clone(),
                     periodization: *periodization,
                     point: Vec::new(),
                     values: Vec::new(),
@@ -182,7 +190,12 @@ impl SerialTask {
                 let mut accumulator = QmcAccumulator::new(plan.clone(), self.outputs)?;
                 accumulator.merge(returned.partial)?;
                 let mean = accumulator.shift_estimates()?.remove(0).mean;
-                (mean, None, seconds)
+                (
+                    mean,
+                    None,
+                    seconds,
+                    returned.weights.map(|mut p| p.groups.remove(0)),
+                )
             }
             Sampler::Mc { grid, training } => {
                 let points = usize::try_from(self.points).map_err(|_| {
@@ -194,6 +207,7 @@ impl SerialTask {
                     grid: grid.clone_without_samples(),
                     points,
                     outputs: self.outputs,
+                    weight_layout: self.weight_layout.clone(),
                     training: *training,
                     sample: Sample::new(),
                     values: Vec::new(),
@@ -207,7 +221,12 @@ impl SerialTask {
                 };
                 let returned =
                     worker.evaluate_weighted_batch_observed(task, batch_size, evaluate, |_| {})?;
-                (returned.mean, returned.training, returned.worker_seconds)
+                (
+                    returned.mean,
+                    returned.training,
+                    returned.worker_seconds,
+                    returned.weights,
+                )
             }
         };
         Ok(SerialReturn {
@@ -216,6 +235,7 @@ impl SerialTask {
             mean,
             training,
             worker_seconds,
+            weights,
         })
     }
 }
