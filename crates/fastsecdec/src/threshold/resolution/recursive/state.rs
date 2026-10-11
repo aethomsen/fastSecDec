@@ -122,6 +122,32 @@ impl BoundaryFreeFirstCenter {
     pub fn outcome(&self) -> &RecursiveOutcome {
         &self.outcome
     }
+    /// Retain the actual interrupted construction for finite all-contact work.
+    /// This does not choose a center or change the old driver's outcome.
+    pub fn contact_dispatch_origin(
+        &self,
+        b: &mut Budget,
+    ) -> Result<Option<Arc<ContactDispatchOrigin>>> {
+        let RecursiveOutcome::MultipleContactOpensRequired {
+            source,
+            presentation,
+        } = &self.outcome
+        else {
+            return Ok(None);
+        };
+        let auxiliary = self
+            .auxiliary_origin
+            .clone()
+            .ok_or(Error::Invalid("contact dispatch missing original origin"))?;
+        ContactDispatchOrigin::prepare(
+            auxiliary,
+            &self.stack,
+            source.clone(),
+            presentation.clone(),
+            b,
+        )
+        .map(Some)
+    }
     pub fn accepted_steps(&self) -> usize {
         self.accepted_steps
     }
@@ -360,5 +386,19 @@ impl BoundaryFreeFirstCenter {
             presentation,
         };
         Ok(())
+    }
+}
+impl BoundaryFreeFirstCenter {
+    /// Start caller-stepped all-contact continuation from this actual retained
+    /// interruption. The old first-center outcome and default behavior remain.
+    pub fn finite_contact_dispatcher(
+        &self,
+        namespace: String,
+        b: &mut Budget,
+    ) -> Result<Option<FiniteContactDispatcher>> {
+        let Some(origin) = self.contact_dispatch_origin(b)? else {
+            return Ok(None);
+        };
+        super::contact_dispatch::FiniteContactDispatcher::prepare(origin, namespace, b).map(Some)
     }
 }

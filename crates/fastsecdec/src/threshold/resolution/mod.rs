@@ -184,3 +184,13 @@ pub use blowup::{
     PhysicalPowerPreparation, PhysicalPowerSlot, PhysicalPowerSlotKind, PhysicalPowerTerminal,
     RetiredPowerInventory,
 };
+
+pub use recursive::{ContactDispatchCover, ContactDispatchOrigin};
+
+pub use recursive::{ContactBranchProduction, ContactDispatchBranch, ContactTerminalComponents};
+
+pub use recursive::{ContactAmbientWork, ContactBranchWork, FiniteContactDispatcher};
+pub use recursive::{
+    ContactComponentFrontier, ContactComponentWork, ContactDispatchAdvance, DispatchAncestorOrder,
+    DispatchedContactCenter,
+};

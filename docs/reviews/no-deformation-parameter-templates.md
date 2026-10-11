@@ -82,3 +82,29 @@ native-source pins and reviewed the existing binding and prefix implementations.
 An independent scientific review accepted the stated design scope. This work
 does not close the general parameter-stratification or algebraic-resolution
 gates.
+
+## Detached guard follow-up
+
+The focused codec probe found that the adopted rational polynomial ring does
+not meet the native polynomial codec's `Encode` bound. The implementation
+therefore reuses the existing exact evaluator codec, maps its restored constants
+to the native rational ring once, and uses native exact ring evaluation at
+admission. Numerator and denominator outputs remain separate until a nonzero
+denominator is established. No polynomial codec or arithmetic engine is added.
+
+An intermediate private implementation passes five native parent tests and an
+explicit fresh-process helper. These cover exact polynomial agreement, negative
+denominators, strict boundaries, exceptional predicates, degree-drop and positive
+selector distinctions, actual floating-point values, resource/shape refusals,
+and native State restoration after reversing symbol registration. Saved native
+IR bytes remain unchanged across that restoration. The coordinator verified
+four source preimages/postimages and 24 evidence digests in handoff
+`57e798176b4662632b8788211a95070d0ea52be130e9f217b39fe7be2c2be583`.
+
+This checker does not issue a uniform chamber or mutate a kernel binding.
+Source-derived alias mapping and whole-family authority still belong to the
+geometry owner. Integration must admit the chamber before evaluating exact
+offsets, then use the existing atomic binding commit. Default-native template
+restoration, two-point full-vector evaluation and rejected-binding atomicity
+remain pending. Native allocation limits are not inferred from post-evaluation
+output-size checks.

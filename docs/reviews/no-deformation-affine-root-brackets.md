@@ -128,3 +128,54 @@ The frozen diagnostic handoff is
 the coordinator verified all 24 source, evidence and executable pins. The
 automatic normal/serial numerical matrix remains blocked on this correction;
 generation success alone is not reported as an integration pass.
+
+## Coefficient-shift successor
+
+The bounded follow-up comparison distinguishes direct expansion from a
+coefficient boundary between two evaluators. Write
+
+`Q(s) = P(a + (b-a)*s) = sum_k q_k(c)*s^k`.
+
+Symbolica prepares the exact `q_k` expressions using substitution and native
+coefficient extraction, and verifies exact recombination. At runtime, one
+evaluation computes the vector `q(c)`. A separate polynomial evaluator accepts
+that vector as opaque inputs and evaluates `Q`, `Q_s` and the physical image.
+Optimization therefore cannot reconstruct the rounding-sensitive physical
+`P(a + (b-a)*s)` evaluation across this numerical boundary. Only this small
+univariate helper is expanded; the composed integral density remains separate.
+
+The frozen comparison runs 720 queries per representation. The historical
+composed representation succeeds on 675, direct expansion on 705, and the
+coefficient boundary on all 720. A fresh native arithmetic-pair process passes
+378 further queries across ordinary, DoubleFloat and tracked arbitrary-precision
+domains. These counts include repeated and reordered inputs. They are bounded
+arithmetic controls, not a universal convergence proof or an interval enclosure.
+The handoff and its 39 verified evidence/native-source pins are recorded in
+[the reuse audit](../REUSE_AUDIT.md#normalized-root-coefficients-native-arithmetic-correction).
+
+The polynomial body grows linearly with degree; the coefficient shift can grow
+quadratically. At degree 33, the diagnostic body has 163 instructions and the
+shift has 625. This motivates explicit preparation bounds before expansion.
+The proposed versioned recipe saves both optimized programs and retains
+derivatives with respect to the original coefficients, `-r^i/P_r(r)`.
+Earlier V1/V2 artifacts keep their original recipes. Complete-kernel and
+automatic generation/integration acceptance of the successor remains separate
+from the representation study.
+
+The private V3 implementation subsequently passes 14 maintained callback and
+codec tests. A matched 8,192-point quintic comparison has exactly equal complete
+six-component means and all covariance entries for V2 and V3, including 5,766
+precision rescues in both. Independent controls check pole cancellation and
+the finite imaginary part; the other entries have numerical parity coverage.
+The observed 24.172/24.245-second timings establish no speedup. A fresh default
+native child restores both complete-family backends and six root/derivative
+archives without linking the GCAD dependency. Working-precision root comparisons
+at 128/256 bits use exact native rational comparisons, not conversion to f64.
+
+Automatic normal and serial sextic generation also succeed with equal artifact
+identities. The subsequent first ordinary integration fails after 112
+evaluations on tracked coefficient uncertainty, before accepting an estimate.
+It is reproducible from the saved artifact at sector 0, point
+`[1.9821906045953033e-6, 0.009410550281948912]`. No later integration lane is
+reported as passed. This distinct failure remains under investigation, and the
+private factory/V3 source has not yet been adopted into the shared implementation.

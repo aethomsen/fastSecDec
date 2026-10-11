@@ -51,20 +51,8 @@ impl LocalizedComponentSources {
         }
         let terminal = owner.terminal();
         let local = support.frame().local();
-        let pull = |ideal: &Ideal, b: &mut Budget| -> Result<Ideal> {
-            b.reserve_slots(ideal.generators().len())?;
-            Ideal::new(
-                local.ring().clone(),
-                ideal
-                    .generators()
-                    .iter()
-                    .map(|f| map.pull(f, b))
-                    .collect::<Result<Vec<_>>>()?,
-                b,
-            )
-        };
-        let child_ideal = pull(terminal.source().ideal(), b)?;
-        let child_normalized = pull(terminal.normalization().normalized().ideal(), b)?;
+        let child_ideal = pull_ideal(map, terminal.source().ideal(), b)?;
+        let child_normalized = pull_ideal(map, terminal.normalization().normalized().ideal(), b)?;
         equal(local, &child_ideal, &child_normalized, b)?;
         let child = Arc::new(MarkedIdeal::new(child_ideal, terminal.source().mark(), b)?);
         Ok(Arc::new(Self {
@@ -155,4 +143,22 @@ pub(super) fn equal(local: &LocalizedAlgebra, a: &Ideal, c: &Ideal, b: &mut Budg
         }
     }
     Ok(())
+}
+
+/// Shared restriction through an existing checked support-frame map.
+pub(in super::super) fn pull_ideal(
+    map: &SupportFrameMap,
+    ideal: &Ideal,
+    b: &mut Budget,
+) -> Result<Ideal> {
+    b.reserve_slots(ideal.generators().len())?;
+    Ideal::new(
+        map.target().local().ring().clone(),
+        ideal
+            .generators()
+            .iter()
+            .map(|f| map.pull(f, b))
+            .collect::<Result<Vec<_>>>()?,
+        b,
+    )
 }

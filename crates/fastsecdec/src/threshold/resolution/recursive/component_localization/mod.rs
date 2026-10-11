@@ -77,3 +77,5 @@ impl ComponentLocalization {
 }
 #[cfg(test)]
 mod tests;
+
+pub(super) use sources::pull_ideal;

@@ -121,3 +121,15 @@ pub use component_localization::*;
 
 #[cfg(test)]
 pub(crate) mod power_tests;
+
+mod contact_dispatch;
+pub use contact_dispatch::{ContactDispatchCover, ContactDispatchOrigin};
+
+pub use contact_dispatch::{ContactAmbientWork, ContactBranchWork, FiniteContactDispatcher};
+pub use contact_dispatch::{
+    ContactBranchProduction, ContactDispatchBranch, ContactTerminalComponents,
+};
+pub use contact_dispatch::{
+    ContactComponentFrontier, ContactComponentWork, ContactDispatchAdvance, DispatchAncestorOrder,
+    DispatchedContactCenter,
+};

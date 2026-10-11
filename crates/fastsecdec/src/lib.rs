@@ -4,6 +4,8 @@
 //! This crate owns only integral-specific normalization and generation state.
 
 #![forbid(unsafe_code)]
+// Retained resolution ancestry needs a deeper compiler auto-trait query stack.
+#![cfg_attr(feature = "threshold-decomposition", recursion_limit = "256")]
 
 #[cfg(all(feature = "native", feature = "portable"))]
 compile_error!("select exactly one FastSecDec backend: native or portable");

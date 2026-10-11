@@ -4119,6 +4119,13 @@ reviews accept that design scope. A parameter-enabled threshold template and
 its fresh-process rebinding gate remain pending; the optional fifth standalone
 reuse probe had an explicitly recorded transitive build-cache link failure.
 
+The follow-up detached guard reuses the existing exact evaluator codec and
+native rational-ring evaluation, after an executable probe disproved direct
+polynomial-codec availability for the adopted `Q` ring. Five private source
+tests and a fresh-process native State helper pass; four source pairs and 24
+evidence digests were checked. The same linked review records this intermediate
+implementation separately from the still-pending uniform template/binding gate.
+
 ## Auxiliary accounting in physical resolution
 
 The [physical-frontier review](reviews/no-deformation-power-frontier.md)
@@ -4129,3 +4136,51 @@ separate from geometric termination. Slot bounds and retry reuse the existing
 native budget and caller-stepped frontier; no new algebra or execution engine
 is introduced. Independent review and local controls cover these ownership
 rules. General invariant selection and real integration coverage remain pending.
+
+## Normalized root coefficients: native arithmetic correction
+
+The [affine-root review](reviews/no-deformation-affine-root-brackets.md#narrow-bracket-limitation-found-during-factory-integration)
+records a consumer representation failure on narrow certified brackets. The
+follow-up API/source/probe audit uses Symbolica's exact substitution,
+`coefficient_list`, evaluator construction and native program codec to prepare
+the coefficients of `Q(s)=P(a+(b-a)s)`. One native coefficient-vector evaluation
+per root request feeds a separate native polynomial/derivative evaluator. This
+prevents rounding the physical coordinate before each polynomial evaluation,
+without expanding the full density or implementing another root solver or CAS.
+
+The final bounded comparison passes 720 root queries with this representation;
+the historical composed representation fails 45 repeated queries in the same
+inventory. A fresh arithmetic-pair child passes 378 queries, including
+DoubleFloat and arbitrary precision. An uncertain physical zero remains
+uncertain and is refused under an unattainable tolerance. These are arithmetic
+controls, not complete-kernel acceptance or certified numerical root enclosures.
+The root body has linear instruction growth; the separate shift has quadratic
+worst-case growth and needs admission before symbolic construction.
+
+The coordinator verified 39 evidence/native-source pins in handoff
+`66077a1cea59e5c03794639ffcc8f465f6c9f3ff6f04e0beb632f3b4b29de8ea`.
+Independent review accepts the scoped arithmetic comparison. The proposed V3
+recipe preserves the original coefficient derivatives and saves both optimized
+programs; V1/V2 artifacts retain their arithmetic. The private V3 successor
+passes 14 maintained callback/codec controls, a matched 8,192-point full-vector
+quintic comparison and fresh default-native restoration. The coordinator
+verified its 18 source/test files and 68 evidence pins in handoff
+`dc69de93df544e25f4f2f26231a63746cbf49bba9d0f9a97a9d59679905af568`.
+The automatic sextic factory still stops on a distinct tracked-uncertainty
+failure after 112 evaluations, before accepting an estimate. Its full
+normal/serial integration gate and shared-source adoption remain pending.
+No dependency change is needed by the coefficient-shift construction.
+
+## Original-source contact dispatch
+
+The [contact-dispatch review](reviews/no-deformation-contact-dispatch.md)
+records a caller-stepped continuation using existing native derivative ideals,
+ideal membership, localizations and center admission. It retains full original
+source/history and complementary-open inventories. Ambient derivative inclusion
+and denominator units are checked before accepting a local center; a restricted
+contact zero does not replace these obligations. Independent source review and
+eight focused private controls pass. The coordinator verified all 17 source
+pairs and 30 evidence/native/binary pins. The consuming workspace passes 162
+resolver tests and strict workspace/all-target lint, formatting and diff checks.
+The timed-out downstream all-pivot diagnostic remains explicitly ignored; this
+increment does not complete global resolution or the real integration atlas.
