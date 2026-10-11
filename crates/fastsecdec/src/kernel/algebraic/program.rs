@@ -2,10 +2,10 @@
 //! on restore. The contract digest binds the branch, not just polynomial degree.
 use super::Error;
 #[cfg(feature = "threshold-decomposition")]
-use super::numeric::ROOT;
+use super::numeric::{ROOT, ROOT_V2};
 use std::{cell::RefCell, collections::BTreeMap, sync::Arc};
 #[cfg(feature = "threshold-decomposition")]
-use symbolica::evaluate::OptimizationSettings;
+use symbolica::evaluate::{EvaluatorComposer, OptimizationSettings, Slot};
 use symbolica::{
     atom::{Atom, AtomCore, AtomView, Symbol},
     domains::{float::Complex, rational::Rational},
@@ -18,6 +18,7 @@ const CONTRACT: &str = "fastsecdec::algebraic::contract_v1_";
 #[derive(Debug)]
 pub struct RootProgram {
     pub(super) exact: Exact,
+    pub(super) version: u32,
     pub(super) lower: Rational,
     pub(super) upper: Rational,
     pub(super) degree: usize,
@@ -54,34 +55,58 @@ fn scalar_admission(q: &Rational) -> bool {
         && q.denominator_ref().significant_bits() <= MAX_RATIONAL_BITS
 }
 fn header_admission(
+    version: u32,
     degree: usize,
     contract: &[u8],
     lower: &Rational,
     upper: &Rational,
 ) -> Result<()> {
-    if degree == 0
+    if !matches!(version, 1 | 2)
+        || degree == 0
         || degree > MAX_DEGREE
         || contract.is_empty()
         || contract.len() > MAX_CONTRACT_BYTES
         || lower >= upper
         || !scalar_admission(lower)
         || !scalar_admission(upper)
+        || (version == 2 && !scalar_admission(&(upper - lower)))
     {
         return Err(Error::Invalid(
             "root helper bounded preparation schema".into(),
         ));
+    }
+    if version == 2 {
+        // Endpoint controls contain native exact powers a^i,b^i. Refuse a
+        // conservative scalar-size bound before those powers are allocated.
+        for q in [lower, upper] {
+            let bits = q
+                .numerator_ref()
+                .significant_bits()
+                .max(q.denominator_ref().significant_bits());
+            if bits
+                .checked_mul(degree as u64)
+                .is_none_or(|n| n > MAX_RATIONAL_BITS)
+            {
+                return Err(Error::Unsupported(
+                    "affine endpoint power exceeds scalar preparation bound".into(),
+                ));
+            }
+        }
     }
     // This first arithmetic recipe enters through f64. Its static numerical
     // bracket must survive that mapping exactly; an arbitrary rational rounded
     // inward could exclude an actual closed-face endpoint root. No padding or
     // unproved bracket widening is performed. Geometry may retain a broader
     // rational certificate for a future precision-specific numerical recipe.
-    for endpoint in [lower, upper] {
-        let value = endpoint.to_f64();
-        if !value.is_finite() || Rational::try_from(value).ok().as_ref() != Some(endpoint) {
-            return Err(Error::Unsupported(
-                "static root bracket is not exactly representable in the primary f64 domain".into(),
-            ));
+    if version == 1 {
+        for endpoint in [lower, upper] {
+            let value = endpoint.to_f64();
+            if !value.is_finite() || Rational::try_from(value).ok().as_ref() != Some(endpoint) {
+                return Err(Error::Unsupported(
+                    "static root bracket is not exactly representable in the primary f64 domain"
+                        .into(),
+                ));
+            }
         }
     }
     Ok(())
@@ -95,7 +120,28 @@ impl RootProgram {
         contract: Vec<u8>,
         settings: OptimizationSettings,
     ) -> Result<Arc<Self>> {
-        header_admission(degree, &contract, &lower, &upper)?;
+        Self::prepare_recipe(1, degree, lower, upper, contract, settings)
+    }
+    #[cfg(feature = "threshold-decomposition")]
+    pub(crate) fn prepare_affine_from_certificate(
+        degree: usize,
+        lower: Rational,
+        upper: Rational,
+        contract: Vec<u8>,
+        settings: OptimizationSettings,
+    ) -> Result<Arc<Self>> {
+        Self::prepare_recipe(2, degree, lower, upper, contract, settings)
+    }
+    #[cfg(feature = "threshold-decomposition")]
+    fn prepare_recipe(
+        version: u32,
+        degree: usize,
+        lower: Rational,
+        upper: Rational,
+        contract: Vec<u8>,
+        settings: OptimizationSettings,
+    ) -> Result<Arc<Self>> {
+        header_admission(version, degree, &contract, &lower, &upper)?;
         let z = symbol!("fastsecdec::algebraic::root_argument");
         let mut inputs = vec![Atom::var(z)];
         let mut polynomial = Atom::zero();
@@ -104,13 +150,40 @@ impl RootProgram {
             polynomial += &c * Atom::var(z).pow(i as i64);
             inputs.push(c);
         }
-        let exact =
-            Atom::evaluator_multiple(&[polynomial.clone(), polynomial.derivative(z)], &inputs)
-                .optimization_settings(settings)
+        let build = |out: &[Atom], inputs: &[Atom]| {
+            Atom::evaluator_multiple(out, inputs)
+                .optimization_settings(settings.clone())
                 .build()
+                .map_err(|e| Error::Native(e.to_string()))
+        };
+        let body = build(&[polynomial.clone(), polynomial.derivative(z)], &inputs)?;
+        let exact = if version == 1 {
+            body
+        } else {
+            // Measured compact native composition preserves the original
+            // coefficient schema without a dense binomial transform.
+            let width = &upper - &lower;
+            let image = Atom::num(lower.clone()) + Atom::num(width.clone()) * Atom::var(z);
+            let affine = build(&[image], &[Atom::var(z)])?;
+            let scale = build(&[Atom::num(width) * Atom::var(z)], &[Atom::var(z)])?;
+            let mut compose = EvaluatorComposer::new(degree + 2);
+            let physical = compose
+                .append(&affine, &[Slot::Param(0)])
+                .map_err(|e| Error::Native(e.to_string()))?[0];
+            let mut slots = vec![physical];
+            slots.extend((1..degree + 2).map(Slot::Param));
+            let values = compose
+                .append(&body, &slots)
                 .map_err(|e| Error::Native(e.to_string()))?;
+            let qs = compose
+                .append(&scale, &[values[1]])
+                .map_err(|e| Error::Native(e.to_string()))?[0];
+            compose
+                .finish(&[values[0], qs, physical], settings)
+                .map_err(|e| Error::Native(e.to_string()))?
+        };
         let saved = Saved {
-            version: 1,
+            version,
             contract,
             lower,
             upper,
@@ -126,7 +199,7 @@ impl RootProgram {
             .map_err(|e| Error::Native(e.to_string()))?;
         let bytes = bincode::encode_to_vec(
             Wire {
-                version: 1,
+                version,
                 degree,
                 contract: &saved.contract,
                 bracket: &bracket,
@@ -156,7 +229,7 @@ impl RootProgram {
         )
         .map_err(|e| Error::Invalid(e.to_string()))?;
         if read != bytes.len()
-            || wire.version != 1
+            || !matches!(wire.version, 1 | 2)
             || wire.degree == 0
             || wire.degree > MAX_DEGREE
             || wire.contract.is_empty()
@@ -174,7 +247,7 @@ impl RootProgram {
         if read != wire.bracket.len() {
             return Err(Error::Invalid("trailing root bracket bytes".into()));
         }
-        header_admission(wire.degree, wire.contract, &lower, &upper)?;
+        header_admission(wire.version, wire.degree, wire.contract, &lower, &upper)?;
         let (exact, read): (Exact, usize) = bincode::serde::decode_from_slice(
             wire.exact,
             bincode::config::standard().with_limit::<MAX_HELPER_BYTES>(),
@@ -185,7 +258,7 @@ impl RootProgram {
         }
         Self::admit(
             Saved {
-                version: 1,
+                version: wire.version,
                 contract: wire.contract.to_vec(),
                 lower,
                 upper,
@@ -196,11 +269,11 @@ impl RootProgram {
         )
     }
     fn admit(saved: Saved, bytes: Vec<u8>) -> Result<Arc<Self>> {
-        if saved.version != 1
+        if !matches!(saved.version, 1 | 2)
             || saved.degree == 0
             || saved.degree > MAX_DEGREE
             || saved.degree.checked_add(2) != Some(saved.exact.get_input_len())
-            || saved.exact.get_output_len() != 2
+            || saved.exact.get_output_len() != if saved.version == 1 { 2 } else { 3 }
             || saved.lower >= saved.upper
             || saved.contract.is_empty()
         {
@@ -243,6 +316,7 @@ impl RootProgram {
             blake3::hash(&identity).to_hex().to_string()
         };
         Ok(Arc::new(Self {
+            version: saved.version,
             exact: saved.exact,
             lower: saved.lower,
             upper: saved.upper,
@@ -266,11 +340,25 @@ impl RootProgram {
         if coefficients.len() != self.degree + 1 {
             return Err(Error::Invalid("root coefficient shape".into()));
         }
-        Ok(ROOT.call_args(
-            [Atom::num(self.degree), Atom::var(tag), Atom::var(self.tag)]
-                .into_iter()
-                .chain(coefficients.iter().cloned()),
-        ))
+        let mut args = vec![Atom::num(self.degree), Atom::var(tag), Atom::var(self.tag)];
+        args.extend(coefficients.iter().cloned());
+        if self.version == 2 {
+            // These redundant arithmetic controls are constructed from exactly
+            // the same coefficient expressions. They are never public inputs
+            // with an independent mathematical derivative role.
+            for endpoint in [&self.lower, &self.upper] {
+                let residual: Atom = coefficients
+                    .iter()
+                    .enumerate()
+                    .map(|(i, c)| c * Atom::num(endpoint.pow(i as u64)))
+                    .sum();
+                args.push(residual.expand());
+            }
+        }
+        Ok(if self.version == 1 { *ROOT } else { *ROOT_V2 }.call_args(args))
+    }
+    pub(crate) fn recipe_version(&self) -> u32 {
+        self.version
     }
     pub(crate) fn bytes(&self) -> &[u8] {
         &self.bytes
@@ -311,6 +399,15 @@ impl Scope {
         for callback in callbacks.iter().filter(|c| super::is_root(c.symbol)) {
             let tags = callback.tags.iter().map(Atom::as_view).collect::<Vec<_>>();
             let (owner, _) = resolve(&tags)?;
+            if callback.symbol
+                != if owner.version == 1 {
+                    *super::numeric::ROOT
+                } else {
+                    *super::numeric::ROOT_V2
+                }
+            {
+                return Err("root callback recipe differs from its selected owner".into());
+            }
             let tag = tags[1].as_var_view().unwrap().get_symbol();
             if let Some(prior) = selected.0.insert((tag, owner.tag), owner.clone())
                 && prior.tag != owner.tag

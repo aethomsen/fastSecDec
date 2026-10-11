@@ -3,6 +3,9 @@ pub(super) fn family(shifted: bool) -> secant::NormalizedFamily {
     family_digits(shifted, 20)
 }
 pub(super) fn family_digits(shifted: bool, digits: u64) -> secant::NormalizedFamily {
+    family_recipe(shifted, digits, false)
+}
+pub(super) fn family_recipe(shifted: bool, digits: u64, affine: bool) -> secant::NormalizedFamily {
     let (x, y, e, s, t) = symbol!(
         "kernel_root_c::x",
         "kernel_root_c::y",
@@ -50,7 +53,12 @@ pub(super) fn family_digits(shifted: bool, digits: u64) -> secant::NormalizedFam
     if shifted {
         limits.unit_margin = &delta / &Rational::from(4);
     }
-    secant::NormalizedFamily::admit(owner, vec![s, t], limits).unwrap()
+    let admit = if affine {
+        secant::NormalizedFamily::admit_affine
+    } else {
+        secant::NormalizedFamily::admit
+    };
+    admit(owner, vec![s, t], limits).unwrap()
 }
 pub(super) fn make_kernel(
     family: &secant::NormalizedFamily,

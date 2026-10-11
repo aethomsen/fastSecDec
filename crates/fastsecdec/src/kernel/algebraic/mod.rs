@@ -47,10 +47,14 @@ fn failed(error: String) {
 }
 pub(crate) fn register() {
     let _ = *numeric::ROOT;
+    let _ = *numeric::ROOT_V2;
 }
 pub(crate) fn is_root(symbol: symbolica::atom::Symbol) -> bool {
-    symbol == *numeric::ROOT
+    symbol == *numeric::ROOT || symbol == *numeric::ROOT_V2
 }
 
 #[cfg(all(test, feature = "threshold-decomposition"))]
 mod tests;
+
+#[cfg(all(test, feature = "threshold-decomposition"))]
+mod affine_tests;

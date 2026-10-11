@@ -344,13 +344,31 @@ pub enum AlgebraicCallbackRecipe {
     /// Requires Validated whole-vector checks; native tracking has finite
     /// representable error range and may return precision failure.
     StaticExactF64BracketV1,
+    /// Certified constant rational bracket, normalized natively to [0,1].
+    /// Physical root/implicit derivatives retain tracked rational conversion.
+    AffineRationalBracketV2,
+    /// Loaded sectors contain both preserved V1 and affine V2 helpers.
+    MixedStaticBracketsV1V2,
 }
 
 impl super::KernelSet {
     /// Inspect the arithmetic recipe without evaluating or replaying proofs.
     pub fn algebraic_callback_recipe(&self) -> Option<AlgebraicCallbackRecipe> {
-        self.requires_validated_algebraic_callbacks()
-            .then_some(AlgebraicCallbackRecipe::StaticExactF64BracketV1)
+        let mut v1 = false;
+        let mut v2 = false;
+        for (_, owner) in self.sectors.iter().flat_map(|s| s.algebraic.owners()) {
+            match owner.recipe_version() {
+                1 => v1 = true,
+                2 => v2 = true,
+                _ => unreachable!("admitted root recipe"),
+            }
+        }
+        match (v1, v2) {
+            (false, false) => None,
+            (true, false) => Some(AlgebraicCallbackRecipe::StaticExactF64BracketV1),
+            (false, true) => Some(AlgebraicCallbackRecipe::AffineRationalBracketV2),
+            (true, true) => Some(AlgebraicCallbackRecipe::MixedStaticBracketsV1V2),
+        }
     }
     /// Algebraic roots currently require native tracked whole-vector validation.
     /// Distance/cutoff policies lack a branch-cancellation acceptance gate.

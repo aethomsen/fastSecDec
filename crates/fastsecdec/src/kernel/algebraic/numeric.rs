@@ -35,16 +35,59 @@ pub(super) static ROOT: LazyLock<Symbol> = LazyLock::new(|| {
         },
         eval = EvaluationInfo::new()
             .with_tags(3)
-            .register_tagged(real::<f64>)
-            .register_tagged(real::<DoubleFloat>)
-            .register_tagged(real::<Float>)
-            .register_tagged(complex::<f64>)
-            .register_tagged(complex::<DoubleFloat>)
-            .register_tagged(complex::<Float>)
-            .register_tagged(real::<ErrorPropagatingFloat<f64>>)
-            .register_tagged(real::<ErrorPropagatingFloat<Float>>)
-            .register_tagged(complex::<ErrorPropagatingFloat<f64>>)
-            .register_tagged(complex::<ErrorPropagatingFloat<Float>>)
+            .register_tagged(real::<f64, 1>)
+            .register_tagged(real::<DoubleFloat, 1>)
+            .register_tagged(real::<Float, 1>)
+            .register_tagged(complex::<f64, 1>)
+            .register_tagged(complex::<DoubleFloat, 1>)
+            .register_tagged(complex::<Float, 1>)
+            .register_tagged(real::<ErrorPropagatingFloat<f64>, 1>)
+            .register_tagged(real::<ErrorPropagatingFloat<Float>, 1>)
+            .register_tagged(complex::<ErrorPropagatingFloat<f64>, 1>)
+            .register_tagged(complex::<ErrorPropagatingFloat<Float>, 1>)
+    )
+});
+pub(super) static ROOT_V2: LazyLock<Symbol> = LazyLock::new(|| {
+    symbol!(
+        "fastsecdec::algebraic::selected_root_v2",
+        der = |view, index, out| {
+            let Some(args) = view.as_fun_view() else {
+                return;
+            };
+            if index < 3 {
+                **out = Atom::zero();
+                return;
+            }
+            let Some(count) = args.get_nargs().checked_sub(5) else {
+                return;
+            };
+            if index >= args.get_nargs() || count < 2 {
+                return;
+            }
+            if index >= count + 3 {
+                // Source-derived endpoint controls do not define an independent
+                // coefficient. Public construction derives them from c(x).
+                **out = Atom::zero();
+                return;
+            }
+            let root = view.to_owned();
+            let derivative: Atom = (1..count)
+                .map(|i| Atom::num(i) * args.get(i + 3).to_owned() * root.pow((i - 1) as i64))
+                .sum();
+            **out = -root.pow((index - 3) as i64) / derivative;
+        },
+        eval = EvaluationInfo::new()
+            .with_tags(3)
+            .register_tagged(real::<f64, 2>)
+            .register_tagged(real::<DoubleFloat, 2>)
+            .register_tagged(real::<Float, 2>)
+            .register_tagged(complex::<f64, 2>)
+            .register_tagged(complex::<DoubleFloat, 2>)
+            .register_tagged(complex::<Float, 2>)
+            .register_tagged(real::<ErrorPropagatingFloat<f64>, 2>)
+            .register_tagged(real::<ErrorPropagatingFloat<Float>, 2>)
+            .register_tagged(complex::<ErrorPropagatingFloat<f64>, 2>)
+            .register_tagged(complex::<ErrorPropagatingFloat<Float>, 2>)
     )
 });
 // Same minimal precision-constructor adapter as existing contour callbacks;
@@ -57,6 +100,9 @@ pub trait Number: Real + RealLike + PartialOrd + EvaluationDomain + Send + Sync 
     }
     fn valid(&self) -> bool {
         self.is_finite()
+    }
+    fn exact_control(&self) -> bool {
+        true
     }
     fn rational_at(value: &symbolica::domains::rational::Rational, bits: u32) -> Self {
         Self::one_at(bits).from_rational(value)
@@ -99,6 +145,9 @@ where
     fn valid(&self) -> bool {
         self.is_finite() && self.get_absolute_error().is_finite()
     }
+    fn exact_control(&self) -> bool {
+        self.get_absolute_error() == 0.
+    }
     fn rational_at(value: &symbolica::domains::rational::Rational, bits: u32) -> Self {
         let center = T::rational_at(value, bits);
         if value.is_integer() && value.numerator_ref().significant_bits() <= 53 {
@@ -108,11 +157,23 @@ where
         }
     }
 }
+pub(super) fn endpoint_control<T: Number>(coordinate: &T, one: &T) -> Option<usize> {
+    if !coordinate.exact_control() {
+        None
+    } else if coordinate.is_zero() {
+        Some(0)
+    } else if coordinate == one {
+        Some(1)
+    } else {
+        None
+    }
+}
 #[derive(Clone)]
 struct Scratch<T> {
     program: ExpressionEvaluator<Complex<T>>,
     input: Vec<Complex<T>>,
-    output: [Complex<T>; 2],
+    output: Vec<Complex<T>>,
+    endpoints: [Complex<T>; 2],
     options: BracketedRootOptions<T>,
     lower: T,
     upper: T,
@@ -141,8 +202,11 @@ impl<T: Number> Workspace<T>
 where
     Complex<T>: EvaluationDomain,
 {
-    fn new(tags: &[AtomView<'_>]) -> std::result::Result<Self, String> {
+    fn new(tags: &[AtomView<'_>], version: u32) -> std::result::Result<Self, String> {
         let (owner, requested) = resolve(tags)?;
+        if owner.version != version {
+            return Err("root callback recipe differs from its selected owner".into());
+        }
         let bits = T::FIXED_PRECISION.unwrap_or(requested);
         if bits < 53 {
             return Err("static root bracket recipe requires at least 53 bits".into());
@@ -162,12 +226,24 @@ where
         let scratch = Scratch {
             program,
             input: vec![Complex::new(zero.clone(), zero.clone()); owner.degree + 2],
-            output: [
+            output: vec![
+                Complex::new(zero.clone(), zero.clone());
+                if version == 1 { 2 } else { 3 }
+            ],
+            endpoints: [
                 Complex::new(zero.clone(), zero.clone()),
                 Complex::new(zero.clone(), zero.clone()),
             ],
-            lower: one.from_rational(&owner.lower),
-            upper: one.from_rational(&owner.upper),
+            lower: if version == 1 {
+                one.from_rational(&owner.lower)
+            } else {
+                zero.clone()
+            },
+            upper: if version == 1 {
+                one.from_rational(&owner.upper)
+            } else {
+                one
+            },
             options: BracketedRootOptions {
                 absolute_tolerance: zero,
                 relative_tolerance: tolerance,
@@ -191,7 +267,9 @@ where
         if self.poisoned {
             return Err("regular-section callback scratch poisoned".into());
         }
-        if count != self.owner.degree + 1 {
+        let coefficient_count = self.owner.degree + 1;
+        let affine = self.owner.version == 2;
+        if count != coefficient_count + if affine { 2 } else { 0 } {
             return Err("regular-section coefficient shape".into());
         }
         let mut s = self
@@ -208,12 +286,16 @@ where
                     "regular-section coefficient uncertainty exceeds native tracking range".into(),
                 );
             }
-            s.input[i + 1] = v;
+            if i < coefficient_count {
+                s.input[i + 1] = v;
+            } else {
+                s.endpoints[i - coefficient_count] = v;
+            }
         }
         if !s.lower.valid() || !s.upper.valid() || !s.options.relative_tolerance.valid() {
             return Err("regular-section precision/error-tracking range is unsupported".into());
         }
-        if self.owner.degree == 1 {
+        if self.owner.degree == 1 && !affine {
             if s.input[2].re.is_zero() {
                 return Err("regular-section linear leading coefficient vanished".into());
             }
@@ -232,6 +314,7 @@ where
             program,
             input,
             output,
+            endpoints,
             lower,
             upper,
             options,
@@ -245,6 +328,9 @@ where
             input[0] = Complex::new(z.clone(), T::exact_zero_at(self.bits));
             if program.try_evaluate(input, output).is_err() {
                 return (T::invalid(self.bits), T::invalid(self.bits));
+            }
+            if affine && let Some(index) = endpoint_control(z, upper) {
+                output[0] = endpoints[index].clone();
             }
             if output.iter().any(|v| !v.re.valid() || !v.im.valid()) {
                 invalid_tracking = true;
@@ -271,13 +357,27 @@ where
         program
             .try_evaluate(input, output)
             .map_err(|e| e.to_string())?;
+        if affine && let Some(index) = endpoint_control(&root, upper) {
+            output[0] = endpoints[index].clone();
+        }
         if output.iter().any(|v| !v.re.valid() || !v.im.valid()) {
             return Err(
                 "regular-section corrected evaluation exceeded native uncertainty range".into(),
             );
         }
-        let correction = output[0].clone() / &output[1];
-        let answer = Complex::new(root, -correction.im);
+        let mut correction = output[0].clone() / &output[1];
+        let physical = if affine {
+            // Helper derivative is Q_s=w*P_z. The returned root is physical:
+            // imaginary sensitivity is -P/P_z, hence the explicit factor w.
+            correction *= Complex::new(
+                T::rational_at(&(&self.owner.upper - &self.owner.lower), self.bits),
+                T::exact_zero_at(self.bits),
+            );
+            output[2].re.clone()
+        } else {
+            root
+        };
+        let answer = Complex::new(physical, -correction.im);
         if !answer.re.valid() || !answer.im.valid() || !answer.im.is_zero() {
             return Err("regular-section invalid corrected root".into());
         }
@@ -285,11 +385,11 @@ where
     }
 }
 
-fn real<T: Number>(tags: &[AtomView<'_>]) -> EvalFn<T>
+fn real<T: Number, const VERSION: u32>(tags: &[AtomView<'_>]) -> EvalFn<T>
 where
     Complex<T>: EvaluationDomain,
 {
-    let workspace = Workspace::<T>::new(tags);
+    let workspace = Workspace::<T>::new(tags, VERSION);
     Box::new(move |values: &[T]| {
         let result = match &workspace {
             Ok(w) => w
@@ -305,11 +405,11 @@ where
         })
     })
 }
-fn complex<T: Number>(tags: &[AtomView<'_>]) -> EvalFn<Complex<T>>
+fn complex<T: Number, const VERSION: u32>(tags: &[AtomView<'_>]) -> EvalFn<Complex<T>>
 where
     Complex<T>: EvaluationDomain,
 {
-    let workspace = Workspace::<T>::new(tags);
+    let workspace = Workspace::<T>::new(tags, VERSION);
     Box::new(move |values: &[Complex<T>]| {
         let result = match &workspace {
             Ok(w) => w.evaluate(values.len(), |i| values[i].clone()),

@@ -117,8 +117,12 @@ See the [native family review](reviews/no-deformation-represented-family.md).
 The separate `KernelSet::compile_threshold_family` factory accepts an issued
 regular algebraic secant family. It shares detached compilation and indexed
 publication, saving record-local root helpers in native v17. This path keeps
-full defining polynomials and Symbolica implicit derivatives, with the current
-`StaticExactF64BracketV1` numerical admission and validated stability policy.
+full defining polynomials and Symbolica implicit derivatives, with a validated
+stability policy. `StaticExactF64BracketV1` remains the default; explicit
+`NormalizedFamily::admit_affine` selects `AffineRationalBracketV2` for certified
+constant rational brackets through native normalization to `[0,1]`. Both
+recipes retain generic polynomial degree within resource limits. See the
+[rational-bracket review](reviews/no-deformation-affine-root-brackets.md).
 Default native consumers restore it without GCAD; portable root-bearing
 records remain unsupported. It does not yet extend CLI or HEPKit preparation
 to arbitrary algebraic inputs. See the

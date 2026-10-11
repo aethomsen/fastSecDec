@@ -3900,3 +3900,21 @@ thin HEPKit dispatch. Real host tests exercise cancellation, replay and complete
 complex vectors; native and portable emitted-stub tests preserve the existing
 capability split. Stored Float family history, graph Float payloads, general
 algebraic geometry and measured residency remain separate obligations.
+
+
+## Generic-degree rational root brackets
+
+The [rational-bracket review](reviews/no-deformation-affine-root-brackets.md)
+records the successor to the earlier arithmetic probe: an explicit V2 native
+recipe, symbolic implicit derivatives, versioned saved-program restoration and
+whole-vector QMC parity. Public APIs, source and executable comparisons select
+Symbolica's existing evaluator composer and bracketed solver. Numerica retains
+arithmetic and error tracking. No independent CAS, AD, graph or root solver was
+introduced.
+
+Independent resolver and ecosystem reviews accept source-derived endpoint
+controls, physical derivative scaling, caller-owned scratch and the separate
+mathematical and transport identities. The coordinator verifies all 51 frozen
+evidence/source digests. Constant rational brackets do not provide collision
+resolution, general root towers, runtime parameter chambers or global atlas
+coverage; tracked numerical acceptance is not a certified interval proof.

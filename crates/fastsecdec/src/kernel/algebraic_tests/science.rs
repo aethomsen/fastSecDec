@@ -10,8 +10,44 @@ use symbolica::{
 };
 #[test]
 fn full_laurent_vector_matches_independent_quintic_integral() {
+    quintic(false);
+}
+#[test]
+fn affine_v2_full_vector_and_fresh_restore_match_quintic_oracle() {
+    quintic(true);
+}
+fn quintic(affine: bool) {
     let temporary = tempfile::tempdir().unwrap();
-    super::artifacts::factory(temporary.path());
+    super::artifacts::factory_recipe(temporary.path(), affine);
+    if affine {
+        let output = std::process::Command::new(std::env::current_exe().unwrap())
+            .args([
+                "--ignored",
+                "--exact",
+                "kernel::algebraic_tests::artifacts::restore_child",
+                "--nocapture",
+            ])
+            .env("FASTSECDEC_ALGEBRAIC_CHILD", temporary.path())
+            .output()
+            .unwrap();
+        assert!(
+            output.status.success(),
+            "{}{}",
+            String::from_utf8_lossy(&output.stdout),
+            String::from_utf8_lossy(&output.stderr)
+        );
+        super::artifacts::restore(temporary.path());
+        if let Some(path) = std::env::var_os("FASTSECDEC_AFFINE_ARTIFACT_EXPORT") {
+            std::fs::create_dir_all(&path).unwrap();
+            for backend in ["Eager", "Symjit"] {
+                std::fs::copy(
+                    temporary.path().join(format!("family-{backend}.bin")),
+                    std::path::Path::new(&path).join(format!("family-{backend}.bin")),
+                )
+                .unwrap();
+            }
+        }
+    }
     let directory = temporary.path().display().to_string();
     let algebra = symgcad::algebra::Algebra::new(&["y".into()]).unwrap();
     let p = algebra.parse("y^5+y-1").unwrap();

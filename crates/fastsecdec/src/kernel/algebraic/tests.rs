@@ -6,7 +6,7 @@ fn callback_scope_and_bounded_codec() {
     assert!(super::is_root(*ROOT));
     assert!(!super::is_root(symbol!("other::selected_root_v1")));
     assert!(!super::is_root(symbol!(
-        "fastsecdec::algebraic::selected_root_v2"
+        "fastsecdec::algebraic::selected_root_v3"
     )));
     super::failed("outer root".into());
     crate::contour::functions::dynamic::failure("outer contour".into());

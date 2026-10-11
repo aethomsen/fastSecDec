@@ -177,7 +177,16 @@ impl NormalizedFamily {
         coordinates: Vec<Symbol>,
         limits: Limits,
     ) -> Result<Self> {
-        density::admit(owner, coordinates, limits)
+        density::admit(owner, coordinates, limits, false)
+    }
+    /// Issue the same checked family with an explicit normalized static-bracket
+    /// root recipe. This changes numerical arithmetic, not geometry or measure.
+    pub fn admit_affine(
+        owner: Arc<VerifiedDecomposition>,
+        coordinates: Vec<Symbol>,
+        limits: Limits,
+    ) -> Result<Self> {
+        density::admit(owner, coordinates, limits, true)
     }
     pub fn owner(&self) -> &Arc<VerifiedDecomposition> {
         &self.owner

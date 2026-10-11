@@ -62,6 +62,7 @@ pub(super) fn admit(
     owner: Arc<VerifiedDecomposition>,
     coordinates: Vec<Symbol>,
     limits: Limits,
+    affine_root: bool,
 ) -> Result<NormalizedFamily> {
     let mut budget = Budget::new(limits.geometry.clone());
     if let Some(cancel) = &limits.cancellation {
@@ -94,7 +95,12 @@ pub(super) fn admit(
             return Err(invalid("numerator helper collides with source"));
         }
     }
-    let helper = RootProgram::prepare(
+    let prepare = if affine_root {
+        RootProgram::prepare_affine
+    } else {
+        RootProgram::prepare
+    };
+    let helper = prepare(
         geometry[0].section(),
         OptimizationSettings::default().cores(1),
     )?;

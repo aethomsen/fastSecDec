@@ -164,11 +164,14 @@ fn write_artifacts(directory: &std::path::Path) {
 
 /// Existing public plan/record/indexed pipeline, with no retained proof owners.
 pub(super) fn factory(path: &std::path::Path) -> serde_json::Value {
+    factory_recipe(path, false)
+}
+pub(super) fn factory_recipe(path: &std::path::Path, affine: bool) -> serde_json::Value {
     use crate::kernel::{KernelSet, ThresholdCompilationPlan};
     std::fs::create_dir_all(path).unwrap();
     let mut results = Vec::new();
     for backend in [EvaluatorBackend::Eager, EvaluatorBackend::Symjit] {
-        let family = family(false);
+        let family = family_recipe(false, 20, affine);
         let proof = Arc::downgrade(family.owner());
         let root = family
             .callback_scope()
@@ -232,6 +235,14 @@ pub(super) fn factory(path: &std::path::Path) -> serde_json::Value {
         )
         .unwrap();
         assert_eq!(kernels.sectors().len(), 2);
+        assert_eq!(
+            kernels.algebraic_callback_recipe(),
+            Some(if affine {
+                crate::kernel::AlgebraicCallbackRecipe::AffineRationalBracketV2
+            } else {
+                crate::kernel::AlgebraicCallbackRecipe::StaticExactF64BracketV1
+            })
+        );
         assert!(
             kernels
                 .threshold_metadata()
@@ -336,7 +347,7 @@ fn evaluate(set: &mut KernelSet, full: bool) {
         }
     }
 }
-fn restore(path: &std::path::Path) {
+pub(super) fn restore(path: &std::path::Path) {
     let path = path.display().to_string();
     for backend in ["Eager", "Symjit"] {
         let bytes = std::fs::read(format!("{path}/family-{backend}.bin")).unwrap();

@@ -7,6 +7,21 @@ use std::sync::Arc;
 use symbolica::evaluate::OptimizationSettings;
 impl RootProgram {
     pub fn prepare(section: &RegularSection, settings: OptimizationSettings) -> Result<Arc<Self>> {
+        Self::prepare_section(section, settings, false)
+    }
+    /// Normalize a certified, static rational bracket to [0,1]. This preserves
+    /// the original physical branch and does not add a density Jacobian.
+    pub fn prepare_affine(
+        section: &RegularSection,
+        settings: OptimizationSettings,
+    ) -> Result<Arc<Self>> {
+        Self::prepare_section(section, settings, true)
+    }
+    fn prepare_section(
+        section: &RegularSection,
+        settings: OptimizationSettings,
+        affine: bool,
+    ) -> Result<Arc<Self>> {
         let source = section.source();
         let raw = source.decomposition().native_result();
         let selector_domain = match section.bound().index_domain {
@@ -38,7 +53,12 @@ impl RootProgram {
             section.orientation(),
         ))
         .map_err(native)?;
-        Self::prepare_from_certificate(
+        let prepare = if affine {
+            Self::prepare_affine_from_certificate
+        } else {
+            Self::prepare_from_certificate
+        };
+        prepare(
             section.coefficients().len() - 1,
             section.bracket().lower.clone(),
             section.bracket().upper.clone(),

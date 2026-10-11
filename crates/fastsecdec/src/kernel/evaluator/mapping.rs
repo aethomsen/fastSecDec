@@ -47,6 +47,7 @@ impl MappingRequirements {
 
     /// Native mapping can evaluate fixed-argument callbacks. A failed constant
     /// must fail preparation even if downstream instructions mask its NaN.
+    #[cfg(feature = "native")]
     pub(in crate::kernel) fn prepare<T>(
         &self,
         prepare: impl FnOnce() -> Result<T, String>,
