@@ -255,3 +255,10 @@ delivered, fix any remaining implementation/generalization gaps that can be
 addressed quickly and stop at the user's requested checkpoint. This checkpoint
 does not waive the scientific distinction between a completed benchmark and
 any still-unfinished general-resolver acceptance gates above.
+
+The user subsequently authorizes increasing physical endpoint-preparation time
+beyond the initial twenty-minute diagnostic budget. A two-hour follow-up keeps
+the 100 GB memory bound and stage measurements; both outer process supervision
+and cooperative preparation limits must permit it. A timed-out preparation is
+an incomplete measurement, not evidence that the requested integral is
+infeasible. Continue compact symbolic-series optimization in parallel.

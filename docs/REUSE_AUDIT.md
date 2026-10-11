@@ -1,5 +1,16 @@
 # Ecosystem reuse evidence
 
+## Latest symGCAD and physical margin proofs (2026-10-11)
+
+The [adoption review](reviews/no-deformation-latest-symgcad.md) records the latest
+upstream source with public dependencies and the narrow certificate-budget
+carry, linked to the existing single Symbolica/Numerica identity. All 270
+focused owner controls pass. Independent review covers defaulted configuration,
+cache admission and replay. Historical evidence keeps its original identity.
+The [physical margin results](reviews/no-deformation-certificate-budgets.md)
+now prove and independently replay all eight previously incomplete F margins;
+complete physical endpoint preparation and integration remain unfinished.
+
 ## Mixed finite numerator faces (2026-10-11)
 
 The [mixed-face review](reviews/no-deformation-mixed-numerator-faces.md) records
@@ -17,8 +28,8 @@ records public API, source and executable evidence for symGCAD's hard budget
 ceilings. A narrow owner-library PR raises only opt-in allowances and retains
 the existing proof algorithms, defaults, checked counters and replay rules.
 All 34 native tests and independent source/allocation review pass. Inherited
-owner lint findings remain documented; no unrelated cleanup or FastSecDec
-dependency adoption is included. Physical F proofs remain a separate gate.
+owner lint findings remain documented; no unrelated cleanup is included. The
+subsequent dependency adoption and physical F proof results appear above.
 
 ## Symbolic numerator coefficients through moving roots (2026-10-11)
 

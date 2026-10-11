@@ -2,7 +2,8 @@
 
 The physical first-cell refinement has eight leaves with no identically zero
 factor-face residual. Whole-box native margin proofs succeed for their U,
-denominator and measure factors; the attempted F proofs remain incomplete.
+denominator and measure factors. The original bounded F proofs were incomplete;
+all eight now pass the larger native budget described below.
 The F Bernstein tensor sizes range from 13,608 to 122,472 coefficients. A
 bounded miss is not a zero or a counterexample on the selected algebraic branch.
 
@@ -44,6 +45,31 @@ The PR head is `45246b7b27a5c21293b829458470cd34b03f199e`, tested on upstream
 to FastSecDec's adopted `a1132d4`. Its physical probe and consuming validation
 are separate work; FastSecDec's dependency declaration is unchanged here.
 No physical completion or performance improvement is claimed by the owner tests.
+
+## Physical margin results
+
+The isolated `ae778874` carry, linked to the consuming workspace's unchanged
+Symbolica/Numerica `ae0c82b7`, proves and independently replays all eight exact
+`F_residual - 1/1048576 > 0` margins. The polynomials and domains are identical
+to the original incomplete attempts. Limits are explicitly one billion work
+units, 262,144 Bernstein coefficients, depth four and 63 nodes; no positive
+floor or approximate test replaces a proof.
+
+The first proof takes 0.309 seconds to discover and 0.307 seconds to replay.
+The remaining seven take 34.793 and 34.756 seconds in total. Each probe's peak
+child RSS is 126 MiB. Concurrent-process memory observations are retained
+separately and are not attributed to these small proof processes. The final
+46-file evidence inventory and independent source/replay review were checked
+before accepting these results.
+
+This closes those factor-margin obligations, not the integral. Five other
+first-cell leaves still have unresolved faces, and numerator preparation,
+common regulator continuation, subtraction and complete physical kernels have
+separate acceptance gates. The subsequent complete-cover/numerator probe hit
+its 1,200-second diagnostic limit after source admission and fresh GCAD proof
+verification, without returning a normal numerator series. Its aggregate peak
+was 11.526 GB. The user authorized a two-hour follow-up preparation budget;
+the earlier timeout is not treated as infeasibility.
 
 Structural arithmetic limits do not bound rational coefficient height or
 replace caller-owned process time and aggregate-memory supervision. Subsequent

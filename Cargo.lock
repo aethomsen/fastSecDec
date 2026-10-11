@@ -2676,7 +2676,7 @@ dependencies = [
 [[package]]
 name = "symgcad"
 version = "0.1.0"
-source = "git+https://github.com/alphal00p/symgcad?rev=a1132d4f4545c7784b3ec61239a05485e544b403#a1132d4f4545c7784b3ec61239a05485e544b403"
+source = "git+https://github.com/alphal00p/symgcad?rev=644a560e69a064f811fa93aff33a247ea7fcdfca#644a560e69a064f811fa93aff33a247ea7fcdfca"
 dependencies = [
  "anyhow",
  "blake3",

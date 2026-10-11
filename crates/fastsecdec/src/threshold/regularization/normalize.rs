@@ -4,7 +4,7 @@ use symbolica::{
     domains::float::Complex,
     prelude::{PolyVariable, Q},
 };
-use symgcad::algebra::{Algebra, Poly};
+use symgcad::algebra::Poly;
 
 fn polynomial(
     expression: &Atom,
@@ -165,13 +165,14 @@ fn unit(
             "singular unit has undeclared coefficient variables",
         ));
     }
-    let algebra = Algebra {
-        names: vec!["t".into()],
-        variables,
-    };
-    let univariate = algebra
-        .specialize_univariate(&rational, 0, &[])
-        .map_err(|e| invalid(&e.to_string()))?;
+    if rational.degree(0) > u16::MAX as u32 {
+        return Err(invalid(
+            "specialized degree exceeds Symbolica's certified real-root isolation exponent range",
+        ));
+    }
+    // The checked map contains only the original t symbol: there is no prefix
+    // to specialize. Reuse the native conversion used by symGCAD's wrapper.
+    let univariate = rational.to_univariate_from_univariate(0);
     let lower = univariate.evaluate(&Rational::zero());
     let upper = univariate.evaluate(&Rational::one());
     if lower <= Rational::zero()
