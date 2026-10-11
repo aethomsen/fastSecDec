@@ -4667,3 +4667,10 @@ pass. An actual physical-source run freshly verifies the saved complete proof
 and issues six finite/ray axis maps with exact inverse/Jacobian controls. Its
 nonlinear prefixes remain explicitly unresolved; no integration statistic is
 issued by these checks.
+## Scalar double-box source reuse (2026-10-11)
+
+The [scalar double-box input review](reviews/no-deformation-scalar-double-box.md)
+records native HEPKit payload setters and graph serialization, exact U/F and
+denominator-family comparisons, and independent scalar source ownership. No
+graph or algebra implementation was duplicated. The input gates and all-target
+Clippy pass; no complete no-contour integral is claimed from those gates.
