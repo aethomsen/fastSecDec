@@ -288,3 +288,5 @@ mod science;
 mod transport;
 
 mod fibers;
+
+mod catalogue_point;

@@ -28,6 +28,13 @@ pub use recursive_inventory::{
     RecursiveAscentBranch, RecursiveAscentFrontier, RecursiveBranchAscent,
 };
 pub use recursive_work::{RecursiveComponentLift, RecursiveLiftWork};
+mod composite_center;
+mod composite_tree;
+mod composite_work;
+mod lower_anchor;
+pub use composite_center::CompositeContactCenter;
+use composite_center::CompositeContext;
+pub use composite_work::{CompositeCoverLift, CompositeLiftNext, CompositeLiftWork};
 
 #[cfg(test)]
 mod recursive_tests;

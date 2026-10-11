@@ -157,7 +157,28 @@ impl RecursiveContactBranch {
             Err(e) => Err(e),
         }
     }
-    pub(super) fn ascent_mut(&mut self) -> Result<&mut RecursiveAscentFrontier> {
+    pub(super) fn advance_ascent_branch(
+        &mut self,
+        index: usize,
+        b: &mut Budget,
+    ) -> Result<ContactDispatchAdvance> {
+        let lower = self
+            .lower
+            .as_deref()
+            .ok_or(Error::Invalid("recursive actual lower source absent"))?;
+        let Some(RecursiveBranchAscent::Finite(frontier)) = self.ascent.as_mut() else {
+            return Err(Error::Invalid("recursive actual ascent absent"));
+        };
+        frontier.advance_branch(index, lower, b)
+    }
+    pub(super) fn ascent_mut(&mut self, b: &mut Budget) -> Result<&mut RecursiveAscentFrontier> {
+        let lower = self
+            .lower
+            .as_deref()
+            .ok_or(Error::Invalid("recursive live lower missing"))?;
+        if let Some(RecursiveBranchAscent::Finite(f)) = self.ascent.as_ref() {
+            f.verify_live(lower, b)?;
+        }
         match self.ascent.as_mut() {
             Some(RecursiveBranchAscent::Finite(f)) => Ok(f),
             _ => Err(Error::Invalid(

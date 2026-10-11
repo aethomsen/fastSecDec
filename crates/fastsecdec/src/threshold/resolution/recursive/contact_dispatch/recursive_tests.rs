@@ -1,5 +1,169 @@
 use super::*;
 use symbolica::symbol;
+
+#[test]
+fn recursive_matched_frame_next_cover_seam() {
+    let started = std::time::Instant::now();
+    let mut d = prepared_lower(false);
+    let mut b = Budget::new(Limits::default());
+    assert!(!matches!(
+        d.prepare_recursive_ascent(4, &mut b).unwrap(),
+        ContactDispatchAdvance::Incomplete { .. }
+    ));
+    assert!(!matches!(
+        d.advance_recursive_ascent_branch(4, 1, &mut b).unwrap(),
+        ContactDispatchAdvance::Incomplete { .. }
+    ));
+    let count = match d.recursive_branch(4).unwrap().ascent().unwrap() {
+        RecursiveBranchAscent::Finite(f) => match &f.branches()[1] {
+            RecursiveAscentBranch::Components(c) => c.work().len(),
+            _ => panic!("actual component"),
+        },
+        _ => panic!("finite"),
+    };
+    for i in 0..count {
+        assert!(!matches!(
+            d.advance_recursive_ascent_open(4, 1, i, &mut Budget::new(Limits::default()))
+                .unwrap(),
+            ContactDispatchAdvance::Incomplete { .. }
+        ));
+    }
+    let c = centers(&d).into_iter().next().unwrap();
+    let matched = c.matched().clone();
+    let lower = matched.lower().history().ledger().frame();
+    b = Budget::new(Limits::default());
+    let t = &lower.local().ring().coordinate(2).unwrap() - &lower.local().ring().one();
+    let other = &lower.local().ring().one() - &t;
+    let next = Arc::new(
+        OpenCoverCertificate {
+            algebra: lower.local().clone(),
+            support: Ideal::new(lower.local().ring().clone(), vec![], &mut b).unwrap(),
+            opens: vec![t.clone(), other],
+        }
+        .verify(&mut b)
+        .unwrap(),
+    );
+    let refined = SupportEmbedding::refine_matched(matched.clone(), &mut b).unwrap();
+    assert!(refined.descends_from(matched.support()));
+    assert!(Arc::ptr_eq(refined.frame(), matched.frame()));
+    assert!(Arc::ptr_eq(refined.ambient(), c.frame()));
+    assert_eq!(refined.codimension(), matched.support().codimension());
+    assert!(matches!(
+        PulledSupportCover::prepare_matched(matched.support().clone(), next.clone(), &mut b),
+        Err(Error::Invalid(_))
+    ));
+    let pulled =
+        PulledSupportCover::prepare_matched(refined.clone(), next.clone(), &mut b).unwrap();
+    assert_eq!(pulled.pulled().opens().len(), 2);
+    assert!(Arc::ptr_eq(pulled.original(), &next));
+    let physical = refined
+        .physical_cover(c.source().clone(), pulled.pulled().clone(), &mut b)
+        .unwrap();
+    assert_eq!(
+        physical.opens().len(),
+        2 + physical.cosupport().generators().len()
+    );
+    let mut outcomes = [0usize; 4];
+    let mut foreign_checked = false;
+    for index in 0..physical.opens().len() {
+        b = Budget::new(Limits::default());
+        let outer = match physical
+            .localize(
+                c.history().clone(),
+                index,
+                &format!("matched_next_outer{index}"),
+                &mut b,
+            )
+            .unwrap()
+        {
+            CoverLocalizationProduction::Complete(o) => Arc::new(*o),
+            CoverLocalizationProduction::Empty { .. } => {
+                outcomes[0] += 1;
+                continue;
+            }
+            other => panic!("{other:?}"),
+        };
+        assert!(outer.history().same_root(c.history()));
+        assert_eq!(outer.history().stage(), c.history().stage());
+        let lower_index = match physical.opens()[index] {
+            PhysicalSupportOpen::Lower { index, .. } => index,
+            PhysicalSupportOpen::BelowMark { .. } => {
+                outcomes[1] += 1;
+                continue;
+            }
+        };
+        let lower_open = match localize_verified_cover_open(
+            matched.lower().history().clone(),
+            next.clone(),
+            lower_index,
+            &format!("matched_next_lower{index}"),
+            &mut b,
+        )
+        .unwrap()
+        {
+            CoverLocalizationProduction::Complete(o) => Arc::new(*o),
+            other => panic!("actual lower unexpectedly unavailable {other:?}"),
+        };
+        if !foreign_checked {
+            let foreign =
+                ResolutionHistory::initial(matched.lower().history().ledger().clone()).unwrap();
+            assert!(!foreign.same_root(matched.lower().history()));
+            let foreign_open = match localize_verified_cover_open(
+                foreign,
+                next.clone(),
+                lower_index,
+                "matched_next_foreign",
+                &mut b,
+            )
+            .unwrap()
+            {
+                CoverLocalizationProduction::Complete(o) => Arc::new(*o),
+                _ => panic!("same-frame negative open"),
+            };
+            assert!(matches!(
+                physical.restrict_pulled_lower(
+                    outer.clone(),
+                    foreign_open,
+                    pulled.clone(),
+                    "matched_next_bad",
+                    &mut b
+                ),
+                Err(Error::Invalid(_))
+            ));
+            foreign_checked = true;
+        }
+        match physical
+            .restrict_pulled_lower(
+                outer,
+                lower_open,
+                pulled.clone(),
+                &format!("matched_next_join{index}"),
+                &mut b,
+            )
+            .unwrap()
+        {
+            MatchedPhysicalRestriction::EmptySupport(_) => outcomes[2] += 1,
+            MatchedPhysicalRestriction::Support(m) => {
+                let retained = SupportEmbedding::refine_matched(m.clone(), &mut b).unwrap();
+                assert!(retained.descends_from(&refined));
+                assert!(m.lower_map().checked_derivatives() > 0);
+                outcomes[3] += 1;
+            }
+        }
+    }
+    assert_eq!(outcomes.iter().sum::<usize>(), physical.opens().len());
+    assert!(outcomes[3] > 0 && foreign_checked);
+    assert!(!d.complete_inventory());
+    println!(
+        "MATCHED_NEXT_COVER_PASS root_contacts={} root_ambient={} original_history=true native_cover=2 physical={} outcomes={outcomes:?} source_mark={} seconds={}",
+        d.branches().len(),
+        d.ambient().len(),
+        physical.opens().len(),
+        c.source().mark(),
+        started.elapsed().as_secs_f64()
+    );
+}
+
 fn indices(n: usize, reverse: bool) -> Vec<usize> {
     let mut v = (0..n).collect::<Vec<_>>();
     if reverse {
@@ -8,6 +172,9 @@ fn indices(n: usize, reverse: bool) -> Vec<usize> {
     v
 }
 fn prepared_lower(reverse: bool) -> FiniteContactDispatcher {
+    prepared_lower_order(reverse, false)
+}
+fn prepared_lower_order(reverse: bool, late_ambient: bool) -> FiniteContactDispatcher {
     let mut b = Budget::new(Limits::default());
     let ring = Arc::new(
         Ring::new(
@@ -110,7 +277,7 @@ fn prepared_lower(reverse: bool) -> FiniteContactDispatcher {
         ));
         let ambient = lower.ambient().len();
         let branches = lower.branches().len();
-        for a in indices(ambient, reverse) {
+        for a in indices(if late_ambient { 0 } else { ambient }, reverse) {
             assert!(!matches!(
                 finite.advance_nested_ambient(&[i], a, &mut b).unwrap(),
                 ContactDispatchAdvance::Incomplete { .. }
@@ -152,11 +319,12 @@ fn prepared_lower(reverse: bool) -> FiniteContactDispatcher {
                     .count();
             }
         }
-        assert!(
+        assert_eq!(
             finite
                 .recursive_branch(i)
                 .unwrap()
-                .child_inventory_complete()
+                .child_inventory_complete(),
+            !late_ambient
         );
         completed += 1;
     }
@@ -165,6 +333,9 @@ fn prepared_lower(reverse: bool) -> FiniteContactDispatcher {
     finite
 }
 fn finish(d: &mut FiniteContactDispatcher, reverse: bool) {
+    finish_ascent(d, reverse, true)
+}
+fn finish_ascent(d: &mut FiniteContactDispatcher, reverse: bool, complete: bool) {
     for i in indices(d.branches().len(), reverse) {
         if d.recursive_branch(i).is_none() {
             continue;
@@ -200,7 +371,79 @@ fn finish(d: &mut FiniteContactDispatcher, reverse: bool) {
             }
         }
     }
+    assert_eq!(d.complete_inventory(), complete);
+}
+
+#[test]
+fn recursive_partial_refresh_after_last_ambient_slot() {
+    let mut d = prepared_lower_order(false, true);
+    finish_ascent(&mut d, false, false);
+    let mut refreshed = 0;
+    for i in 0..d.branches().len() {
+        let Some(child) = d.recursive_branch(i) else {
+            continue;
+        };
+        let Some(lower) = child.lower() else {
+            continue;
+        };
+        let count = lower.ambient().len();
+        assert!(!lower.complete_inventory());
+        let RecursiveBranchAscent::Finite(f) = child.ascent().unwrap() else {
+            panic!("finite");
+        };
+        let initial = f.lower().clone();
+        assert!(!f.complete_inventory());
+        for a in 0..count {
+            assert!(!matches!(
+                d.advance_nested_ambient(&[i], a, &mut Budget::new(Limits::default()))
+                    .unwrap(),
+                ContactDispatchAdvance::Incomplete { .. }
+            ));
+        }
+        assert!(d.recursive_branch(i).unwrap().child_inventory_complete());
+        assert!(
+            !d.recursive_branch(i)
+                .unwrap()
+                .construction_inventory_complete()
+        );
+        let mut no_slots = Budget::new(Limits {
+            max_total_ideal_slots: 0,
+            ..Limits::default()
+        });
+        assert!(matches!(
+            d.advance_recursive_ascent_branch(i, 0, &mut no_slots)
+                .unwrap(),
+            ContactDispatchAdvance::Incomplete { .. }
+        ));
+        let RecursiveBranchAscent::Finite(f) = d.recursive_branch(i).unwrap().ascent().unwrap()
+        else {
+            unreachable!();
+        };
+        assert!(Arc::ptr_eq(f.lower(), &initial));
+        assert!(!f.complete_inventory());
+        assert!(matches!(
+            d.advance_recursive_ascent_branch(i, 0, &mut Budget::new(Limits::default()))
+                .unwrap(),
+            ContactDispatchAdvance::Progress
+        ));
+        let RecursiveBranchAscent::Finite(f) = d.recursive_branch(i).unwrap().ascent().unwrap()
+        else {
+            unreachable!();
+        };
+        assert!(!Arc::ptr_eq(f.lower(), &initial));
+        assert!(Arc::ptr_eq(f.lower().cover(), initial.cover()));
+        assert!(f.lower().complete_inventory() && f.complete_inventory());
+        assert!(
+            initial
+                .ambient()
+                .iter()
+                .all(|w| matches!(w, ContactAmbientWork::Pending))
+        );
+        refreshed += 1;
+    }
+    assert_eq!(refreshed, 4);
     assert!(d.complete_inventory());
+    assert_eq!(centers(&d).len(), 6);
 }
 fn centers(d: &FiniteContactDispatcher) -> Vec<Arc<RecursiveContactCenter>> {
     let mut out = Vec::new();

@@ -1,6 +1,7 @@
 //! Recipe-addressable transport. Selection precedes native decoding/JIT, and
 //! every active numerical owner still contains exactly one mathematical recipe.
 mod catalogue;
+mod point;
 mod reader;
 mod resident;
 #[cfg(test)]

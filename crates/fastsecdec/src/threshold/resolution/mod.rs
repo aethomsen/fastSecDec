@@ -189,6 +189,9 @@ pub use blowup::{
     RetiredPowerInventory,
 };
 
+pub use recursive::{
+    CompositeContactCenter, CompositeCoverLift, CompositeLiftNext, CompositeLiftWork,
+};
 pub use recursive::{ContactDispatchCover, ContactDispatchOrigin};
 
 pub use recursive::{ContactBranchProduction, ContactDispatchBranch, ContactTerminalComponents};

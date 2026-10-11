@@ -4371,3 +4371,24 @@ input, source/API and measurement audits pass at that bounded scope; no complete
 artifact, amplitude or SD follows from it. Native configured limits and actual
 external process limits are recorded separately. Export, solver preparation and
 the unfinished endpoint/integration pipeline remain distinct costs and gates.
+
+## Partial recursive ascent and exact catalogue point association
+
+The [partial-ascent review](reviews/no-deformation-contact-dispatch.md#partial-recursive-cover-tree-ascent)
+checks retained original covers, native matched-map/ideal operations and genuinely
+completed lower constructions. Pending siblings stay pending; caller-stepped
+progress issues no global resolution or physical-density completion claim.
+Immutable geometry stays shared and retained work arrays use existing budgets.
+No CAS, scheduler, root engine or global cache is added.
+
+The [catalogue-point review](reviews/no-deformation-bound-catalogue-point.md)
+checks a metadata-only association between an existing exact-only carrier and
+its complete catalogue at the committed runtime point. It reuses native parameter
+admission, chamber guards, template projection and the unchanged point-hash
+bytes. It reads no records and changes no numerical state or sampling stream.
+CLI forwarding and cross-point checkpoint integration remain separate work.
+
+Independent scientific and ecosystem reviews, all 24 source pre/postimages,
+104 evidence files and the combined consuming gate pass: 24 maintained groups,
+strict workspace/all-target Clippy, formatting and diff checks. One existing
+expensive diagnostic remains ignored. No dependency revision changes.

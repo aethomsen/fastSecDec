@@ -3,10 +3,15 @@
 use super::super::*;
 use super::support::{StrictContactSupport, StrictSupportOpen};
 use std::sync::Arc;
+mod chain;
 type Result<T> = std::result::Result<T, Error>;
 
 #[derive(Clone, Debug)]
 enum EmbeddingOrigin {
+    Matched {
+        parent: Arc<SupportEmbedding>,
+        matched: Arc<MatchedPhysicalSupport>,
+    },
     SourceOpen {
         parent: Arc<SupportEmbedding>,
         localization: Arc<LocalizedCoverHistory>,
@@ -116,6 +121,7 @@ impl SupportEmbedding {
         }
         match &self.origin {
             EmbeddingOrigin::Nested { parent, .. }
+            | EmbeddingOrigin::Matched { parent, .. }
             | EmbeddingOrigin::SourceOpen { parent, .. }
             | EmbeddingOrigin::Localized { parent, .. }
             | EmbeddingOrigin::AmbientOpen { parent, .. } => parent.descends_from(ancestor),
@@ -127,6 +133,7 @@ impl SupportEmbedding {
             EmbeddingOrigin::Contact(q) => q,
             EmbeddingOrigin::Strict { parent, .. } => parent.source(),
             EmbeddingOrigin::Nested { parent, .. }
+            | EmbeddingOrigin::Matched { parent, .. }
             | EmbeddingOrigin::SourceOpen { parent, .. }
             | EmbeddingOrigin::Localized { parent, .. }
             | EmbeddingOrigin::AmbientOpen { parent, .. } => parent.original_contact(),
@@ -151,6 +158,7 @@ impl SupportEmbedding {
         match &self.origin {
             EmbeddingOrigin::Strict { parent, open } => Some((parent, open)),
             EmbeddingOrigin::Contact(_)
+            | EmbeddingOrigin::Matched { .. }
             | EmbeddingOrigin::SourceOpen { .. }
             | EmbeddingOrigin::Nested { .. }
             | EmbeddingOrigin::Localized { .. }

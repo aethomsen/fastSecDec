@@ -147,21 +147,31 @@ impl DispatchedContactCenter {
 pub(super) enum DispatchRestriction {
     Direct(Arc<SupportEmbedding>),
     Matched(Arc<MatchedPhysicalSupport>),
+    Composite {
+        root: Arc<SupportEmbedding>,
+        matched: Arc<MatchedPhysicalSupport>,
+    },
 }
 impl DispatchRestriction {
     fn support(&self) -> &Arc<SupportEmbedding> {
         match self {
             Self::Direct(s) => s,
             Self::Matched(s) => s.support(),
+            Self::Composite { matched, .. } => matched.support(),
         }
     }
     fn frame(&self) -> &Arc<EtaleFrame> {
         match self {
             Self::Direct(s) => s.frame(),
             Self::Matched(s) => s.frame(),
+            Self::Composite { matched, .. } => matched.frame(),
         }
     }
     fn pull(&self, value: &Poly, b: &mut Budget) -> Result<Poly> {
+        if let Self::Composite { root, matched } = self {
+            let p = matched.support().pull_refinement(root, value, false, b)?;
+            return matched.support_map().pull(&p, b);
+        }
         let (cover, _, map) = self
             .support()
             .physical_localization()
@@ -175,6 +185,7 @@ impl DispatchRestriction {
         match self {
             Self::Direct(_) => Ok(pulled),
             Self::Matched(s) => s.support_map().pull(&pulled, b),
+            Self::Composite { .. } => unreachable!(),
         }
     }
     fn ambient_pull(
@@ -183,6 +194,16 @@ impl DispatchRestriction {
         value: &Poly,
         b: &mut Budget,
     ) -> Result<Poly> {
+        if let Self::Composite { root, matched } = self {
+            let (_, actual, _) = matched
+                .support()
+                .physical_localization()
+                .ok_or(Error::Invalid("composite original physical restriction"))?;
+            if !Arc::ptr_eq(actual, localization) {
+                return Err(Error::Invalid("composite ancestor localization owner"));
+            }
+            return matched.support().pull_refinement(root, value, true, b);
+        }
         let (cover, actual, _) = self
             .support()
             .physical_localization()

@@ -141,6 +141,9 @@ pub use companion_dispatch::{
 };
 
 mod matched_ascent;
+pub use contact_dispatch::{
+    CompositeContactCenter, CompositeCoverLift, CompositeLiftNext, CompositeLiftWork,
+};
 
 pub use contact_dispatch::{
     RecursiveContactBranch, RecursiveContactCenter, RecursiveContactChildState,

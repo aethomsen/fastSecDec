@@ -240,6 +240,16 @@ impl ThresholdMetadata {
         compiler_policy: &str,
         precision: &super::PrecisionPolicy,
     ) -> Result<String, KernelError> {
+        self.semantic_identity_for_selection(compiler_policy, precision, &self.resident.selection)
+    }
+    /// Hash a proposed scope without issuing residency or loading missing records.
+    /// Callers must separately establish catalogue/parent and carrier association.
+    pub(crate) fn semantic_identity_for_selection(
+        &self,
+        compiler_policy: &str,
+        precision: &super::PrecisionPolicy,
+        selection: &m::ResidentSelection,
+    ) -> Result<String, KernelError> {
         let mut h = blake3::Hasher::new();
         h.update(b"fastsecdec-threshold-native-v15\0");
         h.update(compiler_policy.as_bytes());
@@ -247,7 +257,7 @@ impl ThresholdMetadata {
         h.update(self.semantic.as_bytes());
         serde_json::to_writer(&mut h, self.orders.as_ref())?;
         // Scope is semantic; physical record grouping/transport hashes are not.
-        serde_json::to_writer(&mut h, &self.resident.selection)?;
+        serde_json::to_writer(&mut h, selection)?;
         Ok(h.finalize().to_hex().to_string())
     }
     pub(crate) fn save(&self) -> Result<Saved, KernelError> {

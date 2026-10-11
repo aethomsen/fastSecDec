@@ -17,6 +17,7 @@ pub use compilation::{
     CompilationCompletion, CompilationDispatch, CompilationJob, CompilationSession,
 };
 mod compilation_settings;
+mod parameter_point;
 pub use compilation_settings::{CompilationSettings, EvaluatorBackend};
 mod complex;
 mod contour;
@@ -775,13 +776,7 @@ impl KernelSet {
         let original_id = self
             .template_content_id
             .get_or_insert_with(|| self.content_id.clone());
-        let mut hash = blake3::Hasher::new();
-        hash.update(b"fastsecdec-runtime-parameter-point-v1");
-        hash.update(original_id.as_bytes());
-        for value in ordered {
-            hash.update(&value.to_bits().to_le_bytes());
-        }
-        self.content_id = hash.finalize().to_hex().to_string();
+        self.content_id = parameter_point::identity(original_id, ordered);
     }
     /// Legacy version-one artifacts have no retained generation metadata.
     pub fn generation_metadata(&self) -> Option<&crate::generation::GenerationMetadata> {

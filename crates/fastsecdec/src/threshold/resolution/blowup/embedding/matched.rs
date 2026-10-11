@@ -12,6 +12,7 @@ pub struct MatchedPhysicalSupport {
     lower_map: super::super::refinement::SupportFrameMap,
     lower_unit: Poly,
     pulled_cover: Option<Arc<PulledSupportCover>>,
+    join_prefix: Arc<Ring>,
 }
 impl MatchedPhysicalSupport {
     pub fn support(&self) -> &Arc<SupportEmbedding> {
@@ -40,6 +41,81 @@ impl MatchedPhysicalSupport {
     }
     pub fn lower_unit(&self) -> &Poly {
         &self.lower_unit
+    }
+    pub(super) fn join_prefix(&self) -> &Arc<Ring> {
+        &self.join_prefix
+    }
+}
+
+impl SupportEmbedding {
+    /// Same embedded support in its already-issued common frame. This creates
+    /// neither a physical localization nor an auxiliary/exceptional history.
+    pub(crate) fn refine_matched(
+        matched: Arc<MatchedPhysicalSupport>,
+        b: &mut Budget,
+    ) -> Result<Arc<Self>> {
+        b.charge(1)?;
+        let parent = matched.support().clone();
+        if !Arc::ptr_eq(matched.support_map().source(), parent.frame())
+            || !Arc::ptr_eq(matched.support_map().target(), matched.frame())
+            || !Arc::ptr_eq(matched.lower_map().target(), matched.frame())
+            || !Arc::ptr_eq(
+                matched.lower_map().source(),
+                matched.lower().history().ledger().frame(),
+            )
+            || matched.extension().source() != parent.ambient().local().ring()
+            || matched.extension().target() != matched.frame().local().ring()
+            || parent
+                .ambient()
+                .free_axes()
+                .len()
+                .checked_sub(matched.frame().free_axes().len())
+                != Some(parent.codimension())
+        {
+            return Err(Error::Invalid("matched refinement original maps/dimension"));
+        }
+        super::nested::full_equations(
+            parent.ambient(),
+            matched.frame(),
+            matched.extension(),
+            parent.equations(),
+            b,
+        )?;
+        for i in 0..parent.ambient().local().ring().len() {
+            let local = parent.ambient().local();
+            // Exactly the native frame-map coordinate domain. Retired graph
+            // slots are not elements admitted by this localized algebra.
+            if !local.axes().contains(&i)
+                && !local.ring().is_parameter(i)
+                && !local.guards().iter().any(|g| g.inverse_axis == i)
+            {
+                continue;
+            }
+            let p = parent.ambient().local().ring().coordinate(i)?;
+            let through = matched
+                .support_map()
+                .pull(&parent.extension().pull(&p, b)?, b)?;
+            let direct = matched.extension().pull(&p, b)?;
+            if !matched.frame().local().zero(&(&through - &direct), b)? {
+                return Err(Error::Invalid(
+                    "matched refinement original coordinate square",
+                ));
+            }
+        }
+        Ok(Arc::new(Self {
+            ambient: parent.ambient().clone(),
+            frame: matched.frame().clone(),
+            extension: matched.extension().clone(),
+            equations: parent.equations().clone(),
+            codimension: parent.codimension(),
+            origin: EmbeddingOrigin::Matched { parent, matched },
+        }))
+    }
+    pub(super) fn matched_origin(&self) -> Option<&Arc<MatchedPhysicalSupport>> {
+        match &self.origin {
+            EmbeddingOrigin::Matched { matched, .. } => Some(matched),
+            _ => None,
+        }
     }
 }
 
@@ -92,19 +168,18 @@ impl PhysicalSupportCover {
             return Err(Error::Invalid("matched support original lower/outer index"));
         }
         let (factor, prefix) = if let Some(p) = &pulled {
-            let (parent, _, map) = self.embedding().source_open().ok_or(Error::Invalid(
-                "matched pulled support original restriction",
-            ))?;
             if !Arc::ptr_eq(p.embedding(), self.embedding())
                 || !Arc::ptr_eq(p.pulled(), self.lower())
                 || !Arc::ptr_eq(p.original(), lower.open().cover())
-                || !Arc::ptr_eq(lower.open().source().ledger().frame(), parent.frame())
+                || !Arc::ptr_eq(lower.open().source().ledger().frame(), p.map().source())
+                || p.original_history()
+                    .is_some_and(|h| !Arc::ptr_eq(h, lower.open().source()))
             {
                 return Err(Error::Invalid("matched pulled support cover/map owners"));
             }
             (
-                map.pull(lower.open().factor(), b)?,
-                parent.ambient().local().ring().clone(),
+                p.map().pull(lower.open().factor(), b)?,
+                p.join_prefix().clone(),
             )
         } else {
             if !Arc::ptr_eq(lower.open().cover(), self.lower())
@@ -187,6 +262,7 @@ impl PhysicalSupportCover {
                 lower_map: joined.child_map.clone(),
                 lower_unit,
                 pulled_cover: pulled,
+                join_prefix: prefix,
             },
         )))
     }

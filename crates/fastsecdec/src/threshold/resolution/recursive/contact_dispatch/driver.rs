@@ -40,6 +40,31 @@ impl FiniteContactDispatcher {
             recursive_coefficients: false,
         })
     }
+    pub(super) fn reserve_snapshot(&self, b: &mut Budget) -> Result<()> {
+        b.reserve_slots(
+            self.branches
+                .len()
+                .checked_add(self.ambient.len())
+                .ok_or(Error::ResourceIncomplete("recursive snapshot slots"))?,
+        )?;
+        for branch in &self.branches {
+            b.charge(1)?;
+            match branch {
+                ContactBranchWork::Recursive(c) => {
+                    b.reserve_slots(c.child().depth())?;
+                    if let Some(lower) = c.lower() {
+                        lower.reserve_snapshot(b)?;
+                    }
+                    if let Some(RecursiveBranchAscent::Finite(f)) = c.ascent() {
+                        f.reserve_snapshot(b)?;
+                    }
+                }
+                ContactBranchWork::Components(c) => b.reserve_slots(c.work().len())?,
+                _ => {}
+            }
+        }
+        Ok(())
+    }
     pub fn cover(&self) -> &Arc<ContactDispatchCover> {
         &self.cover
     }
@@ -232,9 +257,7 @@ impl FiniteContactDispatcher {
         lower: usize,
         b: &mut Budget,
     ) -> Result<ContactDispatchAdvance> {
-        self.recursive_mut(branch)?
-            .ascent_mut()?
-            .advance_branch(lower, b)
+        self.recursive_mut(branch)?.advance_ascent_branch(lower, b)
     }
     pub fn advance_recursive_ascent_open(
         &mut self,
@@ -243,9 +266,11 @@ impl FiniteContactDispatcher {
         index: usize,
         b: &mut Budget,
     ) -> Result<ContactDispatchAdvance> {
-        self.recursive_mut(branch)?
-            .ascent_mut()?
-            .advance_open(lower, index, b)
+        dispatch_result((|| {
+            self.recursive_mut(branch)?
+                .ascent_mut(b)?
+                .advance_open(lower, index, b)
+        })())
     }
     pub fn prepare_nested_ascent(
         &mut self,
@@ -282,6 +307,54 @@ impl FiniteContactDispatcher {
             _ => Err(Error::Invalid("recursive branch index/owner")),
         }
     }
+    /// Advance one retained cover entry at an actual lower-tree path.
+    pub fn advance_composite_ascent_open(
+        &mut self,
+        path: &[usize],
+        selected: (usize, usize),
+        tree_path: &[(usize, usize)],
+        opening: usize,
+        b: &mut Budget,
+    ) -> Result<ContactDispatchAdvance> {
+        let (branch, lower) = selected;
+        dispatch_result((|| {
+            b.reserve_slots(
+                path.len()
+                    .checked_add(tree_path.len())
+                    .ok_or(Error::ResourceIncomplete("composite path length"))?,
+            )?;
+            self.nested_mut(path)?
+                .recursive_mut(branch)?
+                .ascent_mut(b)?
+                .composite_mut(lower)?
+                .node_mut(tree_path)?
+                .advance(opening, b)
+        })())
+    }
+    /// Prepare one child cover; other siblings remain pending and retained.
+    pub fn prepare_composite_ascent_child(
+        &mut self,
+        path: &[usize],
+        selected: (usize, usize),
+        tree_path: &[(usize, usize)],
+        edge: (usize, usize),
+        b: &mut Budget,
+    ) -> Result<ContactDispatchAdvance> {
+        let (branch, lower) = selected;
+        dispatch_result((|| {
+            b.reserve_slots(
+                path.len()
+                    .checked_add(tree_path.len())
+                    .ok_or(Error::ResourceIncomplete("composite path length"))?,
+            )?;
+            self.nested_mut(path)?
+                .recursive_mut(branch)?
+                .ascent_mut(b)?
+                .composite_mut(lower)?
+                .node_mut(tree_path)?
+                .prepare_child(edge.0, edge.1, b)
+        })())
+    }
     fn nested_mut(&mut self, path: &[usize]) -> Result<&mut Self> {
         let Some((&first, rest)) = path.split_first() else {
             return Ok(self);
@@ -290,5 +363,12 @@ impl FiniteContactDispatcher {
             return Err(Error::Invalid("nested recursive branch owner"));
         };
         child.lower_mut()?.nested_mut(rest)
+    }
+}
+
+fn dispatch_result(result: Result<ContactDispatchAdvance>) -> Result<ContactDispatchAdvance> {
+    match result {
+        Err(Error::ResourceIncomplete(reason)) => Ok(ContactDispatchAdvance::Incomplete { reason }),
+        other => other,
     }
 }

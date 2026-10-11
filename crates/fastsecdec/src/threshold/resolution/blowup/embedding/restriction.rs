@@ -166,6 +166,9 @@ pub struct PulledSupportCover {
     embedding: Arc<SupportEmbedding>,
     original: Arc<VerifiedOpenCover>,
     pulled: Arc<VerifiedOpenCover>,
+    map: super::super::refinement::SupportFrameMap,
+    join_prefix: Arc<Ring>,
+    original_history: Option<Arc<ResolutionHistory>>,
 }
 impl PulledSupportCover {
     pub fn prepare(
@@ -181,6 +184,45 @@ impl PulledSupportCover {
             || !Arc::ptr_eq(map.target(), embedding.frame())
         {
             return Err(Error::Invalid("support cover original/map association"));
+        }
+        let prefix = parent.ambient().local().ring().clone();
+        b.reserve_slots(map.coordinate_indices().len())?;
+        let map = map.clone();
+        Self::prepare_with_map(embedding, original, map, prefix, None, b)
+    }
+    /// Only an actual matched support can license the next lower-cover step.
+    pub(crate) fn prepare_matched(
+        embedding: Arc<SupportEmbedding>,
+        original: Arc<VerifiedOpenCover>,
+        b: &mut Budget,
+    ) -> Result<Arc<Self>> {
+        let matched = embedding
+            .matched_origin()
+            .ok_or(Error::Invalid("next cover missing matched refinement"))?;
+        if !Arc::ptr_eq(
+            original.algebra(),
+            matched.lower().history().ledger().frame().local(),
+        ) {
+            return Err(Error::Invalid("next cover actual lower history frame"));
+        }
+        b.reserve_slots(matched.lower_map().coordinate_indices().len())?;
+        let map = matched.lower_map().clone();
+        let prefix = matched.join_prefix().clone();
+        let history = matched.lower().history().clone();
+        Self::prepare_with_map(embedding, original, map, prefix, Some(history), b)
+    }
+    fn prepare_with_map(
+        embedding: Arc<SupportEmbedding>,
+        original: Arc<VerifiedOpenCover>,
+        map: super::super::refinement::SupportFrameMap,
+        join_prefix: Arc<Ring>,
+        original_history: Option<Arc<ResolutionHistory>>,
+        b: &mut Budget,
+    ) -> Result<Arc<Self>> {
+        if !Arc::ptr_eq(original.algebra(), map.source().local())
+            || !Arc::ptr_eq(map.target(), embedding.frame())
+        {
+            return Err(Error::Invalid("support cover consumed map association"));
         }
         b.reserve_slots(
             original
@@ -219,6 +261,9 @@ impl PulledSupportCover {
             embedding,
             original,
             pulled,
+            map,
+            join_prefix,
+            original_history,
         }))
     }
     pub fn embedding(&self) -> &Arc<SupportEmbedding> {
@@ -229,5 +274,14 @@ impl PulledSupportCover {
     }
     pub fn pulled(&self) -> &Arc<VerifiedOpenCover> {
         &self.pulled
+    }
+    pub(super) fn map(&self) -> &super::super::refinement::SupportFrameMap {
+        &self.map
+    }
+    pub(super) fn join_prefix(&self) -> &Arc<Ring> {
+        &self.join_prefix
+    }
+    pub(super) fn original_history(&self) -> Option<&Arc<ResolutionHistory>> {
+        self.original_history.as_ref()
     }
 }

@@ -191,3 +191,50 @@ combined parameter-template/resolver build; formatting and diff checks pass.
 The producer's diagnostic dependency identity is not adopted. This closes the
 scoped source/runtime and ecosystem gates without extending the local result
 to a global resolution claim.
+
+## Partial recursive cover-tree ascent
+
+The next increment lifts an actually completed grandchild through its original
+ancestor covers while leaving unfinished siblings explicitly Pending. Source,
+mark, history, cover indices and matched-map obligations remain attached to
+their native owners. A finished selected branch does not complete the tree or
+issue a resolved physical density.
+
+The caller advances one cover entry at a time. A live lower dispatcher is
+borrowed from its actual owning child and checked against the retained source
+inventory and all previously accepted completion owners. The initial snapshot
+records source inventory, not live progress; it is replaced only after the
+lower construction finishes, including late ambient bookkeeping. Immutable
+geometry remains shared through Arcs. Copied work arrays and recursive paths
+use the existing slot budget; this does not bound native F4 allocator memory.
+
+The actual `sum((t^2-1)^2)` control discovers child `[3,4]` and lifts one
+original-source center through covers with 20 and 18 openings. Both traversal
+orders agree; nine parent siblings remain Pending and whole completion stays
+false. Tests also reject stale or foreign sources, omitted inventory and wrong
+indices, and verify that budget refusal cannot replace an accepted snapshot.
+The separate complete quartic control retains its six-center result.
+
+Independent source, mathematics and ecosystem review accepts the immutable
+17-file slice in handoff
+`41abcab1ec06bf191e092360044d367ad231328ff7855aded81c7867be476fdc`.
+The accepted review is
+`e91d547692357de9499e31ef4a824323e4764d5fa3d289aadcbf1d2f947f71f7`;
+it is distinct from the earlier review overwritten during private investigation.
+The coordinator verified all 17 source pairs and 38 evidence files before import.
+The public-dependency private tests pass 19 maintained groups, strict library
+and test checks, and a public external-caller test. Existing expensive ignored
+diagnostics remain unrun. Their incomplete whole-tree outcomes are preserved.
+
+This still requires general physical adaptation/all-pivot transport for composite
+centers, canonical global selection, repeated resolution, real closed-face
+coverage and a regularized integration atlas. Neither local inventory completion
+nor the new composite center establishes those later capabilities.
+
+The consuming workspace passes all 19 contact/composite/companion groups on the
+unchanged public dependency graph. The joined catalogue-point controls bring the
+gate to 24 groups. Strict workspace/all-target Clippy passes in 42.95 seconds;
+formatting and diff checks pass. The nonempty-test guard rejected an initial
+misspelled composite module filter before acceptance; the corrected actual
+test-list path runs the intended two-level test in 20.09 seconds. No scientific
+assertion or production source changed to obtain these results.
