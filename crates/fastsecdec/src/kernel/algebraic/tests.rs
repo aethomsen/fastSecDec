@@ -200,3 +200,140 @@ fn native_tracking_controls() {
     let error = super::attempt(|| evaluator.evaluate(&[invalid], &mut output)).unwrap_err();
     assert!(error.contains("uncertainty"), "{error}");
 }
+
+#[test]
+fn immutable_rational_literals_use_native_exact_roundtrip() {
+    use super::numeric::Number;
+    use symbolica::domains::float::{ErrorPropagatingFloat as E, Float, RealLike};
+
+    for value in [
+        Rational::zero(),
+        Rational::from((-3, 4)),
+        Rational::from((31, 128)),
+        Rational::from(2).pow(100),
+        Rational::try_from(f64::from_bits(1)).unwrap(),
+        Rational::try_from(f64::MAX).unwrap(),
+    ] {
+        let primary = E::<f64>::rational_at(&value, 53);
+        let wide = E::<Float>::rational_at(&value, 128);
+        assert!(primary.valid() && wide.valid());
+        assert_eq!(primary.get_absolute_error(), 0.);
+        assert_eq!(wide.get_absolute_error(), 0.);
+        assert_eq!(primary.to_f64(), value.to_f64());
+        assert_eq!(wide.to_f64(), value.to_f64());
+    }
+    for value in [
+        Rational::from((1, 3)),
+        Rational::from((4, 5)),
+        Rational::from(9_007_199_254_740_993_i64),
+    ] {
+        let primary = E::<f64>::rational_at(&value, 53);
+        let wide = E::<Float>::rational_at(&value, 128);
+        assert!(primary.valid() && wide.valid());
+        assert!(primary.get_absolute_error() > 0.);
+        assert!(wide.get_absolute_error() > 0.);
+    }
+    for value in [
+        Rational::from(2).pow(1024),
+        Rational::one() / Rational::from(2).pow(1075),
+    ] {
+        for valid_error in [
+            {
+                let v = E::<f64>::rational_at(&value, 53);
+                !v.valid() || v.get_absolute_error() > 0.
+            },
+            {
+                let v = E::<Float>::rational_at(&value, 128);
+                !v.valid() || v.get_absolute_error() > 0.
+            },
+        ] {
+            assert!(valid_error, "unproved exact conversion of {value}");
+        }
+    }
+    // The public constructor can be called below callback admission's 53-bit
+    // floor. A primary-exact literal does not prove this smaller Float exact.
+    let low = E::<Float>::rational_at(&Rational::from(16_777_217), 24);
+    assert!(low.valid() && low.get_absolute_error() > 0.);
+}
+
+#[test]
+fn saved_root_aliases_preserve_runtime_uncertainty_with_exact_literals() {
+    use super::numeric::Number;
+    use symbolica::{
+        atom::AtomCore,
+        domains::float::{Complex, ErrorPropagatingFloat as E, Float, RealLike},
+    };
+    let c = symbol!("algebraic_literal_test::coefficient");
+    let aliases = symbol!(
+        "algebraic_literal_test::first",
+        "algebraic_literal_test::second"
+    );
+    let coefficients = [
+        Atom::var(c),
+        Atom::one(),
+        Atom::zero(),
+        Atom::zero(),
+        Atom::zero(),
+        Atom::one(),
+    ];
+    let mut scope = Scope::default();
+    let mut calls = Vec::new();
+    for version in [1, 2] {
+        let prepare = if version == 1 {
+            RootProgram::prepare_from_certificate
+        } else {
+            RootProgram::prepare_affine_from_certificate
+        };
+        let root = prepare(
+            5,
+            Rational::from((1, 4)),
+            Rational::from((3, 4)),
+            format!("saved immutable-literal control v{version}").into_bytes(),
+            OptimizationSettings::default().cores(1),
+        )
+        .unwrap();
+        let restored = RootProgram::from_bytes(root.bytes()).unwrap();
+        assert_eq!(restored.bytes(), root.bytes());
+        assert_eq!(restored.semantic_identity(), root.semantic_identity());
+        for alias in [aliases.0, aliases.1] {
+            calls.push(restored.call(alias, &coefficients).unwrap());
+            scope.insert(alias, restored.clone()).unwrap();
+        }
+    }
+    assert_eq!(scope.owners().count(), 4);
+    let exact = Atom::evaluator_multiple(&calls, &[Atom::var(c)])
+        .build()
+        .unwrap();
+    for bits in [53, 128] {
+        let mut evaluator = scope.enter(bits, || {
+            exact.clone().map_coeff_with_prec(
+                &|q| {
+                    Complex::new(
+                        E::<Float>::rational_at(&q.re, bits),
+                        E::<Float>::rational_at(&q.im, bits),
+                    )
+                },
+                bits,
+            )
+        });
+        let input = Complex::new(
+            E::new(Float::with_val(bits, -0.5), 10.),
+            E::new(Float::with_val(bits, 0), 11.),
+        );
+        let real_error = input.re.get_absolute_error();
+        let imaginary_error = input.im.get_absolute_error();
+        let mut out = vec![Complex::new(E::exact_zero_at(bits), E::exact_zero_at(bits)); 4];
+        super::attempt(|| evaluator.evaluate(std::slice::from_ref(&input), &mut out)).unwrap();
+        assert_eq!(input.re.get_absolute_error(), real_error);
+        assert_eq!(input.im.get_absolute_error(), imaginary_error);
+        for value in &out {
+            let z = value.re.to_f64();
+            assert!((z.powi(5) + z - 0.5).abs() < 2e-14);
+            assert!(value.re.valid() && value.im.valid());
+            assert!(value.re.get_absolute_error() >= real_error / 3.);
+            assert!(value.im.get_absolute_error() >= imaginary_error / 3.);
+        }
+        assert_eq!(out[0], out[1]);
+        assert_eq!(out[2], out[3]);
+    }
+}

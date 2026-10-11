@@ -1,5 +1,21 @@
 # Ecosystem reuse evidence
 
+## Exact immutable root constants (2026-10-11)
+
+The [root-literal review](reviews/no-deformation-root-literals.md) records reuse
+of native exact rational round trips to remove only artificial conversion error
+from proved exact immutable constants. Runtime real/imaginary input uncertainty
+remains present. There is no alternate conversion, root solver, uncertainty
+estimator or numerical acceptance policy. The independent scientific review and
+adopted-dependency gate pass 14 callback, complete-vector and restoration groups,
+strict workspace/all-target Clippy, formatting and diff checks.
+
+A separate bounded diagnostic attributes scalar rescue to native whole-vector
+tracking and records the limited improvement from exact constants. All 32
+sampled vectors still require rescue. No general performance improvement or
+owner-library root-solver defect is claimed. Substantive code remains native
+FastSecDec, with no HEPKit/community implementation or new execution/RNG state.
+
 ## Global monomial restrictions and principal-power receipts (2026-10-11)
 
 The [monomial-selection review](reviews/no-deformation-monomial-selection.md)

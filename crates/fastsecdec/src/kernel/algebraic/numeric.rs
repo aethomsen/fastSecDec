@@ -150,7 +150,17 @@ where
     }
     fn rational_at(value: &symbolica::domains::rational::Rational, bits: u32) -> Self {
         let center = T::rational_at(value, bits);
-        if value.is_integer() && value.numerator_ref().significant_bits() <= 53 {
+        // Native exact round-trip proves this immutable literal needs no
+        // rounding uncertainty in every supported domain (at least 53 bits).
+        // Runtime coefficient/input uncertainties do not pass through here.
+        let primary = value.to_f64();
+        if T::FIXED_PRECISION.unwrap_or(bits) >= 53
+            && primary.is_finite()
+            && symbolica::domains::rational::Rational::try_from(primary)
+                .ok()
+                .as_ref()
+                == Some(value)
+        {
             Self::new_with_accuracy(center, f64::INFINITY)
         } else {
             Self::new(center, f64::from(bits) * std::f64::consts::LOG10_2 - 2.)
