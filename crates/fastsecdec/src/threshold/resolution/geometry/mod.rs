@@ -4,6 +4,7 @@
 //! and a monomial center. They do not yet construct blowup charts, exceptional
 //! history transitions or a real integration atlas.
 mod boundary;
+pub(crate) mod generators;
 mod monomial;
 mod normalization;
 

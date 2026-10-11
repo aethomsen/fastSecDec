@@ -1,6 +1,8 @@
 use super::super::contact::clear_units;
+use super::super::geometry::generators::VerifiedGeneratorPresentation;
+use super::super::prepared_membership::PreparedLocalZero;
 use super::super::{
-    Budget, CartierDivision, Error, Ideal, OpenCoverCertificate, Poly, UnitClearing,
+    Budget, CartierDivision, Error, Ideal, MarkedIdeal, OpenCoverCertificate, Poly, UnitClearing,
     VerifiedCartierQuotient, VerifiedOpenCover, divide_cartier,
 };
 use super::elimination::{
@@ -48,6 +50,7 @@ pub struct VerifiedComponentSplit {
     complement: Arc<VerifiedAnnihilator>,
     idempotent: Poly,
     idempotent_evidence: EliminationEvidence,
+    idempotent_presentations: [Arc<VerifiedGeneratorPresentation>; 2],
     pattern: ComponentPattern,
     opens: [ComponentOpen; 2],
     cover: VerifiedOpenCover,
@@ -73,6 +76,13 @@ impl VerifiedComponentSplit {
     }
     pub fn idempotent_evidence(&self) -> &EliminationEvidence {
         &self.idempotent_evidence
+    }
+    /// Equivalent discovery inputs of the retained complete annihilators.
+    pub fn idempotent_source_presentations(&self) -> [&Arc<MarkedIdeal>; 2] {
+        [
+            self.idempotent_presentations[0].selected(),
+            self.idempotent_presentations[1].selected(),
+        ]
     }
     pub fn pattern(&self) -> ComponentPattern {
         self.pattern
@@ -138,13 +148,19 @@ fn verify_idempotent(
     {
         return Ok(false);
     }
+    let mut zero = PreparedLocalZero::new(local, budget)?;
     for f in ann.source().generators() {
         let product = budget.mul(e, f)?;
-        if !local.zero(&product, budget)? {
+        if !zero.zero(&product, budget)? {
             return Ok(false);
         }
     }
     Ok(true)
+}
+struct IdempotentDiscovery {
+    idempotent: Poly,
+    evidence: EliminationEvidence,
+    presentations: [Arc<VerifiedGeneratorPresentation>; 2],
 }
 fn discover_idempotent(
     owner: &RegularAlgebra,
@@ -152,10 +168,26 @@ fn discover_idempotent(
     complement: &VerifiedAnnihilator,
     namespace: &str,
     budget: &mut Budget,
-) -> Result<(Poly, EliminationEvidence)> {
-    let a = ann.annihilator();
-    let c = complement.annihilator();
+) -> Result<IdempotentDiscovery> {
     let local = owner.local();
+    budget.reserve_slots(ann.annihilator().generators().len())?;
+    budget.reserve_slots(complement.annihilator().generators().len())?;
+    let ap = VerifiedGeneratorPresentation::prepare(
+        local.clone(),
+        Arc::new(MarkedIdeal::new((**ann.annihilator()).clone(), 1, budget)?),
+        budget,
+    )?;
+    let cp = VerifiedGeneratorPresentation::prepare(
+        local.clone(),
+        Arc::new(MarkedIdeal::new(
+            (**complement.annihilator()).clone(),
+            1,
+            budget,
+        )?),
+        budget,
+    )?;
+    let a = ap.selected().ideal();
+    let c = cp.selected().ideal();
     let n = a
         .generators()
         .len()
@@ -207,7 +239,11 @@ fn discover_idempotent(
     if !verify_idempotent(owner, ann, complement, &e, budget)? {
         return Err(Error::Invalid("idempotent original quotient identities"));
     }
-    Ok((e, evidence))
+    Ok(IdempotentDiscovery {
+        idempotent: e,
+        evidence,
+        presentations: [ap, cp],
+    })
 }
 pub fn produce_component_split(
     owner: Arc<RegularAlgebra>,
@@ -289,17 +325,22 @@ fn run(
         .checked_mul(complement.annihilator().generators().len())
         .ok_or(Error::ResourceIncomplete("complement product count"))?;
     budget.count(products)?;
+    let mut zero = PreparedLocalZero::new(local, budget)?;
     for a in annihilator.annihilator().generators() {
         for c in complement.annihilator().generators() {
             let product = budget.mul(a, c)?;
-            if !local.zero(&product, budget)? {
+            if !zero.zero(&product, budget)? {
                 return Err(Error::Invalid("complement product in original quotient"));
             }
             bump(&mut progress.checked_products)?;
         }
     }
     progress.stage = "native idempotent discovery";
-    let (idempotent, idempotent_evidence) = discover_idempotent(
+    let IdempotentDiscovery {
+        idempotent,
+        evidence: idempotent_evidence,
+        presentations: idempotent_presentations,
+    } = discover_idempotent(
         &owner,
         &annihilator,
         &complement,
@@ -381,6 +422,7 @@ fn run(
         complement,
         idempotent,
         idempotent_evidence,
+        idempotent_presentations,
         pattern,
         opens,
         cover,

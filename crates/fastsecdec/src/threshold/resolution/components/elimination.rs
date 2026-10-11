@@ -1,6 +1,10 @@
 pub use super::super::elimination::EliminationEvidence;
 pub(super) use super::super::elimination::{auxiliary_ring, native_basis, remap};
-use super::super::{Budget, Error, Ideal, MarkedIdeal, QuotientNormalizer};
+use super::super::geometry::generators::VerifiedGeneratorPresentation;
+use super::super::prepared_membership::PreparedLocalZero;
+use super::super::{
+    Budget, Error, Ideal, MarkedIdeal, QuotientNormalizer, VerifiedQuotientNormalization,
+};
 use super::RegularAlgebra;
 use std::sync::Arc;
 type Result<T> = std::result::Result<T, Error>;
@@ -11,6 +15,7 @@ pub struct VerifiedAnnihilator {
     source: Arc<Ideal>,
     annihilator: Arc<Ideal>,
     evidence: EliminationEvidence,
+    presentation: Arc<VerifiedGeneratorPresentation>,
 }
 impl VerifiedAnnihilator {
     pub fn owner(&self) -> &Arc<RegularAlgebra> {
@@ -24,6 +29,13 @@ impl VerifiedAnnihilator {
     }
     pub fn evidence(&self) -> &EliminationEvidence {
         &self.evidence
+    }
+    /// Equivalent discovery input; source() remains the original ideal.
+    pub fn selected_source(&self) -> &Arc<MarkedIdeal> {
+        self.presentation.selected()
+    }
+    pub fn source_normalization(&self) -> &Arc<VerifiedQuotientNormalization> {
+        self.presentation.normalization()
     }
     /// Independent candidate admission recomputes the original elimination;
     /// product identities or a caller-supplied Groebner basis are insufficient.
@@ -63,10 +75,14 @@ pub(super) fn produce_annihilator(
         local.supports(f)?;
         budget.poly(f)?;
     }
-    let count = source.generators().len();
+    budget.reserve_slots(source.generators().len())?;
+    let marked = Arc::new(MarkedIdeal::new((*source).clone(), 1, budget)?);
+    let presentation = VerifiedGeneratorPresentation::prepare(local.clone(), marked, budget)?;
+    let selected = presentation.selected().ideal();
+    let count = selected.generators().len();
     let extended = auxiliary_ring(local.ring(), count, namespace, budget)?;
     let mut relation = extended.one();
-    for (i, f) in source.generators().iter().enumerate() {
+    for (i, f) in selected.generators().iter().enumerate() {
         let mapped = remap(f, &extended, budget)?;
         relation = relation - budget.mul(&extended.coordinate(i)?, &mapped)?;
         budget.poly(&relation)?;
@@ -88,7 +104,7 @@ pub(super) fn produce_annihilator(
         .collect::<Result<Vec<_>>>()?;
     equations.push(relation);
     let evidence = native_basis(extended, count, equations, budget)?;
-    let normalizer = QuotientNormalizer::prepare(local.clone(), budget)?;
+    let normalizer = presentation.normalization().normalizer();
     budget.reserve_slots(evidence.basis().generators().len())?;
     let mut eliminated = Vec::new();
     for f in evidence.basis().generators() {
@@ -109,10 +125,11 @@ pub(super) fn produce_annihilator(
         .checked_mul(source.generators().len())
         .ok_or(Error::ResourceIncomplete("annihilator identity count"))?;
     budget.count(products)?;
+    let mut zero = PreparedLocalZero::new(local, budget)?;
     for a in annihilator.generators() {
         for f in source.generators() {
             let product = budget.mul(a, f)?;
-            if !local.zero(&product, budget)? {
+            if !zero.zero(&product, budget)? {
                 return Err(Error::Invalid(
                     "native annihilator product in original quotient",
                 ));
@@ -124,5 +141,6 @@ pub(super) fn produce_annihilator(
         source,
         annihilator,
         evidence,
+        presentation,
     }))
 }

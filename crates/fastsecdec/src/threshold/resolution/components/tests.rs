@@ -399,3 +399,71 @@ fn component_producer_resource_progress_and_namespace_collision() {
         Err(Error::Invalid("ring variables/parameter roles"))
     ));
 }
+
+#[test]
+fn component_presentations_preserve_original_products_and_quotient_owner() {
+    let r = ring();
+    let mut b = b();
+    let ambient = local(&r, vec![], vec![1, 2], vec![], &mut b);
+    let frame = flat(ambient.clone(), &mut b);
+    let owner = boundary(
+        frame.clone(),
+        p(&r, "component_test::x*(component_test::x-1)"),
+        &mut b,
+    );
+    let input = ideal(
+        &r,
+        vec![
+            p(&r, "component_test::x^2"),
+            p(&r, "component_test::x^3"),
+            p(&r, "component_test::x^2*(1+component_test::x)"),
+        ],
+        &mut b,
+    );
+    let originals = input.generators().to_vec();
+    let s = split(owner.clone(), input.clone(), &mut b);
+    assert!(Arc::ptr_eq(s.source(), &input));
+    assert_eq!(input.generators(), originals);
+    assert_eq!(s.annihilator().source().generators(), originals);
+    assert!(Arc::ptr_eq(
+        s.annihilator().source_normalization().normalizer().local(),
+        owner.local()
+    ));
+    assert_eq!(
+        s.annihilator().selected_source().ideal().generators().len(),
+        1
+    );
+    assert_eq!(s.annihilator().evidence().auxiliary_axes(), 1);
+    assert_eq!(s.division_quotients().len(), originals.len());
+    for f in &originals {
+        assert!(
+            owner
+                .local()
+                .zero(&b.mul(s.idempotent(), f).unwrap(), &mut b)
+                .unwrap()
+        );
+    }
+    assert_eq!(
+        s.progress().checked_products,
+        s.annihilator().annihilator().generators().len()
+            * s.complement().annihilator().generators().len()
+    );
+    for selected in s.idempotent_source_presentations() {
+        assert_eq!(selected.mark(), 1);
+    }
+    let other_owner = boundary(
+        frame,
+        p(&r, "component_test::x*(component_test::x-2)"),
+        &mut b,
+    );
+    let other = split(other_owner, input, &mut b);
+    assert!(
+        !s.verify_idempotent_candidate(other.idempotent(), &mut b)
+            .unwrap()
+    );
+    assert!(
+        !other
+            .verify_idempotent_candidate(s.idempotent(), &mut b)
+            .unwrap()
+    );
+}
