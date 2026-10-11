@@ -112,13 +112,14 @@ impl CoverLeaf {
         &self.chart
     }
 }
-/// Complete replacement cover of exactly one existing chart. The other charts
-/// of `parent()` remain unchanged; adding this cover to its parent chart would
-/// count that region twice. No closed-face regularity is issued.
+/// Complete replacement cover of exactly one issued chart. Other siblings of
+/// `parent_chart()` remain unchanged; adding this cover alongside the replaced
+/// chart would count that region twice. `parent()` retains the original transport.
+/// No closed-face regularity is issued.
 #[derive(Debug)]
 pub struct EndpointChartCover {
     parent: Arc<EndpointTransport>,
-    parent_chart: usize,
+    parent_chart: IssuedEndpointChart,
     split_axes: Vec<usize>,
     target_units: Vec<Symbol>,
     halves: Vec<HalfCube>,
@@ -128,8 +129,14 @@ impl EndpointChartCover {
     pub fn parent(&self) -> &Arc<EndpointTransport> {
         &self.parent
     }
+    /// Ordinal in the immediate parent's inventory, which can be a prior cover.
     pub fn parent_chart_index(&self) -> usize {
-        self.parent_chart
+        self.parent_chart.ordinal()
+    }
+    /// Immediate chart replaced by this complete cover. Recursion retains every
+    /// earlier cover, its artificial midpoint faces and original source owner.
+    pub fn parent_chart(&self) -> &IssuedEndpointChart {
+        &self.parent_chart
     }
     pub fn split_axes(&self) -> &[usize] {
         &self.split_axes
@@ -171,10 +178,27 @@ impl EndpointChartCover {
         split_axes: &[Symbol],
         refined_masks: &[usize],
         limits: &Limits,
+        progress: impl FnMut() -> ControlFlow<()>,
+    ) -> Result<Arc<Self>> {
+        Self::refine(
+            parent.issued_chart(parent_chart)?,
+            split_axes,
+            refined_masks,
+            limits,
+            progress,
+        )
+    }
+    /// Replace one issued original chart or prior cover leaf. This never adds
+    /// its children alongside the replaced parent, nor claims coverage of other
+    /// siblings. The exact original factors and source powers are re-pulled.
+    pub fn refine(
+        parent_chart: IssuedEndpointChart,
+        split_axes: &[Symbol],
+        refined_masks: &[usize],
+        limits: &Limits,
         mut progress: impl FnMut() -> ControlFlow<()>,
     ) -> Result<Arc<Self>> {
         build::prepare(
-            parent,
             parent_chart,
             split_axes,
             refined_masks,

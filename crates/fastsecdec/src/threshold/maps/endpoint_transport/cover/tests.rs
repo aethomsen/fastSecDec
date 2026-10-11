@@ -367,3 +367,161 @@ fn endpoint_child_cover_subset_axes_and_genuine_foreign_section() {
         Err(Error::Invalid(_))
     ));
 }
+
+fn fifth_density(chart: &IssuedEndpointChart, index: usize) -> Atom {
+    let transport = chart.transport();
+    let c = chart.chart();
+    let term = &transport
+        .parent_prefix()
+        .source()
+        .decomposition()
+        .preparation()
+        .terms()[index];
+    let mut value = chart
+        .target_units()
+        .iter()
+        .zip(c.terms()[index].powers())
+        .map(|(s, p)| Atom::var(*s).pow(p * Atom::num(5)))
+        .product::<Atom>()
+        * (c.measure().numerator() / c.measure().denominator()).pow(5);
+    let links = &transport.term_links()[index];
+    for (e, id) in term.monomial_powers().iter().zip(links.coordinates()) {
+        if let Some(id) = id {
+            let f = &c.factors()[*id];
+            value *= (f.numerator() / f.denominator()).pow(e * Atom::num(5));
+        }
+    }
+    for (f, link) in term.factors().iter().zip(links.factors()) {
+        if let super::super::FactorLink::Cleared(id) = link {
+            let f_res = &c.factors()[*id];
+            value *= (f_res.numerator() / f_res.denominator()).pow(f.exponent() * Atom::num(5));
+        }
+    }
+    value
+}
+
+#[test]
+fn endpoint_recursive_cover_retains_all_ancestry_and_original_density() {
+    let transport = original();
+    let first = EndpointChartCover::prepare(
+        transport.clone(),
+        0,
+        &[transport.target_units()[0]],
+        &[],
+        &Limits::default(),
+        || ControlFlow::Continue(()),
+    )
+    .unwrap();
+    assert_eq!(first.leaves().len(), 2);
+    let selected = first.issued_chart(1).unwrap();
+    let axes = selected.target_units().to_vec();
+    let second = EndpointChartCover::refine(
+        selected.clone(),
+        &axes[1..],
+        &[0],
+        &Limits::default(),
+        || ControlFlow::Continue(()),
+    )
+    .unwrap();
+    assert!(first.replacement_complete() && second.replacement_complete());
+    assert!(Arc::ptr_eq(second.parent(), &transport));
+    assert!(Arc::ptr_eq(second.parent_chart().cover().unwrap(), &first));
+    assert_eq!(second.parent_chart_index(), 1);
+    // Only leaf1 is replaced. Leaf0 stays explicitly retained by the first cover.
+    assert_eq!(first.leaves().len(), 2);
+    assert_eq!(second.halves().len(), 4);
+    assert_eq!(
+        second.leaves().len(),
+        3 + second.halves()[0].geometry().unwrap().sectors.len()
+    );
+    assert!(
+        second
+            .target_units()
+            .iter()
+            .all(|s| !first.target_units().contains(s) && !transport.target_units().contains(s))
+    );
+    for half in second.halves() {
+        for interval in half.intervals() {
+            assert!(first.target_units().contains(&interval.unit()));
+            assert_eq!(
+                interval.one_boundary(),
+                ChildBoundary::Midpoint {
+                    unit: interval.unit()
+                }
+            );
+        }
+    }
+    for (ordinal, leaf) in second.leaves().iter().enumerate() {
+        let view = second.issued_chart(ordinal).unwrap();
+        assert!(Arc::ptr_eq(view.parent_prefix(), transport.parent_prefix()));
+        let signed = determinant(leaf.parent_chart_images(), second.target_units());
+        assert!(
+            (&signed - leaf.added_jacobian()).together().is_zero()
+                || (&signed + leaf.added_jacobian()).together().is_zero()
+        );
+        for (got, prior) in view
+            .chart()
+            .unit_images()
+            .iter()
+            .zip(selected.chart().unit_images())
+        {
+            equal(
+                got,
+                &pull(prior, selected.target_units(), leaf.parent_chart_images()),
+            );
+        }
+        equal(
+            view.chart().extra_jacobian(),
+            &(pull(
+                selected.chart().extra_jacobian(),
+                selected.target_units(),
+                leaf.parent_chart_images(),
+            ) * leaf.added_jacobian()),
+        );
+        let ancestor = transport.parent_prefix().source().unit_coordinates();
+        for root in transport.root_relations() {
+            let got = view.section_parameter_images(root.section()).unwrap();
+            for (got, prior) in got.iter().zip(&root.section().chart().parameter_images) {
+                equal(got, &pull(prior, ancestor, view.chart().unit_images()));
+            }
+        }
+        let roles = view
+            .target_units()
+            .iter()
+            .copied()
+            .chain(
+                transport
+                    .root_relations()
+                    .iter()
+                    .map(|r| r.section().root_symbol()),
+            )
+            .collect::<Vec<_>>();
+        for term in 0..view.chart().terms().len() {
+            let expected = pull(
+                &fifth_density(&selected, term),
+                selected.target_units(),
+                leaf.parent_chart_images(),
+            ) * leaf.added_jacobian().pow(5);
+            let actual = fifth_density(&view, term);
+            for offset in 0..2 {
+                let point = (0..roles.len())
+                    .map(|j| Atom::num((j as i64 + 2 + offset, j as i64 + 9 + offset)))
+                    .collect::<Vec<_>>();
+                assert_eq!(
+                    Rational::try_from(pull(&actual, &roles, &point).as_view()).unwrap(),
+                    Rational::try_from(pull(&expected, &roles, &point).as_view()).unwrap()
+                );
+            }
+        }
+    }
+    assert!(matches!(
+        EndpointChartCover::refine(
+            selected,
+            &[transport.target_units()[0]],
+            &[],
+            &Limits::default(),
+            || ControlFlow::Continue(())
+        ),
+        Err(Error::Invalid(_))
+    ));
+}

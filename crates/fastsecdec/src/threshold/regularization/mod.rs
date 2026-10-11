@@ -3,6 +3,7 @@ mod atlas;
 mod bound;
 pub mod meromorphic;
 pub mod secant;
+pub mod sign_definite;
 pub use bound::BoundContinuation;
 mod normalize;
 

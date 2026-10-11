@@ -1,4 +1,4 @@
-use super::{CoverLeaf, EndpointChartCover, HalfCube, SplitInterval};
+use super::{CoverLeaf, EndpointChartCover, HalfCube, IssuedEndpointChart, SplitInterval};
 use crate::{
     generation::coordinates_from_parts,
     threshold::maps::endpoint_transport::{
@@ -31,7 +31,8 @@ fn retained(parent: &EndpointTransport, leaves: usize, halves: usize, n: usize) 
         .and_then(|v| v.checked_add(halves.checked_mul(n.checked_mul(3)?)?))
         .ok_or_else(overflow)
 }
-fn fresh(parent: &EndpointTransport, n: usize, work: &mut Work<'_>) -> Result<Vec<Symbol>> {
+fn fresh(chart: &IssuedEndpointChart, n: usize, work: &mut Work<'_>) -> Result<Vec<Symbol>> {
+    let parent = chart.transport();
     let mut occupied = parent
         .parent
         .source()
@@ -39,6 +40,13 @@ fn fresh(parent: &EndpointTransport, n: usize, work: &mut Work<'_>) -> Result<Ve
         .occupied_symbols()
         .clone();
     occupied.extend(parent.target_units.iter().copied());
+    let mut ancestor = chart;
+    loop {
+        work.check()?;
+        occupied.extend(ancestor.target_units().iter().copied());
+        let Some(cover) = ancestor.cover() else { break };
+        ancestor = cover.parent_chart();
+    }
     occupied.extend(parent.parent.source().unit_coordinates().iter().copied());
     for root in &parent.roots {
         occupied.insert(root.section.root_symbol());
@@ -107,8 +115,7 @@ fn geometry(
     Ok((supports, indices, result.map_err(sector_error)?))
 }
 pub(super) fn prepare(
-    parent: Arc<EndpointTransport>,
-    parent_chart: usize,
+    parent_chart: IssuedEndpointChart,
     axes: &[Symbol],
     masks: &[usize],
     limits: &Limits,
@@ -120,10 +127,9 @@ pub(super) fn prepare(
         callback: progress,
     };
     work.check()?;
-    let original = parent
-        .charts
-        .get(parent_chart)
-        .ok_or_else(|| Error::Invalid("parent chart ordinal out of range".into()))?;
+    let parent = parent_chart.transport();
+    let original = parent_chart.chart();
+    let parent_units = parent_chart.target_units();
     if axes.is_empty() {
         return Err(Error::Unsupported(
             "child cover requires nonempty split axes".into(),
@@ -135,13 +141,9 @@ pub(super) fn prepare(
     let split = axes
         .iter()
         .map(|s| {
-            parent
-                .target_units
-                .iter()
-                .position(|u| u == s)
-                .ok_or_else(|| {
-                    Error::Invalid("child split axis is not a parent target role".into())
-                })
+            parent_units.iter().position(|u| u == s).ok_or_else(|| {
+                Error::Invalid("child split axis is not a parent target role".into())
+            })
         })
         .collect::<Result<Vec<_>>>()?;
     let count = 1usize
@@ -153,9 +155,9 @@ pub(super) fn prepare(
             "duplicate or out-of-range refined half mask".into(),
         ));
     }
-    let n = parent.target_units.len();
-    work.entries(retained(&parent, count, count, n)?)?;
-    let targets = fresh(&parent, n, &mut work)?;
+    let n = parent_units.len();
+    work.entries(retained(parent, count, count, n)?)?;
+    let targets = fresh(&parent_chart, n, &mut work)?;
     let half_jacobian = Atom::num(2).pow(-(axes.len() as i64));
     let mut halves = Vec::with_capacity(count);
     let mut leaves = Vec::new();
@@ -165,7 +167,7 @@ pub(super) fn prepare(
             .iter()
             .enumerate()
             .map(|(j, &axis)| SplitInterval {
-                unit: parent.target_units[axis],
+                unit: parent_units[axis],
                 axis,
                 half: if mask & (1 << j) == 0 {
                     FaceSide::Lower
@@ -186,17 +188,17 @@ pub(super) fn prepare(
         let ancestor_images = original
             .unit_images()
             .iter()
-            .map(|p| pull(p, &parent.target_units, &images))
+            .map(|p| pull(p, parent_units, &images))
             .collect::<Vec<_>>();
         let (supports, support_indices, fan) = if refined.contains(&mask) {
-            let (s, i, g) = geometry(&parent, &targets, &split, &ancestor_images, &mut work)?;
+            let (s, i, g) = geometry(parent, &targets, &split, &ancestor_images, &mut work)?;
             (s, i, Some(g))
         } else {
             (Vec::new(), Vec::new(), None)
         };
         let leaf_count = fan.as_ref().map_or(1, |g| g.sectors.len());
         let total = leaves.len().checked_add(leaf_count).ok_or_else(overflow)?;
-        work.entries(retained(&parent, total, count, n)?)?;
+        work.entries(retained(parent, total, count, n)?)?;
         let first_leaf = leaves.len();
         for native_index in 0..leaf_count {
             work.check()?;
@@ -234,15 +236,11 @@ pub(super) fn prepare(
             let unit_images = original
                 .unit_images()
                 .iter()
-                .map(|p| pull(p, &parent.target_units, &child_images))
+                .map(|p| pull(p, parent_units, &child_images))
                 .collect::<Vec<_>>();
-            let extra = pull(
-                original.extra_jacobian(),
-                &parent.target_units,
-                &child_images,
-            ) * &added;
+            let extra = pull(original.extra_jacobian(), parent_units, &child_images) * &added;
             let chart = chart::prepare_images(
-                &parent,
+                parent,
                 ChartImages {
                     ordinal: leaves.len(),
                     target_units: &targets,
@@ -274,7 +272,7 @@ pub(super) fn prepare(
     }
     work.check()?;
     Ok(Arc::new(EndpointChartCover {
-        parent,
+        parent: parent.clone(),
         parent_chart,
         split_axes: split,
         target_units: targets,

@@ -322,3 +322,14 @@ calls made during the timed measurement. Distinguish measured calls from accepte
 production points, and label any legacy interrupted-run count as an observed
 lower bound. Timed stopping should drain already assigned complete replicas or
 batches so newly collected measurements have complete call accounting.
+
+The subsequent implementation priority is to complete no-contour generation and
+integration for the currently unsupported benchmark cases, from simplest to
+hardest. A dedicated subagent continues the benchmark table and its new
+absolute-weight/maximum-weight columns while the main implementation team starts
+with the massive triangle, then the box and two-loop scalar topologies, followed
+by both double boxes. A source-domain refusal before GCAD is an implementation
+gap, not evidence of solver infeasibility. Each case must produce a complete
+artifact, a checked full complex result, and working reload/integration before
+its overview row is accepted. General reusable sufficient-class improvements
+are appropriate; hard-coded physics answers or partial cell coverage are not.

@@ -4733,3 +4733,24 @@ The locked native Python leaf build passes with no dependency patch or new
 representation. The causal-policy constructors remain thin native forwards;
 their new default and validation evidence are recorded in the
 [opt-in validation review](reviews/contour-validation-opt-in.md).
+
+## Whole-source causal sign extraction (2026-10-11)
+
+The [source-sign review](reviews/no-deformation-sign-definite-source.md) records
+the native symGCAD domain-certificate API/source/probe audit and Symbolica's
+source-role rational-polynomial conversion. Three native tests pass, including
+the finite imaginary term produced by a regulator-dependent causal phase.
+Independent source review confirms the original GCAD association and scoped
+interior sign claim. Endpoint resolution and complete executable artifact
+generation remain separate obligations; this adds neither a CAS nor a graph
+or Python numerical implementation.
+
+## Recursive endpoint cover refinement (2026-10-11)
+
+The [recursive-cover review](reviews/no-deformation-recursive-endpoint-cover.md)
+checks immediate-parent ownership, complete sibling replacement, original-source
+factor valuations and once-only measure composition. Existing sector fans and
+Symbolica exact algebra supply the operations. Four focused native tests and
+strict core all-target checks pass. Refinement preserves root owners and face
+ancestry; it supplies no new global termination claim or complete double-box
+endpoint certificate. The caller bounds depth and retained ancestry.
