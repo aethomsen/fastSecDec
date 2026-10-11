@@ -1,0 +1,514 @@
+{
+  "scope": "Maintained reference inventory and source association only; no new integral calculation or error-bar adjustment",
+  "rows": [
+    {
+      "topology": "bubble",
+      "card": {
+        "path": "/common/dev/fastsecdec/examples/no_deformation/benchmarks/overview/bubble.toml",
+        "sha256": "069e739b811857a7f2277acd8bec099de18b292c1479579cff14ef809438f851"
+      },
+      "integral": {
+        "dimension": "4-2*eps",
+        "regulator": "eps",
+        "measure_multiplier": "gamma(1-2*eps)/(gamma(1+eps)*gamma(1-eps)^2)"
+      },
+      "parameters": {
+        "UFO::mt": "sqrt(3)"
+      },
+      "gram": [
+        {
+          "left": 1,
+          "right": 1,
+          "value": "16"
+        }
+      ],
+      "independent_reference": {
+        "coefficients": {
+          "-1": [
+            1.0,
+            0.0
+          ],
+          "0": [
+            0.35208156699783544,
+            1.5707963267948966
+          ]
+        },
+        "formula_epsilon0": "2-(3/2)*log(3)+i*pi/2",
+        "source": "docs/no-contour-results.json arms[0].reference and maintained bubble-threshold.toml",
+        "precision": "Binary64 reference; no rigorous roundoff enclosure"
+      },
+      "association": "Same resolved graph/model paths, Gram, mass, dimension and measure; requested Laurent truncation/order and benchmark settings differ."
+    },
+    {
+      "topology": "triangle",
+      "card": {
+        "path": "/common/dev/fastsecdec/examples/no_deformation/benchmarks/overview/triangle.toml",
+        "sha256": "adfa5a00a5ed89085ed702de7662cacf142763cb061f67078b1f9d919fac32ae"
+      },
+      "integral": {
+        "dimension": "4-2*eps",
+        "regulator": "eps",
+        "measure_multiplier": "gamma(1-2*eps)/(gamma(1+eps)*gamma(1-eps)^2)"
+      },
+      "parameters": {
+        "UFO::mt": "1"
+      },
+      "gram": [
+        {
+          "left": 1,
+          "right": 1,
+          "value": "0"
+        },
+        {
+          "left": 2,
+          "right": 2,
+          "value": "0"
+        },
+        {
+          "left": 1,
+          "right": 2,
+          "value": "5/2"
+        }
+      ],
+      "independent_reference": {
+        "coefficients": {
+          "-2": [
+            0.0,
+            0.0
+          ],
+          "-1": [
+            0.0,
+            0.0
+          ],
+          "0": [
+            -0.8943345118780581,
+            -0.6047086137711147
+          ]
+        },
+        "method": "Native OneLOop EvaluationBackend::Expression, [finite,pole,double-pole]",
+        "source_url": "https://arxiv.org/abs/1007.4716",
+        "absolute_truncation_bound": null
+      },
+      "association": "Source-reviewed maintained fixture kinematics/masses/measure equal the card. Native U/F forms and powers agree. Historical model adds unused declarations; every current scalar declaration is exactly present. Sunrise export confirms U=x0*x1+x0*x2+x1*x2, F=-x0*x1*x2 and numerator/measure1, matching native with_numerator(1). This is source/evidence association, not a new native equality or reference run."
+    },
+    {
+      "topology": "box",
+      "card": {
+        "path": "/common/dev/fastsecdec/examples/no_deformation/benchmarks/overview/box.toml",
+        "sha256": "56f5d88f34cb9e2be9bc5add36ceb1247bcb90b12e64af5f8cecc59af1fc0600"
+      },
+      "integral": {
+        "dimension": "4-2*eps",
+        "regulator": "eps",
+        "measure_multiplier": "gamma(1-2*eps)/(gamma(1+eps)*gamma(1-eps)^2)"
+      },
+      "parameters": {
+        "UFO::mt": "1"
+      },
+      "gram": [
+        {
+          "left": 0,
+          "right": 0,
+          "value": "0/2"
+        },
+        {
+          "left": 0,
+          "right": 1,
+          "value": "5/2"
+        },
+        {
+          "left": 0,
+          "right": 2,
+          "value": "-4/2"
+        },
+        {
+          "left": 0,
+          "right": 3,
+          "value": "-1/2"
+        },
+        {
+          "left": 1,
+          "right": 1,
+          "value": "0/2"
+        },
+        {
+          "left": 1,
+          "right": 2,
+          "value": "-1/2"
+        },
+        {
+          "left": 1,
+          "right": 3,
+          "value": "-4/2"
+        },
+        {
+          "left": 2,
+          "right": 2,
+          "value": "0/2"
+        },
+        {
+          "left": 2,
+          "right": 3,
+          "value": "5/2"
+        },
+        {
+          "left": 3,
+          "right": 3,
+          "value": "0/2"
+        }
+      ],
+      "independent_reference": {
+        "coefficients": {
+          "-2": [
+            0.0,
+            0.0
+          ],
+          "-1": [
+            0.0,
+            0.0
+          ],
+          "0": [
+            0.28470925234030064,
+            0.2719854522910709
+          ]
+        },
+        "method": "Native OneLOop EvaluationBackend::Expression, [finite,pole,double-pole]",
+        "source_url": "https://arxiv.org/abs/1007.4716",
+        "absolute_truncation_bound": null
+      },
+      "association": "Source-reviewed maintained fixture kinematics/masses/measure equal the card. Native U/F forms and powers agree. Historical model adds unused declarations; every current scalar declaration is exactly present. Sunrise export confirms U=x0*x1+x0*x2+x1*x2, F=-x0*x1*x2 and numerator/measure1, matching native with_numerator(1). This is source/evidence association, not a new native equality or reference run."
+    },
+    {
+      "topology": "sunrise",
+      "card": {
+        "path": "/common/dev/fastsecdec/examples/no_deformation/benchmarks/overview/sunrise.toml",
+        "sha256": "e504d9d547ef7247c83a3d4aeb44c5bf2d8214e6baed4ff26bcbbc4a88ac0eed"
+      },
+      "integral": {
+        "dimension": "4-2*eps",
+        "regulator": "eps",
+        "measure_multiplier": "1"
+      },
+      "parameters": {
+        "UFO::mt": "0"
+      },
+      "gram": [
+        {
+          "left": 0,
+          "right": 0,
+          "value": "1"
+        }
+      ],
+      "independent_reference": {
+        "coefficients": {
+          "-2": [
+            0.0,
+            0.0
+          ],
+          "-1": [
+            -0.25,
+            0.0
+          ],
+          "0": [
+            -1.3363921675492336,
+            -1.5707963267948966
+          ]
+        },
+        "method": "Native Symbolica Laurent series of the composed massless bubble identity; log(-1-i0)=-i*pi",
+        "source_url": "https://www-library.desy.de/preparch/desy/proc/ali/proc/grozin_andrey/grozin_andrey.pdf",
+        "absolute_truncation_bound": null
+      },
+      "association": "Source-reviewed maintained fixture kinematics/masses/measure equal the card. Native U/F forms and powers agree. Historical model adds unused declarations; every current scalar declaration is exactly present. Sunrise export confirms U=x0*x1+x0*x2+x1*x2, F=-x0*x1*x2 and numerator/measure1, matching native with_numerator(1). This is source/evidence association, not a new native equality or reference run."
+    },
+    {
+      "topology": "kite",
+      "card": {
+        "path": "/common/dev/fastsecdec/examples/no_deformation/benchmarks/overview/kite.toml",
+        "sha256": "2637fc2b422de7c132263ce82b689b402d543c846f6f8db1fa04eb66717bcc9c"
+      },
+      "integral": {
+        "dimension": "4-2*eps",
+        "regulator": "eps",
+        "measure_multiplier": "1"
+      },
+      "parameters": {
+        "UFO::mt": "1"
+      },
+      "gram": [
+        {
+          "left": 0,
+          "right": 0,
+          "value": "16"
+        }
+      ],
+      "independent_reference": null
+    },
+    {
+      "topology": "d05-scalar",
+      "card": {
+        "path": "/common/dev/fastsecdec/examples/no_deformation/benchmarks/overview/double_box_scalar.toml",
+        "sha256": "fa0b40423041807f10b6fc953980ef5a72d1054dc15c7dc0e0a3a75fa23c92db"
+      },
+      "integral": {
+        "dimension": "4-2*eps",
+        "regulator": "eps",
+        "measure_multiplier": "1",
+        "powers": {
+          "4": 1,
+          "5": 1,
+          "6": 1,
+          "7": 1,
+          "8": 1,
+          "9": 1,
+          "10": 1
+        }
+      },
+      "parameters": null,
+      "gram": [
+        {
+          "left": "gammalooprs::{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,spenso::tensor-label:p}::P(0)",
+          "right": "gammalooprs::{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,spenso::tensor-label:p}::P(0)",
+          "value": "0"
+        },
+        {
+          "left": "gammalooprs::{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,spenso::tensor-label:p}::P(0)",
+          "right": "gammalooprs::{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,spenso::tensor-label:p}::P(1)",
+          "value": "500000"
+        },
+        {
+          "left": "gammalooprs::{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,spenso::tensor-label:p}::P(0)",
+          "right": "gammalooprs::{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,spenso::tensor-label:p}::P(2)",
+          "value": "56351"
+        },
+        {
+          "left": "gammalooprs::{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,spenso::tensor-label:p}::P(0)",
+          "right": "gghh::{spenso::tensor,spenso::rank1}::eps1",
+          "value": "0"
+        },
+        {
+          "left": "gammalooprs::{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,spenso::tensor-label:p}::P(0)",
+          "right": "gghh::{spenso::tensor,spenso::rank1}::eps2",
+          "value": "0"
+        },
+        {
+          "left": "gammalooprs::{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,spenso::tensor-label:p}::P(1)",
+          "right": "gammalooprs::{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,spenso::tensor-label:p}::P(1)",
+          "value": "0"
+        },
+        {
+          "left": "gammalooprs::{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,spenso::tensor-label:p}::P(1)",
+          "right": "gammalooprs::{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,spenso::tensor-label:p}::P(2)",
+          "value": "443649"
+        },
+        {
+          "left": "gammalooprs::{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,spenso::tensor-label:p}::P(1)",
+          "right": "gghh::{spenso::tensor,spenso::rank1}::eps1",
+          "value": "0"
+        },
+        {
+          "left": "gammalooprs::{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,spenso::tensor-label:p}::P(1)",
+          "right": "gghh::{spenso::tensor,spenso::rank1}::eps2",
+          "value": "0"
+        },
+        {
+          "left": "gammalooprs::{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,spenso::tensor-label:p}::P(2)",
+          "right": "gammalooprs::{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,spenso::tensor-label:p}::P(2)",
+          "value": "15625"
+        },
+        {
+          "left": "gammalooprs::{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,spenso::tensor-label:p}::P(2)",
+          "right": "gghh::{spenso::tensor,spenso::rank1}::eps1",
+          "value": "1592262918131443/1125899906842624000*21093814799^(1/2)"
+        },
+        {
+          "left": "gammalooprs::{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,spenso::tensor-label:p}::P(2)",
+          "right": "gghh::{spenso::tensor,spenso::rank1}::eps2",
+          "value": "1592262918131443/1125899906842624000*21093814799^(1/2)"
+        },
+        {
+          "left": "gghh::{spenso::tensor,spenso::rank1}::eps1",
+          "right": "gghh::{spenso::tensor,spenso::rank1}::eps1",
+          "value": "0"
+        },
+        {
+          "left": "gghh::{spenso::tensor,spenso::rank1}::eps1",
+          "right": "gghh::{spenso::tensor,spenso::rank1}::eps2",
+          "value": "-2535301200456458353478625262249/2535301200456458802993406410752"
+        },
+        {
+          "left": "gghh::{spenso::tensor,spenso::rank1}::eps2",
+          "right": "gghh::{spenso::tensor,spenso::rank1}::eps2",
+          "value": "0"
+        }
+      ],
+      "independent_reference": null
+    },
+    {
+      "topology": "d05-physical",
+      "card": {
+        "path": "/common/dev/fastsecdec/examples/no_deformation/benchmarks/overview/double_box_physical.toml",
+        "sha256": "92a621766f20529eab1c7420120ab925f23a6852ae05d5b34b96c839d902bf0e"
+      },
+      "integral": {
+        "dimension": "4-2*eps",
+        "regulator": "eps",
+        "measure_multiplier": "1",
+        "powers": {
+          "4": 1,
+          "5": 1,
+          "6": 1,
+          "7": 1,
+          "8": 1,
+          "9": 1,
+          "10": 1
+        }
+      },
+      "parameters": null,
+      "gram": [
+        {
+          "left": "gammalooprs::{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,spenso::tensor-label:p}::P(0)",
+          "right": "gammalooprs::{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,spenso::tensor-label:p}::P(0)",
+          "value": "0"
+        },
+        {
+          "left": "gammalooprs::{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,spenso::tensor-label:p}::P(0)",
+          "right": "gammalooprs::{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,spenso::tensor-label:p}::P(1)",
+          "value": "500000"
+        },
+        {
+          "left": "gammalooprs::{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,spenso::tensor-label:p}::P(0)",
+          "right": "gammalooprs::{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,spenso::tensor-label:p}::P(2)",
+          "value": "56351"
+        },
+        {
+          "left": "gammalooprs::{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,spenso::tensor-label:p}::P(0)",
+          "right": "gghh::{spenso::tensor,spenso::rank1}::eps1",
+          "value": "0"
+        },
+        {
+          "left": "gammalooprs::{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,spenso::tensor-label:p}::P(0)",
+          "right": "gghh::{spenso::tensor,spenso::rank1}::eps2",
+          "value": "0"
+        },
+        {
+          "left": "gammalooprs::{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,spenso::tensor-label:p}::P(1)",
+          "right": "gammalooprs::{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,spenso::tensor-label:p}::P(1)",
+          "value": "0"
+        },
+        {
+          "left": "gammalooprs::{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,spenso::tensor-label:p}::P(1)",
+          "right": "gammalooprs::{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,spenso::tensor-label:p}::P(2)",
+          "value": "443649"
+        },
+        {
+          "left": "gammalooprs::{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,spenso::tensor-label:p}::P(1)",
+          "right": "gghh::{spenso::tensor,spenso::rank1}::eps1",
+          "value": "0"
+        },
+        {
+          "left": "gammalooprs::{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,spenso::tensor-label:p}::P(1)",
+          "right": "gghh::{spenso::tensor,spenso::rank1}::eps2",
+          "value": "0"
+        },
+        {
+          "left": "gammalooprs::{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,spenso::tensor-label:p}::P(2)",
+          "right": "gammalooprs::{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,spenso::tensor-label:p}::P(2)",
+          "value": "15625"
+        },
+        {
+          "left": "gammalooprs::{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,spenso::tensor-label:p}::P(2)",
+          "right": "gghh::{spenso::tensor,spenso::rank1}::eps1",
+          "value": "1592262918131443/1125899906842624000*21093814799^(1/2)"
+        },
+        {
+          "left": "gammalooprs::{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,spenso::tensor-label:p}::P(2)",
+          "right": "gghh::{spenso::tensor,spenso::rank1}::eps2",
+          "value": "1592262918131443/1125899906842624000*21093814799^(1/2)"
+        },
+        {
+          "left": "gghh::{spenso::tensor,spenso::rank1}::eps1",
+          "right": "gghh::{spenso::tensor,spenso::rank1}::eps1",
+          "value": "0"
+        },
+        {
+          "left": "gghh::{spenso::tensor,spenso::rank1}::eps1",
+          "right": "gghh::{spenso::tensor,spenso::rank1}::eps2",
+          "value": "-2535301200456458353478625262249/2535301200456458802993406410752"
+        },
+        {
+          "left": "gghh::{spenso::tensor,spenso::rank1}::eps2",
+          "right": "gghh::{spenso::tensor,spenso::rank1}::eps2",
+          "value": "0"
+        }
+      ],
+      "independent_reference": null
+    }
+  ],
+  "source_pins": [
+    {
+      "path": "/common/dev/fastsecdec/docs/contour-scalar-results.json",
+      "sha256": "5f86980aef5d0507e3c52eb2b61f1fd2c17a0c6d391ee457823f3a2afcc9848c"
+    },
+    {
+      "path": "/common/dev/fastsecdec/docs/no-contour-results.json",
+      "sha256": "d6dd174042b5920be92f3d4466d60a5d68dd898305333e62bb33b810e9f9c394"
+    },
+    {
+      "path": "/common/dev/fastsecdec/crates/fastsecdec/examples/contour_scalar_benchmark/fixtures.rs",
+      "sha256": "3fa5c82eb51740c7c961bf1d15c0e1e038b6de00e1057ebfc36389317fa89b63"
+    },
+    {
+      "path": "/common/dev/fastsecdec/examples/models/scalar.json",
+      "sha256": "b89bf9ca4162d3784896ced020da4efe06aa9b803334fb88761fd501b0cf89f2"
+    },
+    {
+      "path": "/common/dev/fastsecdec/examples/contour/scalar_benchmarks/model.json",
+      "sha256": "21572d009410e26dba810eb8153f772c26a9f0986032e3aee36326214b755e57"
+    },
+    {
+      "path": "/common/dev/fastsecdec/examples/no_deformation/benchmarks/bubble-threshold.toml",
+      "sha256": "e64e0560ebda46f9155e24c2a20b1e9cc9b06455f930994b07eee51f36386d40"
+    },
+    {
+      "path": "/common/dev/fastsecdec/examples/no_deformation/benchmarks/overview/bubble.toml",
+      "sha256": "069e739b811857a7f2277acd8bec099de18b292c1479579cff14ef809438f851"
+    },
+    {
+      "path": "/common/dev/fastsecdec/examples/no_deformation/benchmarks/overview/triangle.toml",
+      "sha256": "adfa5a00a5ed89085ed702de7662cacf142763cb061f67078b1f9d919fac32ae"
+    },
+    {
+      "path": "/common/dev/fastsecdec/target/no-deformation-benchmark-overview/native-exports-r1/triangle/symanzik.json",
+      "sha256": "5e763bb8677e36b54c66747358a0068c243dc0661a237d08a5495bd3e7cc7d09"
+    },
+    {
+      "path": "/common/dev/fastsecdec/examples/no_deformation/benchmarks/overview/box.toml",
+      "sha256": "56f5d88f34cb9e2be9bc5add36ceb1247bcb90b12e64af5f8cecc59af1fc0600"
+    },
+    {
+      "path": "/common/dev/fastsecdec/target/no-deformation-benchmark-overview/native-exports-r1/box/symanzik.json",
+      "sha256": "889f52f84e6de03888bd36f7a730d518974bf8c3a2b58cbca4c8ede57e8f9cfb"
+    },
+    {
+      "path": "/common/dev/fastsecdec/examples/no_deformation/benchmarks/overview/sunrise.toml",
+      "sha256": "e504d9d547ef7247c83a3d4aeb44c5bf2d8214e6baed4ff26bcbbc4a88ac0eed"
+    },
+    {
+      "path": "/common/dev/fastsecdec/target/no-deformation-benchmark-overview/native-exports-r1/sunrise/symanzik.json",
+      "sha256": "f96d9ac8b2f3c6ca394bdff93d055a3a8fcb56ae55a27aedabf7380cac10fea3"
+    },
+    {
+      "path": "/common/dev/fastsecdec/examples/no_deformation/benchmarks/overview/kite.toml",
+      "sha256": "2637fc2b422de7c132263ce82b689b402d543c846f6f8db1fa04eb66717bcc9c"
+    },
+    {
+      "path": "/common/dev/fastsecdec/examples/no_deformation/benchmarks/overview/double_box_scalar.toml",
+      "sha256": "fa0b40423041807f10b6fc953980ef5a72d1054dc15c7dc0e0a3a75fa23c92db"
+    },
+    {
+      "path": "/common/dev/fastsecdec/examples/no_deformation/benchmarks/overview/double_box_physical.toml",
+      "sha256": "92a621766f20529eab1c7420120ab925f23a6852ae05d5b34b96c839d902bf0e"
+    }
+  ],
+  "compatibility_policy": "Preserve native full covariance/epsilon0 means. Seed labels do not prove cross-method independence. Sum of joint standard errors is a descriptive conservative discrepancy screen, not calibrated confidence. Binary64/reference roundoff is not folded into or capped against native SE."
+}

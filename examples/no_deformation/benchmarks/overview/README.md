@@ -1,8 +1,9 @@
 # Finite-coefficient Overview campaign
 
-These are preparatory inputs for the new 25-worker campaign. No new benchmark
-has run from this directory. The source/dependency/executable freeze and native
-input admission are required before production. See
+These are the inputs used by the current 25-core integration campaign. Exact
+executables, generation recipes, work budgets and confirmation seeds are pinned
+in its receipts. Completed results and explicit missing or refused routes appear
+in the Overview; ongoing runs are not measurements. See
 [the protocol](../../../../docs/benchmark-overview-protocol.md) and
 [fixture inventory](inventory.json).
 
@@ -35,15 +36,27 @@ fastsecdec integrate target/overview/bubble-fixed.fsd \
   --seed FROZEN_SEED --save-result target/overview/bubble-fixed-mc.json
 ```
 
-The one-second residence above is a proposed value, subject to the campaign
-freeze. It is not a one-second or ten-minute total deadline. Ordinary discrete
+The one-second residence above is the campaign's QMC setting. It is not a
+one-second or ten-minute total deadline. Ordinary discrete
 MC is the explicitly permitted scheduling exception; it cannot use `--serial`.
-The observer, exact work allocations, ten-minute stop and resource supervision
-must be frozen before these templates become campaign commands.
+The frozen caller observes the native integration clock and requests one graceful
+stop at 600 seconds. Actual elapsed time, completed work and any drain are
+retained. The commands above remain templates: use each row's recorded options
+and seeds to reproduce a specific run.
+
+All table sampling uses explicit `--contour-validation off`. Native stability
+checks and precision rescue remain active. Separate causal admission pilots are
+scientific controls whose times never enter table sampling costs or convergence
+windows. The double-box fixed setting is `--lambda 0.000001`; the earlier scalar
+`0.1` attempt failed its independent causal check and is excluded. Physical
+numerator generation uses six resident workers under the 25-core affinity
+allowance, as recorded explicitly; integration uses 25 workers.
 
 `sunrise.dot` is the maintained native sunset topology with its tensor numerator
 replaced by one, matching the existing Rust fixture's native `with_numerator(1)`
-operation. The new card still requires a native U/F/prefactor equality check
-against that maintained fixture. The triangle/box kinematics and all one-loop
-measure multipliers likewise match the existing native reference fixtures; path
-and TOML parsing alone are not scientific admission.
+operation. Its retained native export confirms the scalar U/F and unit numerator
+and measure. The triangle/box kinematics and one-loop measure multipliers match
+the maintained native reference fixtures. The reference ledger distinguishes
+these checks from independent integrated values: no applicable maintained
+reference is available for the new all-massive kite or either exact-point
+double-box integral.

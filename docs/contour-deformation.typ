@@ -22,6 +22,8 @@
 #pagebreak()
 #include "benchmark-overview-details.typ"
 #pagebreak()
+#include "benchmark-compatibility.typ"
+#pagebreak()
 
 #text(size: 24pt, weight: "bold", fill: rgb("173e59"))[Threshold regularisation]
 

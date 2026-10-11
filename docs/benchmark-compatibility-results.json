@@ -1,0 +1,678 @@
+{
+  "schema_version": 1,
+  "status": "Intermediate reviewed checkpoint;52 accepted runs",
+  "campaign_preview_sha256": "3f5caeea7510a0d398cdb4f0ab23ff6897b97a2d498b4ad2782824bbafd2f536",
+  "complete_private_audit_sha256": "81fa098cc9f2f22395fc02ed1e0028526c161e4a83c3dff99ea64ec464eb4f93",
+  "native_helper": "crates/fastsecdec/examples/benchmark_compatibility.rs",
+  "reference_inventory_sha256": "0a45bf54b72d9300462db9dc2f7903d9febe8537ed4ec22f1248c48941c26c6c",
+  "semantics": {
+    "distance": "sqrt(delta^T C^-1 delta) using full2x2complex covariance; independent runs use C1+C2",
+    "limitations": "Estimated covariance diagnostic, not a calibrated p-value; distinct-seed independence assumption; singular or roundoff-sensitive tests excluded from reported maxima, never silently regularized",
+    "all_orders": "All available complex Laurent blocks checked in complete private audit; overview summaryepsilon0",
+    "rounded_references": "No certified arithmetic bound; no reference rounding added to stochastic covariance",
+    "maximum_all_order_pair_distance": 2.9296500155213465
+  },
+  "topologies": [
+    {
+      "topology": "bubble",
+      "label": "Massive bubble",
+      "runs": 11,
+      "comparisons": {
+        "count": 55,
+        "rounding_sensitive_or_singular": 15,
+        "maximum_covariance_distance": 2.3939450818572685,
+        "largest_diagnostic": {
+          "diagnostic": {
+            "covariance_of_difference": [
+              2.688856872255556e-09,
+              1.9787548778130365e-09,
+              1.9787548778130365e-09,
+              1.9408986964104197e-09
+            ],
+            "difference": [
+              -0.00010218462650635196,
+              -4.527232599849107e-05
+            ],
+            "difference_norm": 0.00011176440128930275,
+            "interpretation": "Descriptive estimated-covariance diagnostic, not a calibrated p-value; no error inflation or numerical-bias bound",
+            "joint_se": 6.804230719681671e-05,
+            "mahalanobis_distance": 2.3939450818572685,
+            "positive_definite": true,
+            "rounding_sensitive": false,
+            "rounding_warning_scale": 1.1161500872851314e-14,
+            "symmetric": true
+          },
+          "left": {
+            "arm": "matched_work",
+            "method": "no-contour",
+            "native_result": {
+              "path": "/common/dev/fastsecdec/target/no-deformation-overview-campaign/matched_work-off-bubble-no-contour-qmc-r1-result.json",
+              "sha256": "aeb9885c9e111d6b01b00e15d64b3950db7077a3149bf3d0ac02fe9c6be2d079"
+            },
+            "sampler": "qmc",
+            "seed": 912021,
+            "topology": "bubble"
+          },
+          "order": 0,
+          "right": {
+            "arm": "fixed_time",
+            "method": "fixed",
+            "native_result": {
+              "path": "/common/dev/fastsecdec/target/no-deformation-overview-campaign/fixed_time-off-bubble-fixed-discrete_mc-r1-result.json",
+              "sha256": "5ddd2ac0f80c8874a93a4afbbedc2924867b7fef1c8fc222d9268ce6ed65daaa"
+            },
+            "sampler": "discrete_mc",
+            "seed": 811012,
+            "topology": "bubble"
+          },
+          "sampling_relation": "Distinct recorded seeds; covariance sum assumes independent run randomizations. No shared-point pairing or empirical cross-run covariance is claimed"
+        }
+      },
+      "reference_comparisons": {
+        "count": 11,
+        "rounding_sensitive_or_singular": 6,
+        "maximum_covariance_distance": 2.3939450818321166,
+        "largest_diagnostic": {
+          "diagnostic": {
+            "covariance_of_difference": [
+              2.688856872255556e-09,
+              1.9787548778130365e-09,
+              1.9787548778130365e-09,
+              1.9408986964104197e-09
+            ],
+            "difference": [
+              0.00010218462650563032,
+              4.527232599849107e-05
+            ],
+            "difference_norm": 0.00011176440128864296,
+            "interpretation": "Descriptive estimated-covariance diagnostic, not a calibrated p-value; no error inflation or numerical-bias bound",
+            "joint_se": 6.804230719681671e-05,
+            "mahalanobis_distance": 2.3939450818321166,
+            "positive_definite": true,
+            "rounding_sensitive": false,
+            "rounding_warning_scale": 1.1161500872851314e-14,
+            "symmetric": true
+          },
+          "order": 0,
+          "reference": [
+            0.35208156699783544,
+            1.5707963267948966
+          ],
+          "reference_uncertainty": "Rounded reference: no certified arithmetic bound; reference roundoff is not added to stochastic covariance",
+          "run": {
+            "arm": "fixed_time",
+            "method": "fixed",
+            "native_result": {
+              "path": "/common/dev/fastsecdec/target/no-deformation-overview-campaign/fixed_time-off-bubble-fixed-discrete_mc-r1-result.json",
+              "sha256": "5ddd2ac0f80c8874a93a4afbbedc2924867b7fef1c8fc222d9268ce6ed65daaa"
+            },
+            "sampler": "discrete_mc",
+            "seed": 811012,
+            "topology": "bubble"
+          }
+        }
+      },
+      "reference": {
+        "coefficients": {
+          "-1": [
+            1.0,
+            0.0
+          ],
+          "0": [
+            0.35208156699783544,
+            1.5707963267948966
+          ]
+        },
+        "formula_epsilon0": "2-(3/2)*log(3)+i*pi/2",
+        "source": "docs/no-contour-results.json arms[0].reference and maintained bubble-threshold.toml",
+        "precision": "Binary64 reference; no rigorous roundoff enclosure"
+      }
+    },
+    {
+      "topology": "triangle",
+      "label": "Massive triangle",
+      "runs": 12,
+      "comparisons": {
+        "count": 66,
+        "rounding_sensitive_or_singular": 0,
+        "maximum_covariance_distance": 2.633381084226061,
+        "largest_diagnostic": {
+          "diagnostic": {
+            "covariance_of_difference": [
+              3.458236009127e-22,
+              -1.113573825244419e-22,
+              -1.113573825244419e-22,
+              7.564273665034084e-23
+            ],
+            "difference": [
+              4.6749049076311167e-11,
+              -1.0106693260070188e-11
+            ],
+            "difference_norm": 4.782905851250365e-11,
+            "interpretation": "Descriptive estimated-covariance diagnostic, not a calibrated p-value; no error inflation or numerical-bias bound",
+            "joint_se": 2.052964533456535e-11,
+            "mahalanobis_distance": 2.633381084226061,
+            "positive_definite": true,
+            "rounding_sensitive": false,
+            "rounding_warning_scale": 6.354628907757479e-15,
+            "symmetric": true
+          },
+          "left": {
+            "arm": "matched_work",
+            "method": "dynamic-polynomial",
+            "native_result": {
+              "path": "/common/dev/fastsecdec/target/no-deformation-overview-campaign/matched_work-off-triangle-polynomial-qmc-r1-result.json",
+              "sha256": "f335688232f0bd7f4a0a43d870271dc8245ed43c66a43af5a0cd8015ddd3c8e6"
+            },
+            "sampler": "qmc",
+            "seed": 918075,
+            "topology": "triangle"
+          },
+          "order": 0,
+          "right": {
+            "arm": "fixed_time",
+            "method": "dynamic-polynomial",
+            "native_result": {
+              "path": "/common/dev/fastsecdec/target/no-deformation-overview-campaign/fixed_time-off-triangle-polynomial-qmc-r1-result.json",
+              "sha256": "b0b0658098af6e63b98358f301a9d00d5ff182ca009b5aa75de9cf2d778c20d8"
+            },
+            "sampler": "qmc",
+            "seed": 818075,
+            "topology": "triangle"
+          },
+          "sampling_relation": "Distinct recorded seeds; covariance sum assumes independent run randomizations. No shared-point pairing or empirical cross-run covariance is claimed"
+        }
+      },
+      "reference_comparisons": {
+        "count": 12,
+        "rounding_sensitive_or_singular": 0,
+        "maximum_covariance_distance": 2.5799667343713844,
+        "largest_diagnostic": {
+          "diagnostic": {
+            "covariance_of_difference": [
+              1.3530756982763694e-22,
+              -4.02166271038468e-23,
+              -4.02166271038468e-23,
+              3.6781366774449113e-23
+            ],
+            "difference": [
+              -2.9890756536588015e-11,
+              7.736367102495478e-12
+            ],
+            "difference_norm": 3.08756975997977e-11,
+            "interpretation": "Descriptive estimated-covariance diagnostic, not a calibrated p-value; no error inflation or numerical-bias bound",
+            "joint_se": 1.3118267286577373e-11,
+            "mahalanobis_distance": 2.5799667343713844,
+            "positive_definite": true,
+            "rounding_sensitive": false,
+            "rounding_warning_scale": 6.354628907757479e-15,
+            "symmetric": true
+          },
+          "order": 0,
+          "reference": [
+            -0.8943345118780581,
+            -0.6047086137711147
+          ],
+          "reference_uncertainty": "Rounded reference: no certified arithmetic bound; reference roundoff is not added to stochastic covariance",
+          "run": {
+            "arm": "fixed_time",
+            "method": "dynamic-polynomial",
+            "native_result": {
+              "path": "/common/dev/fastsecdec/target/no-deformation-overview-campaign/fixed_time-off-triangle-polynomial-qmc-r1-result.json",
+              "sha256": "b0b0658098af6e63b98358f301a9d00d5ff182ca009b5aa75de9cf2d778c20d8"
+            },
+            "sampler": "qmc",
+            "seed": 818075,
+            "topology": "triangle"
+          }
+        }
+      },
+      "reference": {
+        "coefficients": {
+          "-2": [
+            0.0,
+            0.0
+          ],
+          "-1": [
+            0.0,
+            0.0
+          ],
+          "0": [
+            -0.8943345118780581,
+            -0.6047086137711147
+          ]
+        },
+        "method": "Native OneLOop EvaluationBackend::Expression, [finite,pole,double-pole]",
+        "source_url": "https://arxiv.org/abs/1007.4716",
+        "absolute_truncation_bound": null
+      }
+    },
+    {
+      "topology": "box",
+      "label": "Massive box",
+      "runs": 12,
+      "comparisons": {
+        "count": 66,
+        "rounding_sensitive_or_singular": 0,
+        "maximum_covariance_distance": 2.4593378747738868,
+        "largest_diagnostic": {
+          "diagnostic": {
+            "covariance_of_difference": [
+              5.918547308353129e-17,
+              1.086460543379616e-18,
+              1.086460543379616e-18,
+              7.61563109340652e-17
+            ],
+            "difference": [
+              1.3483233085587187e-08,
+              -1.4806855075377712e-08
+            ],
+            "difference_norm": 2.0025996396272313e-08,
+            "interpretation": "Descriptive estimated-covariance diagnostic, not a calibrated p-value; no error inflation or numerical-bias bound",
+            "joint_se": 1.1633648783489919e-08,
+            "mahalanobis_distance": 2.4593378747738868,
+            "positive_definite": true,
+            "rounding_sensitive": false,
+            "rounding_warning_scale": 2.0229809948345575e-15,
+            "symmetric": true
+          },
+          "left": {
+            "arm": "matched_work",
+            "method": "dynamic-polynomial",
+            "native_result": {
+              "path": "/common/dev/fastsecdec/target/no-deformation-overview-campaign/matched_work-off-box-polynomial-qmc-r1-result.json",
+              "sha256": "194c8d94ecca89248edf75c62c6399471952933a05d7682334de0ea010735dc4"
+            },
+            "sampler": "qmc",
+            "seed": 924129,
+            "topology": "box"
+          },
+          "order": 0,
+          "right": {
+            "arm": "fixed_time",
+            "method": "dynamic-polynomial",
+            "native_result": {
+              "path": "/common/dev/fastsecdec/target/no-deformation-overview-campaign/fixed_time-off-box-polynomial-qmc-r1-result.json",
+              "sha256": "66435062386d462a196fd7d193222623d8597338ade79c8ea143f0a6c002fb51"
+            },
+            "sampler": "qmc",
+            "seed": 824129,
+            "topology": "box"
+          },
+          "sampling_relation": "Distinct recorded seeds; covariance sum assumes independent run randomizations. No shared-point pairing or empirical cross-run covariance is claimed"
+        }
+      },
+      "reference_comparisons": {
+        "count": 12,
+        "rounding_sensitive_or_singular": 0,
+        "maximum_covariance_distance": 2.171232441997163,
+        "largest_diagnostic": {
+          "diagnostic": {
+            "covariance_of_difference": [
+              4.4210114750895376e-17,
+              3.403734815936407e-19,
+              3.403734815936407e-19,
+              6.019653459593298e-17
+            ],
+            "difference": [
+              1.186327774904683e-08,
+              -9.508112464029495e-09
+            ],
+            "difference_norm": 1.52033404743715e-08,
+            "interpretation": "Descriptive estimated-covariance diagnostic, not a calibrated p-value; no error inflation or numerical-bias bound",
+            "joint_se": 1.0217957200283644e-08,
+            "mahalanobis_distance": 2.171232441997163,
+            "positive_definite": true,
+            "rounding_sensitive": false,
+            "rounding_warning_scale": 2.0229809948345575e-15,
+            "symmetric": true
+          },
+          "order": 0,
+          "reference": [
+            0.28470925234030064,
+            0.2719854522910709
+          ],
+          "reference_uncertainty": "Rounded reference: no certified arithmetic bound; reference roundoff is not added to stochastic covariance",
+          "run": {
+            "arm": "matched_work",
+            "method": "dynamic-polynomial",
+            "native_result": {
+              "path": "/common/dev/fastsecdec/target/no-deformation-overview-campaign/matched_work-off-box-polynomial-qmc-r1-result.json",
+              "sha256": "194c8d94ecca89248edf75c62c6399471952933a05d7682334de0ea010735dc4"
+            },
+            "sampler": "qmc",
+            "seed": 924129,
+            "topology": "box"
+          }
+        }
+      },
+      "reference": {
+        "coefficients": {
+          "-2": [
+            0.0,
+            0.0
+          ],
+          "-1": [
+            0.0,
+            0.0
+          ],
+          "0": [
+            0.28470925234030064,
+            0.2719854522910709
+          ]
+        },
+        "method": "Native OneLOop EvaluationBackend::Expression, [finite,pole,double-pole]",
+        "source_url": "https://arxiv.org/abs/1007.4716",
+        "absolute_truncation_bound": null
+      }
+    },
+    {
+      "topology": "sunrise",
+      "label": "Massless sunrise",
+      "runs": 6,
+      "comparisons": {
+        "count": 15,
+        "rounding_sensitive_or_singular": 0,
+        "maximum_covariance_distance": 1.7214709148776222,
+        "largest_diagnostic": {
+          "diagnostic": {
+            "covariance_of_difference": [
+              4.2716135896785936e-09,
+              2.21528412981684e-09,
+              2.21528412981684e-09,
+              2.670319028710724e-09
+            ],
+            "difference": [
+              5.112485503322439e-05,
+              8.632856969992275e-05
+            ],
+            "difference_norm": 0.00010033131489521419,
+            "interpretation": "Descriptive estimated-covariance diagnostic, not a calibrated p-value; no error inflation or numerical-bias bound",
+            "joint_se": 8.33182610139537e-05,
+            "mahalanobis_distance": 1.7214709148776222,
+            "positive_definite": true,
+            "rounding_sensitive": false,
+            "rounding_warning_scale": 1.1161441568036196e-14,
+            "symmetric": true
+          },
+          "left": {
+            "arm": "matched_work",
+            "method": "dynamic-polynomial",
+            "native_result": {
+              "path": "/common/dev/fastsecdec/target/no-deformation-overview-campaign/matched_work-off-sunrise-polynomial-discrete_mc-r1-result.json",
+              "sha256": "7cf76ced5235d077b1c6012e116c1ffda361eeb99ca110c4a2fd9caa744579e3"
+            },
+            "sampler": "discrete_mc",
+            "seed": 931192,
+            "topology": "sunrise"
+          },
+          "order": 0,
+          "right": {
+            "arm": "matched_work",
+            "method": "dynamic-sign-aware",
+            "native_result": {
+              "path": "/common/dev/fastsecdec/target/no-deformation-overview-campaign/matched_work-off-sunrise-sign-aware-discrete_mc-r1-result.json",
+              "sha256": "da80dd66d0f05dc1caa5aef7073854c34bbb12fe8235b8a899f2ec7b444f29bd"
+            },
+            "sampler": "discrete_mc",
+            "seed": 933210,
+            "topology": "sunrise"
+          },
+          "sampling_relation": "Distinct recorded seeds; covariance sum assumes independent run randomizations. No shared-point pairing or empirical cross-run covariance is claimed"
+        }
+      },
+      "reference_comparisons": {
+        "count": 6,
+        "rounding_sensitive_or_singular": 0,
+        "maximum_covariance_distance": 1.4939143881284473,
+        "largest_diagnostic": {
+          "diagnostic": {
+            "covariance_of_difference": [
+              5.08664949141815e-25,
+              2.918200351382376e-25,
+              2.918200351382376e-25,
+              2.7523628830048625e-25
+            ],
+            "difference": [
+              -6.061817714453355e-14,
+              4.549693954913892e-13
+            ],
+            "difference_norm": 4.589898846751703e-13,
+            "interpretation": "Descriptive estimated-covariance diagnostic, not a calibrated p-value; no error inflation or numerical-bias bound",
+            "joint_se": 8.853819726210272e-13,
+            "mahalanobis_distance": 1.4939143881284473,
+            "positive_definite": true,
+            "rounding_sensitive": false,
+            "rounding_warning_scale": 1.1161179193627622e-14,
+            "symmetric": true
+          },
+          "order": 0,
+          "reference": [
+            -1.3363921675492336,
+            -1.5707963267948966
+          ],
+          "reference_uncertainty": "Rounded reference: no certified arithmetic bound; reference roundoff is not added to stochastic covariance",
+          "run": {
+            "arm": "matched_work",
+            "method": "fixed",
+            "native_result": {
+              "path": "/common/dev/fastsecdec/target/no-deformation-overview-campaign/matched_work-off-sunrise-fixed-qmc-r1-result.json",
+              "sha256": "a943f921ab2b4e0103645dfb5af103fe61ea5f54c4d0c72c659675ea8c241236"
+            },
+            "sampler": "qmc",
+            "seed": 928165,
+            "topology": "sunrise"
+          }
+        }
+      },
+      "reference": {
+        "coefficients": {
+          "-2": [
+            0.0,
+            0.0
+          ],
+          "-1": [
+            -0.25,
+            0.0
+          ],
+          "0": [
+            -1.3363921675492336,
+            -1.5707963267948966
+          ]
+        },
+        "method": "Native Symbolica Laurent series of the composed massless bubble identity; log(-1-i0)=-i*pi",
+        "source_url": "https://www-library.desy.de/preparch/desy/proc/ali/proc/grozin_andrey/grozin_andrey.pdf",
+        "absolute_truncation_bound": null
+      }
+    },
+    {
+      "topology": "kite",
+      "label": "Massive-threshold kite",
+      "runs": 3,
+      "comparisons": {
+        "count": 3,
+        "rounding_sensitive_or_singular": 0,
+        "maximum_covariance_distance": 1.5355812137127403,
+        "largest_diagnostic": {
+          "diagnostic": {
+            "covariance_of_difference": [
+              2.7159716601331257e-08,
+              8.49363022952813e-09,
+              8.49363022952813e-09,
+              1.921089123990924e-08
+            ],
+            "difference": [
+              0.00016789098303959804,
+              0.00020033884593795293
+            ],
+            "difference_norm": 0.00026138675440380186,
+            "interpretation": "Descriptive estimated-covariance diagnostic, not a calibrated p-value; no error inflation or numerical-bias bound",
+            "joint_se": 0.00021533835664191482,
+            "mahalanobis_distance": 1.5355812137127403,
+            "positive_definite": true,
+            "rounding_sensitive": false,
+            "rounding_warning_scale": 3.861778359125599e-15,
+            "symmetric": true
+          },
+          "left": {
+            "arm": "matched_work",
+            "method": "fixed",
+            "native_result": {
+              "path": "/common/dev/fastsecdec/target/no-deformation-overview-campaign/matched_work-off-kite-fixed-qmc-r1-result.json",
+              "sha256": "67b022e139d15a26cc37d7df90cc98c082362d5e869808e46de334405e922d23"
+            },
+            "sampler": "qmc",
+            "seed": 934219,
+            "topology": "kite"
+          },
+          "order": 0,
+          "right": {
+            "arm": "matched_work",
+            "method": "dynamic-sign-aware",
+            "native_result": {
+              "path": "/common/dev/fastsecdec/target/no-deformation-overview-campaign/matched_work-off-kite-sign-aware-qmc-r1-result.json",
+              "sha256": "091db9ce63de772565efc0b5a57cb219616c0e45daba451d08227801073b6407"
+            },
+            "sampler": "qmc",
+            "seed": 938255,
+            "topology": "kite"
+          },
+          "sampling_relation": "Distinct recorded seeds; covariance sum assumes independent run randomizations. No shared-point pairing or empirical cross-run covariance is claimed"
+        }
+      },
+      "reference_comparisons": {
+        "count": 0,
+        "rounding_sensitive_or_singular": 0,
+        "maximum_covariance_distance": null,
+        "largest_diagnostic": null
+      },
+      "reference": null
+    },
+    {
+      "topology": "d05-scalar",
+      "label": "Scalar D05 double box",
+      "runs": 6,
+      "comparisons": {
+        "count": 15,
+        "rounding_sensitive_or_singular": 0,
+        "maximum_covariance_distance": 2.3795182205982752,
+        "largest_diagnostic": {
+          "diagnostic": {
+            "covariance_of_difference": [
+              1.0140236171901817e-32,
+              9.934128826329678e-34,
+              9.934128826329678e-34,
+              2.862453897588414e-32
+            ],
+            "difference": [
+              -2.0558771014450494e-16,
+              -2.2658131064067524e-16
+            ],
+            "difference_norm": 3.059499908385473e-16,
+            "interpretation": "Descriptive estimated-covariance diagnostic, not a calibrated p-value; no error inflation or numerical-bias bound",
+            "joint_se": 1.9688772218649378e-16,
+            "mahalanobis_distance": 2.3795182205982752,
+            "positive_definite": true,
+            "rounding_sensitive": false,
+            "rounding_warning_scale": 3.2519638885189334e-30,
+            "symmetric": true
+          },
+          "left": {
+            "arm": "fixed_time",
+            "method": "dynamic-polynomial",
+            "native_result": {
+              "path": "/common/dev/fastsecdec/target/no-deformation-overview-campaign/fixed_time-off-double-box-scalar-polynomial-discrete_mc-r1-result.json",
+              "sha256": "7c5128bb2727fc35133ac96b3980f46bcea63602f0231eef005a222cd7eb5c55"
+            },
+            "sampler": "discrete_mc",
+            "seed": 1113030,
+            "topology": "d05-scalar"
+          },
+          "order": 0,
+          "right": {
+            "arm": "matched_work",
+            "method": "dynamic-polynomial",
+            "native_result": {
+              "path": "/common/dev/fastsecdec/target/no-deformation-overview-campaign/matched_work-off-double-box-scalar-polynomial-qmc-r2-result.json",
+              "sha256": "7da88fe818ef4d16f128f02d96b5a6c10bfb3a9d42427d2935b59cfd0ce04a52"
+            },
+            "sampler": "qmc",
+            "seed": 1712021,
+            "topology": "d05-scalar"
+          },
+          "sampling_relation": "Distinct recorded seeds; covariance sum assumes independent run randomizations. No shared-point pairing or empirical cross-run covariance is claimed"
+        }
+      },
+      "reference_comparisons": {
+        "count": 0,
+        "rounding_sensitive_or_singular": 0,
+        "maximum_covariance_distance": null,
+        "largest_diagnostic": null
+      },
+      "reference": null
+    },
+    {
+      "topology": "d05-physical",
+      "label": "Physical D05 double box",
+      "runs": 2,
+      "comparisons": {
+        "count": 1,
+        "rounding_sensitive_or_singular": 0,
+        "maximum_covariance_distance": 1.1859483072480448,
+        "largest_diagnostic": {
+          "diagnostic": {
+            "covariance_of_difference": [
+              2.609103380960665,
+              -0.2800580137794034,
+              -0.2800580137794034,
+              2.845077392183312
+            ],
+            "difference": [
+              1.5964640180159648,
+              0.92836586605398
+            ],
+            "difference_norm": 1.8467703003009972,
+            "interpretation": "Descriptive estimated-covariance diagnostic, not a calibrated p-value; no error inflation or numerical-bias bound",
+            "joint_se": 2.335418757555907,
+            "mahalanobis_distance": 1.1859483072480448,
+            "positive_definite": true,
+            "rounding_sensitive": false,
+            "rounding_warning_scale": 4.994156159250557e-13,
+            "symmetric": true
+          },
+          "left": {
+            "arm": "fixed_time",
+            "method": "fixed",
+            "native_result": {
+              "path": "/common/dev/fastsecdec/target/no-deformation-overview-campaign/fixed_time-off-double-box-physical-fixed-qmc-r1-result.json",
+              "sha256": "55662dd2696725a00f05e8c179ca925c5d1855f0b6ee10cec0c3630ab2af2d7f"
+            },
+            "sampler": "qmc",
+            "seed": 1910003,
+            "topology": "d05-physical"
+          },
+          "order": 0,
+          "right": {
+            "arm": "fixed_time",
+            "method": "fixed",
+            "native_result": {
+              "path": "/common/dev/fastsecdec/target/no-deformation-overview-campaign/fixed_time-off-double-box-physical-fixed-discrete_mc-r1-result.json",
+              "sha256": "5ee03221af18403034ee5df7f94bf810374128bbc0bfeb07b6307517f168c1a0"
+            },
+            "sampler": "discrete_mc",
+            "seed": 1911012,
+            "topology": "d05-physical"
+          },
+          "sampling_relation": "Distinct recorded seeds; covariance sum assumes independent run randomizations. No shared-point pairing or empirical cross-run covariance is claimed"
+        }
+      },
+      "reference_comparisons": {
+        "count": 0,
+        "rounding_sensitive_or_singular": 0,
+        "maximum_covariance_distance": null,
+        "largest_diagnostic": null
+      },
+      "reference": null
+    }
+  ]
+}

@@ -280,3 +280,45 @@ convergence metrics in the new benchmark table use explicit validation `off`;
 separate validation probes are not part of those timings. The reported checked
 wall cost includes ordinary stability checks and precision rescue, but excludes
 optional causal validation. Essential solver and nonfinite handling remain on.
+
+The subsequent user instruction makes mutual and reference compatibility an
+explicit benchmark acceptance gate. Compare every accepted integration estimate
+across prescriptions, samplers and confirmation arms at the same integral,
+kinematics, normalization and Laurent order. Retain the full complex covariance,
+seed relationships and numerical limitations when assessing discrepancies.
+Use existing analytic and native HEPKit references wherever available, checking
+their point and normalization rather than borrowing a value from another case.
+Keep stochastic standard errors separate from reference uncertainty and numerical
+roundoff. Significant discrepancies remain visible and require independent
+diagnostics; do not tune on confirmation values, silently inflate their errors,
+or label incompatible results as validated.
+
+The subsequent benchmark simplification makes relative error after approximately
+ten minutes the primary integration comparison. Preserve actual errors, elapsed
+times and accepted work, and label any square-root work/time normalization as a
+heuristic rather than a measured QMC convergence law. Keep accepted timed runs
+within a 25% max/min elapsed-time spread for each topology; rerun outliers rather
+than correcting large differences. The secondary work metric uses a round target
+for average evaluations per sector, since discrete MC does not allocate equal
+work to every sector.
+
+Add streamed, saved and tabulated weight diagnostics: the estimated absolute
+sector-weight integral divided by the magnitude of the total complex integral,
+and the largest observed absolute sector-local weight divided by that same
+magnitude. Define continuous/discrete proposal corrections, complex coefficient
+pairing and exact-offset grouping explicitly. Accumulate accepted production only
+through complete replica/batch and checkpoint semantics. Neither a pilot maximum
+nor marginal component maxima may substitute for the complex production maximum.
+At a zero or unavailable total mean, report the ratio as unavailable. These
+diagnostics do not bound unseen weights or replace covariance-based uncertainty.
+
+The final opening-table column is the relative uncertainty of the magnitude of
+the complex epsilon-zero result. Propagate its complete real/imaginary covariance
+along the radial direction; retain the joint complex covariance and uncertainty
+for compatibility checks. At a zero magnitude report the relative quantity as
+unavailable, and identify first-order propagation when uncertainty is large.
+Immediately before this final column report the total number of sector-integrand
+calls made during the timed measurement. Distinguish measured calls from accepted
+production points, and label any legacy interrupted-run count as an observed
+lower bound. Timed stopping should drain already assigned complete replicas or
+batches so newly collected measurements have complete call accounting.

@@ -10,11 +10,19 @@
 ]
 
 All uncertainties target $epsilon^0$ of the complete complex integral. Lower
-Laurent coefficients and their full covariance are retained. The reported joint
-standard error is $sqrt(C_(R R)+C_(I I))$, where $C$ is the covariance of the
-estimated mean, not that of individual sample weights. Relative SE divides
-this quantity by $abs(I_0)$ and is undefined at a zero mean. It is an estimated
-precision, not an independently established error against an exact result.
+Laurent coefficients and their full covariance are retained. The primary final
+column is the relative standard error of the *magnitude* $M=abs(I_0)$.
+Writing $I_0=a+i b$, first-order propagation gives
+$ sigma_M^2 = (a^2 C_(R R)+2 a b C_(R I)+b^2 C_(I I))/M^2. $
+The relative error is $sigma_M/M$. Zero magnitude makes this undefined;
+large uncertainty relative to the magnitude receives a linearization warning.
+The dagger marks joint complex SE divided by magnitude at least 0.1; this is a
+warning convention, not a certified validity boundary.
+This radial error measures the modulus, not accuracy in its complex phase.
+The joint complex SE $sqrt(C_(R R)+C_(I I))$ remains in the detailed data and
+scientific compatibility checks. Here $C$ is the covariance of the estimated
+mean, not of individual sample weights. Neither SE is an independently
+established error against an exact result.
 The discrete-MC total uses its native full-batch covariance; summing sector
 marginal variances would lose its cross-sector correlations.
 
@@ -48,15 +56,38 @@ contour receipts with a different policy or a nonzero causal-check count.
 Mandatory solver termination, nonfinite handling and precision rescue remain
 active. Earlier checked-policy measurements are separate diagnostic evidence.
 
-Independent throughput pilots choose a common total sector-point budget per
-topology for the matched-work arm. Complete QMC lattices and MC batches define
-the attainable granularity. Native accepted counts, rather than requested
-counts or extrapolation, determine comparability. Each confirmation has a seed
-disjoint from calibration and the other arm. The fixed-time arm requests
+Independent throughput pilots choose the work allocations and the round
+average-per-sector targets listed in the data. Discrete MC samples sectors
+unequally; average work is the accepted total divided by the number of stochastic
+sectors, not a claim that each sector has the same allocation. The secondary
+display rescales the radial relative SE by $sqrt(N_("actual")/N_("target"))$.
+The primary time display rescales it by $sqrt(t_("actual")/600)$. Both corrections
+are *Monte-Carlo-equivalent heuristics*, not measured QMC convergence laws.
+Actual errors, counts, factors and times are retained unchanged. A topology's
+time comparison is withheld if its longest/shortest accepted run exceeds 1.25.
+Each accepted timed run must also lie between 480 and 750 seconds.
+Each confirmation has a seed disjoint from calibration and the other arm.
+The fixed-time arm requests
 600 seconds on the native elapsed clock, then uses graceful cancellation to
 save the last committed estimate; actual elapsed time, drain and cancelled
 allocations are recorded separately. An external kill without a native result
 does not supply an error estimate. The integration-RAM column uses this arm.
+
+The timed-call column counts observed logical sector-integrand evaluations,
+including reported pilot and discarded work. Precision-rescue backend calls
+are retained separately and do not become new sampling points. A leading
+$gt.eq$ identifies a lower bound: current process cancellation may lose the
+unpublished tail since a worker's last status message. Accepted production work
+is recorded separately and exactly. New weight-diagnostic runs require their
+own complete accounting; no total is inferred from elapsed time or throughput.
+
+The new cancellation and maximum-weight columns remain unavailable until their
+native accepted-production accumulators have been measured. The intended
+cancellation numerator is the sum of absolute sector integrals plus the magnitude
+of the combined exact offset, divided by $abs(I_0)$. The maximum uses actual
+complex magnitudes, with continuous importance correction retained and discrete
+sector-selection correction removed for a conditional sector weight. It depends
+on the proposal and sampled work; it is neither a supremum nor a tail bound.
 
 == Execution and topology definitions
 Generation uses serial sector residency with 25 workers for the scalar suite.

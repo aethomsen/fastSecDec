@@ -120,9 +120,10 @@ significance claim.
 | e | f64 max / avg µs | Maximum and arithmetic mean of per-sector mean **raw f64 kernel** costs under the frozen evaluator harness. Not a maximum individual point. |
 | f | Integration GB | Sampled aggregate owned integration RSS peak. This implements the stated interpretation of the duplicated RAM request. |
 | g | Sum f64 / checked µs | Sum of raw f64 per-sector mean costs for one full sweep; separately, measured wall cost for the same complete sweep with normal stability/rescue enabled. Do not substitute summed worker spans for wall time. |
-| h | Work relative SE | Joint ε⁰ standard error divided by the magnitude of the native finite mean, at the frozen matched-work allocation. |
-| i | Work SE | Absolute joint ε⁰ standard error at that same allocation. |
-| j | 600 s relative SE | Joint ε⁰ standard error divided by the finite-mean magnitude for the fixed-time arm. |
+| h | Average-work relative error | Delta-method standard error of the complex ε⁰ norm, divided by that norm, rescaled to the displayed average evaluations per sector. |
+| i | Average-work SE | Absolute joint ε⁰ standard error rescaled to that same average-work target. |
+| j | 600 s relative error | Delta-method standard error of the complex ε⁰ norm, divided by that norm, rescaled to 600 native seconds. This is the primary comparison. |
+| k | Sector calls | Reported logical callbacks during the fixed-time invocation, in millions, including observed pilot/discarded work. Prefix-only counters are labelled ≥, never exact totals. |
 
 For finite-component indices `(r,i)`, native joint SE is
 `sqrt(C[r,r] + C[i,i])` with the covariance **of the estimated mean**. It is not
@@ -133,6 +134,47 @@ metric `abs(I0-reference0)` (and relative error when its denominator is nonzero)
 Neither relative SE nor agreement with a contour arm is an independent accuracy
 certificate. Runtime and RAM may differ between work and time arms; retain both,
 and use the fixed-time integration peak for column f.
+
+The relative-error columns use the **radial** delta-method uncertainty, distinct
+from joint SE. For finite mean `I=x+iy`, `R=hypot(x,y)` and native covariance
+entries `Cxx,Cxy,Cyy`, its variance is
+`(x² Cxx + 2xy Cxy + y² Cyy)/R²`; divide its square root by `R` for relative
+uncertainty. Retain the covariance and raw joint SE unchanged. At `R=0` the
+relative metric is unavailable. Flag the displayed value with † when joint
+`SE/R >= 0.1`: first-order norm propagation may be unreliable. It is not a
+confidence interval or an accuracy certificate.
+
+Displayed errors use the requested **MC-equivalent heuristic**: multiply by
+`sqrt(t/600)` for actual native time `t`, or
+`sqrt(W/(K*N_average))` for accepted work `W`, native stochastic-sector count
+`K` and displayed average target `N_average`. This does not alter any native
+estimate, covariance, seed or allocation, and is **not a QMC convergence law**.
+The average-work targets are pilot-derived round display values: bubble 30M,
+triangle 80M, box 70M, sunrise 60M, kite 40M and scalar double box 4M evaluations
+per sector. The physical double-box target remains pending its dynamic pilot.
+Unequal actual sector allocations remain intact. Record each correction factor;
+large work rescalings remain heuristic. Within each topology, accepted timed
+runs must each lie between 480 and 750 native seconds and satisfy
+`max(t)/min(t) <= 1.25`; otherwise suppress the normalized timed comparison and
+retain the raw observations. A common large overrun cannot pass solely because
+all arms take equally long.
+
+Logical call counts come from native operational `evaluations`, separately from
+accepted statistical work. Serial cancellation can retain only the last
+published worker prefix; an unfinished matrix batch can also contain backend
+calls beyond its classified logical callbacks. Existing counts therefore carry
+an observed-prefix qualification. Keep f64/double-float/arbitrary backend counts
+separate: a precision rescue is not a new sampling point.
+
+Cancellation and peak-weight ratios require a future instrumented measurement;
+the existing receipts do not contain the committed absolute-weight sums.
+The proposed numerator is the sector sum of production averages of the absolute
+final ε⁰ complex weight (all coordinate, periodization and importance factors
+once), divided by `|I|`. In discrete MC the final weight includes inverse sector
+selection probability and is averaged over all global batch points. Keep any
+exact offset separate. The maximum is an observed, proposal-dependent sample
+maximum, not a supremum. Existing pilot-inclusive operational maxima do not
+stand in for committed-production statistics.
 
 Raw-f64 and checked costs use the same explicit `--contour-validation off`
 native diagnostic with `benchmark --warmup 0`, on deterministic coordinates.

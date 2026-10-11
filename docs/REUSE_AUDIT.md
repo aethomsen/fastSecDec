@@ -1,5 +1,17 @@
 # Ecosystem reuse evidence
 
+## Benchmark covariance and presentation (2026-10-11)
+
+The [campaign review](reviews/benchmark-overview-campaign.md) records a native
+comparison helper using Numerica's existing exact binary64-to-Rational conversion
+and matrix determinant/solve. Public APIs, source and focused singular/correlated
+controls confirm these operations; no covariance inversion or algebra library is
+reimplemented. Existing HEPKit/OneLOop and Symbolica reference fixtures supply
+compatible triangle, box and sunrise controls. Display normalization preserves
+native estimates and explicitly labels its square-root scaling heuristic.
+Production weight diagnostics and complete timed-call accounting remain a
+separate implementation milestone until their tests close.
+
 ## Sparse normal preparation progress (2026-10-11)
 
 The [progress review](reviews/no-deformation-normal-progress.md) records a

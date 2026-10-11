@@ -13,14 +13,15 @@
   let missing = text(fill: rgb("82919f"))[—]
   let show-value(value) = if value == none { missing } else { str(value) }
   let cell(value, ..args) = table.cell(..args, align: center + horizon, show-value(value))
-  let columns = (23fr, 12fr, 16fr, 16fr, 15fr, 12fr, 24fr, 17fr, 29fr, 25fr, 25fr, 25fr)
+  let columns = (23fr, 12fr, 16fr, 16fr, 15fr, 12fr, 24fr, 17fr, 29fr, 24fr, 16fr, 20fr, 22fr, 26fr)
   let header = table.header(
     [*Prescription*], [*Sampler*],
     [*Generation*\ s], [*Gen. RAM*\ GB], [*Artifacts*\ MB], [*Sectors*],
     [*f64 max / avg*\ µs / sample], [*Int. RAM*\ GB],
     [*Σ f64 / checked*\ µs / sweep],
-    [*Matched work*\ relative SE], [*Matched work*\ joint SE],
-    [*600 seconds*\ relative SE],
+    [*Average work*\ rel. σ(|I|)\*], [*C*], [*max / |I|*],
+    [*Sector calls*\ ~600 s · million],
+    [*Rel. σ(|I|)*\ *600 s*\*],
   )
   let topology-block(topology) = {
     let cells = ()
@@ -43,9 +44,14 @@
         if index == 0 {
           cells.push(cell(method.kernel_cost.sum_f64_checked_us, rowspan: 2))
         }
-        for key in ("work_relative_se", "work_joint_se", "time_relative_se") {
-          cells.push(cell(sampler.metrics.at(key)))
-        }
+        let normalized = sampler.at("normalized_metrics", default: (:))
+        cells.push(cell(normalized.at("work_radial_relative_se", default: none)))
+        let weights = sampler.at("weight_metrics", default: (:))
+        cells.push(cell(weights.at("absolute_weight_integral_over_norm", default: none)))
+        cells.push(cell(weights.at("maximum_observed_weight_over_norm", default: none)))
+        cells.push(cell(normalized.at("time_reported_sector_calls_million", default: none)))
+        cells.push(table.cell(fill: rgb("e3f0e7"), align: center + horizon,
+          text(weight: "bold")[#show-value(normalized.at("time_radial_relative_se", default: none))]))
       }
     }
     block(breakable: false, width: 100%)[
@@ -53,6 +59,8 @@
         #text(fill: white, weight: "bold", size: 9pt)[#topology.label]
         #h(1fr)
         #text(fill: rgb("d8e7ef"), size: 7.5pt)[#topology.point]
+        #let target = topology.at("display_work_target_average_per_sector", default: none)
+        #if target != none { [#h(6pt) #text(fill: white, size: 7pt)[· average work target #(target / 1000000)M / sector]] }
       ]
       #table(columns: columns, inset: (x: 3pt, y: 4.2pt), stroke: rule,
         align: center + horizon,
@@ -67,6 +75,8 @@
     text(size: 19pt, weight: "bold", fill: ink)[Overview]
     h(1fr)
     text(size: 9pt, fill: rgb("456078"))[Finite coefficient $epsilon^0$ · 25-core integration]
+    linebreak()
+    text(size: 7pt, fill: rgb("456078"))[\* MC-equivalent normalization · ≥ observed calls · † first-order norm propagation may be unreliable]
     v(5mm)
     for index in group {
       topology-block(data.topologies.at(index))

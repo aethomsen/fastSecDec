@@ -59,5 +59,30 @@
     "warmup": 0,
     "require_production_causal_checks": 0,
     "exclude_causal_validation_from_all_table_clocks": true
+  },
+  "display_normalization": {
+    "time_target_seconds": 600,
+    "max_min_native_time_ratio": 1.25,
+    "time_factor": "sqrt(actual_native_seconds/600)",
+    "work_factor": "sqrt(accepted_total/(native_stochastic_sectors*target_average))",
+    "target_average_per_sector": {
+      "bubble": 30000000,
+      "triangle": 80000000,
+      "box": 70000000,
+      "sunrise": 60000000,
+      "kite": 40000000,
+      "d05-scalar": 4000000,
+      "d05-physical": null
+    },
+    "relative_error": "delta-method radial sigma(norm(complex mean))/norm(complex mean)",
+    "scope": "MC-equivalent display heuristic; not a QMC convergence law",
+    "preserve_raw_covariance_and_observations": true,
+    "sector_calls_scope": "observed logical callbacks; unpublished tails possible; backend rescue counts separate",
+    "weight_statistics": "pending native committed-production instrumentation",
+    "allowed_native_seconds": [
+      480,
+      750
+    ],
+    "large_uncertainty_dagger_threshold_joint_relative_se": 0.1
   }
 }

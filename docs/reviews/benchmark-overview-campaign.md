@@ -1,8 +1,9 @@
 # Finite-coefficient Overview checkpoint
 
 The opening three landscape pages use only the new 25-worker integration
-campaign. Seventeen selected generation/kernel profiles are independently
-checked at this checkpoint; integration confirmations remain in progress.
+campaign. Eighteen selected generation/kernel profiles and 52 integration
+estimates are independently checked at this checkpoint. Five excluded attempts
+remain recorded; further confirmations and instrumented runs are in progress.
 Missing or refused entries are explicit. The report does not claim a complete
 no-contour double box or general algebraic endpoint resolver.
 
@@ -39,7 +40,38 @@ landscape table layout and the subsequent metric definitions. The original
 studies remain later in the report with their historical settings; they do not
 fill missing new-campaign cells.
 
-Reviewed generation/profile dataset SHA-256:
-`20f96d400079f1098ebf5ea773d4b551fd24416f78c44b595f10da507f2e6700`.
+The final column is the epsilon-zero complex norm's relative standard error,
+propagated with its full 2x2 covariance. The joint complex error remains in
+the data and compatibility tests. A dagger marks joint relative SE at least
+0.1: radial first-order propagation then needs particular caution. Zero norms
+and negative projected variances do not produce a fabricated relative error.
+
+Square-root time/work corrections are explicit MC-equivalent display heuristics,
+not QMC convergence claims. The secondary target is average accepted evaluations
+per stochastic sector. Round targets came from independent calibration. Timed
+rows require 480–750 seconds and a topology max/min ratio at most 1.25. Mutation
+controls reject inconsistent counters and 1200-second runs even when their
+max/min ratio is one. Raw covariance, work and elapsed time are unchanged.
+
+The penultimate column reports observed logical sector-integrand calls. Existing
+Ctrl-C runs can lose unpublished worker tails, so the displayed count is a lower
+bound. Accepted production points remain exact and separate from backend rescue
+calls. The new cancellation and maximum-weight columns stay unavailable until
+native accepted-production instrumentation supplies them; no proxy is inferred.
+
+An independent native comparison validates the saved-result association and
+uses Numerica exact binary64 conversion and matrix determinant/solve for each
+complex covariance block. All available Laurent orders are compared across
+independent seeds and against correctly normalized references where available.
+The largest nonsingular distance is 2.93 across all orders. Singular or
+rounding-sensitive controls are explicitly unresolved; no covariance padding or
+diagonal substitution is permitted. Bubble, triangle, box and sunrise reference
+associations are recorded; the different historical kite point is excluded.
+These diagnostics do not establish reference accuracy for either D05 integral.
+
+Reviewed normalized dataset SHA-256:
+`db8f68c44c0af0cf2f2df504b2398b52b2449c2adcd0bd0395b9aeb032234db1`.
+Reviewed normalization bundle SHA-256:
+`de5c0a3d4c06254f1aee1b2616a6e12063caded4ca915f31f901edab24464fe9`.
 The local raw campaign receipts are untracked. Further confirmation updates
 must repeat the native-result accounting and table admission review.
