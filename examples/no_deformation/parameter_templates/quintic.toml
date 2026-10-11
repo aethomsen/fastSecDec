@@ -1,0 +1,31 @@
+# Explicit runtime scalar p lies outside the integration interval.
+[direct]
+domain = "unit_cube"
+parameters = ["y"]
+runtime_parameters = ["cli_uniform::p"]
+[[direct.terms]]
+prefactor = "1"
+[[direct.terms.factors]]
+polynomial = "y^5+y-cli_uniform::p+2"
+exponent = "-1-eps"
+semantics = "causal"
+[generation]
+threshold_decomposition = true
+order = 1
+[threshold_decomposition]
+kinematic_constraints = ["cli_uniform::p-9/4", "5/2-cli_uniform::p"]
+[threshold_decomposition.solver]
+order = ["v0", "v1"]
+[threshold_decomposition.gcad_limits]
+wall_time_secs = 30.0
+memory_mib = 1024
+[integration]
+points = 1024
+shifts = 4
+workers = 2
+periodization = "korobov3"
+relative_tolerance = 0.01
+max_rounds = 1
+accuracy_target = { target = "laurent_order", order = 1 }
+[integration.stability]
+mode = "validated"

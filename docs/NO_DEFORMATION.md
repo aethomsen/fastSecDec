@@ -22,8 +22,11 @@ algebraic families on the unit cube, as detailed below.
 The [runnable examples](../examples/no_deformation/README.md)
 and [CLI review](reviews/no-deformation-cli.md) describe that supported subset.
 These capabilities are separate from the exporter contract documented below.
-The general endpoint resolver, parametric chambers, complete HEPKit generation
-interface and higher-dimensional physics suite remain under development. A
+Explicit single-chamber runtime templates now reach the CLI, including normal
+and serial generation/integration, point rebinding and checkpoint identity checks;
+see the [parameterized examples](../examples/no_deformation/parameter_templates/README.md).
+The general endpoint resolver, broader parametric chambers, complete HEPKit
+generation interface and higher-dimensional physics suite remain under development. A
 verified GCAD result alone is not an executable integral. See the
 [reuse and acceptance ledger](REUSE_AUDIT.md#no-contour-foundation-and-consolidation-2026-10-10).
 

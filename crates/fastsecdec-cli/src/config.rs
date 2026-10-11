@@ -515,6 +515,9 @@ pub(crate) fn read_integration_overlay(
 pub struct DirectInput {
     pub domain: String,
     pub parameters: Vec<String>,
+    /// Explicit runtime scalar roles; free atoms are never inferred as parameters.
+    #[serde(default)]
+    pub runtime_parameters: Vec<String>,
     pub terms: Vec<DirectTerm>,
 }
 

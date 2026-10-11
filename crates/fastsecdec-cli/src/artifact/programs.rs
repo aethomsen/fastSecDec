@@ -37,7 +37,7 @@ pub struct ProgramGeneration {
 impl ProgramStorage {
     pub(super) fn validate(&self, integrity: bool) -> CliResult<()> {
         validate_filename(&self.data_file)?;
-        if !matches!(self.catalogue.version, 2 | 3) {
+        if !matches!(self.catalogue.version, 2..=4) {
             return Err("recipe manifest requires a supported native program directory".into());
         }
         self.catalogue.validate(integrity)?;
@@ -244,7 +244,7 @@ impl Artifact {
         default_recipe: ProgramRecipe,
         provenance: Provenance,
     ) -> CliResult<Self> {
-        if !matches!(catalogue.version, 2 | 3) {
+        if !matches!(catalogue.version, 2..=4) {
             return Err("new recipe artifacts require a supported native program archive".into());
         }
         let reader = ProgramArchiveReader::from_reader(

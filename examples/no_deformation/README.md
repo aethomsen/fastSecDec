@@ -25,9 +25,10 @@ eps^0:   2 - 3*log(3)/2 + i*pi/2
          0.3520815669978355 + 1.5707963267948966*i
 ```
 
-This example exercises the currently supported fixed, one-dimensional rational
-cell path. General algebraic endpoints and runtime parameter chambers remain
-under development; unsupported inputs fail explicitly. It is not a substitute
+This example exercises the fixed, one-dimensional rational cell path.
+[Runtime templates](parameter_templates/README.md) also support explicit
+single-chamber parameter rebinding. General algebraic endpoints and broader
+parameter families remain under development; unsupported inputs fail explicitly. It is not a substitute
 for the general resolver acceptance gates in `NO_DEFORMATION_PLAN.md`.
 
 ## Regular sextic boundaries
@@ -51,7 +52,7 @@ The card enables tracked whole-vector validation; no cutoff-zero handling is
 used. Ordinary and serial generation produce the same artifact identity, and
 both integration modes pass the [four-way correctness control](../../docs/reviews/no-deformation-regular-family-factory.md).
 This is the fixed regular-branch subset. Colliding roots, general algebraic
-towers and runtime parameter chambers remain under development.
+towers and broader parameter families remain under development.
 
 ## Regular degree-seven boundary
 

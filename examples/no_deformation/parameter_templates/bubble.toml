@@ -1,0 +1,42 @@
+# One native HEPKit template, fixed m^2=3 and uniform chamber 15<s<18.
+[input]
+model_parameters = "fixed"
+graph = "../../graphs/bubble.dot"
+model = "../../models/scalar.json"
+
+[kinematics]
+products = [{ left = 1, right = 1, symbol = "cli_uniform::s" }]
+
+[parameters]
+"UFO::mt" = "sqrt(3)"
+
+[integral]
+dimension = "4-2*eps"
+regulator = "eps"
+measure_multiplier = "gamma(1-2*eps)/(gamma(1+eps)*gamma(1-eps)^2)"
+
+[generation]
+threshold_decomposition = true
+order = 1
+
+[threshold_decomposition]
+kinematic_constraints = ["cli_uniform::s-15", "18-cli_uniform::s"]
+
+[threshold_decomposition.solver]
+order = ["v0", "v1"]
+
+[threshold_decomposition.gcad_limits]
+wall_time_secs = 30.0
+memory_mib = 1024
+
+[integration]
+points = 1024
+shifts = 4
+workers = 2
+periodization = "korobov3"
+relative_tolerance = 0.01
+max_rounds = 1
+accuracy_target = { target = "laurent_order", order = 1 }
+
+[integration.stability]
+mode = "validated"

@@ -469,7 +469,7 @@ fn default_generation_workers() -> std::num::NonZeroUsize {
 fn bind_parameters(
     kernels: &mut fastsecdec::kernel::KernelSet,
     settings: &IntegrationInput,
-) -> CliResult<()> {
+) -> CliResult<std::collections::BTreeMap<fastsecdec::Symbol, f64>> {
     let values = settings
         .parameters
         .iter()
@@ -478,7 +478,7 @@ fn bind_parameters(
     kernels.set_contour_diagnostics(settings.contour_diagnostics)?;
     kernels.bind_parameters_with_contour(&values, &settings.contour)?;
     kernels.set_stability_settings(&settings.stability)?;
-    Ok(())
+    Ok(values)
 }
 
 fn main() -> ExitCode {

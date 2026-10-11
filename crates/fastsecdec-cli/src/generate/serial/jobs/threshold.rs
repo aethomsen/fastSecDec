@@ -154,12 +154,15 @@ pub(super) fn prepare(
     if !loaded.card.generation.threshold_enabled() {
         return Err("threshold preparer requires explicit threshold capability".into());
     }
-    if !loaded.runtime_parameters.is_empty() || !loaded.runtime_mass_constraints.is_empty() {
-        return Err("threshold CLI currently requires fixed physical input parameters; runtime fiber rebinding is not certified".into());
+    if !loaded.runtime_mass_constraints.is_empty() {
+        return Err(
+            "threshold CLI runtime model masses are not supported; use fixed model masses".into(),
+        );
     }
     let (generation, generation_record, provenance, mut timings) =
         preparation::context(&loaded, workers)?;
-    let source_identity = generation::source_identity(&loaded.integrand, &[], &[])?;
+    let source_identity =
+        generation::source_identity(&loaded.integrand, &loaded.runtime_parameters, &[])?;
     let issued_settings = issued_settings(input, overrides)?;
     let checkpoint_path = root.join("threshold-checkpoint.json");
     let saved_checkpoint: Option<Checkpoint> = if prior.is_none() && checkpoint_path.exists() {
@@ -199,7 +202,7 @@ pub(super) fn prepare(
         .native(&loaded.runtime_parameters)?;
     // Existing threshold entrypoint; roots/brackets remain native discovery.
     // The preparer resolves actual compact dimension and preserves legacy 1D.
-    if loaded.integrand.parameters().len() > 1 {
+    if !loaded.runtime_parameters.is_empty() || loaded.integrand.parameters().len() > 1 {
         options.regular_family = Some(Default::default());
     }
     options.generation = generation;

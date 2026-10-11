@@ -431,6 +431,28 @@ pub(crate) fn load_observed_with_overrides(
                     "[parameters] cannot bind an integration parameter or its regulator".into(),
                 );
             }
+            let runtime_parameters = direct
+                .runtime_parameters
+                .iter()
+                .map(|name| symbol(name))
+                .collect::<CliResult<Vec<_>>>()?;
+            let mut seen = std::collections::BTreeSet::new();
+            for symbol in &runtime_parameters {
+                if !seen.insert(*symbol) {
+                    return Err("direct runtime parameters contain duplicate symbol aliases".into());
+                }
+                if *symbol == regulator || parameters.contains(symbol) {
+                    return Err(
+                        "direct runtime parameter overlaps an integration parameter or regulator"
+                            .into(),
+                    );
+                }
+                if values.contains_key(symbol) {
+                    return Err(
+                        "[parameters] cannot bind a declared direct runtime parameter".into(),
+                    );
+                }
+            }
             let mut terms = Vec::new();
             for term in &direct.terms {
                 let monomial_powers = if term.monomial_powers.is_empty() {
@@ -490,7 +512,7 @@ pub(crate) fn load_observed_with_overrides(
                     .unwrap_or_default()
                     .to_string_lossy()
                     .into_owned(),
-                runtime_parameters: Vec::new(),
+                runtime_parameters,
                 runtime_mass_constraints: Vec::new(),
                 model_parameter_defaults: BTreeMap::new(),
                 loops: None,
@@ -519,6 +541,9 @@ pub fn artifact_path(card: &Path) -> PathBuf {
 
 #[cfg(test)]
 mod on_shell_tests;
+
+#[cfg(test)]
+mod runtime_tests;
 
 #[cfg(test)]
 mod tests {

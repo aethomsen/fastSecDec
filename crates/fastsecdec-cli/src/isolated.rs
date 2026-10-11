@@ -21,6 +21,9 @@ use std::{
     time::{Duration, Instant},
 };
 
+#[cfg(test)]
+mod parameter_tests;
+
 #[derive(Serialize, Deserialize)]
 enum Request {
     Exact {
@@ -283,7 +286,7 @@ fn execute(path: PathBuf, emit: &mut dyn FnMut(Progress) -> std::io::Result<()>)
             let mut aggregate_settings = settings.clone();
             aggregate_settings.contour.validation.policy =
                 fastsecdec::contour::ContourValidation::Off;
-            crate::bind_parameters(&mut exact, &aggregate_settings)?;
+            let values = crate::bind_parameters(&mut exact, &aggregate_settings)?;
             if settings.contour_diagnostics
                 == fastsecdec::contour::ContourDiagnosticsMode::Aggregate
                 && let Some(report) = exact.take_contour_runtime_report()?
@@ -292,11 +295,13 @@ fn execute(path: PathBuf, emit: &mut dyn FnMut(Progress) -> std::io::Result<()>)
                     .record_contour_runtime(fastsecdec::status::IntegrationStage::Pilot, &report)?;
             }
             let threshold_scope = catalogue.threshold_scope()?;
-            // Exact-only loading has a selected contribution identity. The
-            // coordinator below holds the complete catalogue's sector layout,
-            // so retain that owner and scope for threshold accumulation.
+            // The native owner checks this exact-only carrier against the full
+            // catalogue and its admitted, already-bound point. No programs or
+            // point state are reconstructed by the CLI.
             let kernel_content_id = if threshold_scope.is_some() {
-                catalogue.content_id.clone()
+                reader
+                    .catalogue()
+                    .bound_threshold_content_id(&exact, &values)?
             } else {
                 exact.content_id().into()
             };

@@ -384,3 +384,106 @@ fn threshold_prepared_shape_is_bound_to_the_native_publication() {
         }
     }
 }
+
+#[test]
+#[ignore = "durable runtime raw checkpoint consumed by a fresh CLI in the acceptance campaign"]
+fn runtime_raw_checkpoint_fixture() {
+    let root =
+        std::path::PathBuf::from(std::env::var_os("FASTSECDEC_CLI_PARAMETER_RAW_ROOT").unwrap());
+    fs::create_dir_all(&root).unwrap();
+    let input = root.join("input.toml");
+    fs::write(
+        &input,
+        include_str!("../../../../../examples/no_deformation/parameter_templates/quintic.toml"),
+    )
+    .unwrap();
+    let output = root.join("resumed.fsd");
+    let mut journal = Journal::open(&input, &output, false, "runtime-raw").unwrap();
+    journal
+        .request(
+            "prepare-raw",
+            Request::PrepareThreshold {
+                input,
+                workers: 1,
+                overrides: Default::default(),
+                attempt: "runtime-raw".into(),
+                prior: None,
+            },
+        )
+        .unwrap();
+    let error = jobs::execute(&journal.job_path("prepare-raw"), &mut |p| {
+        if p.detail.contains("Threshold Regularize") {
+            Err(std::io::Error::other("cancel after runtime raw evidence"))
+        } else {
+            Ok(())
+        }
+    })
+    .unwrap_err();
+    assert!(
+        error
+            .to_string()
+            .contains("cancel after runtime raw evidence"),
+        "{error}"
+    );
+    assert!(journal.root.join("threshold-checkpoint.json").exists());
+    assert!(journal.threshold_preparation().unwrap().is_none());
+    assert!(!journal.response_path("prepare-raw").exists());
+}
+
+#[test]
+#[ignore = "cached runtime record consumed by a fresh CLI in the acceptance campaign"]
+fn runtime_prepared_checkpoint_fixture() {
+    let root = std::path::PathBuf::from(
+        std::env::var_os("FASTSECDEC_CLI_PARAMETER_PREPARED_ROOT").unwrap(),
+    );
+    fs::create_dir_all(&root).unwrap();
+    let input = root.join("input.toml");
+    fs::write(
+        &input,
+        include_str!("../../../../../examples/no_deformation/parameter_templates/quintic.toml"),
+    )
+    .unwrap();
+    let output = root.join("resumed.fsd");
+    let mut journal = Journal::open(&input, &output, false, "runtime-prepared").unwrap();
+    let request = Request::PrepareThreshold {
+        input,
+        workers: 1,
+        overrides: Default::default(),
+        attempt: "runtime-prepared".into(),
+        prior: None,
+    };
+    journal.request("prepare", request.clone()).unwrap();
+    jobs::execute(&journal.job_path("prepare"), &mut |_| Ok(())).unwrap();
+    let Response::PreparedThreshold(prepared) = journal.accept("prepare", &request).unwrap() else {
+        panic!("expected native preparation")
+    };
+    journal.anchor_threshold_preparation("prepare").unwrap();
+    let plan = jobs::threshold::publication(&journal.root, &prepared).unwrap();
+    let index = plan.job_count() - 1;
+    let key = format!("threshold-compile-{index}");
+    let record = journal.root.join(format!("threshold-record-{index}.fsd"));
+    let request = Request::CompileThreshold {
+        directory: Path::new(&prepared.directory)
+            .join(&prepared.native.work_directory)
+            .to_str()
+            .unwrap()
+            .into(),
+        work: plan.work(index).unwrap(),
+        output: record.clone(),
+    };
+    journal.request(&key, request.clone()).unwrap();
+    jobs::execute(&journal.job_path(&key), &mut |_| Ok(())).unwrap();
+    journal.accept(&key, &request).unwrap();
+    // Retain a witness outside the staging cleanup directory. No program copy
+    // or new authority is introduced into the caller's journal.
+    fs::hard_link(&record, root.join("cached-record-witness.bin")).unwrap();
+    fs::copy(
+        journal.response_path(&key),
+        root.join("cached-response.json"),
+    )
+    .unwrap();
+    fs::write(root.join("cached-key.txt"), key).unwrap();
+    let mut permissions = fs::metadata(&record).unwrap().permissions();
+    permissions.set_readonly(true);
+    fs::set_permissions(&record, permissions).unwrap();
+}
