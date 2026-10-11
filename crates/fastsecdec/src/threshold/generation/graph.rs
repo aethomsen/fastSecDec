@@ -27,7 +27,9 @@ pub(super) fn request_options(
         .ok_or(Error::Association(
             "graph replay requires pre-parametric graph provenance",
         ))?;
-    if options.represented != Some((owner.meaning(), owner.limits())) {
+    if options.represented != Some((owner.meaning(), owner.limits()))
+        || options.graph_payloads != owner.payload_policy()
+    {
         return Err(Error::Association("graph conversion policy/configuration"));
     }
     Ok(())
@@ -47,14 +49,20 @@ pub fn prepare_graph(
     admission(&options)?;
     prepare_with(options, root, &mut observer, |options, reporter| {
         let (meaning, limits) = options.represented.expect("graph admission checked");
-        let owner = ExactRepresentedGraphInput::prepare(original, meaning, limits, |p| {
-            reporter.graph_input = Some(p);
-            if reporter.poll(p.converted_literals, None).is_ok() {
-                ControlFlow::Continue(())
-            } else {
-                ControlFlow::Break(())
-            }
-        })
+        let owner = ExactRepresentedGraphInput::prepare_with_payloads(
+            original,
+            meaning,
+            limits,
+            options.graph_payloads,
+            |p| {
+                reporter.graph_input = Some(p);
+                if reporter.poll(p.converted_literals, None).is_ok() {
+                    ControlFlow::Continue(())
+                } else {
+                    ControlFlow::Break(())
+                }
+            },
+        )
         .map_err(|error| match error {
             represented::Error::Cancelled => Error::Cancelled,
             error => Error::Geometry(gcad::GcadError::Represented(error)),

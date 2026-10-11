@@ -3951,3 +3951,20 @@ The matched diagnostic advances farther through coordinate preparation, but
 the full pivot inventory remains incomplete even in its separate 600-second
 run. Object lifetime controls and sampled process memory are not an aggregate
 RSS guarantee or a completed-construction performance result.
+
+## Explicit represented graph payloads
+
+The [graph-payload review](reviews/no-deformation-represented-graph-payloads.md)
+records the API/source/probe audit for native fragment replacement, tensor
+admission, global factors and source-aware replay. Existing bounded numerical
+conversion and HEPKit graph/family primitives perform the work. The sole owner
+addition is an immutable numerator-prefactor setter, proposed with focused
+tests in GammaLoop PR 132 and adopted on top of the existing coherent owner.
+No additional graph, tensor algebra, converter or integration loop is added.
+
+Independent runtime and coordinator reviews accept the explicit mathematical
+interpretation and default-compatible source encoding. This policy retains the
+original rounded aggregate as provenance while recomputing the effective
+numerator from converted primitive fragments. Conservative function-argument
+refusals, general algebraic preparation and global preparation RSS remain
+documented limits; a tensor bubble does not establish full ggHH support.

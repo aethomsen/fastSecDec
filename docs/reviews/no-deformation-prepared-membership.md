@@ -78,3 +78,25 @@ Untracked evidence: `target/no-deformation-prepared-membership/`, handoff SHA-25
 patch SHA-256
 `6b65684b1b7c7707e8c909eec5da74171137cfa35ff02f6091b7e436d46bfc00`.
 Raw logs, diagnostic binaries and copied source trees are not published.
+
+## Follow-up: two standard-map identities already use direct reduction
+
+A bounded follow-up captured the first actual standard chart's post-frame
+determinant and relative-Jacobian queries in 129.852 seconds. The exact fixture
+contains 31 variables, eight source equations, eleven guards and two ordered
+queries. All 63 persisted native polynomial rows pass canonical roundtrip
+checks; the replay re-admits the complete localized source independently in
+both arms.
+
+Both queries reduce directly against the original generators. Neither arm
+constructs a membership basis during those queries. One-off and batch query
+times are 0.159 and 0.125 milliseconds, respectively, while source re-admission
+costs 14.268 and 14.253 seconds. This single ordered pair supports no useful
+speedup claim. The expensive source admission is reported separately, and these
+two production call sites remain unchanged.
+
+The capture and replay complete within their separate 180/60-second caps;
+there is no further 600-second run. The root verified all 23 evidence files,
+the copied source inventory and native diagnostic library. Untracked handoff:
+`target/no-deformation-standard-membership-probe/handoff.json`, SHA-256
+`b2c42d236a582a66b8035bf394415bed1c573de2aa1a7104c4cf5b38d7b14357`.

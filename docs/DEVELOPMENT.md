@@ -43,7 +43,7 @@ must not be carried into ordinary-source checks.
 | Owner | Selected source |
 |---|---|
 | Symbolica | Public `community`-based fork revision `ae0c82b7bda670fdb9f6229226bd47b13bb49a20`, retaining native evaluator composition, ball domains, prepared roots, shared direct-vector evaluation, independent callback environments and single-pass elimination of dependent duplicate instructions, plus [fractional-series, F4 and resultant corrections](reviews/no-deformation-dependencies.md) and [checked native uncertainty range](reviews/no-deformation-numerical-range.md); [upstream contour PRs](reviews/contour-upstream-prs.md) |
-| FeynKit / Linnet / Spenso ecosystem | Public fork revision `c81fa32710316164a738cb14d274a39b53c4cd4a`, combining the native kinematics mapper in [PR #131](https://github.com/alphal00p/gammaloop/pull/131) with the citation URLs in [PR #128](https://github.com/alphal00p/gammaloop/pull/128); [adoption evidence](reviews/no-deformation-preparametric-graph.md) |
+| FeynKit / Linnet / Spenso ecosystem | Public fork revision `9f8b1e50016a58d04e712c34569ea936c44e179a`, retaining the native kinematics mapper in [PR #131](https://github.com/alphal00p/gammaloop/pull/131) and citation URLs in [PR #128](https://github.com/alphal00p/gammaloop/pull/128), plus the immutable numerator-prefactor setter in [PR #132](https://github.com/alphal00p/gammaloop/pull/132); [adoption evidence](reviews/no-deformation-represented-graph-payloads.md) |
 | Numerica | Same public owner revision as Symbolica, with narrow tracked `hypot`, certified real-ball square-root fixes and checked uncertainty range from [PR #9](https://github.com/symbolica-dev/numerica/pull/9) |
 | symGCAD | Optional native geometry dependency, public revision `a1132d4f4545c7784b3ec61239a05485e544b403` from [PR #1](https://github.com/alphal00p/symGCAD/pull/1); shares the consuming workspace's Symbolica identity |
 | Graphica | Registry 3.0.1 |
@@ -95,8 +95,9 @@ now accepts supported represented floating-point kinematics, scalar bindings
 and measure factors before native family arithmetic. It preserves the exact
 binary value, source association and numerical meaning; it does not guess
 simple rationals. Raw geometry replay requires the original graph point and
-re-verifies its evidence. Graph numerator/projector Float payloads and
-uncertainty-bearing input remain explicit refusals; see the
+re-verifies its evidence. Graph numerator/projector Float payloads require the
+explicit primitive policy described below; uncertainty-bearing input remains
+unsupported. See the
 [native graph review](reviews/no-deformation-preparametric-graph.md).
 The existing Python graph entrypoints now select this owner with
 `ThresholdSettings(numerical_meaning="represented_values")`. Native
@@ -106,6 +107,16 @@ without family arithmetic; explicit generation/parametrization performs the
 full native basis and scalar-point checks. See the
 [HEPKit represented-input review](reviews/no-deformation-hepkit-represented.md)
 for validation timing, progress, recovery and selected-result serialization.
+For numerical graph coefficients, explicitly add
+`graph_payloads="primitive_fragments_v1"` to `ThresholdSettings`. Each stored
+native fragment and global factor converts before the native aggregate is
+recomputed. This convention preserves the original rounded aggregate as
+provenance; it need not equal exactification of that aggregate. Float literals
+inside function arguments remain unsupported, including scalar `f(0.1)` and
+tensor/momentum labels. Native callers select
+`PreparationOptions.graph_payloads = Some(GraphPayloadPolicy::PrimitiveFragmentsV1)`.
+The default and legacy source identities remain unchanged. See the
+[graph-payload review](reviews/no-deformation-represented-graph-payloads.md).
 The native `threshold::represented::family::ExactRepresentedFamilyInput`
 similarly retains an existing exact `IntegralFamily` and its original numerical
 point. It converts numerator and measure separately before native specialization,

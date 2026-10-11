@@ -1,6 +1,8 @@
 //! Faithful fixed-point conversion before native propagator-family arithmetic.
 //! This owner provides neither geometry authority nor a generated integral.
 mod identity;
+mod payload;
+pub use payload::GraphPayloadPolicy;
 
 use super::{Error, Limits, LiteralConversion, NumericalMeaning, Result, Work};
 use crate::{
@@ -40,6 +42,12 @@ pub enum GraphLocation {
     ExactPayload {
         role: String,
     },
+    /// Applied primitive/global payload under an explicit numerical policy.
+    Payload {
+        role: String,
+    },
+    /// Observation only: never an additional factor in the converted graph.
+    OriginalAggregate {},
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, serde::Serialize, serde::Deserialize)]
@@ -51,6 +59,7 @@ pub enum Stage {
     Measure,
     Parameterization,
     Complete,
+    Payload,
 }
 #[derive(Clone, Copy, Debug, Eq, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -62,12 +71,17 @@ pub struct Progress {
 /// Original point and exact native parameterization, with conversion evidence.
 ///
 /// Float values are supported in kinematic assumptions, closed scalar bindings
-/// and the measure. Graph numerator/weight/projector payloads must be exact in
-/// this first capability. Uncertainty-bearing values are never exactified.
+/// and the measure. By default graph numerator/weight/projector payloads must
+/// be exact. The existing generation PreparationOptions can explicitly opt into
+/// GraphPayloadPolicy::PrimitiveFragmentsV1; this chooses a different numerical
+/// interpretation of the stored local fragments, retaining the original rounded
+/// aggregate as provenance. Uncertainty-bearing values are never exactified.
 /// The original native graph/model/routing owner is shared, not reconstructed.
 #[derive(Clone, Debug)]
 pub struct ExactRepresentedGraphInput {
     original: Arc<GraphPoint>,
+    payload_policy: Option<GraphPayloadPolicy>,
+    exact_diagram: Arc<FeynmanDiagram>,
     exact_kinematics: Arc<Kinematics>,
     exact_scalar_values: BTreeMap<Symbol, Atom>,
     exact_measure: Atom,
@@ -102,6 +116,14 @@ fn require_exact(work: &mut Work<GraphLocation>, expression: &Atom, role: String
 impl ExactRepresentedGraphInput {
     pub fn original(&self) -> &Arc<GraphPoint> {
         &self.original
+    }
+    /// The explicit primitive interpretation, absent on the legacy path.
+    pub fn payload_policy(&self) -> Option<GraphPayloadPolicy> {
+        self.payload_policy
+    }
+    /// Effective native graph. The unchanged original remains available above.
+    pub fn exact_diagram(&self) -> &Arc<FeynmanDiagram> {
+        &self.exact_diagram
     }
     pub fn exact_kinematics(&self) -> &Arc<Kinematics> {
         &self.exact_kinematics
@@ -139,6 +161,16 @@ impl ExactRepresentedGraphInput {
         original: Arc<GraphPoint>,
         meaning: NumericalMeaning,
         limits: Limits,
+        observer: impl FnMut(Progress) -> ControlFlow<()>,
+    ) -> Result<Self> {
+        Self::prepare_with_payloads(original, meaning, limits, None, observer)
+    }
+
+    pub(crate) fn prepare_with_payloads(
+        original: Arc<GraphPoint>,
+        meaning: NumericalMeaning,
+        limits: Limits,
+        payload_policy: Option<GraphPayloadPolicy>,
         mut observer: impl FnMut(Progress) -> ControlFlow<()>,
     ) -> Result<Self> {
         let mut work = Work::<GraphLocation>::new(meaning, limits)?;
@@ -155,34 +187,48 @@ impl ExactRepresentedGraphInput {
             }
         };
         observe(Stage::ExactPayload, &work)?;
-        // Scan every local fragment as well as aggregate/global factors before
-        // native validation can contract or combine any of these expressions.
-        for (role, expression) in [
-            ("overall_factor", original.diagram.overall_factor()),
-            ("numerator", original.diagram.numerator()),
-            (
-                "numerator_prefactor",
-                original.diagram.numerator_prefactor(),
-            ),
-            ("projector", original.diagram.projector()),
-            ("integration_dimension", &original.dimension),
-        ] {
-            require_exact(&mut work, expression, role.into())?;
-        }
-        for (id, vertex) in original.diagram.vertices() {
+        let exact_diagram = if payload_policy.is_some() {
+            observe(Stage::Payload, &work)?;
+            let graph = payload::convert(&original.diagram, &mut work, |work| {
+                observe(Stage::Payload, work)
+            })?;
             require_exact(
                 &mut work,
-                &vertex.numerator,
-                format!("vertex_numerator:{}", id.0),
+                &original.dimension,
+                "integration_dimension".into(),
             )?;
-        }
-        for (id, _, edge) in original.diagram.edges() {
-            require_exact(
-                &mut work,
-                &edge.numerator,
-                format!("edge_numerator:{}", id.0),
-            )?;
-        }
+            Arc::new(graph)
+        } else {
+            // Scan every local fragment as well as aggregate/global factors before
+            // native validation can contract or combine any of these expressions.
+            for (role, expression) in [
+                ("overall_factor", original.diagram.overall_factor()),
+                ("numerator", original.diagram.numerator()),
+                (
+                    "numerator_prefactor",
+                    original.diagram.numerator_prefactor(),
+                ),
+                ("projector", original.diagram.projector()),
+                ("integration_dimension", &original.dimension),
+            ] {
+                require_exact(&mut work, expression, role.into())?;
+            }
+            for (id, vertex) in original.diagram.vertices() {
+                require_exact(
+                    &mut work,
+                    &vertex.numerator,
+                    format!("vertex_numerator:{}", id.0),
+                )?;
+            }
+            for (id, _, edge) in original.diagram.edges() {
+                require_exact(
+                    &mut work,
+                    &edge.numerator,
+                    format!("edge_numerator:{}", id.0),
+                )?;
+            }
+            original.diagram.clone()
+        };
         for momentum in original
             .kinematics
             .momenta()
@@ -231,7 +277,7 @@ impl ExactRepresentedGraphInput {
         let exact_measure = work.atom(&original.measure_multiplier, GraphLocation::Measure {})?;
         observe(Stage::Parameterization, &work)?;
         let graph = GraphIntegral::new_with_scalar_values(
-            original.diagram.clone(),
+            exact_diagram.clone(),
             &exact_kinematics,
             &exact_scalar_values,
         )
@@ -259,6 +305,8 @@ impl ExactRepresentedGraphInput {
         });
         let mut result = Self {
             original,
+            payload_policy,
+            exact_diagram,
             exact_kinematics,
             exact_scalar_values,
             exact_measure,

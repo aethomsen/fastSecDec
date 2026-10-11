@@ -214,14 +214,26 @@ impl<L: Clone> Work<L> {
         })
     }
     fn atom(&mut self, original: &Atom, location: L) -> Result<Atom> {
+        self.atom_checked(original, location, false, || Ok(()))
+    }
+    // One bounded traversal and one native replacement for both old scalar
+    // conversion and the explicit graph coefficient capability. The optional
+    // native admission runs on the original before any coefficient replacement.
+    fn atom_checked(
+        &mut self,
+        original: &Atom,
+        location: L,
+        refuse_float_arguments: bool,
+        admit_original: impl FnOnce() -> Result<()>,
+    ) -> Result<Atom> {
         self.input_bytes = self
             .input_bytes
             .checked_add(original.as_view().get_byte_size())
             .filter(|n| *n <= self.limits.input_bytes)
             .ok_or(Error::ResourceIncomplete("represented input bytes"))?;
         // Bound syntax before native replacement or cloning decoded coefficients.
-        let mut stack = vec![(original.as_view(), 0usize)];
-        while let Some((node, depth)) = stack.pop() {
+        let mut stack = vec![(original.as_view(), 0usize, false)];
+        while let Some((node, depth, in_function)) = stack.pop() {
             self.nodes = self
                 .nodes
                 .checked_add(1)
@@ -230,6 +242,15 @@ impl<L: Clone> Work<L> {
             if depth > self.limits.depth {
                 return Err(Error::ResourceIncomplete("represented input depth"));
             }
+            if refuse_float_arguments
+                && in_function
+                && let AtomView::Num(value) = node
+                && matches!(value.get_coeff_view().to_owned(), Coefficient::Float(_))
+            {
+                return Err(Error::Unsupported(
+                    "graph payload Float under a function is unsupported, including scalar f(0.1) and shorthand arguments",
+                ));
+            }
             let remaining = self.limits.nodes.saturating_sub(self.nodes);
             let mut push = |child| -> Result<()> {
                 if stack.len() >= remaining {
@@ -237,7 +258,11 @@ impl<L: Clone> Work<L> {
                         "represented input traversal frontier",
                     ));
                 }
-                stack.push((child, depth + 1));
+                stack.push((
+                    child,
+                    depth + 1,
+                    in_function || matches!(node, AtomView::Fun(_)),
+                ));
                 Ok(())
             };
             match node {
@@ -271,6 +296,7 @@ impl<L: Clone> Work<L> {
                 ));
             }
         }
+        admit_original()?;
         let mut error = None;
         let exact = original.replace_map_bottom_up(|node, _, out| {
             if error.is_some() {

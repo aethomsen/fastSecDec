@@ -223,6 +223,26 @@ fn graph_raw_checkpoint_replays_without_solve_and_refuses_policy_configuration_c
         ),
         Err(Error::Association("graph conversion policy/configuration"))
     ));
+    let mut payload_options = options();
+    payload_options.graph_payloads =
+        Some(represented::graph::GraphPayloadPolicy::PrimitiveFragmentsV1);
+    let payload_foreign = PreparationCheckpoint {
+        configuration: configuration::write(root.path(), &payload_options).unwrap(),
+        ..checkpoint.clone()
+    };
+    assert!(matches!(
+        resume_graph_evidence(
+            graph(true),
+            Default::default(),
+            root.path(),
+            &payload_foreign,
+            "foreign-payload",
+            &payload_foreign.evidence.request.source_identity,
+            CAP,
+            |_| ControlFlow::Continue(())
+        ),
+        Err(Error::Association("graph conversion policy/configuration"))
+    ));
     let cap = represented::Limits {
         converted_literals: 0,
         ..Default::default()

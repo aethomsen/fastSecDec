@@ -56,6 +56,9 @@ pub struct PreparationOptions {
     /// Deliberate certified specialization, never implicit integration bindings.
     pub fixed_fiber: BTreeMap<Symbol, Rational>,
     pub represented: Option<(represented::NumericalMeaning, represented::Limits)>,
+    /// Explicit graph primitive interpretation. Requires represented values and
+    /// an original GraphPoint; never applies to family/parametric inputs.
+    pub graph_payloads: Option<represented::graph::GraphPayloadPolicy>,
 }
 impl PreparationOptions {
     pub fn new(unit: Symbol) -> Self {
@@ -68,6 +71,7 @@ impl PreparationOptions {
             unit,
             fixed_fiber: BTreeMap::new(),
             represented: None,
+            graph_payloads: None,
         }
     }
 }
@@ -254,6 +258,11 @@ pub fn prepare(
     root: &Path,
     mut observer: impl FnMut(&Progress) -> ControlFlow<()>,
 ) -> Result<PreparedThreshold> {
+    if options.graph_payloads.is_some() {
+        return Err(Error::Unsupported(
+            "graph payload policy requires an original graph input",
+        ));
+    }
     prepare_with(options, root, &mut observer, |options, reporter| {
         Ok(Arc::new(
             if let Some((meaning, limits)) = options.represented {
@@ -549,6 +558,11 @@ fn recover<F: FnMut(&Progress) -> ControlFlow<()>>(
         }
         error => Error::Evidence(error),
     })?;
+    if options.graph_payloads.is_some() && staged.request().preparametric_graph_input().is_none() {
+        return Err(Error::Association(
+            "graph payload configuration on a non-graph request",
+        ));
+    }
     if staged.request().preparametric_graph_input().is_some() {
         graph::request_options(&options, staged.request())?;
     } else if staged.request().preparametric_family_input().is_some() {

@@ -75,6 +75,8 @@ struct StoredOriginal {
     meaning: crate::threshold::represented::NumericalMeaning,
     limits: crate::threshold::represented::Limits,
     source_witness: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    graph_payloads: Option<crate::threshold::represented::graph::GraphPayloadPolicy>,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -119,7 +121,11 @@ fn witness(request: &GcadRequest, source_identity: &str) -> Result<String> {
         item(&mut hash, &r.limits())?;
     }
     if let Some(r) = request.preparametric_graph_input() {
-        item(&mut hash, &(1u32, r.limits(), r.source_witness()))?;
+        if let Some(policy) = r.payload_policy() {
+            item(&mut hash, &(2u32, r.limits(), r.source_witness(), policy))?;
+        } else {
+            item(&mut hash, &(1u32, r.limits(), r.source_witness()))?;
+        }
     }
     if let Some(r) = request.preparametric_family_input() {
         item(&mut hash, &("family-v1", r.limits(), r.source_witness()))?;
@@ -284,10 +290,11 @@ pub(super) fn write(root: &Path, request: &GcadRequest) -> Result<RequestRecord>
         input,
         represented,
         preparametric_graph: request.preparametric_graph_input().map(|r| StoredOriginal {
-            version: 1,
+            version: if r.payload_policy().is_some() { 2 } else { 1 },
             meaning: r.meaning(),
             limits: r.limits(),
             source_witness: r.source_witness().to_owned(),
+            graph_payloads: r.payload_policy(),
         }),
         preparametric_family: request
             .preparametric_family_input()
@@ -296,6 +303,7 @@ pub(super) fn write(root: &Path, request: &GcadRequest) -> Result<RequestRecord>
                 meaning: r.meaning(),
                 limits: r.limits(),
                 source_witness: r.source_witness().to_owned(),
+                graph_payloads: None,
             }),
         origin: request.domain().origin().into(),
         coordinates: request
@@ -396,12 +404,15 @@ pub(super) fn read(
         .ok_or_else(|| invalid("GCAD input symbol layout"))?;
     let input = stored.input.decode(&atoms, input_symbols)?;
     let graph = if let Some(r) = stored.preparametric_graph {
-        if r.version != 1 || !r.limits.is_within(conversion_cap) {
+        if !((r.version == 1 && r.graph_payloads.is_none())
+            || (r.version == 2 && r.graph_payloads.is_some()))
+            || !r.limits.is_within(conversion_cap)
+        {
             return Err(invalid("pre-parametric conversion version or caller resource cap").into());
         }
         let (original, observer) = original_graph.ok_or(Error::OriginalGraphRequired)?;
-        let rebuilt = crate::threshold::represented::graph::ExactRepresentedGraphInput::prepare(
-            original, r.meaning, r.limits, observer,
+        let rebuilt = crate::threshold::represented::graph::ExactRepresentedGraphInput::prepare_with_payloads(
+            original, r.meaning, r.limits, r.graph_payloads, observer,
         )
         .map_err(super::GcadError::from)?;
         if rebuilt.source_witness() != r.source_witness || rebuilt.exact().as_ref() != &input {
@@ -412,7 +423,7 @@ pub(super) fn read(
         None
     };
     let family = if let Some(r) = stored.preparametric_family {
-        if r.version != 1 || !r.limits.is_within(conversion_cap) {
+        if r.version != 1 || r.graph_payloads.is_some() || !r.limits.is_within(conversion_cap) {
             return Err(
                 invalid("pre-parametric family conversion version or caller resource cap").into(),
             );
@@ -607,7 +618,7 @@ mod graph_wire_tests {
             request.source_identity().unwrap(),
             crate::generation::source_identity(&input, &[], &[]).unwrap()
         );
-        for case in 0..3 {
+        for case in 0..5 {
             let (mut stored, mut atoms, symbols): (StoredRequest, _, _) =
                 codec::read(dir.path(), &saved.receipt().record, KIND).unwrap();
             let ordinary = serde_json::to_value(&stored).unwrap();
@@ -615,10 +626,13 @@ mod graph_wire_tests {
             assert!(ordinary.get("preparametric_family").is_none());
             assert!(ordinary.get("represented").is_none());
             stored.preparametric_graph = Some(StoredOriginal {
-                version: if case == 2 { 2 } else { 1 },
+                version: if case == 2 || case == 4 { 2 } else { 1 },
                 meaning: NumericalMeaning::RepresentedValues,
                 limits: Limits::default(),
                 source_witness: "not native authority".into(),
+                graph_payloads: (case >= 3).then_some(
+                    crate::threshold::represented::graph::GraphPayloadPolicy::PrimitiveFragmentsV1,
+                ),
             });
             if case == 1 {
                 stored.represented = Some(StoredRepresentation {
@@ -649,7 +663,7 @@ mod graph_wire_tests {
                 _ => assert!(result.is_err()),
             }
         }
-        for case in 0..4 {
+        for case in 0..5 {
             let (mut stored, mut atoms, symbols): (StoredRequest, _, _) =
                 codec::read(dir.path(), &saved.receipt().record, KIND).unwrap();
             let original = || StoredOriginal {
@@ -657,6 +671,7 @@ mod graph_wire_tests {
                 meaning: NumericalMeaning::RepresentedValues,
                 limits: Limits::default(),
                 source_witness: "not authority".into(),
+                graph_payloads: None,
             };
             stored.preparametric_family = Some(original());
             if case == 1 {
@@ -673,6 +688,11 @@ mod graph_wire_tests {
             }
             if case == 3 {
                 stored.preparametric_family.as_mut().unwrap().version = 2;
+            }
+            if case == 4 {
+                stored.preparametric_family.as_mut().unwrap().graph_payloads = Some(
+                    crate::threshold::represented::graph::GraphPayloadPolicy::PrimitiveFragmentsV1,
+                );
             }
             let record = codec::write(
                 dir.path(),
@@ -698,5 +718,41 @@ mod graph_wire_tests {
         assert!(serde_json::from_value::<StoredOriginal>(graph.clone()).is_ok());
         graph["unknown_source"] = serde_json::json!(true);
         assert!(serde_json::from_value::<StoredOriginal>(graph).is_err());
+    }
+    #[test]
+    fn graph_payload_wire_is_exclusive_and_legacy_original_metadata_is_unchanged() {
+        #[derive(Serialize, Deserialize)]
+        #[serde(deny_unknown_fields)]
+        struct LegacyOriginal {
+            version: u32,
+            meaning: crate::threshold::represented::NumericalMeaning,
+            limits: crate::threshold::represented::Limits,
+            source_witness: String,
+        }
+        let original = StoredOriginal {
+            version: 1,
+            meaning: crate::threshold::represented::NumericalMeaning::RepresentedValues,
+            limits: Default::default(),
+            source_witness: "original".into(),
+            graph_payloads: None,
+        };
+        let bytes = serde_json::to_vec(&original).unwrap();
+        let legacy: LegacyOriginal = serde_json::from_slice(&bytes).unwrap();
+        assert_eq!(bytes, serde_json::to_vec(&legacy).unwrap());
+        let policy = crate::threshold::represented::graph::GraphPayloadPolicy::PrimitiveFragmentsV1;
+        let new = StoredOriginal {
+            version: 2,
+            graph_payloads: Some(policy),
+            ..original
+        };
+        assert!(
+            serde_json::from_slice::<LegacyOriginal>(&serde_json::to_vec(&new).unwrap()).is_err()
+        );
+        assert!(
+            serde_json::from_str::<crate::threshold::represented::graph::GraphPayloadPolicy>(
+                r#"{"primitive_fragments_v1":{"ignored":true}}"#
+            )
+            .is_err()
+        );
     }
 }

@@ -3,6 +3,11 @@ use super::*;
 use represented::family::{ExactRepresentedFamilyInput, FamilyPoint};
 
 pub(super) fn admission(options: &PreparationOptions) -> Result<()> {
+    if options.graph_payloads.is_some() {
+        return Err(Error::Unsupported(
+            "graph payload policy requires an original graph input",
+        ));
+    }
     if options.represented.is_none() {
         return Err(Error::Unsupported(
             "family preparation requires explicit represented-value meaning and limits",

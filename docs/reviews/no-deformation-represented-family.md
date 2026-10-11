@@ -95,7 +95,11 @@ by ValentinHirschi, with `benruijl` requested as reviewer. Two new controls,
 five existing graph controls, and strict native leaf lint/format checks pass;
 this is not a full owner-workspace CI claim.
 
-FastSecDec's dependency remains `c81fa327`. The setter does not decide whether
+At this family milestone, FastSecDec's dependency remained `c81fa327`. The setter
+does not decide whether
 rounded aggregate numerators or their primitive fragments are authoritative
 for a later exact conversion. That policy needs its own explicit contract;
 this milestone neither changes graph semantics nor reconstructs lost rounding.
+The subsequent [graph-payload milestone](no-deformation-represented-graph-payloads.md)
+adopts the setter on that existing owner and supplies an explicit primitive
+interpretation, leaving the default exact-payload convention unchanged.

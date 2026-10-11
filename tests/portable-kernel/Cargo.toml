@@ -79,9 +79,9 @@ path = "../../crates/fastsecdec/tests/numerical_dual.rs"
 
 # Keep all incoming HEPKit types on the tested native owner, including transitive Git edges.
 [patch."https://github.com/alphal00p/gammaloop"]
-feynkit-graph = { git = "https://github.com/ValentinHirschi/gammaloop", rev = "c81fa32710316164a738cb14d274a39b53c4cd4a" }
-feynkit-kinematics = { git = "https://github.com/ValentinHirschi/gammaloop", rev = "c81fa32710316164a738cb14d274a39b53c4cd4a" }
-feynkit-model = { git = "https://github.com/ValentinHirschi/gammaloop", rev = "c81fa32710316164a738cb14d274a39b53c4cd4a" }
-idenso = { git = "https://github.com/ValentinHirschi/gammaloop", rev = "c81fa32710316164a738cb14d274a39b53c4cd4a" }
-linnet = { git = "https://github.com/ValentinHirschi/gammaloop", rev = "c81fa32710316164a738cb14d274a39b53c4cd4a" }
-spenso = { git = "https://github.com/ValentinHirschi/gammaloop", rev = "c81fa32710316164a738cb14d274a39b53c4cd4a" }
+feynkit-graph = { git = "https://github.com/ValentinHirschi/gammaloop", rev = "9f8b1e50016a58d04e712c34569ea936c44e179a" }
+feynkit-kinematics = { git = "https://github.com/ValentinHirschi/gammaloop", rev = "9f8b1e50016a58d04e712c34569ea936c44e179a" }
+feynkit-model = { git = "https://github.com/ValentinHirschi/gammaloop", rev = "9f8b1e50016a58d04e712c34569ea936c44e179a" }
+idenso = { git = "https://github.com/ValentinHirschi/gammaloop", rev = "9f8b1e50016a58d04e712c34569ea936c44e179a" }
+linnet = { git = "https://github.com/ValentinHirschi/gammaloop", rev = "9f8b1e50016a58d04e712c34569ea936c44e179a" }
+spenso = { git = "https://github.com/ValentinHirschi/gammaloop", rev = "9f8b1e50016a58d04e712c34569ea936c44e179a" }

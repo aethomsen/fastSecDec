@@ -20,6 +20,7 @@ pub(crate) struct PyThresholdSettings {
     solver: gcad::SolverOptions,
     transport_bytes: u64,
     represented: Option<(represented::NumericalMeaning, represented::Limits)>,
+    graph_payloads: Option<represented::graph::GraphPayloadPolicy>,
 }
 impl Default for PyThresholdSettings {
     fn default() -> Self {
@@ -28,6 +29,7 @@ impl Default for PyThresholdSettings {
             solver: Default::default(),
             transport_bytes: 1 << 30,
             represented: None,
+            graph_payloads: None,
         }
     }
 }
@@ -42,11 +44,16 @@ impl PyThresholdSettings {
     /// An already exact IntegralFamily also accepts an explicit represented
     /// scalar numerator. Original native owners and precision are retained,
     /// without guessing rationals or inferring uncertainty. Stored family basis
-    /// and assumptions, and graph numerator/projector payloads, must be exact;
-    /// this cannot recover numerical arithmetic performed before supplying them.
+    /// and assumptions must be exact; this cannot recover numerical arithmetic
+    /// performed before supplying them. Graph payloads remain exact unless
+    /// graph_payloads="primitive_fragments_v1" explicitly chooses conversion of
+    /// each stored local fragment before recomputing the native aggregate.
+    /// The original rounded aggregate is provenance only under that policy.
+    /// Float arguments of functions (including scalar f(0.1), index/momentum
+    /// labels and shorthand arguments) are currently refused.
     /// Omit numerical_meaning to retain the ordinary exact-input path.
     #[new]
-    #[pyo3(signature=(*, gcad_limits_json=None, solver_options_json=None, maximum_transport_bytes=1_073_741_824, numerical_meaning=None, represented_limits_json=None))]
+    #[pyo3(signature=(*, gcad_limits_json=None, solver_options_json=None, maximum_transport_bytes=1_073_741_824, numerical_meaning=None, represented_limits_json=None, graph_payloads=None))]
     fn new(
         py: Python<'_>,
         gcad_limits_json: Option<&str>,
@@ -54,6 +61,7 @@ impl PyThresholdSettings {
         maximum_transport_bytes: u64,
         numerical_meaning: Option<&str>,
         represented_limits_json: Option<&str>,
+        graph_payloads: Option<&str>,
     ) -> PyResult<Self> {
         if maximum_transport_bytes == 0 {
             return Err(pyo3::exceptions::PyValueError::new_err(
@@ -122,6 +130,17 @@ impl PyThresholdSettings {
                 ))
             }
         };
+        let graph_payloads = graph_payloads
+            .map(|value| {
+                if represented.is_none() {
+                    return Err(pyo3::exceptions::PyValueError::new_err(
+                        "graph_payloads requires numerical_meaning='represented_values'",
+                    ));
+                }
+                serde_json::from_value(serde_json::Value::String(value.to_owned()))
+                    .map_err(|e| error::native(py, "graph payload policy", e))
+            })
+            .transpose()?;
         Ok(Self {
             limits,
             solver: solver_options_json
@@ -131,10 +150,16 @@ impl PyThresholdSettings {
                 .unwrap_or_default(),
             transport_bytes: maximum_transport_bytes,
             represented,
+            graph_payloads,
         })
     }
     fn to_json(&self) -> PyResult<String> {
-        serde_json::to_string(&serde_json::json!({"gcad_limits":self.limits,"solver_options":self.solver,"maximum_transport_bytes":self.transport_bytes,"represented":self.represented}))
+        let mut value = serde_json::json!({"gcad_limits":self.limits,"solver_options":self.solver,"maximum_transport_bytes":self.transport_bytes,"represented":self.represented});
+        if let Some(policy) = self.graph_payloads {
+            value["graph_payloads"] = serde_json::to_value(policy)
+                .map_err(|e| pyo3::exceptions::PyValueError::new_err(e.to_string()))?;
+        }
+        serde_json::to_string(&value)
             .map_err(|e| pyo3::exceptions::PyValueError::new_err(e.to_string()))
     }
 }
@@ -177,6 +202,17 @@ impl PyIntegral {
         options.threshold.gcad_limits = settings.limits;
         options.threshold.solver = settings.solver;
         options.represented = settings.represented;
+        options.graph_payloads = settings.graph_payloads;
+        if options.graph_payloads.is_some()
+            && !matches!(
+                self.represented_point()?,
+                crate::input::RepresentedPoint::Graph(_)
+            )
+        {
+            return Err(pyo3::exceptions::PyValueError::new_err(
+                "graph_payloads requires an original graph input, not an IntegralFamily",
+            ));
+        }
         Ok(session::PyThresholdGenerationSession::new(
             self.clone(),
             options,

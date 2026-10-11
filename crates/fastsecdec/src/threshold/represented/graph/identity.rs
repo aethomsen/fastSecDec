@@ -9,7 +9,15 @@ fn item(hash: &mut Vec<u8>, value: &impl Serialize) -> Result<()> {
 }
 
 pub(super) fn witness(owner: &ExactRepresentedGraphInput) -> Result<String> {
-    let mut hash = b"fastsecdec-preparametric-represented-graph-v1\0".to_vec();
+    let mut hash = if owner.payload_policy.is_some() {
+        b"fastsecdec-preparametric-represented-graph-payload-v2\0".to_vec()
+    } else {
+        b"fastsecdec-preparametric-represented-graph-v1\0".to_vec()
+    };
+    if let Some(policy) = owner.payload_policy {
+        item(&mut hash, &policy)?;
+        item(&mut hash, owner.exact_diagram.as_ref())?;
+    }
     let point = &owner.original;
     // Existing native graph serialization retains model fingerprint, topology,
     // routes, cuts, fragments and all weights. No alternate graph DTO is built.

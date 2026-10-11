@@ -34,8 +34,15 @@ struct RepresentedConfiguration {
     version: u32,
     meaning: represented::NumericalMeaning,
     limits: represented::Limits,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    graph_payloads: Option<represented::graph::GraphPayloadPolicy>,
 }
 pub(super) fn write(root: &Path, options: &PreparationOptions) -> Result<RecordRef> {
+    if options.graph_payloads.is_some() && options.represented.is_none() {
+        return Err(Error::Association(
+            "graph payload policy requires represented values",
+        ));
+    }
     let mut symbols = vec![options.unit];
     let mut atoms = Atoms::default();
     for (s, q) in &options.fixed_fiber {
@@ -64,9 +71,14 @@ pub(super) fn write(root: &Path, options: &PreparationOptions) -> Result<RecordR
             represented: options
                 .represented
                 .map(|(meaning, limits)| RepresentedConfiguration {
-                    version: 1,
+                    version: if options.graph_payloads.is_some() {
+                        2
+                    } else {
+                        1
+                    },
                     meaning,
                     limits,
+                    graph_payloads: options.graph_payloads,
                 }),
         },
         atoms,
@@ -78,19 +90,20 @@ pub(super) fn read(root: &Path, reference: &RecordRef, maximum: u64) -> Result<P
         return Err(Error::Association("configuration transport limit"));
     }
     let (stored, atoms, symbols): (Stored, _, _) = codec::read(root, reference, KIND)?;
-    let representation = match stored.represented {
+    let (representation, graph_payloads) = match stored.represented {
         Some(value)
-            if value.version == 1
+            if ((value.version == 1 && value.graph_payloads.is_none())
+                || (value.version == 2 && value.graph_payloads.is_some()))
                 && value.meaning == represented::NumericalMeaning::RepresentedValues =>
         {
-            Some((value.meaning, value.limits))
+            (Some((value.meaning, value.limits)), value.graph_payloads)
         }
         Some(_) => {
             return Err(Error::Association(
                 "unsupported represented configuration version or meaning",
             ));
         }
-        None => None,
+        None => (None, None),
     };
     if symbols.len()
         != stored
@@ -117,6 +130,7 @@ pub(super) fn read(root: &Path, reference: &RecordRef, maximum: u64) -> Result<P
         unit: symbols[0],
         fixed_fiber,
         represented: representation,
+        graph_payloads,
         regularization: regularization::Limits {
             max_charts: stored.max_charts,
             max_degree: stored.max_degree,
@@ -350,5 +364,68 @@ mod tests {
             read(root.path(), &forged, u64::MAX),
             Err(Error::Association(_))
         ));
+    }
+    #[test]
+    fn graph_payload_configuration_requires_explicit_version_and_preserves_legacy_policy_bytes() {
+        #[derive(serde::Serialize, serde::Deserialize)]
+        #[serde(deny_unknown_fields)]
+        struct LegacyRepresentation {
+            version: u32,
+            meaning: represented::NumericalMeaning,
+            limits: represented::Limits,
+        }
+        let root = tempfile::tempdir().unwrap();
+        let mut options = PreparationOptions::new(symbolica::symbol!("payload_config::t"));
+        options.represented = Some((
+            represented::NumericalMeaning::RepresentedValues,
+            Default::default(),
+        ));
+        let old = write(root.path(), &options).unwrap();
+        let (mut stored, _, _): (Stored, _, _) = codec::read(root.path(), &old, KIND).unwrap();
+        let bytes = serde_json::to_vec(stored.represented.as_ref().unwrap()).unwrap();
+        let legacy: LegacyRepresentation = serde_json::from_slice(&bytes).unwrap();
+        assert_eq!(bytes, serde_json::to_vec(&legacy).unwrap());
+        assert!(
+            read(root.path(), &old, u64::MAX)
+                .unwrap()
+                .graph_payloads
+                .is_none()
+        );
+        options.graph_payloads = Some(represented::graph::GraphPayloadPolicy::PrimitiveFragmentsV1);
+        let new = write(root.path(), &options).unwrap();
+        let (actual, _, _): (Stored, _, _) = codec::read(root.path(), &new, KIND).unwrap();
+        assert!(
+            serde_json::from_value::<LegacyRepresentation>(
+                serde_json::to_value(actual.represented.as_ref().unwrap()).unwrap()
+            )
+            .is_err()
+        );
+        assert_eq!(
+            read(root.path(), &new, u64::MAX).unwrap().graph_payloads,
+            options.graph_payloads
+        );
+        for (version, policy) in [
+            (1, options.graph_payloads),
+            (2, None),
+            (3, options.graph_payloads),
+        ] {
+            let (_, atoms, symbols): (Stored, _, _) = codec::read(root.path(), &old, KIND).unwrap();
+            let rep = stored.represented.as_mut().unwrap();
+            rep.version = version;
+            rep.graph_payloads = policy;
+            let bad = codec::write(
+                root.path(),
+                "bad-payload-config",
+                KIND,
+                &stored,
+                atoms,
+                symbols,
+            )
+            .unwrap();
+            assert!(matches!(
+                read(root.path(), &bad, u64::MAX),
+                Err(Error::Association(_))
+            ));
+        }
     }
 }
