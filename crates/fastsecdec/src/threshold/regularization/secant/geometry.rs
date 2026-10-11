@@ -92,7 +92,11 @@ impl SecantGeometry {
             .with(image.clone())
     }
 }
-fn constant_bound(map: &CellMap, axis: usize, side: SectionSide) -> Result<Option<Rational>> {
+pub(super) fn constant_bound(
+    map: &CellMap,
+    axis: usize,
+    side: SectionSide,
+) -> Result<Option<Rational>> {
     let raw = map.decomposition().native_result();
     let algebra = Algebra::new(&raw.order).map_err(native)?;
     let bound = match side {

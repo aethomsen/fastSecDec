@@ -27,3 +27,5 @@ mod artifacts;
 mod brackets;
 mod precision;
 mod science;
+
+mod paired;

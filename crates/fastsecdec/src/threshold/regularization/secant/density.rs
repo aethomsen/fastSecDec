@@ -21,6 +21,38 @@ fn substitute(a: &Atom, from: &[Symbol], to: &[Atom]) -> Atom {
         Replacement::new(Pattern::Literal(Atom::var(*s)), Pattern::Literal(t.clone()))
     }))
 }
+// This fence inventories complete native expressions and declared roles; a
+// helper tag is not allowed to capture even an unused bound source symbol.
+pub(super) fn source_uses(request: &crate::threshold::gcad::GcadRequest, symbol: Symbol) -> bool {
+    request.input().regulator() == symbol
+        || request.input().parameters().contains(&symbol)
+        || request.domain().coordinates().contains(&symbol)
+        || request.aliases().iter().any(|a| a.symbol == symbol)
+        || request.kinematics().runtime_parameters.contains(&symbol)
+        || request.kinematics().exact_values.contains_key(&symbol)
+        || request
+            .domain()
+            .strict_positive()
+            .iter()
+            .chain(&request.kinematics().strict_positive)
+            .any(|a| a.contains_symbol(symbol))
+        || request
+            .input()
+            .terms()
+            .iter()
+            .chain(request.prepared_terms())
+            .any(|term| {
+                term.prefactor().contains_symbol(symbol)
+                    || term
+                        .monomial_powers()
+                        .iter()
+                        .any(|a| a.contains_symbol(symbol))
+                    || term.factors().iter().any(|f| {
+                        f.polynomial().contains_symbol(symbol)
+                            || f.exponent().contains_symbol(symbol)
+                    })
+            })
+}
 fn coefficient_bodies(
     a: &Atom,
     coordinates: &[Symbol],
@@ -68,7 +100,37 @@ pub(super) fn admit(
     if let Some(cancel) = &limits.cancellation {
         budget = budget.with_cancellation(cancel.clone());
     }
-    let geometry = geometry::admit(&owner, &coordinates, &limits, &mut budget)?;
+    let geometry = geometry::admit(&owner, &coordinates, &limits, &mut budget)?
+        .into_iter()
+        .map(ChartGeometry::Single)
+        .collect();
+    assemble(owner, coordinates, limits, affine_root, budget, geometry)
+}
+pub(super) fn admit_pair(
+    owner: Arc<VerifiedDecomposition>,
+    coordinates: Vec<Symbol>,
+    proposals: [regular::BracketProposal; 2],
+    limits: Limits,
+    affine_root: bool,
+) -> Result<NormalizedFamily> {
+    let mut budget = Budget::new(limits.geometry.clone());
+    if let Some(cancel) = &limits.cancellation {
+        budget = budget.with_cancellation(cancel.clone());
+    }
+    let geometry = paired::admit(&owner, &coordinates, proposals, &limits, &mut budget)?
+        .into_iter()
+        .map(ChartGeometry::Paired)
+        .collect();
+    assemble(owner, coordinates, limits, affine_root, budget, geometry)
+}
+fn assemble(
+    owner: Arc<VerifiedDecomposition>,
+    coordinates: Vec<Symbol>,
+    limits: Limits,
+    affine_root: bool,
+    budget: Budget,
+    geometry: Vec<ChartGeometry>,
+) -> Result<NormalizedFamily> {
     let request = owner.request();
     let eps = request.input().regulator();
     let n = coordinates.len();
@@ -95,32 +157,49 @@ pub(super) fn admit(
             return Err(invalid("numerator helper collides with source"));
         }
     }
+    if geometry[0].sections().len() == 2 && source_uses(request, numerator) {
+        return Err(invalid(
+            "numerator helper role collides with complete source",
+        ));
+    }
     let prepare = if affine_root {
         RootProgram::prepare_affine
     } else {
         RootProgram::prepare
     };
-    let helper = prepare(
-        geometry[0].section(),
-        OptimizationSettings::default().cores(1),
-    )?;
-    let tag = symbolica::symbol!("crate::secant_endpoint::root");
     let unit_atoms = coordinates
         .iter()
         .copied()
         .map(Atom::var)
         .collect::<Vec<_>>();
-    let coefficients = geometry[0]
-        .section()
-        .coefficients()
-        .iter()
-        .map(|a| substitute(a, &source_coordinates, &unit_atoms))
-        .collect::<Vec<_>>();
-    let root = helper
-        .call(tag, &coefficients)
-        .map_err(regular::Error::from)?;
+    let mut roots = Vec::new();
     let mut scope = Scope::default();
-    scope.insert(tag, helper).map_err(regular::Error::from)?;
+    for (role, section) in geometry[0].sections().iter().enumerate() {
+        let helper = prepare(section, OptimizationSettings::default().cores(1))?;
+        // Preserve the historical single-branch tag exactly. A pair has explicit
+        // stable lower/upper roles; matching polynomial coefficients never merge them.
+        let tag = if geometry[0].sections().len() == 1 {
+            symbolica::symbol!("crate::secant_endpoint::root")
+        } else if role == 0 {
+            symbolica::symbol!("crate::secant_endpoint::lower_root")
+        } else {
+            symbolica::symbol!("crate::secant_endpoint::upper_root")
+        };
+        if geometry[0].sections().len() == 2 && source_uses(request, tag) {
+            return Err(invalid("root helper role collides with complete source"));
+        }
+        let coefficients = section
+            .coefficients()
+            .iter()
+            .map(|a| substitute(a, &source_coordinates, &unit_atoms))
+            .collect::<Vec<_>>();
+        roots.push(
+            helper
+                .call(tag, &coefficients)
+                .map_err(regular::Error::from)?,
+        );
+        scope.insert(tag, helper).map_err(regular::Error::from)?;
+    }
     let algebra = Algebra::new(&owner.native_result().order).map_err(native)?;
     let constraints = owner
         .native_result()
@@ -172,22 +251,45 @@ pub(super) fn admit(
     let mut charts = Vec::new();
     for g in geometry {
         budget.check()?;
-        let unit = Atom::var(coordinates[n - 1]);
-        let image = if g.lower_cell() {
-            &root * (Atom::one() - &unit)
-        } else {
-            &root + (Atom::one() - &root) * &unit
-        };
-        let measure = if g.lower_cell() {
-            root.clone()
-        } else {
-            Atom::one() - &root
+        let (image, measure, magnitude, measure_regular, width_powers) = match &g {
+            ChartGeometry::Single(single) => {
+                let root = &roots[0];
+                let unit = Atom::var(coordinates[n - 1]);
+                let image = if single.lower_cell() {
+                    root * (Atom::one() - &unit)
+                } else {
+                    root + (Atom::one() - root) * &unit
+                };
+                let measure = if single.lower_cell() {
+                    root.clone()
+                } else {
+                    Atom::one() - root
+                };
+                let qe = single.atom(single.endpoint_secant(), root);
+                let qphi = single.pulled_secant(root, &image);
+                let width_residual = single.atom(single.width().residual(), root);
+                // Keep the historical symbolic product tree and powers below.
+                (
+                    image,
+                    measure,
+                    vec![width_residual.clone(), qphi, qe.clone()],
+                    width_residual / qe,
+                    single.width().powers().to_vec(),
+                )
+            }
+            ChartGeometry::Paired(pair) => {
+                let (image, measure, magnitude) = pair.normalized(&roots);
+                (
+                    image,
+                    measure.clone(),
+                    vec![magnitude],
+                    measure,
+                    vec![0; n - 1],
+                )
+            }
         };
         let mut mapped = unit_atoms.clone();
         mapped[n - 1] = image.clone();
-        let qe = g.atom(g.endpoint_secant(), &root);
-        let qphi = g.pulled_secant(&root, &image);
-        let width_residual = g.atom(g.width().residual(), &root);
         let cell = owner
             .cells()
             .nth(g.source().cell_index())
@@ -216,8 +318,8 @@ pub(super) fn admit(
                 powers[i] = a;
             }
             let mut ledger = Vec::new();
-            let mut regular = width_residual.clone() / &qe;
-            for (i, power) in g.width().powers().iter().enumerate() {
+            let mut regular = measure_regular.clone();
+            for (i, power) in width_powers.as_slice().iter().enumerate() {
                 powers[i] += &Atom::num(*power);
             }
             for (fi, factor) in term.factors().iter().enumerate() {
@@ -249,7 +351,7 @@ pub(super) fn admit(
                         "factor retained a physical or nonrational coefficient",
                     ));
                 }
-                let section_poly = g.section().polynomial();
+                let section_poly = g.sections()[0].polynomial();
                 let (ratio, remainder) = p.quot_rem(section_poly, false);
                 let scale = if remainder.is_zero() {
                     Rational::try_from(ratio.to_expression().as_view()).ok()
@@ -260,12 +362,19 @@ pub(super) fn admit(
                     // Original factor magnitude includes its entire nonzero
                     // scalar normalization, independent of projection sign.
                     let absolute = scale.abs();
-                    regular *= Atom::num(absolute).pow(&exponent)
-                        * width_residual.pow(&exponent)
-                        * qphi.pow(&exponent)
-                        / qe.pow(&exponent);
+                    regular *= match &g {
+                        ChartGeometry::Single(_) => {
+                            Atom::num(absolute).pow(&exponent)
+                                * magnitude[0].pow(&exponent)
+                                * magnitude[1].pow(&exponent)
+                                / magnitude[2].pow(&exponent)
+                        }
+                        ChartGeometry::Paired(_) => {
+                            Atom::num(absolute).pow(&exponent) * magnitude[0].pow(&exponent)
+                        }
+                    };
                     powers[n - 1] += &exponent;
-                    for (i, power) in g.width().powers().iter().enumerate() {
+                    for (i, power) in width_powers.as_slice().iter().enumerate() {
                         powers[i] += Atom::num(*power) * &exponent;
                     }
                     FactorKind::Section { scale }
@@ -348,10 +457,11 @@ pub(super) fn admit(
         charts,
         strip,
         witness,
-        root,
+        roots,
         scope,
         numerator,
         bodies,
         formals: source_coordinates,
+        limits,
     })
 }

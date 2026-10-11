@@ -1,5 +1,30 @@
 # Ecosystem reuse evidence
 
+## Two regular algebraic boundaries and exact local coefficients (2026-10-11)
+
+The [paired-family review](reviews/no-deformation-paired-algebraic-cells.md)
+records two generic-degree implicit roots, three native GCAD cells and four
+endpoint charts. Native verified geometry, polynomial quotient identities,
+function maps, symbolic derivatives/subtraction, evaluator codecs and numerical
+sessions supply the computation. Distinct selectors remain distinct callbacks.
+
+Native exact division reduces only required finite numerator faces after their
+ambient derivatives. An optional record-local rational identity can prove a
+Laurent coefficient zero using the issued root equations and nonzero factors.
+This bounded proof search is not a second CAS or a general saturation routine.
+Unknown expressions remain unchanged; claimed saved identities replay strictly.
+Arithmetic restoration does not recreate geometric proof authority.
+
+Independent science, native-reuse and memory review passes. The consuming
+checkout passes 29 algebraic kernel groups, the existing regular-family group,
+all 88 standalone portable host controls, and strict native/portable
+all-target Clippy. Complete complex covariance and
+independent scalar/derivative/regulator-dependent numerator references are
+checked. There is no new graph, parser, root solver, RNG or library executor;
+HEPKit/community receives no heavy implementation. Source owners are released
+before compilation, but measured aggregate residency and the general atlas
+remain open gates.
+
 ## Principal-power recursion and original physical transport (2026-10-11)
 
 The [recursion review](reviews/no-deformation-principal-power-recursion.md)

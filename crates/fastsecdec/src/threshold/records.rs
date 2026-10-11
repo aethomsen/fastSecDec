@@ -66,7 +66,20 @@ struct Stored {
     definitions: Vec<Definition>,
     profiles: Vec<generation::EndpointProfileRow>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    coefficient_zeros: Vec<StoredZero>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
     roots: Vec<(usize, Vec<u8>)>,
+}
+#[derive(Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+struct StoredZero {
+    order: i32,
+    variables: Vec<usize>,
+    atoms: Vec<usize>,
+    gap_power: u32,
+    branches: [String; 2],
+    inverse_units: Vec<(usize, u32)>,
+    digest: String,
 }
 #[derive(Clone, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -78,6 +91,8 @@ pub(crate) struct StagedVector {
     pub kind: VectorKind,
     #[serde(default, skip_serializing_if = "is_false")]
     pub algebraic: bool,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub coefficient_zeros: Vec<(i32, String)>,
 }
 pub(crate) struct LocalVector {
     pub roots: algebraic::Scope,
@@ -125,6 +140,18 @@ pub(crate) fn write(
         source.regulators()[0],
         maximum,
     )?;
+    let mut coefficient_zeros = Vec::new();
+    if let ContinuedSource::Algebraic(bound) = source {
+        for (order, value) in &mut coefficients {
+            if let Some(proof) =
+                crate::threshold::regularization::secant::zeros::prove(bound, chart, *order, value)
+                    .map_err(invalid)?
+            {
+                *value = AliasedAtom::from(Atom::zero());
+                coefficient_zeros.push(proof);
+            }
+        }
+    }
     let kind = if coefficients.is_empty() {
         VectorKind::ZeroInLayout {}
     } else if source.rational().is_some()
@@ -156,6 +183,26 @@ pub(crate) fn write(
         .coordinates()
         .iter()
         .map(|s| symbol_index(&mut symbols, *s))
+        .collect();
+    let zero_digests = coefficient_zeros
+        .iter()
+        .map(|p| (p.order, p.digest.clone()))
+        .collect();
+    let coefficient_zeros = coefficient_zeros
+        .into_iter()
+        .map(|p| StoredZero {
+            order: p.order,
+            variables: p
+                .variables
+                .into_iter()
+                .map(|s| symbol_index(&mut symbols, s))
+                .collect(),
+            atoms: p.atoms.iter().map(|a| atoms.push(a)).collect(),
+            gap_power: p.gap_power,
+            branches: p.branches,
+            inverse_units: p.inverse_units,
+            digest: p.digest,
+        })
         .collect();
     let coefficients = coefficients
         .iter()
@@ -204,6 +251,7 @@ pub(crate) fn write(
             kind,
             coefficients,
             definitions,
+            coefficient_zeros,
             roots,
             profiles: source
                 .profiles()
@@ -221,6 +269,7 @@ pub(crate) fn write(
         maximum,
         kind,
         algebraic,
+        coefficient_zeros: zero_digests,
     })
 }
 
@@ -246,7 +295,9 @@ pub(crate) fn read(
         },
     )?;
     if !record.algebraic
-        && (!stored.roots.is_empty()
+        && (!stored.coefficient_zeros.is_empty()
+            || !record.coefficient_zeros.is_empty()
+            || !stored.roots.is_empty()
             || stored
                 .definitions
                 .iter()
@@ -275,6 +326,53 @@ pub(crate) fn read(
             .collect::<Result<Vec<_>>>()?,
     )
     .map_err(invalid)?;
+    let zero_digests = stored
+        .coefficient_zeros
+        .iter()
+        .map(|p| (p.order, p.digest.clone()))
+        .collect::<Vec<_>>();
+    if zero_digests != record.coefficient_zeros
+        || zero_digests
+            .iter()
+            .map(|p| p.0)
+            .collect::<BTreeSet<_>>()
+            .len()
+            != zero_digests.len()
+    {
+        return Err(invalid("local coefficient-zero inventory"));
+    }
+    for p in stored.coefficient_zeros {
+        let proof = crate::threshold::regularization::secant::zeros::Receipt {
+            order: p.order,
+            variables: p
+                .variables
+                .into_iter()
+                .map(symbol)
+                .collect::<Result<Vec<_>>>()?,
+            atoms: p
+                .atoms
+                .into_iter()
+                .map(|i| atoms.take(i))
+                .collect::<Result<Vec<_>>>()?,
+            gap_power: p.gap_power,
+            branches: p.branches,
+            inverse_units: p.inverse_units,
+            digest: p.digest,
+        };
+        if !proof
+            .branches
+            .iter()
+            .all(|id| roots.owners().any(|(_, p)| p.semantic_identity() == id))
+            || crate::threshold::regularization::secant::zeros::validate(&proof)
+                .map_err(invalid)?
+                .as_ref()
+                != Some(&proof.digest)
+        {
+            return Err(invalid(
+                "local coefficient-zero identity/branch association",
+            ));
+        }
+    }
     let coordinates = stored
         .coordinates
         .into_iter()
@@ -318,6 +416,13 @@ pub(crate) fn read(
     }
     if stored.kind != (VectorKind::Stochastic {}) && !stored.definitions.is_empty() {
         return Err(invalid("nonstochastic helper definitions"));
+    }
+    if record.coefficient_zeros.iter().any(|(order, _)| {
+        coefficients
+            .get(order)
+            .is_none_or(|a| !a.get_root().is_zero() || !a.get_aliases().is_empty())
+    }) {
+        return Err(invalid("coefficient-zero output association"));
     }
     let mut functions = FunctionMap::new();
     for definition in stored.definitions {
@@ -429,6 +534,7 @@ pub(crate) fn write_exact(
         definitions: Vec::new(),
         profiles: Vec::new(),
         roots: Vec::new(),
+        coefficient_zeros: Vec::new(),
     };
     let record = codec::write(
         root,
@@ -445,5 +551,6 @@ pub(crate) fn write_exact(
         maximum,
         kind: VectorKind::Exact {},
         algebraic: false,
+        coefficient_zeros: Vec::new(),
     })
 }

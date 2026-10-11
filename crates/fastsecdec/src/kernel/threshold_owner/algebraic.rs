@@ -5,7 +5,7 @@ use crate::threshold::{
     continued::ContinuedSource,
     gcad::DomainOrigin,
     records::{StagedVector, VectorKind},
-    regularization::secant::{ContinuedFamily, FactorKind},
+    regularization::secant::{ChartGeometry, ContinuedFamily, FactorKind},
 };
 use symbolica::{
     atom::{AtomCore, AtomView, FunctionBuilder},
@@ -99,11 +99,39 @@ impl ThresholdMetadata {
                 id
             })
             .collect::<Vec<_>>();
+        let paired = certificate.roots().len() == 2;
+        let branch_symbols = if paired {
+            let pair = [
+                symbolica::symbol!("fastsecdec::threshold_pair::lower_formal"),
+                symbolica::symbol!("fastsecdec::threshold_pair::upper_formal"),
+            ];
+            if pair.iter().any(|s| symbols.contains(s)) {
+                return Err(invalid(
+                    "paired formal root collides with source/unit symbol",
+                ));
+            }
+            pair.into_iter()
+                .map(|s| {
+                    let id = m::NativeSymbolId(symbols.len());
+                    symbols.push(s);
+                    (s, id)
+                })
+                .collect::<Vec<_>>()
+        } else {
+            Vec::new()
+        };
         let mut renames = BTreeMap::new();
         for (i, s) in coordinates.iter().enumerate() {
             renames.insert(
                 *s,
                 Symbol::parse(format!("fastsecdec::threshold_semantic::unit_{i}"), "")
+                    .map_err(invalid)?,
+            );
+        }
+        for (role, (symbol, _)) in branch_symbols.iter().enumerate() {
+            renames.insert(
+                *symbol,
+                Symbol::parse(format!("fastsecdec::threshold_semantic::branch_{role}"), "")
                     .map_err(invalid)?,
             );
         }
@@ -200,7 +228,11 @@ impl ThresholdMetadata {
         )?;
         let problem = digest("threshold-native-problem-v1", request.problem())?;
         let coverage = digest(
-            "threshold-secant-complete-cell-inventory-v1",
+            if paired {
+                "threshold-paired-secant-complete-cell-inventory-v1"
+            } else {
+                "threshold-secant-complete-cell-inventory-v1"
+            },
             &(
                 raw.clone(),
                 certificate
@@ -252,9 +284,9 @@ impl ThresholdMetadata {
                 return Err(invalid("secant staged chart order"));
             }
             let g = chart.geometry();
-            let section = g.section();
+
             let raw_index = g.source().cell_index();
-            cells.push(m::Cell {
+            let native_cell = m::Cell {
                 id: m::CellId(raw_index),
                 patch: m::PatchId(0),
                 native: m::NativeCellLocator {
@@ -264,7 +296,14 @@ impl ThresholdMetadata {
                 },
                 coordinate_order: original.clone(),
                 coverage: coverage.clone(),
-            });
+            };
+            if let Some(existing) = cells.iter().find(|c: &&m::Cell| c.id == native_cell.id) {
+                if existing != &native_cell {
+                    return Err(invalid("repeated native cell has different association"));
+                }
+            } else {
+                cells.push(native_cell);
+            }
             let mut images = coordinates
                 .iter()
                 .take(coordinates.len() - 1)
@@ -274,7 +313,10 @@ impl ThresholdMetadata {
             let mut terms = Vec::new();
             for t in chart.terms() {
                 let factors=t.ledger().iter().map(|f|{
-                    let cert=match f.kind(){FactorKind::Section{scale}=>digest("threshold-secant-factor-v1",&serde_json::json!({"scale":scale.to_string(),"secant":g.secant().to_expression().to_canonical_string(),"endpoint_secant":g.endpoint_secant().to_expression().to_canonical_string(),"width_powers":g.width().powers(),"width_residual":g.width().residual().to_expression().to_canonical_string(),"width_certificate":g.width().certificate(),"segment_derivative":g.whole_segment().derivative_certificate()}))?,FactorKind::ClosedUnit{certificate}=>digest("threshold-secant-additional-unit-v1",certificate.as_ref())?,FactorKind::PolynomialNumerator=>digest("threshold-exact-polynomial-numerator-v1",&canonical(f.source(),&renames))?};
+                    let cert=match f.kind(){FactorKind::Section{scale}=>match g {
+                        ChartGeometry::Single(g)=>digest("threshold-secant-factor-v1",&serde_json::json!({"scale":scale.to_string(),"secant":g.secant().to_expression().to_canonical_string(),"endpoint_secant":g.endpoint_secant().to_expression().to_canonical_string(),"width_powers":g.width().powers(),"width_residual":g.width().residual().to_expression().to_canonical_string(),"width_certificate":g.width().certificate(),"segment_derivative":g.whole_segment().derivative_certificate()}))?,
+                        ChartGeometry::Paired(g)=>digest("threshold-paired-secant-factor-v1",&serde_json::json!({"scale":scale.to_string(),"second_secant":g.pair().second_secant().to_expression().to_canonical_string(),"unit":g.pair().unit_certificate(),"gap":g.pair().gap_certificate(),"widths":g.pair().width_certificates(),"part":format!("{:?}",g.part()),"sections":g.pair().sections().iter().map(|s|(s.bound(),s.derivative_certificate(),s.endpoint_certificates())).collect::<Vec<_>>()}))?,
+                    },FactorKind::ClosedUnit{certificate}=>digest("threshold-secant-additional-unit-v1",certificate.as_ref())?,FactorKind::PolynomialNumerator=>digest("threshold-exact-polynomial-numerator-v1",&canonical(f.source(),&renames))?};
                     Ok(m::NormalizedFactorV1{source_term:f.indices().0,source_factor:f.indices().1,source:push(&mut atoms,f.source().clone()),exponent:push(&mut atoms,f.exponent().clone()),certificate:cert})
                 }).collect::<Result<Vec<_>,KernelError>>()?;
                 terms.push(m::NormalizedTermV1 {
@@ -289,40 +331,56 @@ impl ThresholdMetadata {
                     factors,
                 });
             }
-            let equation = section.equation().replace_multiple(
-                original_symbols
-                    .iter()
-                    .zip(coordinates)
-                    .take(section.axis())
-                    .map(|(s, u)| {
-                        Replacement::new(
-                            Pattern::Literal(Atom::var(*s)),
-                            Pattern::Literal(Atom::var(*u)),
-                        )
-                    }),
-            );
-            let root = m::RootSection {
-                polynomial: push(&mut atoms, equation),
-                root_variable: original[section.axis()],
-                preceding_coordinates: units[..section.axis()].to_vec(),
-                domain: match section.bound().index_domain {
-                    symgcad::output::RootIndexDomain::Real => m::RootDomain::RealAscending,
-                    symgcad::output::RootIndexDomain::Positive => m::RootDomain::Positive,
-                    symgcad::output::RootIndexDomain::RealDescending => {
-                        m::RootDomain::RealDescending
-                    }
-                },
-                ordinal: section.bound().index,
-                branch_certificate: digest(
-                    "threshold-regular-section-association-v1",
-                    &(
-                        section.bound(),
-                        section.derivative_certificate(),
-                        section.endpoint_certificates(),
-                        &helpers,
-                    ),
-                )?,
-            };
+            let roots = g
+                .sections()
+                .iter()
+                .enumerate()
+                .map(|(role, section)| {
+                    let mut equation = section.equation().replace_multiple(
+                        original_symbols
+                            .iter()
+                            .zip(coordinates)
+                            .take(section.axis())
+                            .map(|(s, u)| {
+                                Replacement::new(
+                                    Pattern::Literal(Atom::var(*s)),
+                                    Pattern::Literal(Atom::var(*u)),
+                                )
+                            }),
+                    );
+                    let root_variable = if paired {
+                        equation = equation
+                            .replace(Atom::var(original_symbols[section.axis()]))
+                            .with(Atom::var(branch_symbols[role].0));
+                        branch_symbols[role].1
+                    } else {
+                        original[section.axis()]
+                    };
+                    let root = m::RootSection {
+                        polynomial: push(&mut atoms, equation),
+                        root_variable,
+                        preceding_coordinates: units[..section.axis()].to_vec(),
+                        domain: match section.bound().index_domain {
+                            symgcad::output::RootIndexDomain::Real => m::RootDomain::RealAscending,
+                            symgcad::output::RootIndexDomain::Positive => m::RootDomain::Positive,
+                            symgcad::output::RootIndexDomain::RealDescending => {
+                                m::RootDomain::RealDescending
+                            }
+                        },
+                        ordinal: section.bound().index,
+                        branch_certificate: digest(
+                            "threshold-regular-section-association-v1",
+                            &(
+                                section.bound(),
+                                section.derivative_certificate(),
+                                section.endpoint_certificates(),
+                                &helpers,
+                            ),
+                        )?,
+                    };
+                    Ok(root)
+                })
+                .collect::<Result<Vec<_>, KernelError>>()?;
             let endpoint = m::NormalizedEndpointV1 {
                 regulator,
                 terms,
@@ -331,8 +389,32 @@ impl ThresholdMetadata {
                 numerator_functions: functions.clone(),
                 root_helpers: helpers.clone(),
             };
-            let endpoint_certificate =
-                digest("threshold-normalized-secant-endpoint-v1", &endpoint)?;
+            let endpoint_certificate = if paired {
+                digest(
+                    "threshold-normalized-paired-secant-endpoint-v1",
+                    &(
+                        &endpoint,
+                        &staged[i].coefficient_zeros,
+                        bound
+                            .face_reductions()
+                            .iter()
+                            .filter(|r| r.chart == i)
+                            .map(|r| {
+                                (
+                                    r.definition,
+                                    r.role,
+                                    canonical(&r.body, &renames),
+                                    canonical(&r.equation, &renames),
+                                    canonical(&r.quotient, &renames),
+                                    canonical(&r.remainder, &renames),
+                                )
+                            })
+                            .collect::<Vec<_>>(),
+                    ),
+                )?
+            } else {
+                digest("threshold-normalized-secant-endpoint-v1", &endpoint)?
+            };
             charts.push(m::EndpointChart {
                 id: m::EndpointChartId(i),
                 origin: m::EndpointOrigin::Cell(m::CellId(raw_index)),
@@ -343,14 +425,14 @@ impl ThresholdMetadata {
                         coordinates: units.clone(),
                         images,
                         positive_measure: push(&mut atoms, chart.positive_measure().clone()),
-                        orientation: if g.lower_cell() {
+                        orientation: if g.reversed() {
                             m::Orientation::Reversed
                         } else {
                             m::Orientation::Forward
                         },
                         certificate: coverage.clone(),
                     },
-                    sections: vec![root],
+                    sections: roots,
                     endpoint,
                 },
                 endpoint_certificate,
@@ -397,9 +479,31 @@ impl ThresholdMetadata {
                 geometry.expressions = expressions.clone();
             }
         }
-        let semantic = serde_json::to_string(
-            &serde_json::json!({"projection_version":3,"recipe":"regular_secant_v1","source":source,"policy":policy,"native_values":digest("threshold-secant-canonical-values-v1",&values)?,"continued":bound.charts().iter().map(|a|canonical(a,&renames)).collect::<Vec<_>>(),"functions":functions,"helpers":semantic_helpers,"common_domain":common}),
-        )?;
+        let mut semantic_projection = serde_json::json!({"projection_version":if paired {4}else{3},"recipe":if paired {"regular_paired_secant_v1"}else{"regular_secant_v1"},"source":source,"policy":policy,"native_values":digest("threshold-secant-canonical-values-v1",&values)?,"continued":bound.charts().iter().map(|a|canonical(a,&renames)).collect::<Vec<_>>(),"functions":functions,"helpers":semantic_helpers,"common_domain":common});
+        if paired {
+            semantic_projection["coefficient_zeros"] = serde_json::json!(
+                staged
+                    .iter()
+                    .map(|s| &s.coefficient_zeros)
+                    .collect::<Vec<_>>()
+            );
+            semantic_projection["face_reductions"] = serde_json::json!(
+                bound
+                    .face_reductions()
+                    .iter()
+                    .map(|r| (
+                        r.chart,
+                        r.definition,
+                        r.role,
+                        canonical(&r.body, &renames),
+                        canonical(&r.equation, &renames),
+                        canonical(&r.quotient, &renames),
+                        canonical(&r.remainder, &renames)
+                    ))
+                    .collect::<Vec<_>>()
+            );
+        }
+        let semantic = serde_json::to_string(&semantic_projection)?;
         let manifest = m::LineageManifestV1 {
             version: 1,
             preparation: m::Preparation {

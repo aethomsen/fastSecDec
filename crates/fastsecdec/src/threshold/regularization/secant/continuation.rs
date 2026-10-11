@@ -11,6 +11,7 @@ pub struct ContinuedFamily<'a> {
     functions: FunctionMap,
     options: GenerationOptions,
     definitions: Vec<crate::threshold::continued::Definition>,
+    face_reductions: Vec<super::faces::FaceReduction>,
 }
 impl NormalizedFamily {
     pub fn continue_symbolically(
@@ -43,7 +44,7 @@ impl NormalizedFamily {
             charts.push(out.expression);
             profiles.push(out.endpoint_profiles);
         }
-        let expression: Atom = charts.iter().cloned().sum();
+
         let mut functions = FunctionMap::new();
         let mut definitions = Vec::new();
         for (index, body) in self.bodies.iter().enumerate() {
@@ -150,6 +151,8 @@ impl NormalizedFamily {
                 )
                 .map_err(native)?;
         }
+        let face_reductions = super::faces::reduce(self, &mut charts, &definitions)?;
+        let expression: Atom = charts.iter().cloned().sum();
         Ok(ContinuedFamily {
             certificate: self,
             charts,
@@ -158,10 +161,14 @@ impl NormalizedFamily {
             functions,
             options: options.clone(),
             definitions,
+            face_reductions,
         })
     }
 }
 impl ContinuedFamily<'_> {
+    pub(crate) fn face_reductions(&self) -> &[super::faces::FaceReduction] {
+        &self.face_reductions
+    }
     pub(crate) fn definitions(&self) -> &[crate::threshold::continued::Definition] {
         &self.definitions
     }

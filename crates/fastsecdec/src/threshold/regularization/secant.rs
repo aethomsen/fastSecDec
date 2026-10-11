@@ -3,8 +3,14 @@
 mod continuation;
 #[path = "secant/density.rs"]
 mod density;
+#[path = "secant/faces.rs"]
+mod faces;
 #[path = "secant/geometry.rs"]
 mod geometry;
+#[path = "secant/paired.rs"]
+mod paired;
+#[path = "secant/zeros.rs"]
+pub(crate) mod zeros;
 
 pub use super::ConvergenceStrip;
 use super::meromorphic;
@@ -15,6 +21,7 @@ use crate::{
 };
 pub use continuation::ContinuedFamily;
 pub use geometry::{SecantGeometry, WidthNormalForm};
+pub use paired::{PairedGeometry, PairedPart, SectionPair};
 use std::{collections::BTreeSet, ops::ControlFlow, sync::Arc};
 use symbolica::{
     atom::{Atom, AtomCore, Symbol},
@@ -138,14 +145,39 @@ impl NormalizedTerm {
         self.term
     }
 }
+/// Issued endpoint geometry; the paired variant retains both native branches.
+pub enum ChartGeometry {
+    Single(Arc<SecantGeometry>),
+    Paired(Arc<PairedGeometry>),
+}
+impl ChartGeometry {
+    pub fn source(&self) -> &Arc<CellMap> {
+        match self {
+            Self::Single(g) => g.source(),
+            Self::Paired(g) => g.source(),
+        }
+    }
+    pub fn sections(&self) -> &[Arc<regular::RegularSection>] {
+        match self {
+            Self::Single(g) => std::slice::from_ref(g.section()),
+            Self::Paired(g) => g.pair().sections(),
+        }
+    }
+    pub fn reversed(&self) -> bool {
+        match self {
+            Self::Single(g) => g.lower_cell(),
+            Self::Paired(g) => g.part().reversed(),
+        }
+    }
+}
 pub struct NormalizedChart {
-    geometry: Arc<SecantGeometry>,
+    geometry: ChartGeometry,
     image: Atom,
     measure: Atom,
     terms: Vec<NormalizedTerm>,
 }
 impl NormalizedChart {
-    pub fn geometry(&self) -> &Arc<SecantGeometry> {
+    pub fn geometry(&self) -> &ChartGeometry {
         &self.geometry
     }
     pub fn image(&self) -> &Atom {
@@ -165,11 +197,12 @@ pub struct NormalizedFamily {
     charts: Vec<NormalizedChart>,
     strip: ConvergenceStrip,
     witness: meromorphic::MeromorphicWitness,
-    root: Atom,
+    roots: Vec<Atom>,
     scope: regular::callback::Scope,
     numerator: Symbol,
     bodies: Vec<Atom>,
     formals: Vec<Symbol>,
+    limits: Limits,
 }
 impl NormalizedFamily {
     pub fn admit(
@@ -187,6 +220,25 @@ impl NormalizedFamily {
         limits: Limits,
     ) -> Result<Self> {
         density::admit(owner, coordinates, limits, true)
+    }
+    /// Sufficient complete three-cell issuer with two strictly interior,
+    /// separated regular branches. Supplied brackets are independently checked.
+    pub fn admit_pair(
+        owner: Arc<VerifiedDecomposition>,
+        coordinates: Vec<Symbol>,
+        proposals: [regular::BracketProposal; 2],
+        limits: Limits,
+    ) -> Result<Self> {
+        density::admit_pair(owner, coordinates, proposals, limits, false)
+    }
+    /// Same complete paired geometry, using the explicit static affine root recipe.
+    pub fn admit_pair_affine(
+        owner: Arc<VerifiedDecomposition>,
+        coordinates: Vec<Symbol>,
+        proposals: [regular::BracketProposal; 2],
+        limits: Limits,
+    ) -> Result<Self> {
+        density::admit_pair(owner, coordinates, proposals, limits, true)
     }
     pub fn owner(&self) -> &Arc<VerifiedDecomposition> {
         &self.owner
@@ -206,8 +258,12 @@ impl NormalizedFamily {
     pub fn witness(&self) -> &meromorphic::MeromorphicWitness {
         &self.witness
     }
+    /// The first (lower, for a pair) stable branch role. Use `roots` for all branches.
     pub fn root(&self) -> &Atom {
-        &self.root
+        &self.roots[0]
+    }
+    pub fn roots(&self) -> &[Atom] {
+        &self.roots
     }
     pub fn callback_scope(&self) -> &regular::callback::Scope {
         &self.scope
