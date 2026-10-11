@@ -2,6 +2,7 @@
 //! State/Atom codec; no expression strings or second source serializer.
 use super::*;
 mod regular;
+use super::regular::Route;
 use crate::generation::streaming::{
     RecordRef, StoredGenerationOptions,
     codec::{self, Atoms},
@@ -41,7 +42,12 @@ struct RepresentedConfiguration {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     graph_payloads: Option<represented::graph::GraphPayloadPolicy>,
 }
-pub(super) fn write(root: &Path, options: &PreparationOptions) -> Result<RecordRef> {
+pub(super) fn write(root: &Path, options: &PreparationOptions, route: Route) -> Result<RecordRef> {
+    if options.regular_family.is_some() != (route != Route::LegacyFiber) {
+        return Err(Error::Association(
+            "regular configuration/route association",
+        ));
+    }
     if options.graph_payloads.is_some() && options.represented.is_none() {
         return Err(Error::Association(
             "graph payload policy requires represented values",
@@ -56,7 +62,7 @@ pub(super) fn write(root: &Path, options: &PreparationOptions) -> Result<RecordR
     let regular_family = options
         .regular_family
         .as_ref()
-        .map(StoredRegular::new)
+        .map(|settings| StoredRegular::new(settings, route))
         .transpose()?;
     if let Some(settings) = &options.regular_family {
         symbols.extend(settings.coordinates.as_ref().expect("checked above"));
@@ -99,11 +105,21 @@ pub(super) fn write(root: &Path, options: &PreparationOptions) -> Result<RecordR
         symbols,
     )?)
 }
-pub(super) fn read(root: &Path, reference: &RecordRef, maximum: u64) -> Result<PreparationOptions> {
+pub(super) fn read(
+    root: &Path,
+    reference: &RecordRef,
+    maximum: u64,
+) -> Result<(PreparationOptions, Route)> {
     if reference.bytes > maximum {
         return Err(Error::Association("configuration transport limit"));
     }
     let (stored, atoms, symbols): (Stored, _, _) = codec::read(root, reference, KIND)?;
+    let route = stored
+        .regular_family
+        .as_ref()
+        .map(StoredRegular::route)
+        .transpose()?
+        .unwrap_or(Route::LegacyFiber);
     let (representation, graph_payloads) = match stored.represented {
         Some(value)
             if ((value.version == 1 && value.graph_payloads.is_none())
@@ -159,34 +175,51 @@ pub(super) fn read(root: &Path, reference: &RecordRef, maximum: u64) -> Result<P
             )
         })
         .transpose()?;
-    Ok(PreparationOptions {
-        threshold: Default::default(),
-        generation: stored.generation.into(),
-        precision: stored.precision,
-        compilation: stored.compilation,
-        unit: symbols[0],
-        regular_family,
-        fixed_fiber,
-        represented: representation,
-        graph_payloads,
-        regularization: regularization::Limits {
-            max_charts: stored.max_charts,
-            max_degree: stored.max_degree,
-            prefactors: regularization::meromorphic::Limits {
-                source_nodes: stored.source_nodes,
-                source_depth: stored.source_depth,
-                degree: stored.degree,
-                terms: stored.terms,
-                integer_power: stored.integer_power,
-                witness_candidates: stored.witness_candidates,
+    Ok((
+        PreparationOptions {
+            threshold: Default::default(),
+            generation: stored.generation.into(),
+            precision: stored.precision,
+            compilation: stored.compilation,
+            unit: symbols[0],
+            regular_family,
+            fixed_fiber,
+            represented: representation,
+            graph_payloads,
+            regularization: regularization::Limits {
+                max_charts: stored.max_charts,
+                max_degree: stored.max_degree,
+                prefactors: regularization::meromorphic::Limits {
+                    source_nodes: stored.source_nodes,
+                    source_depth: stored.source_depth,
+                    degree: stored.degree,
+                    terms: stored.terms,
+                    integer_power: stored.integer_power,
+                    witness_candidates: stored.witness_candidates,
+                },
             },
         },
-    })
+        route,
+    ))
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    fn write(root: &Path, options: &PreparationOptions) -> Result<RecordRef> {
+        super::write(
+            root,
+            options,
+            if options.regular_family.is_some() {
+                Route::FixedCube
+            } else {
+                Route::LegacyFiber
+            },
+        )
+    }
+    fn read(root: &Path, reference: &RecordRef, maximum: u64) -> Result<PreparationOptions> {
+        super::read(root, reference, maximum).map(|(options, _)| options)
+    }
     // Frozen pre-extension metadata. The exact path must still encode these
     // same fields in this order, without a version/policy upgrade.
     #[derive(serde::Serialize, serde::Deserialize)]
@@ -486,7 +519,7 @@ mod tests {
         let (stored, atoms, symbols): (Stored, _, _) =
             codec::read(root.path(), &reference, KIND).unwrap();
         for (key, value) in [
-            ("version", serde_json::json!(2)),
+            ("version", serde_json::json!(3)),
             ("coordinates", serde_json::json!(usize::MAX)),
         ] {
             let mut metadata = serde_json::to_value(&stored).unwrap();
@@ -510,3 +543,7 @@ mod tests {
         }
     }
 }
+
+#[cfg(test)]
+#[path = "configuration/uniform_tests.rs"]
+mod uniform_tests;

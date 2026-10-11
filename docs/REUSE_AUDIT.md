@@ -4314,3 +4314,27 @@ checks. The private diagnostic dependency is not adopted. The linked review
 preserves the cumulative-budget failure, incomplete downstream pivot run and
 remaining deeper/global resolution boundaries. No alternate CAS or new worker
 ownership is introduced.
+
+## Equivalent generator presentations
+
+The [component-discovery review](reviews/no-deformation-generator-presentations.md)
+records extraction of the existing center-presentation helper for annihilator
+and idempotent discovery. Native quotient normalization and exact two-way ideal
+membership certify every removal. Original sources, marks, histories and all
+product/coverage checks remain authoritative. Batch-local native membership
+reuse replaces repeated basis preparation; no new CAS or unbounded cache is
+introduced. Independent scientific and ecosystem review and the focused
+public-dependency tests pass. This local optimization does not complete the
+general resolution algorithm.
+
+## Automatic uniform-family preparation
+
+The [automatic-preparation review](reviews/no-deformation-automatic-parameter-preparation.md)
+records reuse of native topology views, exact endpoint-sign certificates,
+regular-family issuers and bounded proposal discovery. Typed proposal misses
+remain distinct from immutable failures. One shared native route controls new
+preparation and no-Solve recovery, retaining historical fixed configuration
+bytes. HEPKit graph input, composed evaluators, indexed records, QMC/covariance
+and OneLOop references remain with their existing owners. Independent review
+and focused native scientific/recovery tests pass without a dependency change.
+Frontend forwarding and serial point identity remain separate delivery gates.

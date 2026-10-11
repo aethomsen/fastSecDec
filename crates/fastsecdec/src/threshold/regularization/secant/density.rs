@@ -150,24 +150,8 @@ pub(super) fn admit_parameters(
     coordinates: Vec<Symbol>,
     limits: Limits,
 ) -> Result<NormalizedFamily> {
-    parameter_preflight(&owner)?;
-    let mut budget = Budget::new(limits.geometry.clone());
-    if let Some(cancel) = &limits.cancellation {
-        budget = budget.with_cancellation(cancel.clone());
-    }
-    let geometry = geometry::admit_uniform(&owner, &coordinates, &limits, &mut budget)
-        .map_err(|error| error.into_error(unsupported))?;
-    let chamber = ParameterChamber::prepare(geometry.iter().map(|g| g.source().clone()).collect())
-        .map_err(native)?;
-    assemble(
-        owner,
-        coordinates,
-        limits,
-        RootRecipe::ShiftedAffine,
-        budget,
-        geometry.into_iter().map(ChartGeometry::Single).collect(),
-        Some(chamber),
-    )
+    attempt_parameters(owner, coordinates, None, limits)
+        .map_err(|error| error.into_error(unsupported))
 }
 
 fn parameter_preflight(owner: &VerifiedDecomposition) -> Result<()> {
@@ -196,21 +180,46 @@ pub(super) fn admit_parameter_pair(
     proposals: [regular::BracketProposal; 2],
     limits: Limits,
 ) -> Result<NormalizedFamily> {
+    attempt_parameters(owner, coordinates, Some(proposals), limits)
+        .map_err(|error| error.into_error(unsupported))
+}
+
+pub(super) fn attempt_parameters(
+    owner: Arc<VerifiedDecomposition>,
+    coordinates: Vec<Symbol>,
+    proposals: Option<[regular::BracketProposal; 2]>,
+    limits: Limits,
+) -> ProposalResult<NormalizedFamily> {
     parameter_preflight(&owner)?;
     let mut budget = Budget::new(limits.geometry.clone());
     if let Some(cancel) = &limits.cancellation {
         budget = budget.with_cancellation(cancel.clone());
     }
-    let geometry = paired::admit_uniform(&owner, &coordinates, proposals, &limits, &mut budget)
-        .map_err(|error| error.into_error(unsupported))?;
-    // The middle native cell produces two endpoint charts. Chamber admission
-    // consumes each actual cell exactly once and checks the full source inventory.
-    let maps = geometry
-        .iter()
-        .map(|g| (g.source().cell_index(), g.source().clone()))
-        .collect::<std::collections::BTreeMap<_, _>>()
-        .into_values()
-        .collect();
+    let paired = proposals.is_some();
+    let geometry: Vec<_> = match proposals {
+        None => geometry::admit_uniform(&owner, &coordinates, &limits, &mut budget)?
+            .into_iter()
+            .map(ChartGeometry::Single)
+            .collect(),
+        Some(proposals) => {
+            paired::admit_uniform(&owner, &coordinates, proposals, &limits, &mut budget)?
+                .into_iter()
+                .map(ChartGeometry::Paired)
+                .collect()
+        }
+    };
+    // A paired middle cell has two charts. The same native chamber admission
+    // consumes every actual source cell exactly once, for either topology.
+    let maps = if paired {
+        geometry
+            .iter()
+            .map(|g| (g.source().cell_index(), g.source().clone()))
+            .collect::<std::collections::BTreeMap<_, _>>()
+            .into_values()
+            .collect()
+    } else {
+        geometry.iter().map(|g| g.source().clone()).collect()
+    };
     let chamber = ParameterChamber::prepare(maps).map_err(native)?;
     assemble(
         owner,
@@ -218,9 +227,10 @@ pub(super) fn admit_parameter_pair(
         limits,
         RootRecipe::ShiftedAffine,
         budget,
-        geometry.into_iter().map(ChartGeometry::Paired).collect(),
+        geometry,
         Some(chamber),
     )
+    .map_err(regular::ProposalError::Failure)
 }
 
 fn assemble(

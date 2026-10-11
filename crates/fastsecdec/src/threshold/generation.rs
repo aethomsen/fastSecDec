@@ -327,8 +327,8 @@ fn prepare_with<F: FnMut(&Progress) -> ControlFlow<()>>(
     };
     reporter.poll(0, None)?;
     let request = request(&options, &mut reporter)?;
-    regular::resolve(&mut options, &request)?;
-    let configuration = configuration::write(root, &options)?;
+    let route = regular::resolve(&mut options, &request)?;
+    let configuration = configuration::write(root, &options, route)?;
     reporter.configuration = Some(configuration.clone());
     let staged = gcad::staging::StagedRequest::write(root, request)?;
     reporter.receipts.request = Some(staged.receipt().clone());
@@ -547,7 +547,7 @@ fn recover<F: FnMut(&Progress) -> ControlFlow<()>>(
     let remaining = maximum_bytes
         .checked_sub(checkpoint.configuration.bytes)
         .ok_or(Error::Association("configuration transport limit"))?;
-    let mut options = configuration::read(root, &checkpoint.configuration, maximum_bytes)?;
+    let (mut options, route) = configuration::read(root, &checkpoint.configuration, maximum_bytes)?;
     admission(&options)?;
     let raw = &checkpoint.evidence;
     let request = &raw.request;
@@ -618,12 +618,7 @@ fn recover<F: FnMut(&Progress) -> ControlFlow<()>>(
         }
         options.represented = Some(policy);
     }
-    if staged.request().domain().coordinates().len() == 1 && options.regular_family.is_some() {
-        return Err(Error::Association(
-            "regular-family configuration on legacy rational request",
-        ));
-    }
-    regular::resolve(&mut options, staged.request())?;
+    regular::restore(&mut options, staged.request(), route)?;
     reporter.stage(Stage::Verify, 0, Some(raw.cells))?;
     let verified = staged.verify_evidence(root, raw, remaining)?;
     reporter.receipts.verification = Some(verified.observation);

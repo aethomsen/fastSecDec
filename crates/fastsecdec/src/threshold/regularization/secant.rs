@@ -380,6 +380,31 @@ pub(crate) fn single_source_shape(
     geometry::topology(owner, coordinates).map(drop)
 }
 
+/// Uniform source topology view only; no regular-section certificate is issued.
+pub(crate) fn uniform_single_source_shape(
+    owner: &Arc<VerifiedDecomposition>,
+    coordinates: &[Symbol],
+) -> Result<()> {
+    geometry::topology_uniform(owner, coordinates).map(drop)
+}
+
+pub(crate) fn uniform_paired_source(
+    owner: &Arc<VerifiedDecomposition>,
+    coordinates: &[Symbol],
+) -> Result<Arc<CellMap>> {
+    let [_, middle, _] = paired::topology_uniform(owner, coordinates)?;
+    Ok(middle)
+}
+
+pub(crate) fn attempt_parameter_affine_shifted(
+    owner: Arc<VerifiedDecomposition>,
+    coordinates: Vec<Symbol>,
+    proposals: Option<[regular::BracketProposal; 2]>,
+    limits: Limits,
+) -> ProposalResult<NormalizedFamily> {
+    density::attempt_parameters(owner, coordinates, proposals, limits)
+}
+
 /// V3 orchestration seam; candidate/immutable-failure categories stay shared.
 pub(crate) fn attempt_affine_shifted(
     owner: Arc<VerifiedDecomposition>,

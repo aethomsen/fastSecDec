@@ -205,6 +205,12 @@ pub(super) fn topology(
 ) -> Result<Vec<CellInterval>> {
     topology_with_parameters(owner, coordinates, false)
 }
+pub(super) fn topology_uniform(
+    owner: &Arc<VerifiedDecomposition>,
+    coordinates: &[Symbol],
+) -> Result<Vec<CellInterval>> {
+    topology_with_parameters(owner, coordinates, true)
+}
 fn topology_with_parameters(
     owner: &Arc<VerifiedDecomposition>,
     coordinates: &[Symbol],

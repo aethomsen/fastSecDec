@@ -59,7 +59,8 @@ fn automatic_regular_families_prepare_replay_compile() {
         assert_eq!(receipt.endpoint_charts, if paired { 4 } else { 2 });
         let resolved =
             configuration::read(directory.path(), &receipt.configuration, 16 * 1024 * 1024)
-                .unwrap();
+                .unwrap()
+                .0;
         let coordinates = resolved.regular_family.unwrap().coordinates.unwrap();
         assert_eq!(coordinates.len(), 2);
         assert_eq!(coordinates[1], resolved.unit);
@@ -240,7 +241,9 @@ fn regular_replay_child() {
     }
     let receipt: PreparationReceipt =
         serde_json::from_slice(&std::fs::read(root.join("receipt.json")).unwrap()).unwrap();
-    let stored = configuration::read(&root, &receipt.configuration, 32 * 1024 * 1024).unwrap();
+    let stored = configuration::read(&root, &receipt.configuration, 32 * 1024 * 1024)
+        .unwrap()
+        .0;
     let config = stored.regular_family.unwrap();
     assert_eq!(config.limits.unit_margin, Rational::from((1, 4)));
     assert_eq!(

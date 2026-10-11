@@ -207,7 +207,8 @@ fn graph_raw_checkpoint_replays_without_solve_and_refuses_policy_configuration_c
     let mut changed = options();
     changed.represented.as_mut().unwrap().1.converted_literals += 1;
     let foreign = PreparationCheckpoint {
-        configuration: configuration::write(root.path(), &changed).unwrap(),
+        configuration: configuration::write(root.path(), &changed, regular::Route::LegacyFiber)
+            .unwrap(),
         ..checkpoint.clone()
     };
     assert!(matches!(
@@ -227,7 +228,12 @@ fn graph_raw_checkpoint_replays_without_solve_and_refuses_policy_configuration_c
     payload_options.graph_payloads =
         Some(represented::graph::GraphPayloadPolicy::PrimitiveFragmentsV1);
     let payload_foreign = PreparationCheckpoint {
-        configuration: configuration::write(root.path(), &payload_options).unwrap(),
+        configuration: configuration::write(
+            root.path(),
+            &payload_options,
+            regular::Route::LegacyFiber,
+        )
+        .unwrap(),
         ..checkpoint.clone()
     };
     assert!(matches!(

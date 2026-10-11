@@ -32,7 +32,7 @@ impl Default for DiscoveryLimits {
         }
     }
 }
-/// Optional fixed-cube capability. Unit roles resolve after native input work;
+/// Optional regular-family capability (fixed cube or admitted uniform chamber). Unit roles resolve after native input work;
 /// the persisted preparation configuration always retains the resolved list.
 #[derive(Clone, Debug, Default)]
 pub struct RegularFamilyPreparation {
@@ -73,72 +73,8 @@ fn check_settings(settings: &RegularFamilyPreparation) -> Result<()> {
     Ok(())
 }
 
-/// Resolve only the newly enabled multidimensional path. Historical one-axis
-/// rational preparation has no regular-family configuration or new symbols.
-pub(super) fn resolve(options: &mut PreparationOptions, request: &gcad::GcadRequest) -> Result<()> {
-    let n = request.domain().coordinates().len();
-    if n == 1 {
-        options.regular_family = None;
-        return Ok(());
-    }
-    let settings = options.regular_family.as_mut().ok_or(Error::Unsupported(
-        "multidimensional threshold preparation requires the regular-family capability",
-    ))?;
-    check_settings(settings)?;
-    if n == 0
-        || !matches!(request.domain().origin(), DomainOrigin::NativeUnitCube)
-        || !request.kinematics().runtime_parameters.is_empty()
-        || !options.fixed_fiber.is_empty()
-    {
-        return Err(Error::Unsupported(
-            "automatic regular families require a fixed native cube with no runtime/fixed-fiber axes",
-        ));
-    }
-    let original = maps::coordinate_symbols(request);
-    let mut occupied = original.clone();
-    if occupied.contains(&options.unit) || !options.unit.is_exportable() {
-        return Err(invalid(
-            "regular unit collides with source roles or carries a native hook",
-        ));
-    }
-    if settings.coordinates.is_none() {
-        occupied.insert(options.unit);
-        let mut coordinates = Vec::with_capacity(n);
-        for axis in 0..n - 1 {
-            let mut issued = None;
-            for attempt in 0..1024usize {
-                let name = format!("{}_prefix_{axis}_{attempt}", options.unit.get_name());
-                let candidate =
-                    Symbol::parse(&name, "fastsecdec_regular_family").map_err(native)?;
-                if !candidate.is_exportable() {
-                    return Err(invalid(
-                        "regular coordinate carries an existing native hook",
-                    ));
-                }
-                if occupied.insert(candidate) {
-                    issued = Some(candidate);
-                    break;
-                }
-            }
-            coordinates.push(issued.ok_or_else(|| invalid("fresh regular coordinate allowance"))?);
-        }
-        coordinates.push(options.unit);
-        settings.coordinates = Some(coordinates);
-    }
-    let coordinates = settings.coordinates.as_ref().expect("resolved above");
-    if coordinates.len() != n
-        || coordinates.last() != Some(&options.unit)
-        || coordinates.iter().copied().collect::<BTreeSet<_>>().len() != n
-        || coordinates
-            .iter()
-            .any(|s| original.contains(s) || !s.is_exportable())
-    {
-        return Err(invalid(
-            "regular coordinates must be distinct fresh original-order roles",
-        ));
-    }
-    Ok(())
-}
+mod route;
+pub(super) use route::{Route, resolve, restore};
 
 struct Search<'a, F> {
     settings: &'a RegularFamilyPreparation,
@@ -203,23 +139,41 @@ pub(super) fn discover(
         .as_ref()
         .ok_or_else(|| invalid("unresolved unit roles"))?;
     let request = owner.request();
-    if owner
-        .native_result()
-        .order
+    let prefix = request.kinematics().runtime_parameters.len();
+    let raw_order = &owner.native_result().order;
+    let aliases = raw_order
         .iter()
         .map(|name| request.aliases().iter().find(|alias| &alias.name == name))
-        .zip(request.domain().coordinates())
-        .any(|(alias, symbol)| {
-            alias.is_none_or(|alias| {
-                alias.role != AliasRole::IntegrationCoordinate || alias.symbol != *symbol
-            })
-        })
-        || owner.native_result().order.len() != coordinates.len()
-    {
+        .collect::<Option<Vec<_>>>();
+    let expected = prefix
+        .checked_add(coordinates.len())
+        .ok_or_else(|| invalid("regular raw role count overflow"))?;
+    let valid = aliases.as_ref().is_some_and(|aliases| {
+        aliases.len() == expected
+            && aliases[..prefix]
+                .iter()
+                .all(|a| a.role == AliasRole::RuntimeParameter)
+            && aliases[..prefix]
+                .iter()
+                .map(|a| a.symbol)
+                .collect::<BTreeSet<_>>()
+                == request
+                    .kinematics()
+                    .runtime_parameters
+                    .iter()
+                    .copied()
+                    .collect()
+            && aliases[prefix..]
+                .iter()
+                .zip(request.domain().coordinates())
+                .all(|(a, s)| a.role == AliasRole::IntegrationCoordinate && a.symbol == *s)
+    });
+    if !valid {
         return Err(Error::Unsupported(
-            "regular-family metadata requires original integration-axis order",
+            "regular-family metadata requires a runtime prefix and original integration-axis order",
         ));
     }
+    let uniform = prefix != 0;
     let mut search = Search {
         settings,
         started: Instant::now(),
@@ -228,11 +182,16 @@ pub(super) fn discover(
     };
     search.check()?;
     if owner.cells().len() == 2 {
-        secant::single_source_shape(&owner, coordinates).map_err(Error::RegularFamily)?;
+        if uniform {
+            secant::uniform_single_source_shape(&owner, coordinates)
+        } else {
+            secant::single_source_shape(&owner, coordinates)
+        }
+        .map_err(Error::RegularFamily)?;
         let mut margin = settings.limits.unit_margin.clone();
         for _ in 0..=settings.discovery.max_margin_halvings {
             let limits = search.limits(margin.clone())?;
-            match secant::attempt_affine_shifted(owner.clone(), coordinates.clone(), None, limits) {
+            match attempt(uniform, owner.clone(), coordinates.clone(), None, limits) {
                 Ok(family) => {
                     search.accept(&family)?;
                     return Ok(family);
@@ -251,9 +210,14 @@ pub(super) fn discover(
             "regular-family route requires complete two- or three-cell topology",
         ));
     }
-    let middle = secant::paired_source(&owner, coordinates).map_err(Error::RegularFamily)?;
+    let middle = if uniform {
+        secant::uniform_paired_source(&owner, coordinates)
+    } else {
+        secant::paired_source(&owner, coordinates)
+    }
+    .map_err(Error::RegularFamily)?;
     let raw = owner.native_result();
-    let axis = coordinates.len() - 1;
+    let axis = middle.axes().len() - 1;
     let algebra = Algebra::new(&raw.order).map_err(native)?;
     let lower = middle.native_axes()[axis]
         .lower
@@ -340,7 +304,8 @@ pub(super) fn discover(
                     upper: candidates[i].1.clone(),
                     derivative_margin: margin.clone(),
                 });
-                match secant::attempt_affine_shifted(
+                match attempt(
+                    uniform,
                     owner.clone(),
                     coordinates.clone(),
                     Some(proposals),
@@ -360,4 +325,18 @@ pub(super) fn discover(
         }
     }
     Err(search.incomplete("paired cylinder candidates exhausted"))
+}
+
+fn attempt(
+    uniform: bool,
+    owner: Arc<gcad::VerifiedDecomposition>,
+    coordinates: Vec<Symbol>,
+    proposals: Option<[BracketProposal; 2]>,
+    limits: secant::Limits,
+) -> std::result::Result<NormalizedFamily, maps::regular::ProposalError<secant::Error>> {
+    if uniform {
+        secant::attempt_parameter_affine_shifted(owner, coordinates, proposals, limits)
+    } else {
+        secant::attempt_affine_shifted(owner, coordinates, proposals, limits)
+    }
 }

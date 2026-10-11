@@ -23,7 +23,7 @@ pub(super) struct StoredRegular {
     witness_candidates: usize,
 }
 impl StoredRegular {
-    pub(super) fn new(settings: &RegularFamilyPreparation) -> Result<Self> {
+    pub(super) fn new(settings: &RegularFamilyPreparation, route: Route) -> Result<Self> {
         let coordinates = settings
             .coordinates
             .as_ref()
@@ -31,7 +31,13 @@ impl StoredRegular {
         let g = &settings.limits.geometry;
         let d = settings.limits.density;
         Ok(Self {
-            version: 1,
+            version: match route {
+                Route::FixedCube => 1,
+                Route::Uniform => 2,
+                Route::LegacyFiber => {
+                    return Err(Error::Association("legacy route has regular configuration"));
+                }
+            },
             coordinates: coordinates.len(),
             discovery: settings.discovery.clone(),
             degree: g.max_degree,
@@ -49,12 +55,25 @@ impl StoredRegular {
         })
     }
     pub(super) fn coordinate_count(&self) -> Result<usize> {
-        if self.version != 1 || self.coordinates < 2 {
+        let valid = match self.version {
+            1 => self.coordinates >= 2,
+            2 => self.coordinates >= 1,
+            _ => false,
+        };
+        if !valid {
             return Err(Error::Association(
                 "unsupported regular-family configuration version/dimension",
             ));
         }
         Ok(self.coordinates)
+    }
+    pub(super) fn route(&self) -> Result<Route> {
+        self.coordinate_count()?;
+        Ok(if self.version == 1 {
+            Route::FixedCube
+        } else {
+            Route::Uniform
+        })
     }
     pub(super) fn restore(
         self,

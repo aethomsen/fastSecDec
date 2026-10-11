@@ -157,6 +157,10 @@ See the [compiled-template review](reviews/no-deformation-compiled-parameter-tem
 Explicit native paired-family admission also accepts the actual one-coordinate
 affine-projective massive bubble with a uniform parameter chamber; see the
 [projective-template review](reviews/no-deformation-projective-parameter-templates.md).
+Native `threshold::generation::prepare` now discovers these uniform cube and
+one-axis projective families from explicit runtime roles and strict chamber
+constraints, with versioned no-Solve recovery. See the
+[automatic-parameter review](reviews/no-deformation-automatic-parameter-preparation.md).
 Automatic CLI/HEPKit parameter-chamber preparation, more general projective
 sources, moving brackets and general root collisions remain separate gates. The
 existing native HEPKit owner forwards to the shared preparation factory;

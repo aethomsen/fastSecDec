@@ -111,7 +111,15 @@ impl PairedGeometry {
 #[path = "paired/topology.rs"]
 mod topology;
 
-/// Shared fixed-cube shape/neighbor admission; no endpoint proof is issued.
+/// Shared uniform shape/neighbor admission; no endpoint proof is issued.
+pub(super) fn topology_uniform(
+    owner: &Arc<VerifiedDecomposition>,
+    coordinates: &[Symbol],
+) -> Result<[Arc<CellMap>; 3]> {
+    topology::uniform(owner, coordinates)
+}
+
+/// Derive the complete fixed native-cube partition before trying a bracket.
 pub(super) fn topology(
     owner: &Arc<VerifiedDecomposition>,
     coordinates: &[Symbol],
