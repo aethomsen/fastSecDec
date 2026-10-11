@@ -162,7 +162,7 @@ pub(super) fn discover(
                     .runtime_parameters
                     .iter()
                     .copied()
-                    .collect()
+                    .collect::<BTreeSet<_>>()
             && aliases[prefix..]
                 .iter()
                 .zip(request.domain().coordinates())

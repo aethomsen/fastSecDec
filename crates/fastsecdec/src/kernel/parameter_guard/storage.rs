@@ -70,7 +70,7 @@ impl Stored {
                 .iter()
                 .copied()
                 .collect::<BTreeSet<_>>()
-                != (0..n).collect()
+                != (0..n).collect::<BTreeSet<_>>()
         {
             return Err(Error::Invalid("restored guard parameter layout"));
         }

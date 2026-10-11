@@ -31,15 +31,16 @@ bounds ensure causal deformation; they do not guarantee good convergence for
 every cap. Physical variance and accuracy evidence is recorded in the
 [Phase B ledger](../../docs/reviews/contour-phase-b-progress.md).
 
-The caller performs validation explicitly before creating the integration
+When validation is enabled, the caller performs it explicitly before creating the integration
 session: read `kernels.contour_validation_charts`, supply independent validation
 coordinates to `kernels.validate_contour_point(chart.chart_index, coordinates)`,
 and call `kernels.finish_contour_pilot()` after the requested points are checked.
 Each call also checks the chart's required subtraction faces and fixed-strength
 homotopy diagnostics. These observations never enter production statistics.
 An optional chart list finishes only that scope; excluded sectors stay locked.
-The default `always` policy checks production too, `pilot` removes production
-causal-checking costs after preflight, and `off` omits optional checks. A finite
+The default `off` policy omits optional causal checks. Explicit `always` checks
+production too, while `pilot` removes production causal-checking costs after
+preflight. Precision rescue and nonfinite handling remain enabled. A finite
 fixed-strength pilot is a diagnostic, not a global causal certificate. Settings,
 chart descriptors and reports are immutable native-backed Python views.
 

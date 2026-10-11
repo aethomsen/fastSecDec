@@ -30,7 +30,7 @@ pub(crate) struct ContourArgs {
     /// Dynamic construction: polynomial or sign_aware (default).
     #[arg(long, value_parser = settings::parse_construction)]
     contour_construction: Option<DynamicConstruction>,
-    /// Check every production point, a pilot only, or disable causal checks.
+    /// Optional causal checks: always, pilot, or off (default for new settings).
     #[arg(long, value_enum)]
     contour_validation: Option<ValidationArg>,
     /// Number of independently assigned pilot points per sector.
@@ -243,5 +243,17 @@ mod tests {
         assert_eq!(settings.deformation, ContourMode::Fixed { lambda: 0.2 });
         assert_eq!(settings.validation.policy, ContourValidation::Pilot);
         assert_eq!(settings.validation.pilot_points, 31);
+    }
+
+    #[test]
+    fn omitted_validation_keeps_new_settings_off_and_preserves_saved_policy() {
+        let args =
+            ParserProbe::try_parse_from(["test", "--contour", "fixed", "--lambda", "0.1"]).unwrap();
+        let mut settings = ContourSettings::default();
+        args.contour.apply(&mut settings).unwrap();
+        assert_eq!(settings.validation.policy, ContourValidation::Off);
+        settings.validation.policy = ContourValidation::Always;
+        args.contour.apply(&mut settings).unwrap();
+        assert_eq!(settings.validation.policy, ContourValidation::Always);
     }
 }

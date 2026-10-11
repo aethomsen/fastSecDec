@@ -574,3 +574,12 @@ large-weight evidence, including unsuccessful parameter choices and limitations.
 The existing `docs/contour-deformation.pdf` remains the report's maintained
 output; provide `docs/benchmark.pdf` as an entry point to the same report
 requested in this follow-up, compiled from the same Typst source.
+
+## Runtime validation default clarification (2026-10-11)
+
+The user supersedes the earlier `always` default: optional causal validation
+defaults to `off`, including the native, CLI/TOML and HEPKit interfaces.
+Explicit policies and saved settings are respected. The new benchmark table
+excludes causal validation from sampling and convergence timings; separate
+validation probes retain their own evidence. Precision rescue, root termination
+and nonfinite-value handling remain enabled.

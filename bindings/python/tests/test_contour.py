@@ -16,7 +16,9 @@ def test_contour_settings_are_native_and_reject_invalid_strengths():
     assert default.mode == "off" and default.lambda_value is None
     assert default.safety_fraction is default.lambda_cap is default.displacement_cap is None
     assert default.construction is None
-    assert default.validation == "always"
+    assert default.validation == "off"
+    assert sd.ContourSettings.fixed(0.01).validation == "off"
+    assert sd.ContourSettings.dynamical(0.8).validation == "off"
     fixed = sd.ContourSettings.fixed(0.01, validation="pilot", pilot_points=2)
     assert fixed.mode == "fixed" and fixed.lambda_value == 0.01
     assert sd.ContourSettings.from_json(fixed.to_json()).to_json() == fixed.to_json()
@@ -26,7 +28,8 @@ def test_contour_settings_are_native_and_reject_invalid_strengths():
     with pytest.raises(ValueError):
         sd.ContourSettings.fixed(0.1, validation="unknown")
     with pytest.raises(sd.FastSecDecError):
-        sd.ContourSettings.fixed(0.1, pilot_points=0)
+        sd.ContourSettings.fixed(0.1, validation="always", pilot_points=0)
+    assert sd.ContourSettings.fixed(0.1, pilot_points=0).validation == "off"
 
 
 @pytest.mark.parametrize("construction", ["polynomial", "sign_aware"])

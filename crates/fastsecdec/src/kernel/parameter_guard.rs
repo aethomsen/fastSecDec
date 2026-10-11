@@ -138,7 +138,7 @@ impl ExactParameterGuard {
                 .iter()
                 .copied()
                 .collect::<BTreeSet<_>>()
-                != (0..n).collect()
+                != (0..n).collect::<BTreeSet<_>>()
             || source
                 .public_parameters
                 .iter()

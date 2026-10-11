@@ -4684,3 +4684,14 @@ source numerators; no alternate CAS/AD or expansion of their bulk bodies is
 introduced. Independent source/math/reuse review, 30 numerator tests and strict
 workspace Clippy pass. Existing branch/face admission and serialization remain
 unchanged; the full physical endpoint atlas is still a separate acceptance gate.
+
+## HEPKit native feature-graph build (2026-10-11)
+
+The Python leaf build exposed ambiguous right-hand collections in eight native
+threshold set comparisons: HEPKit's serialization dependencies add an archived
+set `PartialEq` implementation. Explicit `BTreeSet` annotations retain the exact
+existing comparisons, including chamber coverage and parameter permutations.
+The locked native Python leaf build passes with no dependency patch or new
+representation. The causal-policy constructors remain thin native forwards;
+their new default and validation evidence are recorded in the
+[opt-in validation review](reviews/contour-validation-opt-in.md).

@@ -55,13 +55,13 @@ impl ParameterInputLayout {
             .flatten()
             .copied()
             .collect::<BTreeSet<_>>()
-            != (0..parameters.len()).collect()
+            != (0..parameters.len()).collect::<BTreeSet<_>>()
             || raw_to_unit
                 .iter()
                 .flatten()
                 .copied()
                 .collect::<BTreeSet<_>>()
-                != (0..units.len()).collect()
+                != (0..units.len()).collect::<BTreeSet<_>>()
         {
             return Err(GcadError::Invalid(
                 "incomplete parameter/integration input layout".into(),
@@ -125,7 +125,7 @@ impl ParameterChamber {
         }
         if maps.len() != owner.cells().len()
             || maps.iter().map(|m| m.cell_index).collect::<BTreeSet<_>>()
-                != (0..owner.cells().len()).collect()
+                != (0..owner.cells().len()).collect::<BTreeSet<_>>()
             || maps
                 .iter()
                 .any(|m| !Arc::ptr_eq(&m.owner, &owner) || m.unit_coordinates != layout.units)

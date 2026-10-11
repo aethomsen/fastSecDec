@@ -101,7 +101,7 @@ impl ThresholdMetadata {
                             .charts()
                             .iter()
                             .map(|c| c.geometry().source().cell_index())
-                            .collect()
+                            .collect::<std::collections::BTreeSet<_>>()
                     || chamber.integration_axes().len() != prepared_symbols.len()
                     || chamber.integration_axes().iter().zip(prepared_symbols).any(
                         |(axis, symbol)| chamber.layout().raw_symbols().get(*axis) != Some(symbol),

@@ -271,3 +271,12 @@ or replacing symbolic endpoint treatment with numerical-dual jets. Record the
 chosen strategy and measure both generation cost and any resulting increase in
 precision rescues and integration time. Expensive finite endpoint coefficients
 shared by both strategies still require compact symbolic preparation.
+
+The subsequent user instruction makes optional runtime causal validation
+**disabled by default** in native settings, CLI/TOML and HEPKit constructors.
+Explicit `always` and `pilot` policies remain available. Preserve explicitly
+saved policies when loading existing artifacts or settings. All sampling and
+convergence metrics in the new benchmark table use explicit validation `off`;
+separate validation probes are not part of those timings. The reported checked
+wall cost includes ordinary stability checks and precision rescue, but excludes
+optional causal validation. Essential solver and nonfinite handling remain on.

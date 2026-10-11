@@ -72,8 +72,9 @@ for refinement, recovery, seed partitioning and measured memory bounds.
 The `contour_deformation` branch implements the
 [Phase B plan](CONTOUR_DEFORMATION_PLAN.md). Fixed-strength contour generation
 is opt-in with `generate --contour`; use `integrate --contour fixed --lambda 0.1`
-to bind its strength. `--contour-validation always` is the default; `pilot` checks
-preflight only, and `off` disables optional causal checks. Fixed-strength checks
+to bind its strength. `--contour-validation off` is the default; opt into `pilot`
+for preflight checks or `always` for preflight and production checks. Stability
+checks and precision rescue remain active with causal validation off. Fixed-strength checks
 are sampled safeguards, not a global certificate. The
 [small threshold controls](examples/contour/README.md) exercise both ordinary
 and serial execution. Dynamic production deformation and the remaining multiloop

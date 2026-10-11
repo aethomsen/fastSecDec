@@ -55,7 +55,7 @@ pub(crate) struct PyContourSettings {
 impl PyContourSettings {
     /// Mathematical deformation and optional checking policy are separate native settings.
     #[new]
-    #[pyo3(signature=(*, mode="off", lambda_value=None, safety_fraction=None, lambda_cap=None, displacement_cap=None, construction=None, validation="always", pilot_points=256))]
+    #[pyo3(signature=(*, mode="off", lambda_value=None, safety_fraction=None, lambda_cap=None, displacement_cap=None, construction=None, validation="off", pilot_points=256))]
     #[allow(clippy::too_many_arguments)]
     fn new(
         py: Python<'_>,
@@ -110,7 +110,7 @@ impl PyContourSettings {
         Ok(Self { inner })
     }
     #[staticmethod]
-    #[pyo3(signature=(lambda_value, *, validation="always", pilot_points=256))]
+    #[pyo3(signature=(lambda_value, *, validation="off", pilot_points=256))]
     fn fixed(
         py: Python<'_>,
         lambda_value: f64,
@@ -133,7 +133,7 @@ impl PyContourSettings {
     /// Validation may be 'always', 'pilot', or 'off'; a finite pilot is not a
     /// global floating-point certificate. This does not generate or integrate.
     #[staticmethod]
-    #[pyo3(signature=(safety_fraction, *, lambda_cap=1.0, displacement_cap=1.0, construction="sign_aware", validation="always", pilot_points=256))]
+    #[pyo3(signature=(safety_fraction, *, lambda_cap=1.0, displacement_cap=1.0, construction="sign_aware", validation="off", pilot_points=256))]
     #[allow(clippy::too_many_arguments)]
     fn dynamical(
         py: Python<'_>,

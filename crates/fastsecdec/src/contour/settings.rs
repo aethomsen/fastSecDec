@@ -105,9 +105,9 @@ impl ContourMode {
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum ContourValidation {
-    #[default]
     Always,
     Pilot,
+    #[default]
     Off,
 }
 
@@ -120,7 +120,7 @@ pub struct ContourValidationOptions {
 impl Default for ContourValidationOptions {
     fn default() -> Self {
         Self {
-            policy: ContourValidation::Always,
+            policy: ContourValidation::Off,
             pilot_points: 256,
         }
     }
@@ -173,6 +173,37 @@ impl ContourSettings {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn causal_validation_is_opt_in_and_explicit_policies_survive_restore() {
+        assert_eq!(ContourValidation::default(), ContourValidation::Off);
+        for value in [
+            serde_json::json!({}),
+            serde_json::json!({"deformation":{"mode":"fixed", "lambda":0.1}}),
+            serde_json::json!({"deformation":{"mode":"dynamical", "safety_fraction":0.8}, "validation":{}}),
+        ] {
+            let settings: ContourSettings = serde_json::from_value(value).unwrap();
+            assert_eq!(settings.validation.policy, ContourValidation::Off);
+            settings.validate().unwrap();
+        }
+        for policy in [ContourValidation::Always, ContourValidation::Pilot] {
+            let settings = ContourSettings {
+                deformation: ContourMode::Fixed { lambda: 0.1 },
+                validation: ContourValidationOptions {
+                    policy,
+                    pilot_points: 2,
+                },
+            };
+            let restored: ContourSettings =
+                serde_json::from_str(&serde_json::to_string(&settings).unwrap()).unwrap();
+            assert_eq!(restored, settings);
+            let mut invalid = restored;
+            invalid.validation.pilot_points = 0;
+            assert!(invalid.validate().is_err());
+        }
+        let mut off = ContourSettings::default();
+        off.validation.pilot_points = 0;
+        off.validate().unwrap();
+    }
     #[test]
     fn dynamic_defaults_preserve_math_recipe_and_reject_invalid_limits() {
         let mode: ContourMode = serde_json::from_value(serde_json::json!({
