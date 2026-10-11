@@ -154,7 +154,10 @@ and detached-publication APIs. They save v18 programs with a shared exact
 parameter guard and an explicit v4 archive capability. Rebinding admitted
 points retains compiled IR; rejected points leave the previous binding intact.
 See the [compiled-template review](reviews/no-deformation-compiled-parameter-templates.md).
-Automatic CLI/HEPKit parameter-chamber preparation, projective parameterized
+Explicit native paired-family admission also accepts the actual one-coordinate
+affine-projective massive bubble with a uniform parameter chamber; see the
+[projective-template review](reviews/no-deformation-projective-parameter-templates.md).
+Automatic CLI/HEPKit parameter-chamber preparation, more general projective
 sources, moving brackets and general root collisions remain separate gates. The
 existing native HEPKit owner forwards to the shared preparation factory;
 the new sextic's recorded end-to-end execution gate is the CLI. See also the

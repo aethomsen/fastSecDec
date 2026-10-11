@@ -150,6 +150,27 @@ pub(super) fn admit_parameters(
     coordinates: Vec<Symbol>,
     limits: Limits,
 ) -> Result<NormalizedFamily> {
+    parameter_preflight(&owner)?;
+    let mut budget = Budget::new(limits.geometry.clone());
+    if let Some(cancel) = &limits.cancellation {
+        budget = budget.with_cancellation(cancel.clone());
+    }
+    let geometry = geometry::admit_uniform(&owner, &coordinates, &limits, &mut budget)
+        .map_err(|error| error.into_error(unsupported))?;
+    let chamber = ParameterChamber::prepare(geometry.iter().map(|g| g.source().clone()).collect())
+        .map_err(native)?;
+    assemble(
+        owner,
+        coordinates,
+        limits,
+        RootRecipe::ShiftedAffine,
+        budget,
+        geometry.into_iter().map(ChartGeometry::Single).collect(),
+        Some(chamber),
+    )
+}
+
+fn parameter_preflight(owner: &VerifiedDecomposition) -> Result<()> {
     if owner.request().kinematics().runtime_parameters.is_empty() {
         return Err(unsupported(
             "uniform parameter family requires a nonempty chamber",
@@ -166,21 +187,38 @@ pub(super) fn admit_parameters(
             "uniform parameter family requires parameter-independent exponents",
         ));
     }
+    Ok(())
+}
+
+pub(super) fn admit_parameter_pair(
+    owner: Arc<VerifiedDecomposition>,
+    coordinates: Vec<Symbol>,
+    proposals: [regular::BracketProposal; 2],
+    limits: Limits,
+) -> Result<NormalizedFamily> {
+    parameter_preflight(&owner)?;
     let mut budget = Budget::new(limits.geometry.clone());
     if let Some(cancel) = &limits.cancellation {
         budget = budget.with_cancellation(cancel.clone());
     }
-    let geometry = geometry::admit_uniform(&owner, &coordinates, &limits, &mut budget)
+    let geometry = paired::admit_uniform(&owner, &coordinates, proposals, &limits, &mut budget)
         .map_err(|error| error.into_error(unsupported))?;
-    let chamber = ParameterChamber::prepare(geometry.iter().map(|g| g.source().clone()).collect())
-        .map_err(native)?;
+    // The middle native cell produces two endpoint charts. Chamber admission
+    // consumes each actual cell exactly once and checks the full source inventory.
+    let maps = geometry
+        .iter()
+        .map(|g| (g.source().cell_index(), g.source().clone()))
+        .collect::<std::collections::BTreeMap<_, _>>()
+        .into_values()
+        .collect();
+    let chamber = ParameterChamber::prepare(maps).map_err(native)?;
     assemble(
         owner,
         coordinates,
         limits,
         RootRecipe::ShiftedAffine,
         budget,
-        geometry.into_iter().map(ChartGeometry::Single).collect(),
+        geometry.into_iter().map(ChartGeometry::Paired).collect(),
         Some(chamber),
     )
 }

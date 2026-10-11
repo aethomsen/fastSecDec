@@ -4273,6 +4273,30 @@ physical projective sources, general chamber atlases and the general resolver
 remain explicitly unfinished. No dependency revision or replacement algebra
 implementation is introduced.
 
+## Projective parameter templates
+
+The [physical-bubble follow-up](reviews/no-deformation-projective-parameter-templates.md)
+consumes the actual HEPKit graph and native projective preparation, retaining
+original, prepared, raw and sampled coordinate roles. A small shared projection
+reads existing map images and measure; it calculates neither a new gauge nor a
+new Jacobian. The existing paired family, symbolic subtraction, composed root
+programs, exact guard, native codecs, detached compilation and QMC/covariance
+owners supply the rest of the path. Native OneLOop provides independent pole
+and finite-part references.
+
+Independent scientific/source and ecosystem reviews pass. All 17 source pairs
+and 113 evidence pins are verified, and five historical artifact fixtures retain
+their results and metadata through the new default-native reader. No dependency
+change, alternate CAS, graph type, root finder or numerical loop is introduced.
+The consuming schema test exposed an over-restrictive single-patch reader rule;
+the independently reviewed correction retains valid multi-patch metadata and
+rejects inconsistent prepared dimensions. Scientific/transport groups, all
+thirteen schema tests, fixed projective OneLOop regression, strict workspace
+lint, formatting and diff checks pass.
+Automatic parameterized frontends and recovery, general projective maps and
+singular algebraic resolution remain separate gates. The mixed Gamma-prefactor
+tracking issue remains explicitly open outside this milestone.
+
 ## Recursive contact ascent
 
 The [recursive contact follow-up](reviews/no-deformation-contact-dispatch.md#recursive-child-inventories-and-ancestor-ascent)

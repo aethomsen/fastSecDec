@@ -703,6 +703,26 @@ fn uniform_runtime_capability_has_strict_roles_and_explicit_optional_wire() {
     manifest
         .validate_structure(&tables(), Limits::default())
         .unwrap();
+    assert_eq!(manifest.patches.len(), 2);
+    for patch in 0..manifest.patches.len() {
+        let mut bad = manifest.clone();
+        if let MapDescriptor::RationalV1 { geometry } = &mut bad.patches[patch].map {
+            geometry.coordinates.pop();
+        }
+        assert_eq!(
+            bad.validate_structure(&tables(), Limits::default())
+                .unwrap_err(),
+            Error::Invalid("uniform runtime prepared-patch dimension".into()),
+        );
+    }
+    let mut empty = manifest.clone();
+    empty.patches.clear();
+    assert_eq!(
+        empty
+            .validate_structure(&tables(), Limits::default())
+            .unwrap_err(),
+        Error::Invalid("uniform runtime prepared-patch dimension".into()),
+    );
     for mutation in 0..6 {
         let mut bad = manifest.clone();
         let chamber = bad.preparation.runtime_chamber.as_mut().unwrap();

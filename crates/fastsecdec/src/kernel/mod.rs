@@ -831,3 +831,6 @@ mod algebraic_tests;
 
 #[cfg(all(test, feature = "threshold-decomposition"))]
 mod parameter_template_tests;
+
+#[cfg(all(test, feature = "threshold-decomposition"))]
+mod projective_parameter_tests;

@@ -53,6 +53,11 @@ pub(crate) fn discover(
     if family.roots.len() != 2 || coefficient.get_root().is_zero() {
         return Ok(None);
     }
+    if !family.runtime_parameters().is_empty() {
+        return Err(unsupported(
+            "parameterized paired coefficient-zero identities require a separate role/unit receipt",
+        ));
+    }
     let mut budget = regular::Budget::new(family.limits.geometry.clone());
     if let Some(cancel) = &family.limits.cancellation {
         budget = budget.with_cancellation(cancel.clone());

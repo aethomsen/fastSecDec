@@ -413,13 +413,14 @@ mod build {
                 .collect::<Vec<_>>();
             let unit = m::NativeSymbolId(symbols.len());
             symbols.push(bound.coordinates()[0]);
+            let source_patch = super::source_patch::SourcePatch::from_request(request)?;
             let mut atoms = Vec::new();
             let mut push = |a: Atom| {
                 let i = atoms.len();
                 atoms.push(a);
                 m::NativeAtomId(i)
             };
-            let one = push(Atom::one());
+            let one = push(source_patch.positive_measure.clone());
             let mut bindings = Vec::new();
             for (id, s) in physical_ids.iter().zip(&physical) {
                 let value = request
@@ -433,16 +434,7 @@ mod build {
                     value: push(Atom::num(value.clone())),
                 });
             }
-            let patch_images = if let Some(p) = request.projective_preparation() {
-                p.images().to_vec()
-            } else {
-                request
-                    .domain()
-                    .coordinates()
-                    .iter()
-                    .map(|s| Atom::var(*s))
-                    .collect()
-            };
+            let patch_images = source_patch.images;
             let patch_ids = patch_images
                 .iter()
                 .cloned()
@@ -782,3 +774,6 @@ impl ThresholdMetadata {
         })
     }
 }
+
+#[cfg(feature = "threshold-decomposition")]
+mod source_patch;

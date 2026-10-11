@@ -249,6 +249,17 @@ impl NormalizedFamily {
     ) -> Result<Self> {
         density::admit_parameters(owner, coordinates, limits)
     }
+    /// Uniform static parameter chamber with two separated regular branches.
+    /// Accepts native cubes and an actual one-axis affine projective source;
+    /// the latter retains its original delta-gauge preparation and measure.
+    pub fn admit_parameter_pair_affine_shifted(
+        owner: Arc<VerifiedDecomposition>,
+        coordinates: Vec<Symbol>,
+        proposals: [regular::BracketProposal; 2],
+        limits: Limits,
+    ) -> Result<Self> {
+        density::admit_parameter_pair(owner, coordinates, proposals, limits)
+    }
     pub fn admit(
         owner: Arc<VerifiedDecomposition>,
         coordinates: Vec<Symbol>,
@@ -385,6 +396,9 @@ pub(crate) fn attempt_affine_shifted(
     )
 }
 
+#[cfg(test)]
+#[path = "secant/parameter_paired_tests.rs"]
+mod parameter_paired_tests;
 #[cfg(test)]
 #[path = "secant/parameter_tests.rs"]
 mod parameter_tests;

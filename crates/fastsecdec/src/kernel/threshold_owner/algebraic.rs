@@ -60,7 +60,17 @@ impl ThresholdMetadata {
     ) -> Result<Self, KernelError> {
         let certificate = bound.certificate();
         let request = certificate.owner().request();
-        if !matches!(request.domain().origin(), DomainOrigin::NativeUnitCube)
+        let admitted_origin = match request.domain().origin() {
+            DomainOrigin::NativeUnitCube => true,
+            DomainOrigin::AffineProjective { .. } => {
+                request.input().parameters().len() == 2
+                    && request.domain().coordinates().len() == 1
+                    && certificate.parameter_chamber().is_some()
+                    && certificate.roots().len() == 2
+            }
+            _ => false,
+        };
+        if !admitted_origin
             || staged.len() != certificate.charts().len()
             || staged.iter().any(|r| !r.algebraic)
         {
@@ -76,6 +86,8 @@ impl ThresholdMetadata {
             return Err(invalid("runtime family lacks its uniform chamber owner"));
         }
         let original_symbols = request.input().parameters();
+        let source_patch = super::source_patch::SourcePatch::from_request(request)?;
+        let prepared_symbols = source_patch.coordinates;
         let coordinates = certificate.coordinates();
         let integration_axes =
             if let Some(chamber) = chamber {
@@ -90,8 +102,8 @@ impl ThresholdMetadata {
                             .iter()
                             .map(|c| c.geometry().source().cell_index())
                             .collect()
-                    || chamber.integration_axes().len() != original_symbols.len()
-                    || chamber.integration_axes().iter().zip(original_symbols).any(
+                    || chamber.integration_axes().len() != prepared_symbols.len()
+                    || chamber.integration_axes().iter().zip(prepared_symbols).any(
                         |(axis, symbol)| chamber.layout().raw_symbols().get(*axis) != Some(symbol),
                     )
                 {
@@ -101,12 +113,22 @@ impl ThresholdMetadata {
                 }
                 chamber.integration_axes().to_vec()
             } else {
-                (0..original_symbols.len()).collect::<Vec<_>>()
+                (0..prepared_symbols.len()).collect::<Vec<_>>()
             };
         let mut symbols = original_symbols.to_vec();
         let original = (0..symbols.len())
             .map(m::NativeSymbolId)
             .collect::<Vec<_>>();
+        let prepared = prepared_symbols
+            .iter()
+            .map(|s| {
+                original_symbols
+                    .iter()
+                    .position(|p| p == s)
+                    .map(m::NativeSymbolId)
+                    .ok_or_else(|| invalid("prepared coordinate is not an original native role"))
+            })
+            .collect::<Result<Vec<_>, KernelError>>()?;
         let regulator = m::NativeSymbolId(symbols.len());
         symbols.push(request.input().regulator());
         let physical = request
@@ -283,7 +305,7 @@ impl ThresholdMetadata {
             ),
         )?;
         let mut atoms = Vec::new();
-        let one = push(&mut atoms, Atom::one());
+        let one = push(&mut atoms, source_patch.positive_measure.clone());
         let bindings = physical_ids
             .iter()
             .zip(&physical)
@@ -295,9 +317,10 @@ impl ThresholdMetadata {
                 ),
             })
             .collect::<Vec<_>>();
-        let patch_images = original_symbols
+        let patch_images = source_patch
+            .images
             .iter()
-            .map(|s| push(&mut atoms, Atom::var(*s)))
+            .map(|a| push(&mut atoms, a.clone()))
             .collect::<Vec<_>>();
         // Temporary digest is replaced after the complete native table is built.
         let placeholder = m::Digest("0".repeat(64));
@@ -307,7 +330,7 @@ impl ThresholdMetadata {
             map: m::MapDescriptor::RationalV1 {
                 geometry: m::MapGeometry {
                     expressions: placeholder.clone(),
-                    coordinates: original.clone(),
+                    coordinates: prepared.clone(),
                     images: patch_images,
                     positive_measure: one,
                     orientation: m::Orientation::Forward,
@@ -334,7 +357,7 @@ impl ThresholdMetadata {
                     raw_evidence: raw.clone(),
                     raw_cell_index: raw_index,
                 },
-                coordinate_order: original.clone(),
+                coordinate_order: prepared.clone(),
                 coverage: coverage.clone(),
             };
             if let Some(existing) = cells.iter().find(|c: &&m::Cell| c.id == native_cell.id) {
@@ -377,7 +400,7 @@ impl ThresholdMetadata {
                 .enumerate()
                 .map(|(role, section)| {
                     let mut equation = section.equation().replace_multiple(
-                        original_symbols
+                        prepared_symbols
                             .iter()
                             .zip(coordinates)
                             .zip(&integration_axes)
@@ -395,11 +418,11 @@ impl ThresholdMetadata {
                         .ok_or_else(|| invalid("selected root is not an integration axis"))?;
                     let root_variable = if paired {
                         equation = equation
-                            .replace(Atom::var(original_symbols[integration_axis]))
+                            .replace(Atom::var(prepared_symbols[integration_axis]))
                             .with(Atom::var(branch_symbols[role].0));
                         branch_symbols[role].1
                     } else {
-                        original[integration_axis]
+                        prepared[integration_axis]
                     };
                     let root = m::RootSection {
                         polynomial: push(&mut atoms, equation),
@@ -591,6 +614,19 @@ impl ThresholdMetadata {
                 },
             )
             .transpose()?;
+        if matches!(
+            request.domain().origin(),
+            DomainOrigin::AffineProjective { .. }
+        ) {
+            semantic_projection["projection_version"] = serde_json::json!(6);
+            semantic_projection["source_patch"] = serde_json::json!({
+                "origin": format!("{:?}", request.domain().origin()),
+                "coordinates": prepared_symbols.iter().map(|s| canonical(&Atom::var(*s), &renames)).collect::<Vec<_>>(),
+                "images": source_patch.images.iter().map(|a| canonical(a, &renames)).collect::<Vec<_>>(),
+                "measure": canonical(&source_patch.positive_measure, &renames),
+                "domain": request.domain().strict_positive().iter().map(|a| canonical(a, &renames)).collect::<Vec<_>>(),
+            });
+        }
         let semantic = serde_json::to_string(&semantic_projection)?;
         let manifest = m::LineageManifestV1 {
             version: 1,

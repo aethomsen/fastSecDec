@@ -2,7 +2,6 @@
 //! This sufficient issuer needs strict interior brackets and a closed positive
 //! second secant; it does not resolve collisions or infer brackets from samples.
 use super::*;
-use crate::threshold::gcad::{AliasRole, DomainOrigin};
 use regular::{BracketProposal, Budget, RegularSection, SectionSide};
 use symbolica::id::{Pattern, Replacement};
 use symgcad::{
@@ -92,7 +91,11 @@ impl PairedGeometry {
                 } else if i == n - 1 {
                     image.clone()
                 } else {
-                    Atom::var(self.source.unit_coordinates()[i])
+                    let axis = &self.source.axes()[i];
+                    Atom::var(
+                        axis.unit_index()
+                            .map_or(axis.symbol(), |slot| self.source.unit_coordinates()[slot]),
+                    )
                 };
                 Replacement::new(
                     Pattern::Literal(Atom::var(Symbol::parse(name, "symgcad").unwrap())),
@@ -105,85 +108,15 @@ impl PairedGeometry {
     }
 }
 
-/// Shared shape/neighbor admission; no section or endpoint certificate is issued.
+#[path = "paired/topology.rs"]
+mod topology;
+
+/// Shared fixed-cube shape/neighbor admission; no endpoint proof is issued.
 pub(super) fn topology(
     owner: &Arc<VerifiedDecomposition>,
     coordinates: &[Symbol],
 ) -> Result<[Arc<CellMap>; 3]> {
-    let request = owner.request();
-    let n = request.domain().coordinates().len();
-    if n == 0
-        || !matches!(request.domain().origin(), DomainOrigin::NativeUnitCube)
-        || !request.kinematics().runtime_parameters.is_empty()
-    {
-        return Err(unsupported("paired issuer requires a fixed native cube"));
-    }
-    if owner.cells().len() != 3 {
-        return Err(unsupported(
-            "paired issuer requires the complete three-cell inventory",
-        ));
-    }
-    let mut outer_lower = None;
-    let mut middle = None;
-    let mut outer_upper = None;
-    for cell in owner.cells() {
-        let map =
-            CellMap::new(owner.clone(), cell.index(), coordinates.to_vec()).map_err(native)?;
-        if map
-            .axes()
-            .iter()
-            .any(|a| a.role() != AliasRole::IntegrationCoordinate)
-        {
-            return Err(unsupported("paired nonintegration axis"));
-        }
-        // Metadata currently binds section axes in original input order. Decline
-        // other valid lifting orders until that projection is generalized.
-        if !map.axes().iter().map(|axis| axis.symbol()).eq(request
-            .domain()
-            .coordinates()
-            .iter()
-            .copied())
-        {
-            return Err(unsupported(
-                "paired issuer requires original integration-axis order",
-            ));
-        }
-        for axis in 0..n - 1 {
-            if geometry::constant_bound(&map, axis, SectionSide::Lower)? != Some(Rational::zero())
-                || geometry::constant_bound(&map, axis, SectionSide::Upper)?
-                    != Some(Rational::one())
-            {
-                return Err(unsupported(
-                    "paired prefix requires additional coverage partition",
-                ));
-            }
-        }
-        let l = geometry::constant_bound(&map, n - 1, SectionSide::Lower)?;
-        let u = geometry::constant_bound(&map, n - 1, SectionSide::Upper)?;
-        let slot = match (l, u) {
-            (Some(l), None) if l.is_zero() => &mut outer_lower,
-            (None, None) => &mut middle,
-            (None, Some(u)) if u == Rational::one() => &mut outer_upper,
-            _ => {
-                return Err(unsupported(
-                    "paired cells do not form a unit-interval partition",
-                ));
-            }
-        };
-        if slot.replace(map).is_some() {
-            return Err(invalid("duplicate paired cell role"));
-        }
-    }
-    let lower = outer_lower.ok_or_else(|| invalid("missing lower outer cell"))?;
-    let middle = middle.ok_or_else(|| invalid("missing middle cell"))?;
-    let upper = outer_upper.ok_or_else(|| invalid("missing upper outer cell"))?;
-    let axis = n - 1;
-    if lower.native_axes()[axis].upper != middle.native_axes()[axis].lower
-        || middle.native_axes()[axis].upper != upper.native_axes()[axis].lower
-    {
-        return Err(invalid("paired neighbor branch association"));
-    }
-    Ok([lower, middle, upper])
+    topology::fixed(owner, coordinates)
 }
 
 pub(super) fn admit(
@@ -193,8 +126,30 @@ pub(super) fn admit(
     limits: &Limits,
     budget: &mut Budget,
 ) -> ProposalResult<Vec<Arc<PairedGeometry>>> {
+    check_proposals(&proposals, limits, budget)?;
+    let maps = topology(owner, coordinates)?;
+    admit_maps(owner, maps, proposals, limits, budget)
+}
+
+pub(super) fn admit_uniform(
+    owner: &Arc<VerifiedDecomposition>,
+    coordinates: &[Symbol],
+    proposals: [BracketProposal; 2],
+    limits: &Limits,
+    budget: &mut Budget,
+) -> ProposalResult<Vec<Arc<PairedGeometry>>> {
+    check_proposals(&proposals, limits, budget)?;
+    let maps = topology::uniform(owner, coordinates)?;
+    admit_maps(owner, maps, proposals, limits, budget)
+}
+
+fn check_proposals(
+    proposals: &[BracketProposal; 2],
+    limits: &Limits,
+    budget: &Budget,
+) -> ProposalResult<()> {
     budget.check()?;
-    let [lo, hi] = &proposals;
+    let [lo, hi] = proposals;
     if lo.lower <= Rational::zero()
         || lo.upper >= hi.lower
         || hi.upper >= Rational::one()
@@ -205,8 +160,18 @@ pub(super) fn admit(
         )
         .into());
     }
-    let [lower, middle, upper] = topology(owner, coordinates)?;
-    let n = owner.request().domain().coordinates().len();
+    Ok(())
+}
+
+fn admit_maps(
+    owner: &Arc<VerifiedDecomposition>,
+    maps: [Arc<CellMap>; 3],
+    proposals: [BracketProposal; 2],
+    limits: &Limits,
+    budget: &mut Budget,
+) -> ProposalResult<Vec<Arc<PairedGeometry>>> {
+    let [lower, middle, upper] = maps;
+    let n = middle.axes().len();
     let axis = n - 1;
     let [lo, hi] = proposals;
     let a = RegularSection::prepare_proposal(middle.clone(), axis, SectionSide::Lower, lo, budget)?;

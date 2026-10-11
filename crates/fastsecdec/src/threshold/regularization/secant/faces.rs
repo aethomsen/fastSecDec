@@ -110,11 +110,13 @@ pub(super) fn reduce(
                         std::slice::from_ref(&variable),
                         &field,
                     );
-                    // A nonconstant leading unit requires retained localization
-                    // authority. The first issuer supports exact constant units.
+                    // Strictly lower degree has native quotient zero without
+                    // dividing by a leading coefficient. Other reductions need
+                    // an exact constant unit or a separate localization receipt.
                     if divisor.is_zero()
                         || divisor.degree(0) == 0
-                        || Rational::try_from(divisor.lcoeff().as_view()).is_err()
+                        || (body.degree(0) >= divisor.degree(0)
+                            && Rational::try_from(divisor.lcoeff().as_view()).is_err())
                     {
                         return Err(unsupported(
                             "finite-face divisor requires a nonzero rational leading coefficient",

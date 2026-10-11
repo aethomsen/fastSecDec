@@ -242,6 +242,19 @@ impl LineageManifestV1 {
             .map_or(&[][..], |c| c.runtime_parameters.as_slice());
         if let Some(chamber) = &p.runtime_chamber {
             let n = chamber.runtime_parameters.len();
+            // Runtime raw axes describe the prepared patch, which may have
+            // fewer coordinates than the original projective source.
+            let prepared_dimension = chamber.integration_axes.len();
+            // This reader validates transport, not the current single-patch
+            // issuer's sufficient class. Preserve compatible source charts.
+            if self.patches.is_empty()
+                || self
+                    .patches
+                    .iter()
+                    .any(|patch| patch.map.geometry().coordinates.len() != prepared_dimension)
+            {
+                return Err(invalid("uniform runtime prepared-patch dimension"));
+            }
             if chamber.version != 1 || n == 0 {
                 return Err(invalid("uniform parameter chamber capability"));
             }
@@ -258,10 +271,11 @@ impl LineageManifestV1 {
                     .copied()
                     .collect::<BTreeSet<_>>()
                     != (0..n).collect()
-                || chamber.integration_axes.len() != p.original_coordinates.len()
-                || chamber.integration_axes.iter().copied().ne(n..n
-                    .checked_add(p.original_coordinates.len())
-                    .ok_or(Error::Limit)?)
+                || chamber
+                    .integration_axes
+                    .iter()
+                    .copied()
+                    .ne(n..n.checked_add(prepared_dimension).ok_or(Error::Limit)?)
                 || runtime.iter().any(|s| {
                     *s == p.regulator
                         || p.original_coordinates.contains(s)
