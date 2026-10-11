@@ -152,6 +152,7 @@ This checkpoint measures ordinary generation/integration. It does not repeat
 the separate normal/serial correctness matrix. Native GCAD preparation and
 compiler workers are caller-owned. Generic singular endpoints, broader
 parameter families and the physical ggHH comparison remain delivery work.
-The following double-box study tests parametric geometry and fully rational
-invariants and masses. Neither completed within its bounded trial;
-verified GCAD completion and a complete regularized artifact are separate gates.
+The following double-box study records initial parametric and exact-point
+trials, followed by a successful extended rational-point solve and independent
+verification. The exact-point geometry is now complete; a fully regularized
+physical integration artifact remains unfinished.

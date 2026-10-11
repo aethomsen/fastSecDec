@@ -48,3 +48,13 @@ finite causal seams or all other original cells. It supplies exact local
 coefficients, never a truncated bulk approximation. No missing contribution
 is treated as zero. Scope, source identities and compact measurements are in
 `docs/no-contour-gghh-verified.json`; source and reuse reviews accompany it.
+
+*Implementation checkpoint, `cf3cc91`.* Complete replacement chart covers,
+original-factor obligations on every relative face, and compact symbolic
+numerator derivatives through moving algebraic roots are now implemented.
+Their maintained scientific checks, independent reviews and strict consuming
+workspace checks pass. Exact boundary zeros remain pending refinement;
+finite numerator coefficients are not a valuation or a complete density
+certificate. The physical preparation measurements above are unchanged.
+Full endpoint closure, common analytic continuation and integration remain
+required before a no-contour double-box SD or runtime comparison can be given.

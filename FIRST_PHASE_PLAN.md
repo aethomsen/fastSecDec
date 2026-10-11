@@ -15,6 +15,10 @@ composed native evaluators, native HEPKit interfaces and bounded execution.
 Rational or quadratic controls alone do not complete this phase. Preserve
 existing WASM functionality; threshold decomposition in WASM is deferred.
 
+The 2026-10-11 clarification removes the requirement to request or tag Ben Ruijl
+on future dependency PRs. Retain the authorized ValentinHirschi publishing and
+commit identity. Existing review requests remain historical records.
+
 ## Phase B: causal contour deformation (2026-10-09)
 
 The approved [contour-deformation plan](CONTOUR_DEFORMATION_PLAN.md) governs the
