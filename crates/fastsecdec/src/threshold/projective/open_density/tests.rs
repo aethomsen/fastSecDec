@@ -499,3 +499,5 @@ fn open_density_rejects_boundaries_role_capture_and_masked_callback_preparation_
     let density = prepared(map);
     assert!(density.map::<Float>(128).is_err());
 }
+
+mod body;

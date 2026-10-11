@@ -187,6 +187,17 @@ kernel. See the [density](reviews/no-deformation-open-density.md) and
 fixed physical ggHH geometry passes within the enlarged 100 GB budget, while
 its full endpoint regularization and integration remain unfinished.
 
+`CompiledDensityBody` permits caller-owned reuse of original density preparation
+across admitted maps sharing the same verified source and signs. Attachment
+still performs native map composition and final optimization; it does not share
+the final evaluator's storage. `endpoint_transport::numerator` retains frozen
+source degrees and finite relative-face coefficients through native series.
+Its `program::CompiledFaceInputs` selects finite source inputs before binding
+the endpoint, so unused divergent coordinates are never evaluated. These
+interfaces preserve the actual source/map owners and do not certify all closed
+faces. See the [body-sharing](reviews/no-deformation-density-body-sharing.md)
+and [finite-input](reviews/no-deformation-finite-numerator-inputs.md) reviews.
+
 Select exactly one arithmetic backend: `native` provides GMP/MPFR and supports
 either SymJIT O2 or Symbolica's eager evaluator; `portable` uses the eager
 evaluator with Malachite/Astro. The CLI defaults to SymJIT O2 locally. Python

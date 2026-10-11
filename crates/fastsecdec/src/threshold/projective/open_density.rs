@@ -4,11 +4,7 @@
 use crate::{
     generation::endpoint_power_with_regulators,
     kernel::algebraic::{Number, attempt},
-    threshold::{
-        gcad::ProjectiveFactorAuthority,
-        maps::normalized::{Budget, Error, Result, program::CompiledOpenMap},
-        phase::causal_negative_phase,
-    },
+    threshold::maps::normalized::{Budget, Error, Result, program::CompiledOpenMap},
 };
 use std::{collections::BTreeSet, sync::Arc};
 use symbolica::{
@@ -21,16 +17,16 @@ use symbolica::{
     symbol,
 };
 
+mod body;
+pub use body::CompiledDensityBody;
+
 /// All original prepared terms, evaluated in original source coordinates and
 /// composed through one admitted map. No root expression is substituted into
 /// a numerator. The retained map keeps the complete source/proof association.
 pub struct CompiledOpenDensity {
     map: Arc<CompiledOpenMap>,
-    regulators: Vec<Symbol>,
-    coefficients: Vec<Symbol>,
-    phases: Vec<Atom>,
-    bodies: Vec<Atom>,
-    body: ExpressionEvaluator<Complex<Rational>>,
+    body: Arc<CompiledDensityBody>,
+    composition_settings: OptimizationSettings,
     exact: ExpressionEvaluator<Complex<Rational>>,
 }
 
@@ -47,137 +43,39 @@ impl CompiledOpenDensity {
         settings: OptimizationSettings,
         budget: &Budget,
     ) -> Result<Self> {
+        let body = Arc::new(CompiledDensityBody::prepare(
+            &map,
+            regulators,
+            coefficients,
+            functions,
+            settings.clone(),
+            budget,
+        )?);
+        Self::prepare_with_body(map, body, settings, budget)
+    }
+    /// Attach a shared body after checking this map's source, signs and roles.
+    /// Composer copies its instructions and may optimize the full resulting IR;
+    /// body preparation reuse does not promise shared final evaluator storage.
+    pub fn prepare_with_body(
+        map: Arc<CompiledOpenMap>,
+        body: Arc<CompiledDensityBody>,
+        composition_settings: OptimizationSettings,
+        budget: &Budget,
+    ) -> Result<Self> {
         budget.check()?;
-        let source = map.owner().source();
-        let owner = source.decomposition();
-        let preparation = owner.preparation();
-        if regulators.first() != Some(&preparation.input().regulator()) {
-            return Err(Error::Invalid(
-                "open density requires original physical regulator first".into(),
-            ));
-        }
-        endpoint_power_with_regulators(&Atom::Zero, regulators).map_err(native)?;
-        let mut roles: BTreeSet<_> = preparation.input().parameters().iter().copied().collect();
-        roles.extend(map.inputs().iter().copied());
-        for step in map.owner().steps() {
-            if let crate::threshold::maps::normalized::PrefixStep::Section { section, .. } = step {
-                roles.insert(section.root_symbol());
-                roles.extend(section.chart().parameters.iter().copied());
-            }
-        }
-        for role in regulators.iter().chain(coefficients) {
-            if !roles.insert(*role) {
-                return Err(Error::Invalid(
-                    "open density coordinate/regulator/coefficient roles overlap".into(),
-                ));
-            }
-        }
-        let mut phases = Vec::with_capacity(preparation.terms().len());
-        let mut bodies = Vec::with_capacity(preparation.terms().len());
-        let mut raw_bodies = Vec::with_capacity(preparation.terms().len());
-        let cell = &owner.native_result().cells[source.cell_index()];
-        for (term, authorities) in preparation.terms().iter().zip(owner.factor_authorities()) {
-            budget.check()?;
-            let mut phase = Atom::one();
-            let mut body = term.prefactor().clone();
-            for (coordinate, exponent) in map.coordinates().iter().zip(term.monomial_powers()) {
-                body *= Atom::var(*coordinate).pow(exponent);
-            }
-            for (factor, authority) in term.factors().iter().zip(authorities) {
-                let polynomial = match authority {
-                    ProjectiveFactorAuthority::Inactive => continue,
-                    ProjectiveFactorAuthority::Polynomial
-                    | ProjectiveFactorAuthority::Positive { .. } => factor.polynomial().clone(),
-                    ProjectiveFactorAuthority::Split { index, .. } => {
-                        let sign = cell.signs[*index];
-                        if !matches!(sign, -1 | 1) {
-                            return Err(Error::Unsupported(
-                                "open causal factor needs its actual nonzero native cell sign"
-                                    .into(),
-                            ));
-                        }
-                        if sign < 0 {
-                            phase *= causal_negative_phase(factor.exponent(), regulators)
-                                .map_err(native)?;
-                        }
-                        Atom::num(sign) * factor.polynomial()
-                    }
-                };
-                body *= polynomial.pow(factor.exponent());
-            }
-            body *= preparation.measure_jacobian();
-            bodies.push(&body * &phase);
-            raw_bodies.push(body);
-            phases.push(phase);
-        }
+        body.admit_map(&map)?;
         let n = map.coordinates().len();
-        let body_inputs = map
-            .coordinates()
-            .iter()
-            .chain(regulators)
-            .chain(coefficients)
-            .copied()
-            .map(Atom::var)
-            .collect::<Vec<_>>();
-        let raw_body = Atom::evaluator_multiple(&raw_bodies, &body_inputs)
-            .function_map(functions)
-            .optimization_settings(settings.clone().cpe_iterations(Some(0)))
-            .build()
-            .map_err(native)?;
-        // Caller coefficient definitions may specialize the source body, but
-        // cannot replace PI or any native constant in the issued causal phase.
-        // Only real regulator inputs enter this separate native phase program.
-        let phase = Atom::evaluator_multiple(
-            &phases,
-            &regulators
-                .iter()
-                .copied()
-                .map(Atom::var)
-                .collect::<Vec<_>>(),
-        )
-        .optimization_settings(settings.clone().cpe_iterations(Some(0)))
-        .build()
-        .map_err(native)?;
-        let mut body_compose = EvaluatorComposer::new(body_inputs.len());
-        let mut body_slots = body_compose
-            .append(
-                &raw_body,
-                &(0..body_inputs.len()).map(Slot::Param).collect::<Vec<_>>(),
-            )
-            .map_err(native)?;
-        body_slots.extend(
-            body_compose
-                .append(
-                    &phase,
-                    &(n..n + regulators.len())
-                        .map(Slot::Param)
-                        .collect::<Vec<_>>(),
-                )
-                .map_err(native)?,
-        );
-        let body_formals = (0..2 * bodies.len())
-            .map(|i| Atom::var(symbol!(&format!("fastsecdec::open_density::body_slot_{i}"))))
-            .collect::<Vec<_>>();
-        let phased = (0..bodies.len())
-            .map(|i| &body_formals[i] * &body_formals[i + bodies.len()])
-            .collect::<Vec<_>>();
-        let multiply = Atom::evaluator_multiple(&phased, &body_formals)
-            .optimization_settings(settings.clone().cpe_iterations(Some(0)))
-            .build()
-            .map_err(native)?;
-        let body_outputs = body_compose
-            .append(&multiply, &body_slots)
-            .map_err(native)?;
-        let body = body_compose
-            .finish(&body_outputs, settings.clone().cpe_iterations(Some(0)))
-            .map_err(native)?;
+        let regulators = body.regulators();
+        let coefficients = body.coefficient_inputs();
+        let settings = &composition_settings;
+        let bodies = body.term_bodies();
         let mut compose = EvaluatorComposer::new(n + regulators.len() + coefficients.len());
         let map_slots = compose
             .append(map.exact(), &(0..n).map(Slot::Param).collect::<Vec<_>>())
             .map_err(native)?;
         let mut body_slots = map_slots[..n].to_vec();
         body_slots.extend((n..n + regulators.len() + coefficients.len()).map(Slot::Param));
-        let term_slots = compose.append(&body, &body_slots).map_err(native)?;
+        let term_slots = compose.append(body.exact(), &body_slots).map_err(native)?;
         // Small native arithmetic stage: multiply every term by the same
         // positive map Jacobian exactly once, and retain their complete sum.
         let j = Atom::var(symbol!("fastsecdec::open_density::jacobian"));
@@ -199,38 +97,44 @@ impl CompiledOpenDensity {
         // Retain coordinates, Jacobian, and all individual positive diagonals
         // even when a numerator/term cancels the corresponding arithmetic.
         outputs.extend(map_slots);
-        let exact = compose.finish(&outputs, settings).map_err(native)?;
+        let exact = compose
+            .finish(&outputs, composition_settings.clone())
+            .map_err(native)?;
         budget.check()?;
         Ok(Self {
             map,
-            regulators: regulators.to_vec(),
-            coefficients: coefficients.to_vec(),
-            phases,
-            bodies,
             body,
+            composition_settings,
             exact,
         })
     }
     pub fn map_owner(&self) -> &Arc<CompiledOpenMap> {
         &self.map
     }
+    pub fn body_owner(&self) -> &Arc<CompiledDensityBody> {
+        &self.body
+    }
+    /// Final composition settings, independent of the shared body's settings.
+    pub fn composition_settings(&self) -> &OptimizationSettings {
+        &self.composition_settings
+    }
     pub fn regulators(&self) -> &[Symbol] {
-        &self.regulators
+        self.body.regulators()
     }
     pub fn coefficient_inputs(&self) -> &[Symbol] {
-        &self.coefficients
+        self.body.coefficient_inputs()
     }
     pub fn term_phases(&self) -> &[Atom] {
-        &self.phases
+        self.body.term_phases()
     }
     /// Original source-coordinate expressions, in original term order. They
     /// contain causal phases but no coordinate-map substitution or map Jacobian.
     pub fn term_bodies(&self) -> &[Atom] {
-        &self.bodies
+        self.body.term_bodies()
     }
     /// Native source-body IR inputs: source coordinates, regulators, coefficients.
     pub fn body_exact(&self) -> &ExpressionEvaluator<Complex<Rational>> {
-        &self.body
+        self.body.exact()
     }
     /// Native composed outputs: total, all terms, source coordinates, J, diagonals.
     pub fn exact(&self) -> &ExpressionEvaluator<Complex<Rational>> {
@@ -283,8 +187,8 @@ where
     ) -> Result<OpenDensityValue<T>> {
         let n = self.owner.map.inputs().len();
         if unit.len() != n
-            || regulators.len() != self.owner.regulators.len()
-            || coefficients.len() != self.owner.coefficients.len()
+            || regulators.len() != self.owner.regulators().len()
+            || coefficients.len() != self.owner.coefficient_inputs().len()
             || unit
                 .iter()
                 .any(|x| !x.valid() || *x <= x.zero() || *x >= x.one())
@@ -299,7 +203,7 @@ where
             .map(|x| Complex::new(x.clone(), T::exact_zero_at(self.bits)))
             .collect::<Vec<_>>();
         inputs.extend_from_slice(coefficients);
-        let m = self.owner.bodies.len();
+        let m = self.owner.term_bodies().len();
         let zero = unit[0].zero();
         let mut outputs = vec![Complex::new(zero.clone(), zero); m + 2 * n + 2];
         attempt(|| self.program.try_evaluate(&inputs, &mut outputs))
@@ -322,6 +226,36 @@ where
             jacobian: outputs[m + 1 + n].re.clone(),
         })
     }
+}
+fn validate_roles(
+    map: &CompiledOpenMap,
+    regulators: &[Symbol],
+    coefficients: &[Symbol],
+) -> Result<()> {
+    let source = map.owner().source();
+    let preparation = source.decomposition().preparation();
+    if regulators.first() != Some(&preparation.input().regulator()) {
+        return Err(Error::Invalid(
+            "open density requires original physical regulator first".into(),
+        ));
+    }
+    endpoint_power_with_regulators(&Atom::Zero, regulators).map_err(native)?;
+    let mut roles: BTreeSet<_> = preparation.input().parameters().iter().copied().collect();
+    roles.extend(map.inputs().iter().copied());
+    for step in map.owner().steps() {
+        if let crate::threshold::maps::normalized::PrefixStep::Section { section, .. } = step {
+            roles.insert(section.root_symbol());
+            roles.extend(section.chart().parameters.iter().copied());
+        }
+    }
+    for role in regulators.iter().chain(coefficients) {
+        if !roles.insert(*role) {
+            return Err(Error::Invalid(
+                "open density coordinate/regulator/coefficient roles overlap".into(),
+            ));
+        }
+    }
+    Ok(())
 }
 fn native(error: impl std::fmt::Display) -> Error {
     Error::Native(error.to_string())

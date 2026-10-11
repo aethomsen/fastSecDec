@@ -8,6 +8,7 @@
 //! by zero is not licensed by the extracted powers.
 mod chart;
 mod clearing;
+pub mod numerator;
 #[cfg(test)]
 mod tests;
 pub use super::regular::{Error, Result};

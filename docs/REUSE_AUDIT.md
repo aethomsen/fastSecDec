@@ -1,5 +1,26 @@
 # Ecosystem reuse evidence
 
+## Issued finite numerator coefficients and selective face inputs (2026-10-11)
+
+The [finite-input review](reviews/no-deformation-finite-numerator-inputs.md)
+checks original-source degree ownership, exact monomial denominator clearing,
+native relative series and complete source-factor associations. Only bounded
+small geometry is expanded. Native evaluator composition prunes unused rays
+before face binding; the full bulk map is never evaluated at infinity.
+
+Ten maintained tests pass, including native codec/error tracking and the
+nonzero mixed derivative through actual normalized-root and chart inputs.
+The physical source catalogue preserves all 156 factor links and 128 numerator
+degree inventories in 10.286 seconds and 41,144 KiB child RSS. A selected-variable
+resource preflight replaces an unsuitable multivariate expansion estimate;
+native collection still supplies every retained degree and coefficient. Its
+restricted syntax and explicit physical resource allowance are documented in
+the review.
+Independent source and ecosystem reviews pass. Symbolica owns polynomial,
+series, derivative and instruction operations; no alternate CAS or endpoint AD
+is introduced. Root-dependent normals and all-face regularity remain separate
+gates before a physical cell can be integrated.
+
 ## Compact finite numerator coefficients (2026-10-11)
 
 The [numerator-series review](reviews/no-deformation-numerator-series.md) records
@@ -4549,6 +4570,20 @@ source ownership and explicit limits. No root solver, CAS, graph type, proof
 format or scheduler is added. A separately admitted suffix axis does not imply
 that earlier nonlinear coordinates are executable or that the full density
 has a closed-face endpoint certificate.
+
+## Shared native source-density preparation
+
+The [density-body sharing review](reviews/no-deformation-density-body-sharing.md)
+checks reuse across maps with identical genuine source and sign authority.
+Symbolica builds the body once; its Composer attaches it to each map, preserving
+all terms, protected phases and one Jacobian. Map-local role checks and root
+callback ownership remain intact. This avoids repeated body preparation without
+claiming shared final IR or removing final optimization.
+
+Nine density and seven normalized-map tests, native library/test Clippy and
+independent source review pass. A tiny matched fixture distinguishes body and
+attachment costs; it is not extrapolated to the physical catalogue. No alternate
+CAS, cell-merging authority, endpoint certificate or global cache is introduced.
 
 All 21 consuming map tests, strict workspace/all-target Clippy and formatting
 pass. An actual physical-source run freshly verifies the saved complete proof
