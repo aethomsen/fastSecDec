@@ -16,3 +16,18 @@ mod work;
 pub use work::{ContactComponentFrontier, ContactComponentWork, ContactDispatchAdvance};
 mod driver;
 pub use driver::{ContactAmbientWork, ContactBranchWork, FiniteContactDispatcher};
+mod recursive;
+pub use recursive::{RecursiveContactBranch, RecursiveContactChildState};
+
+mod recursive_ascent;
+pub use recursive_ascent::RecursiveContactCenter;
+
+mod recursive_inventory;
+mod recursive_work;
+pub use recursive_inventory::{
+    RecursiveAscentBranch, RecursiveAscentFrontier, RecursiveBranchAscent,
+};
+pub use recursive_work::{RecursiveComponentLift, RecursiveLiftWork};
+
+#[cfg(test)]
+mod recursive_tests;

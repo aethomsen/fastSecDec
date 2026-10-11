@@ -84,6 +84,26 @@ pub enum RecursiveAdvance {
     Incomplete { reason: &'static str },
 }
 impl BoundaryFreeFirstCenter {
+    /// Private seam for an actual newly constructed coefficient child. The
+    /// owning RecursiveContactBranch retains its complete physical ancestry.
+    pub(super) fn from_contact_branch(
+        branch: &Arc<ContactDispatchBranch>,
+        source: Arc<MarkedIdeal>,
+        namespace: &str,
+    ) -> Result<Self> {
+        let q = branch.contact();
+        if source.ideal() != q.differential_coefficient().ideal()
+            || source.mark() != q.differential_coefficient().mark()
+            || !Arc::ptr_eq(q.source(), branch.owner().origin().cover())
+            || q.contact().free_axes().len().checked_add(1)
+                != Some(q.source().frame().free_axes().len())
+        {
+            return Err(Error::Invalid(
+                "actual contact coefficient child constructor",
+            ));
+        }
+        Self::new(q.contact().clone(), source, namespace, false)
+    }
     pub fn new(
         frame: Arc<EtaleFrame>,
         source: Arc<MarkedIdeal>,
@@ -400,5 +420,18 @@ impl BoundaryFreeFirstCenter {
             return Ok(None);
         };
         super::contact_dispatch::FiniteContactDispatcher::prepare(origin, namespace, b).map(Some)
+    }
+    /// Opt into construction-bound lower recursion while preserving the legacy
+    /// finite dispatcher's explicit positive-dimension refusal.
+    pub fn recursive_contact_dispatcher(
+        &self,
+        namespace: String,
+        b: &mut Budget,
+    ) -> Result<Option<FiniteContactDispatcher>> {
+        let Some(mut result) = self.finite_contact_dispatcher(namespace, b)? else {
+            return Ok(None);
+        };
+        result.recursive_coefficients = true;
+        Ok(Some(result))
     }
 }

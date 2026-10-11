@@ -1,6 +1,5 @@
 //! Physical opens induced by an actual lower support cover. The complement is
 //! retained as a lower-mark-order locus, never as a zero-density conclusion.
-use super::super::refinement::frame::{JoinedFrameProduction, join};
 use super::*;
 
 #[derive(Clone, Debug)]
@@ -53,57 +52,33 @@ impl PhysicalSupportCover {
                 "physical support restriction actual cover/open owner",
             ));
         }
-        let ambient = localization.history().ledger().frame().clone();
-        let joined = match join(
-            ambient.clone(),
-            self.embedding.frame().clone(),
-            self.embedding.ambient().local().ring(),
-            namespace,
-            b,
-        )? {
-            JoinedFrameProduction::Complete(joined) => joined,
-            JoinedFrameProduction::Empty {
-                equations,
-                unit_relations,
-            } => {
-                return Ok(PhysicalSupportRestriction::EmptySupport {
-                    cover: self.clone(),
-                    localization,
+        let geometry =
+            match super::restriction::restrict(&self.embedding, &localization, namespace, b)? {
+                super::restriction::RestrictionGeometry::Complete(g) => g,
+                super::restriction::RestrictionGeometry::Empty {
                     equations,
                     unit_relations,
-                });
-            }
-        };
-        let frame = joined.frame.clone();
-        let extension =
-            super::nested::extension_to(ambient.local().ring(), frame.local().ring(), b)?;
-        let equations = Arc::new(
-            localization
-                .open()
-                .extension()
-                .ideal(self.embedding.equations(), b)?,
-        );
-        super::nested::full_equations(&ambient, &frame, &extension, &equations, b)?;
-        if ambient
-            .free_axes()
-            .len()
-            .checked_sub(frame.free_axes().len())
-            != Some(self.embedding.codimension())
-        {
-            return Err(Error::Invalid("physical restriction support codimension"));
-        }
+                } => {
+                    return Ok(PhysicalSupportRestriction::EmptySupport {
+                        cover: self.clone(),
+                        localization,
+                        equations,
+                        unit_relations,
+                    });
+                }
+            };
         Ok(PhysicalSupportRestriction::Support(Arc::new(
             SupportEmbedding {
-                ambient,
-                frame,
-                extension,
-                equations,
+                ambient: geometry.ambient,
+                frame: geometry.frame,
+                extension: geometry.extension,
+                equations: geometry.equations,
                 codimension: self.embedding.codimension(),
                 origin: EmbeddingOrigin::AmbientOpen {
                     parent: self.embedding.clone(),
                     cover: self.clone(),
                     localization,
-                    map: joined.child_map.clone(),
+                    map: geometry.map,
                 },
             },
         )))

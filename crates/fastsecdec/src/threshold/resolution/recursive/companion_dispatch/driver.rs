@@ -124,6 +124,7 @@ impl CompanionContactDispatcher {
                         .as_ref()
                         .is_some_and(CompanionOuterFrontier::complete_inventory),
                     ContactBranchWork::Pending => false,
+                    ContactBranchWork::Recursive(_) => false,
                 })
     }
     pub fn prepare_outer_branch(
@@ -149,6 +150,11 @@ impl CompanionContactDispatcher {
             ContactBranchWork::Empty(_) => return Ok(ContactDispatchAdvance::Accepted),
             ContactBranchWork::Pending => {
                 return Err(Error::Invalid("outer dispatch child branch pending"));
+            }
+            ContactBranchWork::Recursive(_) => {
+                return Ok(ContactDispatchAdvance::Incomplete {
+                    reason: "recursive companion outer ascent pending",
+                });
             }
         };
         let next = match CompanionOuterFrontier::prepare(

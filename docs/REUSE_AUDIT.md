@@ -4272,3 +4272,21 @@ refuse unsupported new capabilities. Parameterized CLI/HEPKit preparation,
 physical projective sources, general chamber atlases and the general resolver
 remain explicitly unfinished. No dependency revision or replacement algebra
 implementation is introduced.
+
+## Recursive contact ascent
+
+The [recursive contact follow-up](reviews/no-deformation-contact-dispatch.md#recursive-child-inventories-and-ancestor-ascent)
+uses native joins, derivative ideals, localized units and membership, quotient
+normalization and existing center/blow-up admission. A shared matched-ascent
+helper replaces duplicated companion forwarding while preserving original
+physical sources, marks and divisor histories. Local inventory completion
+retains every unresolved physical opening; it does not certify a resolved
+density or global maximum.
+
+Independent scientific and ecosystem review and 21 source-pair/46 evidence-pin
+checks pass. The consuming public-dependency build passes twelve contact and
+four companion groups, strict workspace/all-target lint, formatting and diff
+checks. The private diagnostic dependency is not adopted. The linked review
+preserves the cumulative-budget failure, incomplete downstream pivot run and
+remaining deeper/global resolution boundaries. No alternate CAS or new worker
+ownership is introduced.

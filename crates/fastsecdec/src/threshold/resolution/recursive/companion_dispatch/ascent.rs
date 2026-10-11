@@ -1,6 +1,5 @@
 use super::super::super::differential::relative_differential_ideal;
 use super::super::super::prepared_membership::PreparedMembership;
-use super::super::component_localization::pull_ideal;
 use super::*;
 
 /// Derivatives are formed on this original frame before any restriction. A
@@ -127,50 +126,19 @@ impl CompanionDispatchedCenter {
             origin.companion().mark(),
             b,
         )?);
-        let child = pull_ideal(matched.lower_map(), lower.ideal(), b)?;
-        b.reserve_slots(lower.normals().len())?;
-        let normals = lower
-            .normals()
-            .iter()
-            .map(|p| matched.lower_map().pull(p, b))
-            .collect::<Result<Vec<_>>>()?;
-        // Existing ascent needs these inverse factors on the full ambient
-        // open. A unit only on the center is not an ambient coordinate inverse.
-        let ambient = matched.ambient().local();
-        for f in &normals {
-            let c = clear_units(matched.frame().local(), f, b)?;
-            for p in [&c.numerator, &c.denominator] {
-                if (ambient.ring().len()..p.nvars()).any(|i| p.degree(i) > 0) {
-                    return Err(Error::ResourceIncomplete(
-                        "outer center normal retains support graph slot",
-                    ));
-                }
-            }
-            let d = super::super::super::elimination::remap(&c.denominator, ambient.ring(), b)?;
-            let d = Ideal::new(ambient.ring().clone(), vec![d], b)?;
-            if !ambient.ideal().sum(&d, b)?.contains(
-                &ambient.ring().one(),
-                ambient.unit_relations(),
-                b,
-            )? {
-                return Err(Error::ResourceIncomplete(
-                    "outer center normal needs ambient denominator cover",
-                ));
-            }
-        }
-        let (ideal, normals, clearings) = super::super::lift::lift_embedded_geometry(
-            matched.ambient(),
+        let super::super::matched_ascent::MatchedCenterGeometry {
+            ideal,
+            normals,
+            clearings,
+            child,
+        } = super::super::matched_ascent::lift_matched_center(
+            &matched,
             &original,
-            matched.frame(),
-            matched.extension(),
-            matched.support().equations().generators().to_vec(),
-            &child,
-            &normals,
+            lower.ideal(),
+            lower.normals(),
             b,
         )?;
-        if normals.is_empty() {
-            return Err(Error::Invalid("outer dispatch positive codimension"));
-        }
+        let ambient = matched.ambient().local();
         let center = ambient.ideal().sum(&ideal, b)?;
         let down = matched.frame().local();
         let child_center = down.ideal().sum(&child, b)?;

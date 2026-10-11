@@ -139,3 +139,55 @@ compact work inventories but makes no new aggregate RSS or durable unfinished
 native-algebra restart claim. Further coefficient recursion, coherent selection
 of the global invariant maximum, repeated resolution and the real integration
 atlas remain required by the active plan.
+
+## Recursive child inventories and ancestor ascent
+
+The subsequent increment connects an actual interrupted contact construction to
+a lower-dimensional dispatcher and lifts its issued local centers back through
+the original ancestor source. An explicit inventory retains child contacts,
+ambient openings, complementary opens and unresolved physical work. Completing
+that inventory means each local outcome has been accounted for; it does not
+declare the physical density resolved.
+
+The common matched-ascent helper retains the existing source/history owners and
+native center-admission path. Ambient derivatives are formed before restriction.
+Normal-coordinate and map inverses must be units on the entire restricted open;
+order-inclusion denominators need the separately checked unit condition near
+the center. A contact-space equality cannot replace either obligation. Native
+frame joins, ideal arithmetic, quotient normalization and localized membership
+perform these operations; the new code coordinates their owners and outcomes.
+
+The control `x^2+(y^2-1)^2+(z^2-1)^2`, with mark one and empty divisor history,
+has ten contacts and eighteen ambient openings. It produces eight genuine
+lower branches: four empty and four finished, yielding six original-source
+centers and forty-two lifted physical openings, thirty-six of them deferred.
+The private complete local-inventory run takes 5.177 seconds with a fresh
+default operation budget for each explicit caller advance. It is not evidence
+of completion under one cumulative budget: that separate run exhausts its
+budget and retains incomplete work. Downstream adaptation is tested separately.
+
+Three new maintained groups cover original-source ascent, reordered work,
+omitted/foreign owners, stable retries and incomplete inventories. Independent
+scientific and ecosystem review accepts the scoped construction. The coordinator
+verified the final 21 source pairs and 46 evidence pins in handoff
+`1aebcf455a33c226abd372bc21be957954b35861502a52c2a7f6fcc3b886b703`.
+The private diagnostic dependency build passes the twelve contact groups and
+four companion groups, strict library/test checks and formatting. The optional
+downstream all-pivot run was stopped after 138.424 seconds and remains explicitly
+incomplete; it is not part of the imported maintained test set.
+
+This is another local resolver step. Direct/zero lower children and a further
+recursive center still need their complete ascent bridge. Selection of the
+global invariant maximum, preservation of its prefix across a global cycle,
+termination of repeated blowups, exact real chart coverage and a complete
+regularized density remain separate acceptance obligations. No global
+`SelectedBmStage` or integration artifact is issued by this local inventory.
+
+The consuming workspace, with its unchanged public Symbolica owner, passes all
+twelve contact groups in 27.18 seconds and all four companion groups in
+30.59 seconds. The only unrun contact test is the already documented all-pivot
+diagnostic. Strict workspace/all-target Clippy passes in 58.16 seconds in the
+combined parameter-template/resolver build; formatting and diff checks pass.
+The producer's diagnostic dependency identity is not adopted. This closes the
+scoped source/runtime and ecosystem gates without extending the local result
+to a global resolution claim.

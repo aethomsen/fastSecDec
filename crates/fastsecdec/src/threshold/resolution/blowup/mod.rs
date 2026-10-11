@@ -154,3 +154,5 @@ pub use physical_cycle::{
     PhysicalPowerPreparation, PhysicalPowerSlot, PhysicalPowerSlotKind, PhysicalPowerTerminal,
     RetiredPowerInventory,
 };
+
+pub use embedding::{AmbientSupportRestriction, EmptyAmbientSupport, PulledSupportCover};

@@ -5,6 +5,7 @@ pub enum ContactBranchWork {
     Pending,
     Empty(ContactBranchProduction),
     Components(ContactComponentFrontier),
+    Recursive(Box<RecursiveContactBranch>),
 }
 #[derive(Clone, Debug)]
 pub enum ContactAmbientWork {
@@ -20,6 +21,7 @@ pub struct FiniteContactDispatcher {
     branches: Vec<ContactBranchWork>,
     ambient: Vec<ContactAmbientWork>,
     namespace: String,
+    pub(in super::super) recursive_coefficients: bool,
 }
 impl FiniteContactDispatcher {
     pub(in super::super) fn prepare(
@@ -35,6 +37,7 @@ impl FiniteContactDispatcher {
             ambient: vec![ContactAmbientWork::Pending; cover.physical_cover().opens().len()],
             cover,
             namespace,
+            recursive_coefficients: false,
         })
     }
     pub fn cover(&self) -> &Arc<ContactDispatchCover> {
@@ -54,6 +57,8 @@ impl FiniteContactDispatcher {
                 ContactBranchWork::Pending => false,
                 ContactBranchWork::Empty(_) => true,
                 ContactBranchWork::Components(f) => f.complete_inventory(),
+                // Child completion alone is not original-ancestor ascent.
+                ContactBranchWork::Recursive(q) => q.construction_inventory_complete(),
             })
     }
     pub fn advance_ambient(
@@ -130,6 +135,11 @@ impl FiniteContactDispatcher {
                 _ => return Err(Error::Invalid("dispatch incomplete contact evidence")),
             },
         };
+        if self.recursive_coefficients && !branch.contact().contact().free_axes().is_empty() {
+            return Ok(ContactBranchWork::Recursive(Box::new(
+                RecursiveContactBranch::prepare(branch, namespace, b)?,
+            )));
+        }
         let components =
             ContactTerminalComponents::prepare(branch, &format!("{namespace}_components"), b)?;
         Ok(ContactBranchWork::Components(
@@ -152,5 +162,133 @@ impl FiniteContactDispatcher {
                 "dispatch component requires actual prepared branch",
             )),
         }
+    }
+    pub fn recursive_branch(&self, index: usize) -> Option<&RecursiveContactBranch> {
+        match self.branches.get(index) {
+            Some(ContactBranchWork::Recursive(q)) => Some(q),
+            _ => None,
+        }
+    }
+    /// Advance the genuine lower constructor once; accepted parent state is
+    /// unchanged on resource exhaustion.
+    pub fn advance_recursive_child(
+        &mut self,
+        index: usize,
+        b: &mut Budget,
+    ) -> Result<ContactDispatchAdvance> {
+        let Some(ContactBranchWork::Recursive(child)) = self.branches.get_mut(index) else {
+            return Err(Error::Invalid("recursive child branch index/owner"));
+        };
+        match child.advance_child(b) {
+            Err(Error::ResourceIncomplete(reason)) => {
+                Ok(ContactDispatchAdvance::Incomplete { reason })
+            }
+            other => other,
+        }
+    }
+    pub fn advance_nested_ambient(
+        &mut self,
+        path: &[usize],
+        index: usize,
+        b: &mut Budget,
+    ) -> Result<ContactDispatchAdvance> {
+        self.nested_mut(path)?.advance_ambient(index, b)
+    }
+    pub fn advance_nested_branch(
+        &mut self,
+        path: &[usize],
+        index: usize,
+        b: &mut Budget,
+    ) -> Result<ContactDispatchAdvance> {
+        self.nested_mut(path)?.advance_branch(index, b)
+    }
+    pub fn advance_nested_component(
+        &mut self,
+        path: &[usize],
+        branch: usize,
+        index: usize,
+        b: &mut Budget,
+    ) -> Result<ContactDispatchAdvance> {
+        self.nested_mut(path)?.advance_component(branch, index, b)
+    }
+    pub fn advance_nested_child(
+        &mut self,
+        path: &[usize],
+        index: usize,
+        b: &mut Budget,
+    ) -> Result<ContactDispatchAdvance> {
+        self.nested_mut(path)?.advance_recursive_child(index, b)
+    }
+    pub fn prepare_recursive_ascent(
+        &mut self,
+        branch: usize,
+        b: &mut Budget,
+    ) -> Result<ContactDispatchAdvance> {
+        self.recursive_mut(branch)?.prepare_ascent(b)
+    }
+    pub fn advance_recursive_ascent_branch(
+        &mut self,
+        branch: usize,
+        lower: usize,
+        b: &mut Budget,
+    ) -> Result<ContactDispatchAdvance> {
+        self.recursive_mut(branch)?
+            .ascent_mut()?
+            .advance_branch(lower, b)
+    }
+    pub fn advance_recursive_ascent_open(
+        &mut self,
+        branch: usize,
+        lower: usize,
+        index: usize,
+        b: &mut Budget,
+    ) -> Result<ContactDispatchAdvance> {
+        self.recursive_mut(branch)?
+            .ascent_mut()?
+            .advance_open(lower, index, b)
+    }
+    pub fn prepare_nested_ascent(
+        &mut self,
+        path: &[usize],
+        branch: usize,
+        b: &mut Budget,
+    ) -> Result<ContactDispatchAdvance> {
+        self.nested_mut(path)?.prepare_recursive_ascent(branch, b)
+    }
+    pub fn advance_nested_ascent_branch(
+        &mut self,
+        path: &[usize],
+        branch: usize,
+        lower: usize,
+        b: &mut Budget,
+    ) -> Result<ContactDispatchAdvance> {
+        self.nested_mut(path)?
+            .advance_recursive_ascent_branch(branch, lower, b)
+    }
+    pub fn advance_nested_ascent_open(
+        &mut self,
+        path: &[usize],
+        branch: usize,
+        lower: usize,
+        index: usize,
+        b: &mut Budget,
+    ) -> Result<ContactDispatchAdvance> {
+        self.nested_mut(path)?
+            .advance_recursive_ascent_open(branch, lower, index, b)
+    }
+    fn recursive_mut(&mut self, index: usize) -> Result<&mut RecursiveContactBranch> {
+        match self.branches.get_mut(index) {
+            Some(ContactBranchWork::Recursive(q)) => Ok(q),
+            _ => Err(Error::Invalid("recursive branch index/owner")),
+        }
+    }
+    fn nested_mut(&mut self, path: &[usize]) -> Result<&mut Self> {
+        let Some((&first, rest)) = path.split_first() else {
+            return Ok(self);
+        };
+        let Some(ContactBranchWork::Recursive(child)) = self.branches.get_mut(first) else {
+            return Err(Error::Invalid("nested recursive branch owner"));
+        };
+        child.lower_mut()?.nested_mut(rest)
     }
 }

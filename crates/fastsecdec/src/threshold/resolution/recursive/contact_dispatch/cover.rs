@@ -65,6 +65,18 @@ impl ContactDispatchCover {
             .last()
             .map_or(&self.current, |c| c.full_cover())
     }
+    pub(super) fn contact_open_index(&self, index: usize) -> Result<usize> {
+        if index >= self.origin.cover().candidates().len() {
+            return Err(Error::Invalid("recursive source contact index"));
+        }
+        for ancestor in self.ancestors.iter() {
+            if !matches!(ancestor.opens().get(index),Some(PhysicalSupportOpen::Lower{index:lower,..})if *lower==index)
+            {
+                return Err(Error::Invalid("recursive source contact full-cover trace"));
+            }
+        }
+        Ok(index)
+    }
     /// Uses the original auxiliary history. No lower-frame history is minted.
     pub fn localize(
         &self,

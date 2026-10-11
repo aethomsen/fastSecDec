@@ -7,6 +7,11 @@ type Result<T> = std::result::Result<T, Error>;
 
 #[derive(Clone, Debug)]
 enum EmbeddingOrigin {
+    SourceOpen {
+        parent: Arc<SupportEmbedding>,
+        localization: Arc<LocalizedCoverHistory>,
+        map: super::refinement::SupportFrameMap,
+    },
     Nested {
         parent: Arc<SupportEmbedding>,
         contact: Arc<ContactQuotient>,
@@ -111,6 +116,7 @@ impl SupportEmbedding {
         }
         match &self.origin {
             EmbeddingOrigin::Nested { parent, .. }
+            | EmbeddingOrigin::SourceOpen { parent, .. }
             | EmbeddingOrigin::Localized { parent, .. }
             | EmbeddingOrigin::AmbientOpen { parent, .. } => parent.descends_from(ancestor),
             _ => false,
@@ -121,6 +127,7 @@ impl SupportEmbedding {
             EmbeddingOrigin::Contact(q) => q,
             EmbeddingOrigin::Strict { parent, .. } => parent.source(),
             EmbeddingOrigin::Nested { parent, .. }
+            | EmbeddingOrigin::SourceOpen { parent, .. }
             | EmbeddingOrigin::Localized { parent, .. }
             | EmbeddingOrigin::AmbientOpen { parent, .. } => parent.original_contact(),
         }
@@ -144,6 +151,7 @@ impl SupportEmbedding {
         match &self.origin {
             EmbeddingOrigin::Strict { parent, open } => Some((parent, open)),
             EmbeddingOrigin::Contact(_)
+            | EmbeddingOrigin::SourceOpen { .. }
             | EmbeddingOrigin::Nested { .. }
             | EmbeddingOrigin::Localized { .. }
             | EmbeddingOrigin::AmbientOpen { .. } => None,
@@ -157,3 +165,5 @@ pub use cover::{PhysicalSupportCover, PhysicalSupportOpen, PhysicalSupportRestri
 
 mod matched;
 pub use matched::{MatchedPhysicalRestriction, MatchedPhysicalSupport};
+mod restriction;
+pub use restriction::{AmbientSupportRestriction, EmptyAmbientSupport, PulledSupportCover};

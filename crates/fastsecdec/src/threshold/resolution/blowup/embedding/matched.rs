@@ -11,6 +11,7 @@ pub struct MatchedPhysicalSupport {
     support_map: super::super::refinement::SupportFrameMap,
     lower_map: super::super::refinement::SupportFrameMap,
     lower_unit: Poly,
+    pulled_cover: Option<Arc<PulledSupportCover>>,
 }
 impl MatchedPhysicalSupport {
     pub fn support(&self) -> &Arc<SupportEmbedding> {
@@ -34,6 +35,9 @@ impl MatchedPhysicalSupport {
     pub fn lower_map(&self) -> &super::super::refinement::SupportFrameMap {
         &self.lower_map
     }
+    pub fn pulled_cover(&self) -> Option<&Arc<PulledSupportCover>> {
+        self.pulled_cover.as_ref()
+    }
     pub fn lower_unit(&self) -> &Poly {
         &self.lower_unit
     }
@@ -56,24 +60,68 @@ impl PhysicalSupportCover {
         namespace: &str,
         b: &mut Budget,
     ) -> Result<MatchedPhysicalRestriction> {
+        self.restrict_matched(outer, lower, None, namespace, b)
+    }
+    /// Match the original lower index through a complete, issued cover pullback.
+    /// No caller-supplied same-index list can replace this source association.
+    pub fn restrict_pulled_lower(
+        self: &Arc<Self>,
+        outer: Arc<LocalizedCoverHistory>,
+        lower: Arc<LocalizedCoverHistory>,
+        pulled: Arc<PulledSupportCover>,
+        namespace: &str,
+        b: &mut Budget,
+    ) -> Result<MatchedPhysicalRestriction> {
+        self.restrict_matched(outer, lower, Some(pulled), namespace, b)
+    }
+    fn restrict_matched(
+        self: &Arc<Self>,
+        outer: Arc<LocalizedCoverHistory>,
+        lower: Arc<LocalizedCoverHistory>,
+        pulled: Option<Arc<PulledSupportCover>>,
+        namespace: &str,
+        b: &mut Budget,
+    ) -> Result<MatchedPhysicalRestriction> {
         let Some(PhysicalSupportOpen::Lower { index, .. }) = self.opens().get(outer.open().index())
         else {
             return Err(Error::Invalid(
                 "matched support requires a lower-cover opening",
             ));
         };
-        if !Arc::ptr_eq(outer.open().cover(), self.full_cover())
-            || !Arc::ptr_eq(lower.open().cover(), self.lower())
-            || *index != lower.open().index()
-            || !Arc::ptr_eq(
-                lower.open().source().ledger().frame(),
-                self.embedding().frame(),
-            )
-        {
-            return Err(Error::Invalid(
-                "matched support original lower/outer owners",
-            ));
+        if !Arc::ptr_eq(outer.open().cover(), self.full_cover()) || *index != lower.open().index() {
+            return Err(Error::Invalid("matched support original lower/outer index"));
         }
+        let (factor, prefix) = if let Some(p) = &pulled {
+            let (parent, _, map) = self.embedding().source_open().ok_or(Error::Invalid(
+                "matched pulled support original restriction",
+            ))?;
+            if !Arc::ptr_eq(p.embedding(), self.embedding())
+                || !Arc::ptr_eq(p.pulled(), self.lower())
+                || !Arc::ptr_eq(p.original(), lower.open().cover())
+                || !Arc::ptr_eq(lower.open().source().ledger().frame(), parent.frame())
+            {
+                return Err(Error::Invalid("matched pulled support cover/map owners"));
+            }
+            (
+                map.pull(lower.open().factor(), b)?,
+                parent.ambient().local().ring().clone(),
+            )
+        } else {
+            if !Arc::ptr_eq(lower.open().cover(), self.lower())
+                || !Arc::ptr_eq(
+                    lower.open().source().ledger().frame(),
+                    self.embedding().frame(),
+                )
+            {
+                return Err(Error::Invalid(
+                    "matched support original lower/outer owners",
+                ));
+            }
+            (
+                lower.open().factor().clone(),
+                self.embedding().ambient().local().ring().clone(),
+            )
+        };
         let support = match self.restrict_support(outer, &format!("{namespace}_outer"), b)? {
             PhysicalSupportRestriction::Support(s) => s,
             empty @ PhysicalSupportRestriction::EmptySupport { .. } => {
@@ -83,7 +131,7 @@ impl PhysicalSupportCover {
         let (_, _, map) = support
             .physical_localization()
             .ok_or(Error::Invalid("matched support missing source map"))?;
-        let lower_unit = map.pull(lower.open().factor(), b)?;
+        let lower_unit = map.pull(&factor, b)?;
         if !super::super::helpers::unit(support.frame().local(), &lower_unit, b)? {
             return Err(Error::ResourceIncomplete(
                 "matched lower open needs further support coverage",
@@ -95,7 +143,7 @@ impl PhysicalSupportCover {
         let joined = match join(
             support.frame().clone(),
             lower.history().ledger().frame().clone(),
-            self.embedding().ambient().local().ring(),
+            &prefix,
             namespace,
             b,
         )? {
@@ -138,6 +186,7 @@ impl PhysicalSupportCover {
                 support_map: joined.parent_map.clone(),
                 lower_map: joined.child_map.clone(),
                 lower_unit,
+                pulled_cover: pulled,
             },
         )))
     }

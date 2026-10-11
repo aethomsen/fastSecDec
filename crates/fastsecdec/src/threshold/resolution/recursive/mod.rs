@@ -139,3 +139,14 @@ pub use companion_dispatch::{
     CompanionAncestorOrder, CompanionContactDispatcher, CompanionDispatchOrigin,
     CompanionDispatchedCenter, CompanionOuterFrontier, CompanionOuterWork,
 };
+
+mod matched_ascent;
+
+pub use contact_dispatch::{
+    RecursiveContactBranch, RecursiveContactCenter, RecursiveContactChildState,
+};
+
+pub use contact_dispatch::{
+    RecursiveAscentBranch, RecursiveAscentFrontier, RecursiveBranchAscent, RecursiveComponentLift,
+    RecursiveLiftWork,
+};

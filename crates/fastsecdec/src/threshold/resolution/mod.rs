@@ -198,3 +198,12 @@ pub use recursive::{
     ContactComponentFrontier, ContactComponentWork, ContactDispatchAdvance, DispatchAncestorOrder,
     DispatchedContactCenter,
 };
+
+pub use blowup::{AmbientSupportRestriction, EmptyAmbientSupport, PulledSupportCover};
+
+pub use recursive::{RecursiveContactBranch, RecursiveContactCenter, RecursiveContactChildState};
+
+pub use recursive::{
+    RecursiveAscentBranch, RecursiveAscentFrontier, RecursiveBranchAscent, RecursiveComponentLift,
+    RecursiveLiftWork,
+};
