@@ -93,6 +93,15 @@ an estimate or its covariance to pretend counts match. A native scheduling gap
 that prevents a prescribed total count must be resolved or labelled before
 launching the matched-work arm.
 
+The secondary normalized-work display also permits a clean capped discrete-MC
+estimate when its planned allocation is unfinished. Keep the original strict
+`incomplete_requested_work` status, planned and actual counts, and a separate
+reviewed display-eligibility record. Require full native sector coverage,
+Available full covariance, committed Production batches, fixed design and a
+clean planned deadline. Normalize the actual accepted count; do not extend a
+long run merely to reach its original target. Prefer a completed continuation
+over its partial prefix, without pooling their estimates.
+
 The fixed-time arm requests **600 seconds** and reports actual elapsed time and
 the last native complete estimate. The serial residence flag and ordinary
 `production_seconds` must not be relabelled as a verified global 600-second
@@ -167,8 +176,9 @@ calls beyond its classified logical callbacks. Existing counts therefore carry
 an observed-prefix qualification. Keep f64/double-float/arbitrary backend counts
 separate: a precision rescue is not a new sampling point.
 
-Cancellation and peak-weight ratios require a future instrumented measurement;
-the existing receipts do not contain the committed absolute-weight sums.
+Cancellation and peak-weight ratios use the fresh instrumented confirmations;
+earlier receipts do not contain the committed absolute-weight sums and cannot
+be backfilled.
 The cancellation numerator is the sector sum of production averages of the
 absolute final ε⁰ complex weight (all coordinate, periodization and continuous
 importance factors once), plus the magnitude of the combined exact offset once.
@@ -215,12 +225,16 @@ covariance, exact offsets, complete work ledgers, source/artifact/point hashes a
 all attempts. The renderer accepts only reviewed measurements with ε⁰ identity;
 historical receipts are stored under a separate historical section.
 
-The existing graceful stop is one SIGINT sent to the coordinator PID only.
-The CLI sets its cancellation flag, reaps its workers, releases uncommitted
-reservations and saves its native checkpoint/result. Preserve the native
-Cancelled reason and the actual completeness/uncertainty separately. A second
-signal forces exit and is reserved for a separately recorded bounded drain
-failure. Verify this path with a short control before the timed campaign.
+Instrumented timed runs use native `--max-seconds 600`: stop new reservations,
+drain complete in-flight work, and save the native WorkLimit/unconverged result.
+Require `timed_stop.counts_complete=true`, full coverage and Available native
+covariance. A caller outer limit of 750 seconds with bounded cleanup may signal
+an unresponsive run, but that outcome cannot qualify as a clean timed result.
+Short serial-QMC and ordinary discrete-MC controls exercise this path.
+
+Earlier confirmations used one SIGINT to the coordinator, saving a native
+Cancelled estimate. Their full-covariance observations remain separate history,
+and their observed callback prefixes are never relabelled exact totals.
 
 The requested stopping checkpoint is the scalar suite and both exact-point
 double-box rows, with the updated Overview and detailed PDF. Any unresolved

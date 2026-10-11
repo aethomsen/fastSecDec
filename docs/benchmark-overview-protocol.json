@@ -21,7 +21,7 @@
     "qmc_residence_seconds_proposal": 1,
     "discrete_mc_scheduler": "ordinary_explicit_user_exception",
     "fixed_time_seconds": 600,
-    "global_deadline_adapter": "one SIGINT to coordinator when native integration elapsed reaches600s; passed short native QMC/MC controls; report drain and actual elapsed separately",
+    "global_deadline_adapter": "native --max-seconds600 stops new reservations and drains complete in-flight work; counts_complete required; outer750s interruption refuses timed acceptance",
     "matched_work_unit": "committed native sector-point evaluations",
     "target": {
       "laurent_order": 0,
@@ -29,7 +29,9 @@
     },
     "confirmation_seeds_per_sampler_arm": 1,
     "work_and_time_seeds_disjoint": true,
-    "contour_validation": "off"
+    "contour_validation": "off",
+    "historical_deadline_adapter": "one SIGINT to coordinator when native integration elapsed reaches600s; passed short native QMC/MC controls; report drain and actual elapsed separately",
+    "secondary_work_eligibility": "Strict matched-work history retained; separate reviewed clean-cap fixed-design full-coverage complete-batch estimate may normalize actual accepted work despite unfinished planned allocation"
   },
   "metric_keys": [
     "generation_seconds",
@@ -77,8 +79,8 @@
     "relative_error": "delta-method radial sigma(norm(complex mean))/norm(complex mean)",
     "scope": "MC-equivalent display heuristic; not a QMC convergence law",
     "preserve_raw_covariance_and_observations": true,
-    "sector_calls_scope": "observed logical callbacks; unpublished tails possible; backend rescue counts separate",
-    "weight_statistics": "pending measured native committed-production instrumentation; cancellation adds combined exact magnitude once, discrete maximum removes sector-selection inverse probability",
+    "sector_calls_scope": "new native drained counts complete; old observed-prefix counts marked>=; rescue backend calls remain separate",
+    "weight_statistics": "fresh native committed-production measurements only; cancellation adds combined exact magnitude once, discrete maximum removes sector-selection inverse probability",
     "allowed_native_seconds": [
       480,
       750

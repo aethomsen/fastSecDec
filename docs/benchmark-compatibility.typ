@@ -3,7 +3,7 @@
 #let compatibility = json("benchmark-compatibility-results.json")
 #let fmt-distance(value) = if value == none { [—] } else { str(calc.round(value, digits: 2)) }
 
-This checkpoint compares #compatibility.accepted_runs completed, accepted production estimates. The tests
+This checkpoint compares #compatibility.accepted_runs accepted native production estimates. The tests
 use the full real–imaginary covariance, retained before rounding for display.
 For two independent runs, the difference uses $C_1+C_2$. The diagnostic distance
 is $sqrt(Delta^T C^(-1) Delta)$. It is an estimated-covariance diagnostic, not a
@@ -24,12 +24,18 @@ summary below concerns $epsilon^0$.
   )).flatten(),
 )
 
-No disagreement requiring a new tuning choice is indicated by these completed
-checks. They include comparisons between samplers, prescriptions and work/time
+The checks include comparisons between samplers, prescriptions and work/time
 arms where results are available. The largest nonsingular mutual distance over
-all orders is 2.93; the largest reference distance is 3.08. These many comparisons are correlated with one another and are
+all orders is #fmt-distance(compatibility.semantics.maximum_all_order_pair_distance)\;
+the largest reference distance is #fmt-distance(compatibility.semantics.maximum_all_order_reference_distance). These many comparisons are correlated with one another and are
 not independent repetitions of a significance test. Later campaign closures
-and instrumented reruns still require the same audit.
+and instrumented reruns require the same audit. The current all-order maximum
+comes from the physical double box at $epsilon^(-1)$, involving its noisy dynamic
+QMC estimate. The finite-coefficient maxima are listed separately above; no
+uncertainty has been enlarged to obtain agreement. A clean capped secondary-work
+estimate can be included with its actual count and unfinished planned allocation;
+its covariance still comes from complete native batches. An overlapping partial
+prefix is omitted when its completed continuation is used.
 
 == Independent references and numerical limits
 The bubble's finite reference is $2-3 log(3)/2+i pi/2$. Native HEPKit/OneLOop

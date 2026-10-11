@@ -36,7 +36,15 @@
           text(weight: "semibold")[#sampler.label]))
         if index == 0 {
           for key in ("generation_seconds", "generation_peak_gb", "artifact_mb", "stochastic_sectors") {
-            cells.push(cell(method.generation.at(key), rowspan: 2))
+            let value = method.generation.at(key)
+            if key == "generation_seconds" and method.id == "no-contour" {
+              if method.generation_status == "refused" and method.status_detail.contains("unsupported threshold generation") {
+                value = "Unsupported"
+              } else if method.generation_status == "not_available" {
+                value = "In preparation"
+              }
+            }
+            cells.push(cell(value, rowspan: 2))
           }
           cells.push(cell(method.kernel_cost.f64_max_avg_us, rowspan: 2))
         }
@@ -47,8 +55,8 @@
         let normalized = sampler.at("normalized_metrics", default: (:))
         cells.push(cell(normalized.at("work_radial_relative_se", default: none)))
         let weights = sampler.at("weight_metrics", default: (:))
-        cells.push(cell(weights.at("absolute_weight_integral_over_norm", default: none)))
-        cells.push(cell(weights.at("maximum_observed_weight_over_norm", default: none)))
+        cells.push(cell(weights.at("display_cancellation_ratio", default: weights.at("absolute_weight_integral_over_norm", default: none))))
+        cells.push(cell(weights.at("display_maximum_ratio", default: weights.at("maximum_observed_weight_over_norm", default: none))))
         cells.push(cell(normalized.at("time_reported_sector_calls_million", default: none)))
         cells.push(table.cell(fill: rgb("e3f0e7"), align: center + horizon,
           text(weight: "bold")[#show-value(normalized.at("time_radial_relative_se", default: none))]))

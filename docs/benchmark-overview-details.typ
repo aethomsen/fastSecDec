@@ -48,6 +48,10 @@ prediction. The native profiling harness uses deterministic coordinates (4096
 for the smaller scalar cases, 1024 for the scalar D05), three repetitions and
 zero warmup; call counts and coordinate counts are retained
 separately. Loading and evaluator restoration have their own receipts.
+The integration elapsed clock starts after ordinary coordinator kernel loading;
+serial resident loading and subsequent reloading occur inside its clock.
+Process-wall and loading times are retained separately so these startup costs
+are not confused with the reported sampling interval.
 
 *Causal validation is off throughout every new table timing*: profiling,
 throughput calibration, matched-work integration and the 600-second arm all
@@ -67,23 +71,34 @@ Actual errors, counts, factors and times are retained unchanged. A topology's
 time comparison is withheld if its longest/shortest accepted run exceeds 1.25.
 Each accepted timed run must also lie between 480 and 750 seconds.
 Each confirmation has a seed disjoint from calibration and the other arm.
-The fixed-time arm requests
-600 seconds on the native elapsed clock, then uses graceful cancellation to
-save the last committed estimate; actual elapsed time, drain and cancelled
-allocations are recorded separately. An external kill without a native result
-does not supply an error estimate. The integration-RAM column uses this arm.
+The instrumented fixed-time arm stops new reservations at 600 native seconds
+and drains complete in-flight tasks or batches before saving. Its exact call
+count requires a clean native drain. Earlier confirmations used graceful
+cancellation and retain their observed-prefix counts. Actual elapsed time,
+drain and process-wall time remain separate. An externally interrupted run
+does not qualify for the new timed table. The integration-RAM column uses this arm.
+
+The secondary work display may use a clean capped estimate with an unfinished
+planned allocation, provided its native full-coverage covariance comes from
+committed complete batches under the same fixed design. Its strict matched-work
+status remains incomplete; the actual count and square-root correction are
+retained explicitly. A completed continuation is used instead of its partial
+prefix, without pooling the two estimates.
 
 The timed-call column counts observed logical sector-integrand evaluations,
 including reported pilot and discarded work. Precision-rescue backend calls
 are retained separately and do not become new sampling points. A leading
-$gt.eq$ identifies a lower bound: current process cancellation may lose the
-unpublished tail since a worker's last status message. Accepted production work
+$gt.eq$ identifies an older lower bound: process cancellation may lose the
+unpublished tail since a worker's last status message. Unprefixed counts require
+complete native deadline/drain accounting. Accepted production work
 is recorded separately and exactly. New weight-diagnostic runs require their
 own complete accounting; no total is inferred from elapsed time or throughput.
 
-The new cancellation and maximum-weight columns remain unavailable until their
-native accepted-production accumulators have been measured. The intended
-cancellation numerator is the sum of absolute sector integrals plus the magnitude
+The cancellation and maximum-weight columns use fresh native
+accepted-production accumulators. A dash means that this arm has no accepted
+instrumented measurement yet; old receipts cannot reconstruct these statistics.
+Accumulator and observation costs remain inside the new native elapsed clock.
+The cancellation numerator is the sum of absolute sector integrals plus the magnitude
 of the combined exact offset, divided by $abs(I_0)$. The maximum uses actual
 complex magnitudes, with continuous importance correction retained and discrete
 sector-selection correction removed for a conditional sector weight. It depends
@@ -125,9 +140,13 @@ symGCAD revision `644a560e69a064f811fa93aff33a247ea7fcdfca`.
 
 == Current admission limits
 The bubble has a complete no-contour integration route. Native CLI preparation
-currently refuses the triangle, box, sunrise and kite because their affine
-projective domains require a complete multidimensional cell-to-endpoint atlas
-beyond the admitted native-cube route. Verified double-box geometry and open
+currently reports “Unsupported” for the triangle, box, sunrise and kite:
+the affine-projective preparation guard stops before GCAD is called. This is an
+implementation gap in the complete multidimensional cell-to-endpoint route,
+not a failed GCAD solve or a rejection of the physical integral. A separate
+triangle probe now solves and freshly verifies its four native cells; connecting
+those cells to complete endpoint continuation remains pending. Its millisecond
+solve is not a complete generation measurement. Verified double-box geometry and open
 maps likewise do not yet provide the complete endpoint continuation needed for
 a full no-contour integral. Those rows remain unavailable; their generation
 time is not replaced by GCAD-only time. The detailed preparation studies below

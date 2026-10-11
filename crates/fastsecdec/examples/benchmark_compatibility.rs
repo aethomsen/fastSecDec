@@ -102,6 +102,30 @@ fn label(row: &Value) -> Value {
         "arm":row["arm"],"seed":row["seed"],"native_result":row["native_result"]})
 }
 
+fn comparison_eligible(row: &Value) -> bool {
+    if row["status"] == "native_complete_record_estimate" {
+        return true;
+    }
+    let eligibility = &row["normalized_work_eligibility"];
+    let actual = row["accepted_sector_evaluations"].as_u64();
+    let planned = eligibility["planned_accepted_evaluations"].as_u64();
+    row["status"] == "incomplete_requested_work"
+        && row["arm"] == "matched_work"
+        && row["sampler"] == "discrete_mc"
+        && eligibility["status"] == "native_clean_cap_partial_planned_allocation"
+        && eligibility["strict_campaign_status"] == row["status"]
+        && eligibility["display_selected"] == true
+        && eligibility["allocation_target_complete"] == false
+        && eligibility["actual_accepted_evaluations"] == row["accepted_sector_evaluations"]
+        && actual.zip(planned).is_some_and(|(a, p)| a > 0 && a < p)
+        && row["allocation_target_complete"] == false
+        && row["effective_settings"]["double_points"] == false
+        && row["native_scope"] == "FullIntegral"
+        && row["native_contributions"]["stage"] == "Production"
+        && row["native_contributions"]["uncertainty"] == "Available"
+        && (row["stopping_reason"] == "Cancelled" || row["stopping_reason"] == "WorkLimit")
+}
+
 fn main() -> Result<()> {
     let args = std::env::args().skip(1).collect::<Vec<_>>();
     if args.len() != 3 {
@@ -113,7 +137,7 @@ fn main() -> Result<()> {
         .as_array()
         .ok_or("missing observations")?
         .iter()
-        .filter(|r| r["status"] == "native_complete_record_estimate")
+        .filter(|r| comparison_eligible(r))
         .collect::<Vec<_>>();
     let mut comparisons = vec![];
     let mut reference_comparisons = vec![];
@@ -194,6 +218,44 @@ fn main() -> Result<()> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn partial_work_selection_preserves_strict_status_and_requires_reviewed_full_estimate() {
+        assert!(comparison_eligible(
+            &json!({"status":"native_complete_record_estimate"})
+        ));
+        let row = json!({
+            "status":"incomplete_requested_work", "arm":"matched_work", "sampler":"discrete_mc",
+            "accepted_sector_evaluations":80, "allocation_target_complete":false,
+            "effective_settings":{"double_points":false}, "native_scope":"FullIntegral",
+            "native_contributions":{"stage":"Production","uncertainty":"Available"},
+            "stopping_reason":"Cancelled",
+            "normalized_work_eligibility":{
+                "status":"native_clean_cap_partial_planned_allocation",
+                "strict_campaign_status":"incomplete_requested_work", "display_selected":true,
+                "allocation_target_complete":false,
+                "planned_accepted_evaluations":100, "actual_accepted_evaluations":80
+            }
+        });
+        assert!(comparison_eligible(&row));
+        for (path, value) in [
+            (
+                "/normalized_work_eligibility/display_selected",
+                json!(false),
+            ),
+            ("/normalized_work_eligibility/status", json!("unreviewed")),
+            ("/status", json!("numerical_failure")),
+            ("/native_contributions/uncertainty", json!("Unavailable")),
+            ("/native_scope", json!("SectorSubset")),
+            ("/effective_settings/double_points", json!(true)),
+            ("/accepted_sector_evaluations", json!(0)),
+        ] {
+            let mut mutated = row.clone();
+            *mutated.pointer_mut(path).unwrap() = value;
+            assert!(!comparison_eligible(&mutated), "{path}");
+        }
+        assert_eq!(row["status"], "incomplete_requested_work");
+    }
+
     #[test]
     fn native_covariance_solve_preserves_correlations_and_refuses_singular_inverse() {
         let correlated = diagnostic([1., 1.], [1., 0.5, 0.5, 1.], 1.).unwrap();

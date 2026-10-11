@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "status": "Intermediate reviewed checkpoint;69 accepted runs",
-  "campaign_preview_sha256": "d77b3b3b9b3b3ab0ea67bf4099cabd30120554f8fbcfae8ee5cbb7ff4da80fea",
-  "complete_private_audit_sha256": "a8edb354d63d5450f37fffb5c9b1068aad76d0e2742db7eb77997a421b86daaa",
+  "status": "Instrumented campaign checkpoint; 84 accepted native estimates",
+  "campaign_preview_sha256": "354ae569b38728e835e737a1e05aaca4a5b64db59e1cb8cf4b4e4c37962c6a02",
+  "complete_private_audit_sha256": "9334164654a910f4b09772df79f8d1ee20a2ebcb94b966dfe9813ae35c088694",
   "native_helper": "crates/fastsecdec/examples/benchmark_compatibility.rs",
   "reference_inventory_sha256": "0a45bf54b72d9300462db9dc2f7903d9febe8537ed4ec22f1248c48941c26c6c",
   "semantics": {
@@ -10,17 +10,19 @@
     "limitations": "Estimated covariance diagnostic, not a calibrated p-value; distinct-seed independence assumption; singular or roundoff-sensitive tests excluded from reported maxima, never silently regularized",
     "all_orders": "All available complex Laurent blocks checked in complete private audit; overview summaryepsilon0",
     "rounded_references": "No certified arithmetic bound; no reference rounding added to stochastic covariance",
-    "maximum_all_order_pair_distance": 2.9296500155213465,
-    "maximum_all_order_reference_distance": 3.077433343072288
+    "maximum_all_order_pair_distance": 3.7777124918520775,
+    "maximum_all_order_reference_distance": 3.077433343072288,
+    "secondary_work": "Separately reviewed clean-cap partial allocations may enter with native full-vector covariance; an overlapping prefix is excluded when a completed continuation is used."
   },
+  "accepted_runs": 84,
   "topologies": [
     {
       "topology": "bubble",
       "label": "Massive bubble",
-      "runs": 11,
+      "runs": 14,
       "comparisons": {
-        "count": 55,
-        "rounding_sensitive_or_singular": 15,
+        "count": 91,
+        "rounding_sensitive_or_singular": 21,
         "maximum_covariance_distance": 2.3939450818572685,
         "largest_diagnostic": {
           "diagnostic": {
@@ -70,8 +72,8 @@
         }
       },
       "reference_comparisons": {
-        "count": 11,
-        "rounding_sensitive_or_singular": 6,
+        "count": 14,
+        "rounding_sensitive_or_singular": 7,
         "maximum_covariance_distance": 2.3939450818321166,
         "largest_diagnostic": {
           "diagnostic": {
@@ -489,9 +491,9 @@
     {
       "topology": "kite",
       "label": "Massive-threshold kite",
-      "runs": 10,
+      "runs": 12,
       "comparisons": {
-        "count": 45,
+        "count": 66,
         "rounding_sensitive_or_singular": 0,
         "maximum_covariance_distance": 2.7490414498173075,
         "largest_diagnostic": {
@@ -552,53 +554,53 @@
     {
       "topology": "d05-scalar",
       "label": "Scalar D05 double box",
-      "runs": 6,
+      "runs": 12,
       "comparisons": {
-        "count": 15,
+        "count": 66,
         "rounding_sensitive_or_singular": 0,
-        "maximum_covariance_distance": 2.3795182205982752,
+        "maximum_covariance_distance": 2.7153883410335924,
         "largest_diagnostic": {
           "diagnostic": {
             "covariance_of_difference": [
-              1.0140236171901817e-32,
-              9.934128826329678e-34,
-              9.934128826329678e-34,
-              2.862453897588414e-32
+              9.657141520432985e-36,
+              -3.266048057170456e-38,
+              -3.266048057170456e-38,
+              9.685321660619817e-36
             ],
             "difference": [
-              -2.0558771014450494e-16,
-              -2.2658131064067524e-16
+              -8.231670811698202e-18,
+              -1.8309065867808987e-18
             ],
-            "difference_norm": 3.059499908385473e-16,
+            "difference_norm": 8.432830087324292e-18,
             "interpretation": "Descriptive estimated-covariance diagnostic, not a calibrated p-value; no error inflation or numerical-bias bound",
-            "joint_se": 1.9688772218649378e-16,
-            "mahalanobis_distance": 2.3795182205982752,
+            "joint_se": 4.398006728172753e-18,
+            "mahalanobis_distance": 2.7153883410335924,
             "positive_definite": true,
             "rounding_sensitive": false,
-            "rounding_warning_scale": 3.2519638885189334e-30,
+            "rounding_warning_scale": 2.099670182049988e-30,
             "symmetric": true
           },
           "left": {
             "arm": "fixed_time",
-            "method": "dynamic-polynomial",
+            "method": "fixed",
             "native_result": {
-              "path": "/common/dev/fastsecdec/target/no-deformation-overview-campaign/fixed_time-off-double-box-scalar-polynomial-discrete_mc-r1-result.json",
-              "sha256": "7c5128bb2727fc35133ac96b3980f46bcea63602f0231eef005a222cd7eb5c55"
+              "path": "/common/dev/fastsecdec/target/no-deformation-overview-campaign/fixed_time-off-double-box-scalar-fixed-discrete_mc-instrumented-r1-result.json",
+              "sha256": "75dcfaa72dc135d7493eda9c9e9f215df42a74d1a0f04a9fc01804d67cf3d8d4"
             },
             "sampler": "discrete_mc",
-            "seed": 1113030,
+            "seed": 3104039,
             "topology": "d05-scalar"
           },
           "order": 0,
           "right": {
-            "arm": "matched_work",
-            "method": "dynamic-polynomial",
+            "arm": "fixed_time",
+            "method": "fixed",
             "native_result": {
-              "path": "/common/dev/fastsecdec/target/no-deformation-overview-campaign/matched_work-off-double-box-scalar-polynomial-qmc-r2-result.json",
-              "sha256": "7da88fe818ef4d16f128f02d96b5a6c10bfb3a9d42427d2935b59cfd0ce04a52"
+              "path": "/common/dev/fastsecdec/target/no-deformation-overview-campaign/fixed_time-off-double-box-scalar-fixed-qmc-instrumented-r1-result.json",
+              "sha256": "5c5dfb3583e24a6e9fdd71571e04cdf8a00b7b08c95580b50eae58946c636b55"
             },
             "sampler": "qmc",
-            "seed": 1712021,
+            "seed": 3105048,
             "topology": "d05-scalar"
           },
           "sampling_relation": "Distinct recorded seeds; covariance sum assumes independent run randomizations. No shared-point pairing or empirical cross-run covariance is claimed"
@@ -615,9 +617,9 @@
     {
       "topology": "d05-physical",
       "label": "Physical D05 double box",
-      "runs": 6,
+      "runs": 10,
       "comparisons": {
-        "count": 15,
+        "count": 45,
         "rounding_sensitive_or_singular": 0,
         "maximum_covariance_distance": 2.74460385870443,
         "largest_diagnostic": {
@@ -675,6 +677,5 @@
       },
       "reference": null
     }
-  ],
-  "accepted_runs": 69
+  ]
 }

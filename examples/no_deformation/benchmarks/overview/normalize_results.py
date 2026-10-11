@@ -7,6 +7,7 @@ import argparse
 import hashlib
 import json
 import math
+import sys
 from pathlib import Path
 
 
@@ -31,17 +32,44 @@ def radial(detail):
                       covariance[i*n+r], covariance[i*n+i])
     assert all(math.isfinite(x) for x in [re, im, rr, ri, ir, ii])
     assert rr >= 0 and ii >= 0 and ri == ir
+    native = detail.get("native_complex_norm_uncertainty")
+    if native is not None:
+        available = native["radial_relative_error"] is not None and native["radial_standard_error"] is not None
+        return {"mean_magnitude": native["mean_magnitude"], "covariance_block": [[rr, ri], [ir, ii]],
+                "absolute_se": native["radial_standard_error"], "relative_se": native["radial_relative_error"],
+                "method": "native_VectorEstimate_complex_norm_uncertainty", "native": native,
+                "status": "available" if available else "unavailable_native_norm_diagnostic",
+                "linearization": "large_uncertainty_or_unavailable_native" if native["linearization_warning"] else "first_order_delta_method"}
     magnitude = math.hypot(re, im)
     result = {"mean_magnitude": magnitude, "covariance_block": [[rr, ri], [ir, ii]],
               "absolute_se": None, "relative_se": None,
               "method": "delta_method_radial_full_complex_covariance"}
+    if not math.isfinite(magnitude):
+        result["mean_magnitude"] = None
+        result["status"] = "unavailable_legacy_numeric_range"
+        return result
     if magnitude == 0:
         result["status"] = "undefined_zero_mean"
         return result
     a, b = re / magnitude, im / magnitude
-    variance = math.fsum([a*a*rr, 2*a*b*ri, b*b*ii])
+    products = [(a, a, rr), (2, a, b, ri), (b, b, ii)]
+    terms = [math.prod(values) for values in products]
+    unsafe = ((re != 0 and a == 0) or (im != 0 and b == 0)
+              or any(not math.isfinite(v) or (v == 0 and all(x != 0 for x in factors))
+                     or (0 < abs(v) < sys.float_info.min) for v, factors in zip(terms, products)))
+    if unsafe:
+        result["status"] = "unavailable_legacy_numeric_range"
+        return result
+    try:
+        variance = math.fsum(terms)
+    except OverflowError:
+        result["status"] = "unavailable_legacy_numeric_range"
+        return result
     if variance < 0:
         result["status"] = "unavailable_negative_projected_variance"
+        return result
+    if not math.isfinite(variance) or not math.isfinite(math.sqrt(variance)/magnitude):
+        result["status"] = "unavailable_legacy_numeric_range"
         return result
     result.update(absolute_se=math.sqrt(variance),
                   relative_se=math.sqrt(variance)/magnitude,
@@ -55,7 +83,10 @@ def radial(detail):
 
 def apply(data, targets):
     accepted = [d for d in data["integration_details"]
-                if d["status"] == "native_complete_record_estimate"
+                if (d["status"] == "native_complete_record_estimate"
+                    or (d["status"] == "incomplete_requested_work"
+                        and d.get("normalized_work_eligibility", {}).get("status") == "native_clean_cap_partial_planned_allocation"
+                        and d["normalized_work_eligibility"].get("display_selected") is True))
                 and d.get("table_eligible", True)]
     sampler_map = {(t["id"], m["id"], s["id"]): s
                    for t in data["topologies"] for m in t["methods"]
@@ -111,13 +142,29 @@ def apply(data, targets):
             assert calls == operational["diagnostics"]["evaluations"]
             assert calls == sum(s["evaluations"] for s in operational["sectors"])
             assert calls >= detail["accepted_sector_evaluations"]
+            exact_counts = detail.get("native_timed_stop", {}).get("counts_complete") is True
             detail["logical_sector_calls"] = {
                 "reported": calls,
-                "coverage": "observed_completed_callbacks_including_pilots_and_discarded_work; unpublished_tail_possible",
+                "coverage": "complete_native_timed_drain" if exact_counts else "observed_completed_callbacks_including_pilots_and_discarded_work; unpublished_tail_possible",
                 "accepted_statistical_evaluations": detail["accepted_sector_evaluations"],
                 "backend_calls": {tier: operational["diagnostics"][tier+"_timing"]["calls"]
                                   for tier in ["f64", "double_float", "arbitrary"]}}
-            sampler["normalized_metrics"]["time_reported_sector_calls_million"] = f"≥ {calls/1e6:.3g}"
+            sampler["normalized_metrics"]["time_reported_sector_calls_million"] = ("" if exact_counts else "≥ ") + f"{calls/1e6:.3g}"
+            weights = detail.get("native_weight_diagnostics")
+            if weights is not None:
+                finite = [row for row in weights["orders"] if row["order"] == 0]
+                assert len(finite) == 1 and weights["accepted_points"] == detail["accepted_sector_evaluations"]
+                w = finite[0]
+                available = weights["status"] == "Available"
+                c = w["cancellation_ratio"] if available else None
+                maximum = w["maximum_ratio"] if available else None
+                sampler["weight_metrics"] = {
+                    "status": "measured" if available else "unavailable",
+                    "native_status": weights["status"],
+                    "absolute_weight_integral_over_norm": c,
+                    "maximum_observed_weight_over_norm": maximum,
+                    "display_cancellation_ratio": None if c is None else f"{c:.3g}",
+                    "display_maximum_ratio": None if maximum is None else f"{maximum:.3g}"}
         else:
             target = targets["targets"].get(detail["topology"])
             eligible = target is not None
@@ -139,6 +186,8 @@ def apply(data, targets):
             else:
                 normalized["status"] = radial_result["status"]
             if detail["arm"] == "matched_work":
+                if "normalized_work_eligibility" in detail:
+                    normalized["planned_allocation"] = detail["normalized_work_eligibility"]
                 sampler["normalized_metrics"]["work_joint_se"] = f'{normalized["joint_se"]:.3g}'
         detail["display_normalization"] = normalized
     data["display_normalization"] = {
