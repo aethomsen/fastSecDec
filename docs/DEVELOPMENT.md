@@ -77,8 +77,10 @@ archives containing local v16 programs. These retain caller-owned scheduling
 and selective sector loading. `threshold::generation::{prepare,resume,resume_evidence}`
 provides the corresponding native preparation and recovery adapter, with compact
 receipts for caller-owned processes and fresh verification of saved solve output.
-The CLI exposes this fixed, one-dimensional rational path through
-`--threshold-decomposition` and the corresponding run-card setting; see
+The CLI exposes threshold preparation through `--threshold-decomposition`
+and the corresponding run-card setting. In addition to the fixed,
+one-dimensional rational path, automatic preparation admits the verified
+regular algebraic families described below; see
 [`examples/no_deformation/README.md`](../examples/no_deformation/README.md).
 Both generation schedules publish the same indexed format for ordinary or serial
 integration. Native HEPKit inputs also expose this path through
@@ -134,9 +136,21 @@ stability policy. `StaticExactF64BracketV1` remains the default; explicit
 constant rational brackets through native normalization to `[0,1]`. Both
 recipes retain generic polynomial degree within resource limits. See the
 [rational-bracket review](reviews/no-deformation-affine-root-brackets.md).
-Default native consumers restore it without GCAD; portable root-bearing
-records remain unsupported. It does not yet extend CLI or HEPKit preparation
-to arbitrary algebraic inputs. See the
+The shared preparation factory now discovers the admitted fixed native-cube
+two-/three-cell families and uses shifted affine root programs (V3). This
+normalizes the defining polynomial, retaining its source-derived endpoint
+constant to avoid cancellation. It does not expand the complete transformed
+density. All four normal/serial generation/integration combinations pass for
+the sextic example in
+[`examples/no_deformation/regular_sextic.toml`](../examples/no_deformation/regular_sextic.toml).
+These are generic-degree simple-root constructions within the documented
+geometry class, not arbitrary algebraic endpoint resolution. See the
+[automatic-factory review](reviews/no-deformation-regular-family-factory.md).
+Default native consumers restore these programs without GCAD; portable
+root-bearing records remain unsupported. Runtime parameter chambers, moving
+brackets and general root collisions remain separate delivery gates. The
+existing native HEPKit owner forwards to the shared preparation factory;
+the new sextic's recorded end-to-end execution gate is the CLI. See also the
 [algebraic-kernel review](reviews/no-deformation-algebraic-kernels.md).
 
 The direct solver call is synchronous;
