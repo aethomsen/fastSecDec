@@ -66,7 +66,7 @@
     if page-index > 0 { pagebreak() }
     text(size: 19pt, weight: "bold", fill: ink)[Overview]
     h(1fr)
-    text(size: 9pt, fill: rgb("456078"))[Finite coefficient $epsilon^0$ · 25 cores]
+    text(size: 9pt, fill: rgb("456078"))[Finite coefficient $epsilon^0$ · 25-core integration]
     v(5mm)
     for index in group {
       topology-block(data.topologies.at(index))

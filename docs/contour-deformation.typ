@@ -18,6 +18,11 @@
 #let Re = math.op("Re")
 #let Im = math.op("Im")
 
+#include "benchmark-overview.typ"
+#pagebreak()
+#include "benchmark-overview-details.typ"
+#pagebreak()
+
 #text(size: 24pt, weight: "bold", fill: rgb("173e59"))[Threshold regularisation]
 
 #text(size: 13pt)[FastSecDec · contour deformation and threshold decomposition]
@@ -78,7 +83,9 @@ a natively cancelled denominator or finite smooth density remains finite.
 
 Optional validation has three policies: *always* checks pilot and production,
 *pilot* checks separate pilot work and removes optional production checks, and
-*off* removes both. Solver termination and nonfinite handling remain active.
+*off*, now the default, removes both. Solver termination, precision rescue and
+nonfinite handling remain active. The new overview's sampling and convergence
+timings explicitly use *off*; separate validation probes are excluded.
 Fixed-mode failures identify the factor and point; they never silently shrink
 the requested strength. Finite pilots are safeguards, not global certificates.
 The gradient-map convention and subtraction ordering follow the established

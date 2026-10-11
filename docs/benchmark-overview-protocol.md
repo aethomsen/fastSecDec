@@ -1,7 +1,9 @@
 # Twenty-five-core finite-coefficient benchmark protocol
 
-Status: preparatory protocol; the dependency, executable and run-plan freeze is
-pending. No number in an earlier report is a measurement of this campaign.
+Status: running with frozen dependency, executable and recorded run plans.
+Generation and explicit-Off cost measurements are available; confirmation
+integration remains in progress. No earlier historical number is relabelled as
+a measurement of this campaign.
 
 The opening report is `benchmark-overview.typ`, driven by
 `benchmark-overview-results.json`. It uses A4 landscape topology blocks with
@@ -51,7 +53,9 @@ executable SHA-256 and native library identities. The latest symGCAD adoption an
 certificate-budget patch require consuming gates before this freeze. A reference
 clone's HEAD is not evidence that an executable uses it.
 
-Generate every admitted artifact with `generate --serial --workers 25`. This
+Generate admitted artifacts with `generate --serial --workers 25`. The physical
+numerator double box uses an explicitly recorded six-worker generation exception
+under the shared RAM allowance, retaining 25-core affinity. This
 recycles sector workers; it does not mean one worker or a sequential campaign.
 QMC integration uses `integrate --serial RESIDENCE_SECONDS --workers 25` with an
 explicit frozen positive residence. The native residence is a minimum sampling
@@ -130,14 +134,23 @@ Neither relative SE nor agreement with a contour arm is an independent accuracy
 certificate. Runtime and RAM may differ between work and time arms; retain both,
 and use the fixed-time integration peak for column f.
 
-Raw-f64 and checked costs use distinct clocks already exposed by the native
-diagnostic. The nested `f64_timing` nanoseconds/calls measure native evaluator
-invocations; the outer repetition wall includes checks and rescue. Use the
-existing `diagnostics::benchmark` with warmup zero in a thin caller so both
-counts refer to the same deterministic coordinate set. A checked outer wall
-alone is not evidence for raw-f64 e/g. Preserve failures and the harness identity.
-Do not include optional diagnostics in production sampling unless every arm has
-the same overhead; any separate diagnostic is labelled as such.
+Raw-f64 and checked costs use the same explicit `--contour-validation off`
+native diagnostic with `benchmark --warmup 0`, on deterministic coordinates.
+The collector requires zero production `diagnostic_checks.checked_arguments`
+and no causal pilot in this measurement. Raw-f64 e/g use the native f64-tier
+counters; checked wall includes stability checks and mandatory precision rescue.
+Retain raw-call counts and checked-coordinate counts separately. Essential native
+callback/root work remains part of evaluation. No physical integrand or parameter
+is changed by disabling optional causal validation.
+
+Earlier `always` and `pilot` diagnostics remain separate scientific evidence,
+and their timings never enter the Overview. Under `always`, dynamic evaluation
+places optional repeated causal validation inside the native f64-tier timer,
+whereas fixed validation occurs outside it; those counters are not comparable
+raw-f64 measurements. Throughput calibration and work/time production also pass
+explicit `--contour-validation off`. Any separately requested causal preparation
+or validation has its own clock outside the reported integration allocation.
+Preserve the superseded attempts and their policy rather than relabelling them.
 
 ## Observation, failures and publication
 

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "status": "preparatory",
+  "status": "running",
   "target_order": 0,
   "resource_policy": {
     "workers": 25,
@@ -21,14 +21,15 @@
     "qmc_residence_seconds_proposal": 1,
     "discrete_mc_scheduler": "ordinary_explicit_user_exception",
     "fixed_time_seconds": 600,
-    "global_deadline_adapter": "one SIGINT to coordinator after600s; short executable control pending",
+    "global_deadline_adapter": "one SIGINT to coordinator when native integration elapsed reaches600s; passed short native QMC/MC controls; report drain and actual elapsed separately",
     "matched_work_unit": "committed native sector-point evaluations",
     "target": {
       "laurent_order": 0,
       "uncertainty": "sqrt(trace(native finite covariance-of-mean block))"
     },
     "confirmation_seeds_per_sampler_arm": 1,
-    "work_and_time_seeds_disjoint": true
+    "work_and_time_seeds_disjoint": true,
+    "contour_validation": "off"
   },
   "metric_keys": [
     "generation_seconds",
@@ -52,5 +53,11 @@
     "observer and cohort enforcement",
     "raw-f64 and checked cost harness"
   ],
-  "measurements": []
+  "measurements": [],
+  "diagnostics": {
+    "contour_validation": "off",
+    "warmup": 0,
+    "require_production_causal_checks": 0,
+    "exclude_causal_validation_from_all_table_clocks": true
+  }
 }
