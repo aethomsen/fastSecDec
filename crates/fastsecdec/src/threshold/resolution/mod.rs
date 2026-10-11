@@ -178,3 +178,9 @@ pub use blowup::{
     CarriedPowerAdvance, CarriedPowerCompanion, CarriedPowerState, CarriedPowerTransition,
     PendingPowerTransition, PowerCosupportProof,
 };
+
+pub use blowup::{
+    PhysicalAuxiliaryAdvance, PhysicalAuxiliaryWork, PhysicalPowerInventory,
+    PhysicalPowerPreparation, PhysicalPowerSlot, PhysicalPowerSlotKind, PhysicalPowerTerminal,
+    RetiredPowerInventory,
+};

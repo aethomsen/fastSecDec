@@ -2,6 +2,7 @@
 //! Progress is in memory. Native resource refusals do not discard accepted charts.
 use super::super::super::*;
 use super::super::helpers::Result;
+use super::power_inventory::AuxiliaryFrontier;
 use super::*;
 use std::sync::Arc;
 #[derive(Clone, Debug)]
@@ -35,6 +36,7 @@ pub struct PhysicalChartFrontier {
     blowup: Arc<RelativeRecursiveBlowup>,
     namespace: String,
     work: Vec<PhysicalChartWork>,
+    auxiliary: Option<AuxiliaryFrontier>,
 }
 impl PhysicalChartFrontier {
     pub fn from_problem(
@@ -103,6 +105,7 @@ impl PhysicalChartFrontier {
         b.reserve_slots(blowup.charts().len())?;
         Ok(Self {
             origin,
+            auxiliary: None,
             work: vec![PhysicalChartWork::Pending; blowup.charts().len()],
             blowup,
             namespace,
@@ -227,5 +230,107 @@ impl PhysicalChartFrontier {
                 Err(Error::Invalid("complete physical chart work reissued"))
             }
         }
+    }
+}
+
+impl PhysicalChartFrontier {
+    /// Enable auxiliary work at the actual original problem. Default physical
+    /// construction/advance remains unchanged and does not execute this work.
+    pub fn enable_initial_auxiliary(&mut self, b: &mut Budget) -> Result<()> {
+        if self.auxiliary.is_some() {
+            return Err(Error::Invalid("auxiliary work already enabled"));
+        }
+        let FrontierOrigin::Initial(problem) = &self.origin else {
+            return Err(Error::Invalid(
+                "initial auxiliary needs actual initial problem",
+            ));
+        };
+        self.auxiliary = Some(AuxiliaryFrontier::initial(
+            problem.clone(),
+            self.blowup.clone(),
+            format!("{}_auxiliary", self.namespace),
+            b,
+        )?);
+        Ok(())
+    }
+    /// Reuse a COMPLETE inventory from the exact current physical source. This
+    /// does not accept a vector of caller-authored power states.
+    pub fn enable_carried_auxiliary(
+        &mut self,
+        prior: Arc<PhysicalPowerInventory>,
+        b: &mut Budget,
+    ) -> Result<()> {
+        if self.auxiliary.is_some() {
+            return Err(Error::Invalid("auxiliary work already enabled"));
+        }
+        let FrontierOrigin::Embedded { state, .. } = &self.origin else {
+            return Err(Error::Invalid(
+                "carried auxiliary needs actual embedded source",
+            ));
+        };
+        if !Arc::ptr_eq(state, prior.state()) {
+            return Err(Error::Invalid("carried auxiliary exact prior state"));
+        }
+        self.auxiliary = Some(AuxiliaryFrontier::continued(
+            prior,
+            self.blowup.clone(),
+            format!("{}_auxiliary", self.namespace),
+            b,
+        )?);
+        Ok(())
+    }
+    /// Retire only by this frontier's checked source-bound cycle start. The old
+    /// inventory stays at its prior frame; new children use the new real tree.
+    pub fn enable_restarted_auxiliary(
+        &mut self,
+        prior: Arc<PhysicalPowerInventory>,
+        b: &mut Budget,
+    ) -> Result<()> {
+        if self.auxiliary.is_some() {
+            return Err(Error::Invalid("auxiliary work already enabled"));
+        }
+        let FrontierOrigin::Fresh(start) = &self.origin else {
+            return Err(Error::Invalid(
+                "restarted auxiliary needs actual cycle start",
+            ));
+        };
+        self.auxiliary = Some(AuxiliaryFrontier::fresh(
+            start.clone(),
+            prior,
+            self.blowup.clone(),
+            format!("{}_auxiliary", self.namespace),
+            b,
+        )?);
+        Ok(())
+    }
+    pub fn auxiliary_work(&self) -> Option<&[PhysicalAuxiliaryWork]> {
+        self.auxiliary.as_ref().map(|a| a.work())
+    }
+    /// Complete accounting may include physical terminal/retired ancestry. It
+    /// does not mean every auxiliary J has empty cosupport. Disabled is false.
+    pub fn auxiliary_accounting_complete(&self) -> bool {
+        self.auxiliary.as_ref().is_some_and(|a| a.complete())
+    }
+    pub fn ready_auxiliary_inventory(&self, index: usize) -> Option<&Arc<PhysicalPowerInventory>> {
+        match self.auxiliary_work()?.get(index)? {
+            PhysicalAuxiliaryWork::Ready(p) => Some(p),
+            _ => None,
+        }
+    }
+    /// Separate from physical `advance`: inspected nonterminal physical charts
+    /// remain eligible even when physical advance returns AlreadyComplete.
+    pub fn advance_auxiliary(
+        &mut self,
+        index: usize,
+        b: &mut Budget,
+    ) -> Result<PhysicalAuxiliaryAdvance> {
+        let physical = self
+            .work
+            .get(index)
+            .ok_or(Error::Invalid("auxiliary physical chart index"))?;
+        self.auxiliary
+            .as_mut()
+            .ok_or(Error::Invalid("auxiliary work is disabled"))?
+            .advance(index, physical, b)
     }
 }

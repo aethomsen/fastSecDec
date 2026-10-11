@@ -4102,3 +4102,30 @@ original rounded aggregate as provenance while recomputing the effective
 numerator from converted primitive fragments. Conservative function-argument
 refusals, general algebraic preparation and global preparation RSS remain
 documented limits; a tensor bubble does not establish full ggHH support.
+
+## Compile-once algebraic parameter templates
+
+The [parameter-template review](reviews/no-deformation-parameter-templates.md)
+records existing exact prefix admission, uniform regular-root certificates,
+native parameter binding and precision-cache input refresh. Four focused
+controls verify the root and derivative facilities and expose parameter capture
+inside function bodies. The missing work is uniform family authority, explicit
+input roles and a saved exact chamber guard; no replacement root solver or
+kernel backend is justified.
+
+The proposed implementation compiles once and checks each actual finite runtime
+point before committing its binding. Independent scientific and coordinator
+reviews accept that design scope. A parameter-enabled threshold template and
+its fresh-process rebinding gate remain pending; the optional fifth standalone
+reuse probe had an explicitly recorded transitive build-cache link failure.
+
+## Auxiliary accounting in physical resolution
+
+The [physical-frontier review](reviews/no-deformation-power-frontier.md)
+records reuse of the existing original-tree, carried-power, native support and
+physical-factor owners. The optional inventory follows actual physical maps,
+preserves source completion at its owning frame and keeps later-cycle retirement
+separate from geometric termination. Slot bounds and retry reuse the existing
+native budget and caller-stepped frontier; no new algebra or execution engine
+is introduced. Independent review and local controls cover these ownership
+rules. General invariant selection and real integration coverage remain pending.

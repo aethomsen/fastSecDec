@@ -145,3 +145,9 @@ pub use carried_power::{
     CarriedPowerAdvance, CarriedPowerCompanion, CarriedPowerState, CarriedPowerTransition,
     PendingPowerTransition, PowerCosupportProof,
 };
+
+pub use physical_cycle::{
+    PhysicalAuxiliaryAdvance, PhysicalAuxiliaryWork, PhysicalPowerInventory,
+    PhysicalPowerPreparation, PhysicalPowerSlot, PhysicalPowerSlotKind, PhysicalPowerTerminal,
+    RetiredPowerInventory,
+};

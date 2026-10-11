@@ -35,3 +35,10 @@ pub use frontier::{PhysicalChartAdvance, PhysicalChartFrontier, PhysicalChartWor
 
 #[cfg(test)]
 mod state_tests;
+
+mod power_inventory;
+pub use power_inventory::{
+    PhysicalAuxiliaryAdvance, PhysicalAuxiliaryWork, PhysicalPowerInventory,
+    PhysicalPowerPreparation, PhysicalPowerSlot, PhysicalPowerSlotKind, PhysicalPowerTerminal,
+    RetiredPowerInventory,
+};
