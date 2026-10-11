@@ -153,5 +153,11 @@ pub use blowup::{
     AccumulatedExceptional, AmbientContinuationCenter, AmbientCycleCarry, AmbientDropInventory,
     AmbientDropRecord, AmbientNextChart, AmbientResidualDrop, OriginalCompanionPullback,
     OriginalDivisorTerminal, OriginalFactorTerminal, OriginalGeneratorPullback,
-    OriginalTerminalInventory, OriginalTerminalRecord,
+    OriginalPhysicalProblem, OriginalPhysicalRoot, OriginalPhysicalState,
+    OriginalTerminalInventory, OriginalTerminalRecord, PhysicalChartAdvance, PhysicalChartFrontier,
+    PhysicalChartWork, PhysicalContinuationCenter, PhysicalCycleCompletion, PhysicalCycleStart,
+    PhysicalDropInventory, PhysicalLineageEdge, PhysicalResidualDrop, PhysicalRestartOwner,
+    PhysicalTerminalInventory, RetiredPhysicalCycle,
 };
+
+pub use blowup::{CenterOverlap, GluedAdmissibleCenter, LocalCenter, PrincipalCenterAtlas};

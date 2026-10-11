@@ -19,3 +19,19 @@ pub use next::{AmbientContinuationCenter, AmbientNextChart};
 mod tests;
 #[cfg(test)]
 mod tests_fixture;
+
+mod state;
+pub use state::{
+    OriginalPhysicalProblem, OriginalPhysicalRoot, OriginalPhysicalState, PhysicalCycleCompletion,
+    PhysicalCycleStart, PhysicalLineageEdge, PhysicalRestartOwner, PhysicalTerminalInventory,
+    RetiredPhysicalCycle,
+};
+
+mod physical_drop;
+pub use physical_drop::{PhysicalContinuationCenter, PhysicalDropInventory, PhysicalResidualDrop};
+
+mod frontier;
+pub use frontier::{PhysicalChartAdvance, PhysicalChartFrontier, PhysicalChartWork};
+
+#[cfg(test)]
+mod state_tests;

@@ -508,7 +508,7 @@ accepted. Their narrower certificates do not close the open G0 adapters.
 | G0 | Freeze precise BM variant, real-atlas algorithm/termination argument, parameter specialization construction, projective common-family/convergence certificate, and regulator-restriction proof interface. Resolve the two open adapters identified above. | Design draft only; not accepted as a complete algorithm |
 | G1 | Execute the native API probe matrix; record actual missing operations and owner boundaries. | Native ideal, relative derivative, Puiseux, function-map, prepared-root and codec probes recorded in `REUSE_AUDIT.md`; further operations require their own probes |
 | G2 | Exact GCAD adapter, signed-factor associations, branch/tower and parameter predicates, persisted descendant lineage. | Verified caller-owned GCAD, request/solver staging, rational cell maps and structural one-to-many lineage implemented. Certified generic-degree regular sections, composed nested map programs and a restricted complete two-cell endpoint-family issuer now pass native controls; a separate three-cell degree-six test covers two distinct roots and closed second-secant units. Singular branch transport and general branch towers remain pending |
-| G3 | Marked-ideal objects, native ideal recipes, coefficient/maximal-contact construction, invariant history, centers, transforms, and gluing. | Local exact algebra, contact/coefficient construction, SNC and component checks, monomial frontier, companion cycles and relative recursive blowups implemented. Repeated old-incidence continuation carries original coefficients and lower histories through physical stage six. Construction-bound nonmonomial recursion now carries the original hierarchy through a proved supported residual-order drop and a second physical blowup: five of nine charts advance, four retain localization requirements. Disconnected terminal contact components preserve their original recursion stack and full native split. A one-contact localization now inventories all five ambient opens and executes the next checked auxiliary transform on its local center; enclosing physical ascent remains incomplete. A source-bound physical refinement now carries one previously blocked chart through all four verified ambient opens, with every original ancestor and child level retained. Genuinely nonunit guards, general new-companion cycles, full BM invariant/driver and gluing remain pending |
+| G3 | Marked-ideal objects, native ideal recipes, coefficient/maximal-contact construction, invariant history, centers, transforms, and gluing. | Local exact algebra, contact/coefficient construction, SNC and component checks, monomial frontier, companion cycles and relative recursive blowups implemented. Original physical factors now have an entrypoint before the first pivot and a caller-stepped inventory through repeated embedded transforms and positive residual-cycle restarts. Actual source openings, coefficients, exceptional multiplicities and full Jacobians are retained; completed companions retire at their last admissible frames. Native controls cover a complete local cusp cycle and selected deeper cubic descendants, with explicit resource frontiers. A separate same-ambient principal-open atlas verifies all local-center overlaps and refuses incompatible local maxima. Canonical global invariant selection, general overlap gluing, relative parameter strata and the complete BM driver remain pending |
 | G4 | AJ algebraic-series lift, ramification, real branch transport, and finite mixed jets with owner-level controls. | Exact local coprime/simple root germs, implicit jets, checked discriminant-SNC admission and automatic local ramification/degree recursion implemented, including quintic, nested algebraic and repeated-cluster controls; adapted noncoordinate ramification, global real branch transport and closed-face atlas remain pending |
 | G5 | Disjoint real atlas and all-closed-face normal-form certificate; independent checker with adversarial mutations. | Not implemented |
 | G6 | Multi-regulator symbolic endpoint engine, common-family assembly, certified auxiliary removal, and complete epsilon output. | Affine multi-regulator symbolic subtraction primitives, rational-fiber continuation and restricted regular-algebraic two-cell continuation with a common epsilon strip implemented; general auxiliary-family restriction/cancellation pending |
@@ -532,9 +532,20 @@ per-factor local terminal tests, and a new ambient companion cycle after a
 proved complete residual-order drop. Selected third-map controls retain every
 original generator, exceptional multiplier and composed Jacobian. A resolved
 generated ideal is explicitly insufficient to certify its individual factors.
-The source ancestry is currently restricted; these receipts do not complete a
-general physical continuation driver, simultaneous divisor construction or a
-real integration atlas.
+The subsequent [physical-lineage review](reviews/no-deformation-physical-lineage.md)
+removes that fixed ancestry depth. It retains the actual initial opening and
+keyed factors through repeated maps, independently proves per-factor terminal
+forms and permits a new cycle only after the active companion is complete and
+the full residual maximum drops. This does not supply a simultaneous physical
+divisor constructor or a real integration atlas.
+
+The [center-descent review](reviews/no-deformation-center-descent.md) adds exact
+overlap checks for local admissible centers on one full ambient principal-open
+cover. The source, history and boundary identities remain native owners.
+Admissible local centers need not agree: the control with different local
+maxima is refused. Canonical global selection and its restriction to opens are
+still required; this limited descent receipt does not establish the full BM
+invariant or termination argument.
 
 The G3–G6 gate family must include arbitrarily parameterized test families that
 exercise nontrivial centers, higher-degree algebraic towers, intersecting

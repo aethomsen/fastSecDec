@@ -126,5 +126,12 @@ pub use physical_cycle::{
     AccumulatedExceptional, AmbientContinuationCenter, AmbientCycleCarry, AmbientDropInventory,
     AmbientDropRecord, AmbientNextChart, AmbientResidualDrop, OriginalCompanionPullback,
     OriginalDivisorTerminal, OriginalFactorTerminal, OriginalGeneratorPullback,
-    OriginalTerminalInventory, OriginalTerminalRecord,
+    OriginalPhysicalProblem, OriginalPhysicalRoot, OriginalPhysicalState,
+    OriginalTerminalInventory, OriginalTerminalRecord, PhysicalChartAdvance, PhysicalChartFrontier,
+    PhysicalChartWork, PhysicalContinuationCenter, PhysicalCycleCompletion, PhysicalCycleStart,
+    PhysicalDropInventory, PhysicalLineageEdge, PhysicalResidualDrop, PhysicalRestartOwner,
+    PhysicalTerminalInventory, RetiredPhysicalCycle,
 };
+
+mod descent;
+pub use descent::{CenterOverlap, GluedAdmissibleCenter, LocalCenter, PrincipalCenterAtlas};

@@ -3,7 +3,7 @@ use super::tests_fixture::{budget, second};
 use std::sync::Arc;
 use symbolica::symbol;
 
-fn complete(
+pub(super) fn complete(
     chart: &Arc<RelativeRecursiveChart>,
     name: &str,
     b: &mut Budget,

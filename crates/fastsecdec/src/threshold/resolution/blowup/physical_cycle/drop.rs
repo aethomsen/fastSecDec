@@ -25,64 +25,10 @@ impl AmbientDropInventory {
         b: &mut Budget,
     ) -> Result<Arc<Self>> {
         let chart = carry.chart();
-        let root = factors
-            .nodes()
-            .get(&Vec::new())
-            .ok_or(Error::Invalid("ambient drop missing factor root"))?;
-        if !Arc::ptr_eq(root.data().source(), chart.parent().target())
-            || !Arc::ptr_eq(root.data().history(), chart.history())
-        {
-            return Err(Error::Invalid(
-                "ambient drop actual original source factors",
-            ));
-        }
         if carry.companions().is_empty()
             || carry.companions().iter().any(|g| !g.cosupport().empty())
         {
             return Err(Error::Invalid("ambient drop original companion unresolved"));
-        }
-        b.reserve_slots(factors.nodes().len())?;
-        let mut records = Vec::new();
-        let mut maximum = Some(0usize);
-        let mut zero_component = false;
-        for node in factors.nodes().values() {
-            if node.zero_ideal().is_some() {
-                zero_component = true;
-                maximum = None;
-            }
-            let Some(leaf) = node.leaf() else { continue };
-            let data = leaf.data();
-            if !Arc::ptr_eq(data.source(), chart.parent().target())
-                || !data.history().same_root(chart.history())
-                || !data
-                    .history()
-                    .chart_path()
-                    .starts_with(chart.history().chart_path())
-                || data.history().births() != chart.history().births()
-            {
-                return Err(Error::Invalid("ambient drop factor ancestry"));
-            }
-            match produce_component_residual_order(leaf.clone(), b)? {
-                ComponentResidualProduction::Order(order) => {
-                    let order = Arc::new(*order);
-                    let m = order.algebraic_maximum_on_cosupport();
-                    if let Some(value) = &mut maximum {
-                        *value = (*value).max(m);
-                    }
-                    records.push(if m == 0 {
-                        AmbientDropRecord::Zero(order)
-                    } else {
-                        AmbientDropRecord::Positive(order)
-                    });
-                }
-                p @ ComponentResidualProduction::EmptyCosupport { .. } => {
-                    records.push(AmbientDropRecord::Empty(p))
-                }
-                p => {
-                    maximum = None;
-                    records.push(AmbientDropRecord::Pending(p));
-                }
-            }
         }
         let old = carry
             .original()
@@ -91,11 +37,8 @@ impl AmbientDropInventory {
             .source()
             .order()
             .algebraic_maximum_on_cosupport();
-        if maximum.is_some_and(|m| m >= old) {
-            return Err(Error::Invalid(
-                "ambient residual maximum did not strictly drop",
-            ));
-        }
+        let (records, maximum, zero_component) =
+            prove_residual_inventory(chart.parent().target(), chart.history(), old, &factors, b)?;
         Ok(Arc::new(Self {
             carry,
             factors,
@@ -152,4 +95,73 @@ impl AmbientResidualDrop {
     pub fn current(&self) -> &Arc<ComponentResidualOrder> {
         &self.current
     }
+}
+
+/// Shared complete factor-inventory check. Caller must separately bind and prove
+/// completion of its actual active G on this same current frame.
+pub(super) fn prove_residual_inventory(
+    source: &Arc<MarkedIdeal>,
+    history: &Arc<ResolutionHistory>,
+    old: usize,
+    factors: &CompletedComponentFactors,
+    b: &mut Budget,
+) -> Result<(Vec<AmbientDropRecord>, Option<usize>, bool)> {
+    let root = factors
+        .nodes()
+        .get(&Vec::new())
+        .ok_or(Error::Invalid("ambient drop missing factor root"))?;
+    if !Arc::ptr_eq(root.data().source(), source) || !Arc::ptr_eq(root.data().history(), history) {
+        return Err(Error::Invalid(
+            "ambient drop actual original source factors",
+        ));
+    }
+    b.reserve_slots(factors.nodes().len())?;
+    let mut records = Vec::new();
+    let mut maximum = Some(0usize);
+    let mut zero_component = false;
+    for node in factors.nodes().values() {
+        if node.zero_ideal().is_some() {
+            zero_component = true;
+            maximum = None;
+        }
+        let Some(leaf) = node.leaf() else { continue };
+        let data = leaf.data();
+        if !Arc::ptr_eq(data.source(), source)
+            || !data.history().same_root(history)
+            || !data
+                .history()
+                .chart_path()
+                .starts_with(history.chart_path())
+            || data.history().births() != history.births()
+        {
+            return Err(Error::Invalid("ambient drop factor ancestry"));
+        }
+        match produce_component_residual_order(leaf.clone(), b)? {
+            ComponentResidualProduction::Order(order) => {
+                let order = Arc::new(*order);
+                let m = order.algebraic_maximum_on_cosupport();
+                if let Some(value) = &mut maximum {
+                    *value = (*value).max(m);
+                }
+                records.push(if m == 0 {
+                    AmbientDropRecord::Zero(order)
+                } else {
+                    AmbientDropRecord::Positive(order)
+                });
+            }
+            p @ ComponentResidualProduction::EmptyCosupport { .. } => {
+                records.push(AmbientDropRecord::Empty(p))
+            }
+            p => {
+                maximum = None;
+                records.push(AmbientDropRecord::Pending(p));
+            }
+        }
+    }
+    if maximum.is_some_and(|m| m >= old) {
+        return Err(Error::Invalid(
+            "ambient residual maximum did not strictly drop",
+        ));
+    }
+    Ok((records, maximum, zero_component))
 }

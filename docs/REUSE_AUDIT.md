@@ -1,5 +1,29 @@
 # Ecosystem reuse evidence
 
+## Repeated physical lineage and same-ambient center descent (2026-10-11)
+
+The [physical-lineage review](reviews/no-deformation-physical-lineage.md)
+records transport of actual original factors through repeated native controlled
+transforms, including new positive residual cycles. It reuses the existing
+Symbolica polynomial, ideal, derivative, matrix, membership and exact-division
+operations. Native source membership is prepared once per keyed batch; original
+coefficients are preserved separately from normalized ideal generators. A
+caller-stepped frontier retains incomplete work without owning an executor.
+
+The [center-descent review](reviews/no-deformation-center-descent.md) records
+complete same-ambient principal-open ownership, native localization and exact
+two-way ideal membership on every overlap. It reuses the existing common-frame
+constructor and prepared-membership helper. Independent scientific/source
+reviews distinguish an admissible glued center from canonical global selection.
+Neither slice introduces a graph, CAS, numerical accumulator or sampling stream.
+Both remain native optional threshold functionality; no heavy implementation
+is moved into HEPKit/community. Global invariant/atlas production and measured
+resident memory remain open gates.
+
+The adopted-dependency combined gate passes 131 native resolver controls and
+strict workspace/all-target Clippy, followed by formatting and diff checks.
+The joined science run takes 288.29 seconds; it is not a sampling benchmark.
+
 ## Native threshold CLI process integration (2026-10-10)
 
 The [CLI review](reviews/no-deformation-cli.md) records the first admitted
