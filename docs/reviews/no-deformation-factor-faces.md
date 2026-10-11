@@ -16,6 +16,15 @@ Rational comparison, avoiding a zero-variable polynomial iterator edge case.
 Two visibility-only changes expose the existing adapter inside FastSecDec;
 there is no new algebra or certificate engine.
 
+The zero-variable iterator panic is reproduced on upstream Symbolica and has a
+tested owner-library fix in [Symbolica PR #73](https://github.com/symbolica-dev/symbolica/pull/73),
+authored by ValentinHirschi. Three new iterator tests and 57 existing polynomial
+tests pass. The fix preserves zero rows for zero and one empty row for a nonzero
+constant; its concrete iterator return type changes. Upstream strict lint debt
+is reported in the PR. The review request tags `benruijl` in a comment because
+GitHub denied the formal reviewer-assignment operation. FastSecDec's dependency
+revision is unchanged, and its exact constant path does not require this patch.
+
 The outcomes distinguish a signed unit, an exact zero residual with a proved
 unit denominator, and an unresolved obligation. A zero denominator is never
 treated as a removable limit. A failed margin proposal is not evidence that

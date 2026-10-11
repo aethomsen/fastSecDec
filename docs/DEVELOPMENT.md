@@ -212,6 +212,14 @@ and unresolved bounds. A zero remains pending refinement; even all signed units
 do not establish numerator/measure regularity or authorize subtraction. See the
 [factor-face review](reviews/no-deformation-factor-faces.md).
 
+`endpoint_transport::numerator::normal::NormalNumeratorJets` prepares compact
+absolute Taylor coefficients with full selected-root dependence. It uses native
+symbolic series and demanded original-source partial derivatives. Its compiled
+program preserves complex coefficients while isolating caller aliases from
+geometry. Source arguments must be finite in the selected normal; other face
+boundaries and full-density regularity remain separate gates. See the
+[normal-jet review](reviews/no-deformation-normal-numerator-jets.md).
+
 Select exactly one arithmetic backend: `native` provides GMP/MPFR and supports
 either SymJIT O2 or Symbolica's eager evaluator; `portable` uses the eager
 evaluator with Malachite/Astro. The CLI defaults to SymJIT O2 locally. Python

@@ -1,5 +1,21 @@
 # Ecosystem reuse evidence
 
+## Symbolic numerator coefficients through moving roots (2026-10-11)
+
+The [normal-jet review](reviews/no-deformation-normal-numerator-jets.md) records
+native tagged series, original-coordinate partial derivatives, selected-root
+callbacks, exact rational argument admission and native evaluator composition.
+Actual coefficient-stage outputs isolate caller aliases from geometry and
+source coordinates; literal powers retain native lowering at zero. Complete
+complex coefficients and the live callback owner survive native restoration.
+
+Four maintained test groups and two independent source/scientific reviews pass,
+as do native library/test strict lint checks. A nonzero cubic coefficient checks
+the root's normal dependence. The finite relative-face scope and uncompleted
+physical-density gates remain explicit. No endpoint AD or replacement algebra,
+root solver, serializer or scheduler is added.
+The combined consuming workspace/all-target strict Clippy and formatting pass.
+
 ## Original physical factors on every relative face (2026-10-11)
 
 The [factor-face review](reviews/no-deformation-factor-faces.md) records exact

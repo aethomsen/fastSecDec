@@ -3,6 +3,7 @@
 //! These are formal coefficients on the relative open face. They do not prove
 //! a closed unit, regular density, subtraction strip or executable face map.
 mod face;
+pub mod normal;
 pub mod program;
 mod source;
 #[cfg(test)]
