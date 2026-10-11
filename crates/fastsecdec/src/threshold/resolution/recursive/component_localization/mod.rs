@@ -21,6 +21,11 @@ impl ComponentLocalization {
                 "component localization requires one retained contact level",
             ));
         };
+        if level.presentation().power().is_some() {
+            return Err(Error::ResourceIncomplete(
+                "component localization of a principal presentation remains unsupported",
+            ));
+        }
         let origin = terminal.origin();
         let contact = level.contact();
         if !Arc::ptr_eq(origin.frame(), &level.frame)

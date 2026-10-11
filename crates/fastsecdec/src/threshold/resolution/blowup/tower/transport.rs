@@ -11,12 +11,52 @@ use super::*;
 pub struct OriginalLevelOpen {
     source: Arc<SupportedMarkedTransform>,
     companion: Option<Arc<SupportedMarkedTransform>>,
+    power: Option<Arc<PowerLevelTransform>>,
     center: Arc<SupportedMarkedTransform>,
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn power_hierarchy_refuses_missing_receipt_and_restarted_history() {
+        let mut b = Budget::new(Limits::default());
+        let center = super::super::super::super::recursive::power_tests::cusp_center(&mut b);
+        let origin = EmbeddedChildCycle::new(center.clone(), &mut b).unwrap();
+        let SncProduction::Verified(ledger) =
+            verify_initial_relative_snc(center.child().frame().clone(), vec![], &mut b).unwrap()
+        else {
+            panic!()
+        };
+        let restarted = ResolutionHistory::initial(ledger).unwrap();
+        assert!(matches!(
+            OriginalRecursionTree::new(center.clone(), restarted, &mut b),
+            Err(Error::Invalid(_))
+        ));
+        let checked =
+            CheckedRecursiveCenter::new(RecursiveCenterOrigin::Companion(center), &mut b).unwrap();
+        let adapted = adapt_recursive_center(checked, "power_mutation_adapt", &mut b).unwrap();
+        let maps = blowup_recursive_center(adapted, "power_mutation_maps", &mut b).unwrap();
+        for (i, chart) in maps.charts().iter().enumerate() {
+            let tree = origin
+                .original_tree()
+                .pull_first(chart.clone(), &format!("power_mutation_tree{i}"), &mut b)
+                .unwrap();
+            for (j, level) in tree.levels.iter().enumerate() {
+                if let Some(k) = level.opens.iter().position(|o| o.power.is_some()) {
+                    let mut missing = tree.as_ref().clone();
+                    let mut level = level.as_ref().clone();
+                    let mut open = level.opens[k].as_ref().clone();
+                    open.power = None;
+                    level.opens[k] = Arc::new(open);
+                    missing.levels[j] = Arc::new(level);
+                    assert!(matches!(missing.histories(&mut b), Err(Error::Invalid(_))));
+                    return;
+                }
+            }
+        }
+        panic!("missing genuine transformed power open");
+    }
     #[test]
     fn original_hierarchy_rejects_missing_or_foreign_level_receipts() {
         let mut b = Budget::new(Limits {
@@ -74,6 +114,9 @@ impl OriginalLevelOpen {
     }
     pub fn companion(&self) -> Option<&Arc<SupportedMarkedTransform>> {
         self.companion.as_ref()
+    }
+    pub fn power(&self) -> Option<&Arc<PowerLevelTransform>> {
+        self.power.as_ref()
     }
     pub fn center(&self) -> &Arc<SupportedMarkedTransform> {
         &self.center
@@ -188,9 +231,29 @@ impl OriginalTreePullback {
                         "hierarchy source center pullback not exceptional principal",
                     ));
                 }
+                let power = if level
+                    .center()
+                    .lift_receipt()
+                    .is_some_and(|r| r.level().presentation().power().is_some())
+                {
+                    Some(PowerLevelTransform::prepare(
+                        level,
+                        support.clone(),
+                        open.clone(),
+                        source.clone(),
+                        companion
+                            .clone()
+                            .ok_or(Error::Invalid("power hierarchy companion absent"))?,
+                        &format!("{namespace}_power{i}_{j}"),
+                        b,
+                    )?)
+                } else {
+                    None
+                };
                 opens.push(Arc::new(OriginalLevelOpen {
                     source,
                     companion,
+                    power,
                     center,
                 }));
             }
@@ -281,6 +344,23 @@ impl OriginalTreePullback {
                 {
                     return Err(Error::Invalid(
                         "original hierarchy actual source transform association",
+                    ));
+                }
+                let power_required = level
+                    .original
+                    .center()
+                    .lift_receipt()
+                    .is_some_and(|r| r.level().presentation().power().is_some());
+                if power_required != open.power.is_some()
+                    || open.power.as_ref().is_some_and(|p| {
+                        !open
+                            .companion
+                            .as_ref()
+                            .is_some_and(|g| p.associated(&level.original, &open.source, g))
+                    })
+                {
+                    return Err(Error::Invalid(
+                        "original hierarchy controlled power inventory",
                     ));
                 }
                 histories.push(level.original.history().advance_first_embedded(

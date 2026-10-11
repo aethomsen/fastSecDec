@@ -19,10 +19,12 @@ receipt.
 
 For the actual native coefficient source `(y^10,6)` arising from the cusp
 `x^3+y^5`, the operation proves the smaller auxiliary presentation `(y^5,3)`.
-The recursive-center driver does not yet consume that receipt. It must retain
-an explicit presentation edge, readmit the selected center against the original
-source, and transport the relation through the original physical history.
-This proof-only milestone does not resolve that cusp or complete the driver.
+The subsequent [recursion adapter](no-deformation-principal-power-recursion.md)
+consumes that receipt at the actual initial auxiliary construction. It retains
+an explicit presentation edge, readmits the selected center against the
+original source, and transports the relation through every first physical
+pivot. Later power-aware continuation remains required. Neither this proof
+owner nor that initial adapter completes the general driver.
 
 There is no generatorwise radical operation. A mixed ideal such as `(x^2,y^2)`
 does not equal `(x,y)^2`: the latter also contains `x*y`. Mixed-generator inputs
@@ -64,5 +66,5 @@ adopted-dependency gate above.
 This operation is Rust-only optional threshold functionality. It has no graph
 representation, evaluator, integration loop or RNG and adds no substantive
 implementation to HEPKit/community. General weighted collections, canonical
-nonmonomial selection, physical recursion transport and the real integration
-atlas remain separate required work.
+nonmonomial selection, later power-aware physical continuation and the real
+integration atlas remain separate required work.

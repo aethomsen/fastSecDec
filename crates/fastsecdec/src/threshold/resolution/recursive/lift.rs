@@ -8,9 +8,10 @@ pub(super) fn ascend(
     b: &mut Budget,
 ) -> Result<RecursiveCenter> {
     let q = &level.contact;
+    level.presentation.verify(&level.frame, &level.source)?;
     if !Arc::ptr_eq(&level.frame, q.source().frame())
-        || !Arc::ptr_eq(&level.source, level.normalization.source())
-        || level.normalization.normalized().ideal() != q.source().source().as_ref()
+        || !Arc::ptr_eq(&level.source, level.normalization().source())
+        || level.presentation.effective_source().ideal() != q.source().source().as_ref()
         || !Arc::ptr_eq(&child.frame, q.contact())
         || child.source.ideal() != q.differential_coefficient().ideal()
         || child.source.mark() != q.differential_coefficient().mark()

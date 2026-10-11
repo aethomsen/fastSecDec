@@ -1,5 +1,23 @@
 # Ecosystem reuse evidence
 
+## Principal-power recursion and original physical transport (2026-10-11)
+
+The [recursion review](reviews/no-deformation-principal-power-recursion.md)
+records the first consumer of the native auxiliary power proof. Existing
+Symbolica order, contact, differential ideals, normalization, membership and
+controlled transforms supply all algebra. The new typed edge retains the
+original source/history, admits the center against its original mark and
+checks the unit and power identity through each first physical pivot.
+
+Independent source/scientific review accepts this limited adapter. Unsupported
+later consumers report incomplete work instead of discarding the presentation.
+Physical coefficients, factors, multiplicities and Jacobians are unchanged.
+The consuming public-owner gate passes all 146 resolver controls in 287.94
+seconds and strict workspace/all-target Clippy in 27.32 seconds, with formatting
+and diff checks. The API remains caller-stepped and Rust-only; no graph, CAS, numerical
+accumulator, sampling stream or executor is duplicated, and no heavy code is
+added to HEPKit/community. Aggregate RSS and the complete driver remain open.
+
 ## Exact immutable root constants (2026-10-11)
 
 The [root-literal review](reviews/no-deformation-root-literals.md) records reuse

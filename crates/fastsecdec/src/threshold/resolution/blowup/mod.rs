@@ -90,7 +90,7 @@ pub use refinement::{
 };
 pub use tower::{
     AnchoredOriginalTree, OriginalAnchorCenter, OriginalLevelOpen, OriginalLevelPullback,
-    OriginalLowerLevel, OriginalRecursionTree, OriginalTreePullback,
+    OriginalLowerLevel, OriginalRecursionTree, OriginalTreePullback, PowerLevelTransform,
 };
 
 mod original_problem;

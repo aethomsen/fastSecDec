@@ -26,16 +26,28 @@ impl EmbeddedChildCycle {
         {
             return Err(Error::Invalid("initial auxiliary J construction owner"));
         }
-        let ledger = match verify_initial_relative_snc(q.contact().clone(), vec![], b)? {
-            SncProduction::Verified(l) => l,
-            SncProduction::Incomplete { reason, .. } => {
-                return Err(Error::ResourceIncomplete(reason));
+        let retained_origin = child
+            .lift_receipt()
+            .and_then(|r| r.level().presentation().origin());
+        let initial_history = if let Some(origin) = retained_origin {
+            if !Arc::ptr_eq(origin.source(), child.source())
+                || !Arc::ptr_eq(origin.frame(), child.frame())
+            {
+                return Err(Error::Invalid("initial auxiliary power origin"));
             }
-            SncProduction::Unresolved { .. } => {
-                return Err(Error::Invalid("initial empty lower boundary"));
-            }
+            origin.history().clone()
+        } else {
+            let ledger = match verify_initial_relative_snc(q.contact().clone(), vec![], b)? {
+                SncProduction::Verified(l) => l,
+                SncProduction::Incomplete { reason, .. } => {
+                    return Err(Error::ResourceIncomplete(reason));
+                }
+                SncProduction::Unresolved { .. } => {
+                    return Err(Error::Invalid("initial empty lower boundary"));
+                }
+            };
+            ResolutionHistory::initial(ledger)?
         };
-        let initial_history = ResolutionHistory::initial(ledger)?;
         let original_tree =
             super::tower::OriginalRecursionTree::new(center.clone(), initial_history.clone(), b)?;
         Ok(Arc::new(Self {

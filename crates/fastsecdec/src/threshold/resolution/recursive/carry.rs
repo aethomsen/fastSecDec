@@ -127,12 +127,16 @@ pub fn carry_first_blowup(
     {
         return Err(Error::Invalid("first carried cycle initial history owner"));
     }
-    let q = center
+    let level = center
         .lift_receipt()
         .ok_or(Error::Invalid("first carried cycle lacks contact edge"))?
-        .level()
-        .contact()
-        .clone();
+        .level();
+    if level.presentation().power().is_some() {
+        return Err(Error::ResourceIncomplete(
+            "principal presentation requires retained hierarchy transport",
+        ));
+    }
+    let q = level.contact().clone();
     if !Arc::ptr_eq(q.source().frame(), center.frame()) {
         return Err(Error::Invalid("first carried cycle original contact frame"));
     }

@@ -8,6 +8,7 @@ pub enum RecursiveOutcome {
     EmptyMarkedCosupport {
         frame: Arc<EtaleFrame>,
         source: Arc<MarkedIdeal>,
+        presentation: Arc<RecursivePresentation>,
     },
     TopLevelZeroIdeal {
         frame: Arc<EtaleFrame>,
@@ -15,7 +16,45 @@ pub enum RecursiveOutcome {
     },
     MultipleContactOpensRequired {
         source: Arc<ProducedContactCover>,
+        presentation: Arc<RecursivePresentation>,
     },
+}
+#[cfg(test)]
+mod power_tests {
+    use super::*;
+    #[test]
+    fn initial_power_recursion_budget_is_atomic() {
+        let mut b = Budget::new(Limits::default());
+        let center = super::super::power_tests::cusp_center(&mut b);
+        let source = center.child().source().clone();
+        let frame = center.child().frame().clone();
+        let mut driver = BoundaryFreeFirstCenter::new_with_principal_powers(
+            frame,
+            source,
+            "power_atomic",
+            false,
+        )
+        .unwrap();
+        let mut no_work = Budget::new(Limits {
+            max_operations: 0,
+            ..Limits::default()
+        });
+        assert!(matches!(
+            driver.advance(&mut no_work).unwrap(),
+            RecursiveAdvance::Incomplete { .. }
+        ));
+        assert_eq!(driver.accepted_steps(), 0);
+        assert_eq!(driver.depth(), 0);
+        assert!(driver.auxiliary_origin.is_none());
+        assert!(matches!(driver.outcome(), RecursiveOutcome::Pending));
+        assert!(matches!(
+            driver.advance(&mut b).unwrap(),
+            RecursiveAdvance::Progress
+        ));
+        assert_eq!(driver.accepted_steps(), 1);
+        assert!(driver.auxiliary_origin.is_some());
+        assert!(driver.stack[0].presentation().power().is_some());
+    }
 }
 #[derive(Clone, Debug)]
 enum Pending {
@@ -36,6 +75,7 @@ pub struct BoundaryFreeFirstCenter {
     original_frame: Arc<EtaleFrame>,
     original_source: Arc<MarkedIdeal>,
     auxiliary_origin: Option<Arc<AuxiliaryRecursionOrigin>>,
+    principal_powers: bool,
 }
 #[derive(Clone, Debug)]
 pub enum RecursiveAdvance {
@@ -59,6 +99,7 @@ impl BoundaryFreeFirstCenter {
             original_frame: frame.clone(),
             original_source: source.clone(),
             auxiliary_origin: None,
+            principal_powers: false,
             stack: vec![],
             pending: Some(Pending::Descend { frame, source }),
             outcome: RecursiveOutcome::Pending,
@@ -66,6 +107,17 @@ impl BoundaryFreeFirstCenter {
             reverse_contacts,
             accepted_steps: 0,
         })
+    }
+    /// Opt in only for this genuinely initial boundary-free auxiliary source.
+    pub fn new_with_principal_powers(
+        frame: Arc<EtaleFrame>,
+        source: Arc<MarkedIdeal>,
+        namespace: &str,
+        reverse_contacts: bool,
+    ) -> Result<Self> {
+        let mut result = Self::new(frame, source, namespace, reverse_contacts)?;
+        result.principal_powers = true;
+        Ok(result)
     }
     pub fn outcome(&self) -> &RecursiveOutcome {
         &self.outcome
@@ -148,9 +200,22 @@ impl BoundaryFreeFirstCenter {
                         return Err(Error::ResourceIncomplete(reason));
                     }
                 };
+                let presentation = RecursivePresentation::prepare(
+                    normalization.clone(),
+                    if self.principal_powers
+                        && self.stack.is_empty()
+                        && Arc::ptr_eq(&source, &self.original_source)
+                    {
+                        self.auxiliary_origin.clone()
+                    } else {
+                        None
+                    },
+                    b,
+                )?;
+                presentation.verify(&frame, &source)?;
                 match produce_ordinary_contact_cover(
                     frame.clone(),
-                    Arc::new(normalization.normalized().ideal().clone()),
+                    Arc::new(presentation.effective_source().ideal().clone()),
                     b,
                 )? {
                     OrderProduction::ZeroIdeal { .. } => {
@@ -169,7 +234,7 @@ impl BoundaryFreeFirstCenter {
                         };
                         self.pending = Some(Pending::Ascend(Arc::new(center)));
                     }
-                    OrderProduction::UnitIdeal { .. } => self.empty(frame, source)?,
+                    OrderProduction::UnitIdeal { .. } => self.empty(frame, source, presentation)?,
                     OrderProduction::TerminalParameterLocus { .. } => {
                         let cover = RecursiveComponentCover::prepare(
                             self.auxiliary_origin
@@ -189,8 +254,9 @@ impl BoundaryFreeFirstCenter {
                         return Err(Error::ResourceIncomplete(reason));
                     }
                     OrderProduction::ContactCover(cover) => {
-                        if cover.algebraic_maximum_order() < source.mark() {
-                            self.empty(frame, source)?;
+                        if cover.algebraic_maximum_order() < presentation.effective_source().mark()
+                        {
+                            self.empty(frame, source, presentation)?;
                             return Ok(());
                         }
                         let cover = Arc::new(cover);
@@ -220,8 +286,10 @@ impl BoundaryFreeFirstCenter {
                         }
                         let Some(index) = chosen else {
                             self.pending = None;
-                            self.outcome =
-                                RecursiveOutcome::MultipleContactOpensRequired { source: cover };
+                            self.outcome = RecursiveOutcome::MultipleContactOpensRequired {
+                                source: cover,
+                                presentation,
+                            };
                             return Ok(());
                         };
                         let depth = self.stack.len();
@@ -247,7 +315,7 @@ impl BoundaryFreeFirstCenter {
                         }
                         let m = i64::try_from(cover.algebraic_maximum_order())
                             .map_err(|_| Error::ResourceIncomplete("recursive order conversion"))?;
-                        let d = i64::try_from(source.mark())
+                        let d = i64::try_from(presentation.effective_source().mark())
                             .map_err(|_| Error::ResourceIncomplete("recursive mark conversion"))?;
                         let ratio = Rational::from(m) / Rational::from(d);
                         let next = Pending::Descend {
@@ -264,7 +332,7 @@ impl BoundaryFreeFirstCenter {
                             frame,
                             source,
                             contact: q,
-                            normalization,
+                            presentation,
                             ratio,
                         }));
                         self.pending = Some(next);
@@ -274,14 +342,23 @@ impl BoundaryFreeFirstCenter {
         }
         Ok(())
     }
-    fn empty(&mut self, frame: Arc<EtaleFrame>, source: Arc<MarkedIdeal>) -> Result<()> {
+    fn empty(
+        &mut self,
+        frame: Arc<EtaleFrame>,
+        source: Arc<MarkedIdeal>,
+        presentation: Arc<RecursivePresentation>,
+    ) -> Result<()> {
         if !self.stack.is_empty() {
             return Err(Error::Invalid(
                 "recursive coefficient unexpectedly lost nonempty maximum",
             ));
         }
         self.pending = None;
-        self.outcome = RecursiveOutcome::EmptyMarkedCosupport { frame, source };
+        self.outcome = RecursiveOutcome::EmptyMarkedCosupport {
+            frame,
+            source,
+            presentation,
+        };
         Ok(())
     }
 }

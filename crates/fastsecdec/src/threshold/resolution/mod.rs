@@ -39,8 +39,8 @@ pub use blowup::{
     EmbeddedProblemProduction, EmptyAdaptedOpen, EmptySupportRefinement, HistoryCenter,
     HistoryChartStep, HistoryStep, MonomialBlowup, MonomialBlowupChart, OriginalLevelOpen,
     OriginalLevelPullback, OriginalLowerLevel, OriginalRecursionTree, OriginalTreePullback,
-    RefinedSupportCover, RefinedSupportOpen, ResolutionHistory, SupportFrameMap,
-    UnresolvedSupportFrame, produce_adapted_cover, produce_monomial_blowup,
+    PowerLevelTransform, RefinedSupportCover, RefinedSupportOpen, ResolutionHistory,
+    SupportFrameMap, UnresolvedSupportFrame, produce_adapted_cover, produce_monomial_blowup,
 };
 pub use chart::{Boundary, Chart, FrameCertificate, Guard, Map, VerifiedFrame};
 pub use companion::{
@@ -171,3 +171,5 @@ pub use blowup::{CenterOverlap, GluedAdmissibleCenter, LocalCenter, PrincipalCen
 pub use blowup::{
     MonomialCenterRestriction, MonomialMaximumSelection, SelectedCenterState, SelectedMonomialCover,
 };
+
+pub use recursive::RecursivePresentation;

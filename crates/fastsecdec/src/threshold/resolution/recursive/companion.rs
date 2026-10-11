@@ -74,6 +74,27 @@ impl CompanionFirstCenter {
             outcome: CompanionCenterOutcome::Pending,
         })
     }
+    /// Preserve the original coefficient source while using a checked initial
+    /// principal-power auxiliary presentation inside its native child driver.
+    pub fn new_with_principal_powers(
+        coefficient: Arc<CompanionCoefficientChart>,
+        namespace: &str,
+        reverse: bool,
+    ) -> Result<Self> {
+        let child_source = Arc::new(coefficient.coefficient().coefficient().clone());
+        let child = BoundaryFreeFirstCenter::new_with_principal_powers(
+            coefficient.contact().contact().clone(),
+            child_source.clone(),
+            namespace,
+            reverse,
+        )?;
+        Ok(Self {
+            coefficient,
+            child_source,
+            child,
+            outcome: CompanionCenterOutcome::Pending,
+        })
+    }
     pub fn outcome(&self) -> &CompanionCenterOutcome {
         &self.outcome
     }

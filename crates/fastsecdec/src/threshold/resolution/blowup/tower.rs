@@ -3,7 +3,9 @@
 use super::super::*;
 use super::{embedding::SupportEmbedding, helpers::Result};
 use std::sync::Arc;
+mod power;
 mod transport;
+pub use power::PowerLevelTransform;
 pub use transport::{OriginalLevelOpen, OriginalLevelPullback, OriginalTreePullback};
 
 #[derive(Clone, Debug)]
@@ -12,6 +14,7 @@ pub struct OriginalLowerLevel {
     embedding: Arc<SupportEmbedding>,
     history: Arc<ResolutionHistory>,
     companion: Option<Arc<MarkedIdeal>>,
+    effective_companion: Option<Arc<MarkedIdeal>>,
 }
 impl OriginalLowerLevel {
     pub fn center(&self) -> &Arc<RecursiveCenter> {
@@ -25,6 +28,9 @@ impl OriginalLowerLevel {
     }
     pub fn companion(&self) -> Option<&Arc<MarkedIdeal>> {
         self.companion.as_ref()
+    }
+    pub fn effective_companion(&self) -> Option<&Arc<MarkedIdeal>> {
+        self.effective_companion.as_ref()
     }
     pub fn normalization(&self) -> Option<&Arc<VerifiedQuotientNormalization>> {
         self.center
@@ -108,14 +114,25 @@ impl OriginalRecursionTree {
                     embedding,
                     history,
                     companion: None,
+                    effective_companion: None,
                 }));
                 break;
             };
             let level = receipt.level();
             let q = level.contact();
+            level
+                .presentation()
+                .verify(current.frame(), current.source())?;
+            if let Some(origin) = level.presentation().origin()
+                && !Arc::ptr_eq(origin.history(), &history)
+            {
+                return Err(Error::Invalid(
+                    "original power hierarchy changed its issued history",
+                ));
+            }
             if !Arc::ptr_eq(level.source(), current.source())
                 || !Arc::ptr_eq(level.normalization().source(), current.source())
-                || level.normalization().normalized().ideal() != q.source().source().as_ref()
+                || level.presentation().effective_source().ideal() != q.source().source().as_ref()
                 || !Arc::ptr_eq(q.source().frame(), current.frame())
                 || !Arc::ptr_eq(receipt.child().frame(), q.contact())
                 || receipt.child().source().ideal() != q.differential_coefficient().ideal()
@@ -125,11 +142,22 @@ impl OriginalRecursionTree {
                     "original recursive normalization/contact/child association",
                 ));
             }
-            let companion = Arc::new(MarkedIdeal::new(
+            let effective_companion = Arc::new(MarkedIdeal::new(
                 (**q.source().source()).clone(),
                 q.source().algebraic_maximum_order(),
                 b,
             )?);
+            let companion = if level.presentation().power().is_some() {
+                Arc::new(MarkedIdeal::new(
+                    level.normalization().normalized().ideal().clone(),
+                    level
+                        .presentation()
+                        .original_maximum_order(q.source().algebraic_maximum_order())?,
+                    b,
+                )?)
+            } else {
+                effective_companion.clone()
+            };
             let next_embedding = SupportEmbedding::nested(embedding.clone(), q.clone(), b)?;
             let next_history = match verify_initial_relative_snc(q.contact().clone(), vec![], b)? {
                 SncProduction::Verified(ledger) => ResolutionHistory::initial(ledger)?,
@@ -146,6 +174,7 @@ impl OriginalRecursionTree {
                 embedding,
                 history,
                 companion: Some(companion),
+                effective_companion: Some(effective_companion),
             }));
             current = next;
             embedding = next_embedding;

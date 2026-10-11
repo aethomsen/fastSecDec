@@ -3,9 +3,11 @@
 mod components;
 mod coordinate;
 mod lift;
+mod presentation;
 mod state;
 pub use components::RecursiveComponentCover;
 pub use coordinate::*;
+pub use presentation::RecursivePresentation;
 pub use state::*;
 #[cfg(test)]
 mod tests;
@@ -19,7 +21,7 @@ pub struct RecursiveLevel {
     pub(crate) frame: Arc<EtaleFrame>,
     pub(crate) source: Arc<MarkedIdeal>,
     pub(crate) contact: Arc<ContactQuotient>,
-    pub(crate) normalization: Arc<VerifiedQuotientNormalization>,
+    pub(crate) presentation: Arc<RecursivePresentation>,
     pub(crate) ratio: Rational,
 }
 #[derive(Clone, Debug)]
@@ -60,6 +62,9 @@ impl RecursiveCenter {
     }
 }
 impl RecursiveLevel {
+    pub fn presentation(&self) -> &Arc<RecursivePresentation> {
+        &self.presentation
+    }
     pub fn source(&self) -> &Arc<MarkedIdeal> {
         &self.source
     }
@@ -67,7 +72,7 @@ impl RecursiveLevel {
         &self.contact
     }
     pub fn normalization(&self) -> &Arc<VerifiedQuotientNormalization> {
-        &self.normalization
+        self.presentation.normalization()
     }
 }
 impl LiftReceipt {
@@ -113,3 +118,6 @@ mod auxiliary;
 pub use auxiliary::AuxiliaryRecursionOrigin;
 mod component_localization;
 pub use component_localization::*;
+
+#[cfg(test)]
+pub(crate) mod power_tests;
