@@ -1,5 +1,15 @@
 # Ecosystem reuse evidence
 
+## Larger explicit native certificate allowances (2026-10-11)
+
+The [certificate-budget review](reviews/no-deformation-certificate-budgets.md)
+records public API, source and executable evidence for symGCAD's hard budget
+ceilings. A narrow owner-library PR raises only opt-in allowances and retains
+the existing proof algorithms, defaults, checked counters and replay rules.
+All 34 native tests and independent source/allocation review pass. Inherited
+owner lint findings remain documented; no unrelated cleanup or FastSecDec
+dependency adoption is included. Physical F proofs remain a separate gate.
+
 ## Symbolic numerator coefficients through moving roots (2026-10-11)
 
 The [normal-jet review](reviews/no-deformation-normal-numerator-jets.md) records
