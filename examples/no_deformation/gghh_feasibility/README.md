@@ -138,3 +138,12 @@ against the saved proof. General cell maps, closed-face endpoint regularization
 and the compiled density still remain. Integration time and SD remain unavailable.
 Native compatibility merges do not replace the certified raw cells or their
 seams. Raw proofs, caches and binaries remain untracked.
+
+The subsequent [normalized open-map check](../../../docs/reviews/no-deformation-normalized-maps.md)
+executes all six coordinates of the first actual cell, including its nonlinear
+sections and three rays. Independent root enclosures pass all 42 coordinate
+and Jacobian comparisons across three points at 128/256-bit working precision.
+The original 156-term source stays attached and unexpanded. This is a selected
+open-map correctness check, not a complete integrable cell or a full-integral
+benchmark. Its separate admission time and RSS are recorded in the verified
+results JSON; they must not be added to the earlier GCAD generation timing.

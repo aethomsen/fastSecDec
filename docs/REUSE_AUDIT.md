@@ -1,5 +1,35 @@
 # Ecosystem reuse evidence
 
+## Normalized source-bound algebraic maps (2026-10-11)
+
+The [normalized-map review](reviews/no-deformation-normalized-maps.md) records
+native positive monomial charts, exact polynomial valuation/division, original
+selector association and whole-box derivative/endpoint certificates. Symbolica
+matrix and polynomial operations and symGCAD's existing certificate and root
+facilities supply these operations. Independent review corrected a misuse of
+`ldegree` before publication; native `degree_bounds` supplies the actual minimum
+valuation. No owner-library patch or duplicate valuation implementation is needed.
+
+Execution composes existing native evaluator instructions and version-three
+root callbacks, retaining the dependence between successive algebraic roots.
+Native codecs, symbolic derivative hooks, precision mapping and uncertainty
+tracking are reused. A separate directed-ball reference distinguishes certified
+enclosures from ordinary tracked evaluation. No new CAS, graph, AD, root solver,
+serialization scheme, sampling stream or library-owned executor is introduced.
+
+The source and verified cell inventory remain shared native owners. This slice
+provides open coordinate execution, not physical endpoint or integration
+authority. General closed-face resolution, the full CLI preparation route and
+measured bounded residency remain required. HEPKit/community receives no heavy
+implementation.
+
+Seven focused native controls and strict consuming workspace/all-target Clippy
+pass. The actual 156-term physical source then passes 42 independent coordinate
+and Jacobian comparisons for its first complete open cell map at 128/256 bits.
+The test oracle's initial fixed-bit-count assumption is corrected to respect
+native `Float` cancellation tracking, with its numerical tolerance unchanged.
+No production arithmetic or owner dependency needs a patch.
+
 ## Prepared-root observer owner API (2026-10-11)
 
 The [observer review](reviews/no-deformation-root-observer.md) records the

@@ -382,7 +382,7 @@ impl RegularSection {
         &self.anchor
     }
 }
-fn positive(
+pub(in crate::threshold::maps) fn positive(
     algebra: &Algebra,
     p: &Poly,
     constraints: &[Poly],

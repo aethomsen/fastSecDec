@@ -5,6 +5,7 @@
 //! separate certificates; this module does not infer them from sample fibers.
 
 mod linear;
+pub mod normalized;
 mod open;
 mod open_interval;
 mod parameters;

@@ -131,5 +131,43 @@
       644698
     ],
     "outcome": "source-bound verified owner accepted; both attempted finite-linear maps explicitly refuse unsupported bounds"
+  },
+  "normalized_open_cell_map": {
+    "scope": "One complete open six-coordinate map, selected actual cell0; no density endpoint or full catalogue integration authority",
+    "source_base_commit": "cc6c7d1307502f4438baaf853f1d01fd4894b50b",
+    "source_inventory_sha256": "c2f5e5de1ffd3b64262545e66c206f708bab642a05945114c5aac6b3967763a7",
+    "physical_source_identity": "ce87d1ac10eaa1190cc61cd5b13c176684e85bc49704cba032920cfac9bb0c65",
+    "physical_term_count": 156,
+    "selected_original_cell": 0,
+    "verified_original_cells": 644699,
+    "coordinate_count": 6,
+    "normalized_sections": 2,
+    "half_infinite_axes": 3,
+    "source_seconds": 3.492660124,
+    "decode_seconds": 128.675480283,
+    "binding_and_verification_seconds": 120.548177331,
+    "map_prepare_seconds": 0.058064799,
+    "oracle_seconds": 0.034397563,
+    "process_seconds": 258.7247103941627,
+    "peak_child_rss_kib": 11240208,
+    "sampled_aggregate_rss_bytes": 11527602176,
+    "time_cap_seconds": 600,
+    "memory_cap_bytes": 100000000000,
+    "oracle_working_precisions": [
+      128,
+      256
+    ],
+    "unit_points": 3,
+    "coordinate_and_jacobian_comparisons": 42,
+    "oracle": "native exact isolation for Z; retains H=v*Z as a directed ball; W residual/derivative enclosure; all source-coordinate/J outputs checked",
+    "native_float_precision": "reported after operations; numerical tolerance unchanged; the initial invariant that output bits must equal input bits was disproved by native ray control",
+    "raw_proof_digest": "6f0df3b9fa950b70a1c6bfeab150db5fac0b45a0a6789ecf5bef79adeef3fa7f",
+    "raw_result_sha256": "973cd67e52c8e84ac6fad4f07120a3685d2744221eb17ca20a1962f8dd15d91f",
+    "full_integrand_generation": false,
+    "integration_seconds": null,
+    "estimator_sd": null,
+    "note": "Correctness-build check with proof reload; do not add to or identify with the independent GCAD generation trial.",
+    "actual_evidence_sha256": "76707ff06c02cba29ca618a86db55fe50ce8e8a70a0ce24d12945d1221cfa2f1",
+    "outcome_review_sha256": "7b7d720984904415522ae3a52dd45bc4cd760d8b10357b04dc6a2ff86ba915ed"
   }
 }

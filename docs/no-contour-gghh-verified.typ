@@ -49,11 +49,14 @@ processes; it excludes unrelated host work. The actual enforcement is
 The native 65536 MiB setting is recorded separately. Neither external memory
 nor the pooled 3600-second deadline is reached by this successful trial.
 
-The subsequent native source-binding check retains the actual 156-term physical
-numerator and freshly verifies its association with this complete cell inventory.
-It finds 604,005 cells with an infinite boundary. The attempted maps reach explicit
-nonlinear-root and infinity refusals. This separate correctness build is detailed
-in `docs/reviews/no-deformation-positive-projective.md`.
+Native source binding retains the actual 156-term physical numerator; 604,005
+cells have an infinite boundary. The first cell now has an executable open map
+with two normalized algebraic sections and three compactified rays. All 42
+coordinate/Jacobian comparisons at 128/256 bits pass independent root enclosures.
+Map preparation takes 0.058 s; this separate correctness run, including proof
+reload and verification, takes 258.725 s and peaks at 11.528 GB aggregate RSS.
+It does not time a compiled physical integrand. See
+`docs/reviews/no-deformation-normalized-maps.md`.
 
 *This completes the fixed-point generic-open geometry gate, not the physical
 integration.* General cell maps, closed faces, causal zero sections,

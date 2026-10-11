@@ -1,6 +1,6 @@
 //! Checked regular sections; no density, atlas, or endpoint-continuation authority.
 pub mod callback;
-mod certificate;
+pub(super) mod certificate;
 pub mod program;
 pub(crate) use certificate::ProposalError;
 pub use certificate::{BracketProposal, RegularSection, SectionSide};
@@ -55,7 +55,7 @@ impl Default for Limits {
     }
 }
 pub struct Budget {
-    limits: Limits,
+    pub(super) limits: Limits,
     started: Instant,
     cancellation: Option<Arc<AtomicBool>>,
 }
