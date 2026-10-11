@@ -1,7 +1,7 @@
 //! Absolute Taylor coefficients of compact original-source numerator calls.
 //! The selected roots extend to this face; this does not certify density units.
-mod admission;
-mod definitions;
+pub(super) mod admission;
+pub(super) mod definitions;
 pub mod program;
 #[cfg(test)]
 mod tests;

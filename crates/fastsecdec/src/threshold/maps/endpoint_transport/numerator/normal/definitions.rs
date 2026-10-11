@@ -52,10 +52,14 @@ fn fresh(catalogue: &SourceNumerators, chart: &IssuedEndpointChart, suffix: &str
         .find(|s| !used.contains(s))
         .expect("finite occupied symbol inventory")
 }
-pub(super) fn fresh_head(c: &SourceNumerators, v: &IssuedEndpointChart) -> Symbol {
+pub(in super::super) fn fresh_head(c: &SourceNumerators, v: &IssuedEndpointChart) -> Symbol {
     fresh(c, v, "numerator")
 }
-pub(super) fn fresh_root_tag(c: &SourceNumerators, v: &IssuedEndpointChart, i: usize) -> Symbol {
+pub(in super::super) fn fresh_root_tag(
+    c: &SourceNumerators,
+    v: &IssuedEndpointChart,
+    i: usize,
+) -> Symbol {
     fresh(c, v, &format!("root_{i}"))
 }
 fn integer(a: AtomView<'_>) -> Option<usize> {
@@ -66,13 +70,13 @@ fn integer(a: AtomView<'_>) -> Option<usize> {
         .and_then(|n| usize::try_from(n).ok())
 }
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord)]
-pub(super) struct Signature {
+pub(in super::super) struct Signature {
     pub record: usize,
     pub orders: Vec<usize>,
 }
 /// Return the exact tag signature and coordinate arguments of an owned call.
 /// Native selected-root DERIVATIVE calls are intentionally not source calls.
-pub(super) fn source_call(
+pub(in super::super) fn source_call(
     node: AtomView<'_>,
     head: Symbol,
     n: usize,
@@ -117,59 +121,79 @@ pub(super) fn source_call(
         args[n + 3..].iter().map(|x| x.to_owned()).collect(),
     )))
 }
-pub(super) fn collect(
+pub(in super::super) fn collect(
     catalogue: &SourceNumerators,
     head: Symbol,
     coefficients: &[NormalCoefficient],
     depth: u32,
     work: &mut Work<'_>,
 ) -> Result<Vec<Definition>> {
-    let formals = catalogue.preparation().coordinates();
+    let bodies = catalogue
+        .records()
+        .iter()
+        .map(|r| r.degrees().map(|_| r.body()))
+        .collect::<Vec<_>>();
+    collect_bodies(
+        catalogue.preparation().coordinates(),
+        &bodies,
+        head,
+        coefficients.iter().flat_map(|c| &c.values),
+        depth,
+        work,
+    )
+}
+/// Same native tagged-partial collector, with source-owned coefficient bodies.
+pub(in super::super) fn collect_bodies<'a>(
+    formals: &[Symbol],
+    bodies: &[Option<&Atom>],
+    head: Symbol,
+    values: impl IntoIterator<Item = &'a Atom>,
+    depth: u32,
+    work: &mut Work<'_>,
+) -> Result<Vec<Definition>> {
     let mut demands = BTreeSet::new();
-    for coefficient in coefficients {
-        for value in &coefficient.values {
-            let mut failure = None;
-            value.visitor(&mut |node| {
-                if failure.is_some() {
-                    return false;
-                }
-                if let Err(e) = work.check() {
-                    failure = Some(e);
-                    return false;
-                }
-                match source_call(node, head, formals.len()) {
-                    Ok(Some((s, _))) => {
-                        demands.insert(s);
-                    }
-                    Err(e) => failure = Some(e),
-                    _ => {}
-                }
-                failure.is_none()
-            });
-            if let Some(e) = failure {
-                return Err(e);
+    for value in values {
+        let mut failure = None;
+        value.visitor(&mut |node| {
+            if failure.is_some() {
+                return false;
             }
-            work.entries(demands.len())?;
+            if let Err(e) = work.check() {
+                failure = Some(e);
+                return false;
+            }
+            match source_call(node, head, formals.len()) {
+                Ok(Some((s, _))) => {
+                    demands.insert(s);
+                }
+                Err(e) => failure = Some(e),
+                _ => {}
+            }
+            failure.is_none()
+        });
+        if let Some(e) = failure {
+            return Err(e);
         }
+        work.entries(demands.len())?;
     }
     let mut out = Vec::new();
     for signature in demands {
         work.check()?;
-        let record = catalogue
-            .records()
+        let body = bodies
             .get(signature.record)
-            .ok_or_else(|| Error::Invalid("foreign source derivative record".into()))?;
+            .and_then(|a| *a)
+            .ok_or_else(|| Error::Invalid("foreign or inactive source derivative record".into()))?;
         let sum = signature
             .orders
             .iter()
             .try_fold(0usize, |a, b| a.checked_add(*b))
             .ok_or_else(|| Error::ResourceIncomplete("source derivative order overflow".into()))?;
-        if sum >= depth as usize || record.degrees().is_none() {
+        if sum >= depth as usize {
             return Err(Error::Invalid(
                 "source derivative demand exceeds issued jet".into(),
             ));
         }
-        let mut body = record.body().clone();
+        let mut body = body.clone();
         for (&formal, &order) in formals.iter().zip(&signature.orders[1..]) {
             for _ in 0..order {
                 work.nodes(&body, work.limits.max_source_nodes)?;
@@ -199,9 +223,10 @@ pub(super) fn collect(
     }
     Ok(out)
 }
-pub(super) fn definition_index(owner: &NormalNumeratorJets) -> Result<BTreeMap<Signature, usize>> {
-    owner
-        .definitions
+pub(in super::super) fn definition_index(
+    definitions: &[Definition],
+) -> Result<BTreeMap<Signature, usize>> {
+    definitions
         .iter()
         .enumerate()
         .map(|(i, d)| {

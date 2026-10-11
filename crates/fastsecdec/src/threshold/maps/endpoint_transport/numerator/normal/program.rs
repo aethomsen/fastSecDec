@@ -11,33 +11,46 @@ use symbolica::{
     id::{Pattern, Replacement},
 };
 
-pub struct CompiledNormalNumeratorJets {
-    owner: Arc<NormalNumeratorJets>,
-    coefficient_inputs: Vec<Symbol>,
-    exact: ExpressionEvaluator<Complex<Rational>>,
-    coefficient_count: usize,
-    geometry_count: usize,
-    scalar_count: usize,
-    coefficient_stage: ExpressionEvaluator<Complex<Rational>>,
+pub(in super::super) struct JetInput<'a> {
+    pub catalogue: &'a SourceNumerators,
+    pub chart: &'a IssuedEndpointChart,
+    pub sections: &'a [SelectedExtension],
+    pub directions: &'a [Symbol],
+    pub head: Symbol,
+    pub formals: &'a [Symbol],
+    pub definitions: &'a [Definition],
+    pub values: &'a [Atom],
 }
-impl CompiledNormalNumeratorJets {
+pub(in super::super) struct JetProgram {
+    pub coefficient_inputs: Vec<Symbol>,
+    pub exact: ExpressionEvaluator<Complex<Rational>>,
+    pub coefficient_count: usize,
+    pub geometry_count: usize,
+    pub scalar_count: usize,
+    pub coefficient_stage: ExpressionEvaluator<Complex<Rational>>,
+}
+impl JetProgram {
     pub fn prepare(
-        owner: Arc<NormalNumeratorJets>,
+        input: JetInput<'_>,
         coefficient_inputs: &[Symbol],
         source_functions: FunctionMap,
         settings: OptimizationSettings,
         budget: &Budget,
     ) -> Result<Self> {
         budget.check()?;
-        let source = owner.catalogue.preparation().coordinates();
-        let mut reserved = source
+        let source = input.formals;
+        let mut reserved = input
+            .catalogue
+            .preparation()
+            .coordinates()
             .iter()
-            .chain(owner.chart.target_units())
-            .chain(owner.chart.parent_prefix().source().unit_coordinates())
+            .chain(source)
+            .chain(input.chart.target_units())
+            .chain(input.chart.parent_prefix().source().unit_coordinates())
             .copied()
             .collect::<BTreeSet<_>>();
-        reserved.insert(owner.head);
-        for section in &owner.sections {
+        reserved.insert(input.head);
+        for section in input.sections {
             reserved.insert(section.section().root_symbol());
             reserved.extend(section.section().chart().parameters.iter().copied());
         }
@@ -53,20 +66,16 @@ impl CompiledNormalNumeratorJets {
                 "normal jet coefficient input collides with owned source/geometry role".into(),
             ));
         }
-        let definitions = definitions::definition_index(&owner)?;
-        let values = owner
-            .coefficients
-            .iter()
-            .flat_map(|c| c.values.iter().cloned())
-            .collect::<Vec<_>>();
+        let definitions = definitions::definition_index(input.definitions)?;
+        let values = input.values;
         let mut calls = BTreeMap::new();
-        for value in &values {
+        for value in values {
             let mut failure = None;
             value.visitor(&mut |node| {
                 if failure.is_some() {
                     return false;
                 }
-                match definitions::source_call(node, owner.head, source.len()) {
+                match definitions::source_call(node, input.head, source.len()) {
                     Ok(Some((signature, args))) => {
                         match definitions.get(&signature) {
                             Some(&index) => {
@@ -91,7 +100,7 @@ impl CompiledNormalNumeratorJets {
                 return Err(e);
             }
         }
-        let nd = owner.directions.len();
+        let nd = input.directions.len();
         let intermediate = settings.clone().cpe_iterations(Some(0));
         let mut compose = EvaluatorComposer::new(nd + coefficient_inputs.len());
         let directions = (0..nd).map(Slot::Param).collect::<Vec<_>>();
@@ -100,7 +109,7 @@ impl CompiledNormalNumeratorJets {
         // separate expansion would miss transitive A->x, x->0 alias changes.
         let mut coefficient_trees = BTreeSet::new();
         let mut per_definition = Vec::new();
-        for definition in &owner.definitions {
+        for definition in input.definitions {
             budget.check()?;
             let mut trees = BTreeSet::new();
             definition.body.visitor(&mut |node| {
@@ -128,7 +137,7 @@ impl CompiledNormalNumeratorJets {
             ));
         }
         let coefficient_trees = coefficient_trees.into_iter().collect::<Vec<_>>();
-        let mut occupied = owner
+        let mut occupied = input
             .definitions
             .iter()
             .flat_map(|d| d.body.get_all_symbols(true))
@@ -171,7 +180,7 @@ impl CompiledNormalNumeratorJets {
         let mut compiled_definitions = BTreeMap::new();
         let mut call_slots = Vec::new();
         let mut geometry_slots = Vec::new();
-        let direction_atoms = owner
+        let direction_atoms = input
             .directions
             .iter()
             .copied()
@@ -190,7 +199,7 @@ impl CompiledNormalNumeratorJets {
             if let std::collections::btree_map::Entry::Vacant(slot) =
                 compiled_definitions.entry(*definition)
             {
-                let d = &owner.definitions[*definition];
+                let d = &input.definitions[*definition];
                 let body = d
                     .body
                     .replace_multiple(per_definition[*definition].iter().map(|a| {
@@ -246,7 +255,7 @@ impl CompiledNormalNumeratorJets {
             .flat_map(|a| a.get_all_symbols(true))
             .collect::<BTreeSet<_>>();
         occupied.extend(coefficient_inputs.iter().copied());
-        occupied.extend(owner.directions.iter().copied());
+        occupied.extend(input.directions.iter().copied());
         let symbols = (0usize..)
             .map(|namespace| {
                 (0..calls.len())
@@ -285,7 +294,6 @@ impl CompiledNormalNumeratorJets {
         let exact = compose.finish(&outputs, settings).map_err(native)?;
         budget.check()?;
         Ok(Self {
-            owner,
             coefficient_inputs: coefficient_inputs.to_vec(),
             exact,
             coefficient_count,
@@ -294,20 +302,106 @@ impl CompiledNormalNumeratorJets {
             coefficient_stage,
         })
     }
+    pub fn evaluate<T: Number>(
+        &self,
+        program: &mut ExpressionEvaluator<Complex<T>>,
+        bits: u32,
+        direction_count: usize,
+        directions: &[T],
+        coefficients: &[Complex<T>],
+    ) -> Result<Vec<Complex<T>>>
+    where
+        Complex<T>: EvaluationDomain,
+    {
+        if directions.len() != direction_count
+            || coefficients.len() != self.coefficient_inputs.len()
+            || directions
+                .iter()
+                .any(|x| !x.valid() || *x <= x.zero() || *x >= x.one())
+            || coefficients.iter().any(|x| !x.re.valid() || !x.im.valid())
+        {
+            return Err(Error::Invalid(
+                "normal jet requires strict relative directions and finite coefficient inputs"
+                    .into(),
+            ));
+        }
+        let mut inputs = directions
+            .iter()
+            .map(|x| Complex::new(x.clone(), T::exact_zero_at(bits)))
+            .collect::<Vec<_>>();
+        inputs.extend_from_slice(coefficients);
+        let zero = directions
+            .first()
+            .map_or_else(|| T::exact_zero_at(bits), |x| x.zero());
+        let mut outputs = vec![
+            Complex::new(zero.clone(), zero);
+            self.coefficient_count + self.geometry_count + self.scalar_count
+        ];
+        attempt(|| program.try_evaluate(&inputs, &mut outputs))
+            .map_err(Error::Native)?
+            .map_err(native)?;
+        if outputs.iter().any(|x| !x.re.valid() || !x.im.valid())
+            || outputs[self.coefficient_count..self.coefficient_count + self.geometry_count]
+                .iter()
+                .any(|x| !x.im.is_zero())
+        {
+            return Err(Error::Native(
+                "invalid normal coefficient or finite geometric input".into(),
+            ));
+        }
+        outputs.truncate(self.coefficient_count);
+        Ok(outputs)
+    }
+}
+pub struct CompiledNormalNumeratorJets {
+    owner: Arc<NormalNumeratorJets>,
+    data: JetProgram,
+}
+impl CompiledNormalNumeratorJets {
+    pub fn prepare(
+        owner: Arc<NormalNumeratorJets>,
+        coefficient_inputs: &[Symbol],
+        source_functions: FunctionMap,
+        settings: OptimizationSettings,
+        budget: &Budget,
+    ) -> Result<Self> {
+        let values = owner
+            .coefficients
+            .iter()
+            .flat_map(|c| c.values.iter().cloned())
+            .collect::<Vec<_>>();
+        let data = JetProgram::prepare(
+            JetInput {
+                catalogue: &owner.catalogue,
+                chart: &owner.chart,
+                sections: &owner.sections,
+                directions: &owner.directions,
+                head: owner.head,
+                formals: owner.catalogue.preparation().coordinates(),
+                definitions: &owner.definitions,
+                values: &values,
+            },
+            coefficient_inputs,
+            source_functions,
+            settings,
+            budget,
+        )?;
+        Ok(Self { owner, data })
+    }
     pub fn owner(&self) -> &Arc<NormalNumeratorJets> {
         &self.owner
     }
     pub fn coefficient_inputs(&self) -> &[Symbol] {
-        &self.coefficient_inputs
+        &self.data.coefficient_inputs
     }
     /// Record-major absolute Taylor coefficients followed by retained finite
     /// geometric inputs. Arithmetic bytes require this live source/chart owner.
     pub fn exact(&self) -> &ExpressionEvaluator<Complex<Rational>> {
-        &self.exact
+        &self.data.exact
     }
     /// Executed once per call and shared by all demanded source partials.
     pub fn coefficient_stage(&self) -> &ExpressionEvaluator<Complex<Rational>> {
-        &self.coefficient_stage
+        &self.data.coefficient_stage
     }
     pub fn scope(&self) -> &Scope {
         &self.owner.scope
@@ -318,7 +412,7 @@ impl CompiledNormalNumeratorJets {
     {
         let program = self
             .scope()
-            .map_checked(&self.exact, bits, |q| {
+            .map_checked(&self.data.exact, bits, |q| {
                 Complex::new(T::rational_at(&q.re, bits), T::rational_at(&q.im, bits))
             })
             .map_err(Error::Native)?;
@@ -345,45 +439,14 @@ where
         directions: &[T],
         coefficients: &[Complex<T>],
     ) -> Result<Vec<Vec<Complex<T>>>> {
-        if directions.len() != self.owner.owner.directions.len()
-            || coefficients.len() != self.owner.coefficient_inputs.len()
-            || directions
-                .iter()
-                .any(|x| !x.valid() || *x <= x.zero() || *x >= x.one())
-            || coefficients.iter().any(|x| !x.re.valid() || !x.im.valid())
-        {
-            return Err(Error::Invalid(
-                "normal jet requires strict relative directions and finite coefficient inputs"
-                    .into(),
-            ));
-        }
-        let mut inputs = directions
-            .iter()
-            .map(|x| Complex::new(x.clone(), T::exact_zero_at(self.bits)))
-            .collect::<Vec<_>>();
-        inputs.extend_from_slice(coefficients);
-        let zero = directions
-            .first()
-            .map_or_else(|| T::exact_zero_at(self.bits), |x| x.zero());
-        let mut outputs =
-            vec![
-                Complex::new(zero.clone(), zero);
-                self.owner.coefficient_count + self.owner.geometry_count + self.owner.scalar_count
-            ];
-        attempt(|| self.program.try_evaluate(&inputs, &mut outputs))
-            .map_err(Error::Native)?
-            .map_err(native)?;
-        if outputs.iter().any(|x| !x.re.valid() || !x.im.valid())
-            || outputs[self.owner.coefficient_count
-                ..self.owner.coefficient_count + self.owner.geometry_count]
-                .iter()
-                .any(|x| !x.im.is_zero())
-        {
-            return Err(Error::Native(
-                "invalid normal coefficient or finite geometric input".into(),
-            ));
-        }
-        Ok(outputs[..self.owner.coefficient_count]
+        let outputs = self.owner.data.evaluate(
+            &mut self.program,
+            self.bits,
+            self.owner.owner.directions.len(),
+            directions,
+            coefficients,
+        )?;
+        Ok(outputs
             .chunks(self.owner.owner.depth as usize)
             .map(|v| v.to_vec())
             .collect())

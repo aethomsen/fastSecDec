@@ -73,7 +73,7 @@ impl FiniteArgument {
         self.domain.as_ref()
     }
 }
-pub(super) struct Admission {
+pub(in super::super) struct Admission {
     pub arguments: Vec<FiniteArgument>,
     pub sections: Vec<SelectedExtension>,
     pub images: Vec<Atom>,
@@ -86,6 +86,33 @@ pub(super) fn prepare(
     settings: OptimizationSettings,
     work: &mut Work<'_>,
 ) -> Result<Admission> {
+    prepare_arguments(
+        catalogue,
+        chart,
+        normal,
+        catalogue.preparation().coordinates(),
+        chart.chart().source_images(),
+        settings,
+        work,
+    )
+}
+/// Shared admission of only the demanded finite arguments. The original
+/// normal owner passes every source coordinate; mixed faces pass their exact
+/// retained formal/image inventory plus explicit inverse divisor arguments.
+pub(in super::super) fn prepare_arguments(
+    catalogue: &SourceNumerators,
+    chart: &IssuedEndpointChart,
+    normal: Symbol,
+    formals: &[Symbol],
+    argument_images: &[Atom],
+    settings: OptimizationSettings,
+    work: &mut Work<'_>,
+) -> Result<Admission> {
+    if formals.len() != argument_images.len() {
+        return Err(Error::Invalid(
+            "finite argument role/image inventory".into(),
+        ));
+    }
     let roots = chart
         .transport()
         .root_relations()
@@ -178,12 +205,7 @@ pub(super) fn prepare(
         .transpose()?;
     let mut arguments = Vec::new();
     let mut images = Vec::new();
-    for (&source_coordinate, image) in catalogue
-        .preparation()
-        .coordinates()
-        .iter()
-        .zip(chart.chart().source_images())
-    {
+    for (&source_coordinate, image) in formals.iter().zip(argument_images) {
         work.check()?;
         work.nodes(image, work.limits.max_coefficient_nodes)?;
         if !image

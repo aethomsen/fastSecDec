@@ -1,5 +1,15 @@
 # Ecosystem reuse evidence
 
+## Mixed finite numerator faces (2026-10-11)
+
+The [mixed-face review](reviews/no-deformation-mixed-numerator-faces.md) records
+joint argument/divisor admission, Symbolica tagged series and partials, and
+shared protected evaluator composition. It preserves the original clearing
+valuation and derivative factorials, including nonzero-valuation and moving-root
+controls. All 19 related numerator groups and independent scientific/ecosystem
+reviews pass. No numerical endpoint AD or parallel algebra is introduced;
+complete physical density and analytic continuation remain separate gates.
+
 ## Larger explicit native certificate allowances (2026-10-11)
 
 The [certificate-budget review](reviews/no-deformation-certificate-budgets.md)

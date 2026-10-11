@@ -213,3 +213,45 @@ Investigate gauge/order choices, stable root-gap evaluation, shared map programs
 Update the existing Typst benchmark report and commit its compiled PDF, reproducible inputs and compact results. Keep raw outputs and build products untracked.
 
 Complete the goal only after the general resolver, required native interfaces, scientific checks and independent audits pass. Passing a small set of rational or quadratic examples alone does not complete this phase.
+
+## Subsequent benchmark checkpoint (2026-10-11)
+
+The user requests a new campaign with **all reported quantities targeting the
+epsilon-zero coefficient**. Retain the previous measurements as historical
+results, with their original settings and coefficient orders.
+
+- Pull the latest symGCAD changes and freeze reviewed dependency identities for
+  the campaign. Keep earlier proof and benchmark evidence under its original
+  identity.
+- Add a scalar double box with the same exact fixed kinematics, masses and
+  propagators as the physical-numerator ggHH double box. Reuse a verified GCAD
+  solve only after checking native geometry identity; the two source-density
+  owners remain distinct.
+- Compare fixed contour, dynamic contour and no-contour threshold decomposition
+  across the existing scalar suite and both double-box variants. Include a
+  meaningful above-threshold massive two-point kite. Both no-contour double-box
+  cases use fixed exact kinematics.
+- Use 25 workers with serial generation and serial QMC integration, initially
+  capped at 100 GB. The user explicitly authorizes ordinary discrete MC's
+  existing global scheduler as a labeled exception to serial residency. Reduce
+  workers or deliberately raise memory limits when necessary and record it.
+  Concurrent host activity must not prevent launching the campaigns.
+- Start `benchmark.pdf` with a clean landscape-A4 **Overview**, grouped by
+  topology and method, with adjacent QMC/discrete-MC rows. Report complete
+  generation time, generation RAM, artifact size, sector count, maximum/average
+  raw f64 per-sector sampling cost, integration RAM, summed-sector raw f64 and
+  checked wall sampling costs, fixed-work relative precision, estimated-result
+  standard error, and relative precision after ten minutes. Select the fixed
+  work budget using independent pilots to target roughly ten-minute runs.
+  The repeated generation-RAM item is provisionally interpreted as integration
+  RAM; the standard-error and discrete-MC choices were explicitly confirmed.
+- Put column definitions, exact topology/kinematic descriptions, deformation
+  settings, covariance conventions and reproduction instructions after the
+  opening table. Do not relabel old runs as the new campaign or present missing
+  no-contour results as completed integrations.
+
+Once all requested scalar and double-box results and the compiled PDF are
+delivered, fix any remaining implementation/generalization gaps that can be
+addressed quickly and stop at the user's requested checkpoint. This checkpoint
+does not waive the scientific distinction between a completed benchmark and
+any still-unfinished general-resolver acceptance gates above.

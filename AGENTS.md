@@ -22,8 +22,9 @@ prompt, subsequent user requirements, and acceptance gates remain authoritative.
   Numerica. The user authorized pushing
   validated FastSecDec milestones to `https://github.com/alphal00p/fastSecDec`.
   Push `main` there after milestone checks. The user also authorized publishing
-  the finished Numerica QMC feature branch as a PR against its main branch and
-  requesting review from `benruijl`; run its readiness checks first. Other
+  the finished Numerica QMC feature branch as a PR against its main branch;
+  run its readiness checks first. The 2026-10-11 instruction removes the
+  requirement to request or tag Ben Ruijl on future PRs. Other
   reference repositories remain unpublished except for the subsequently
   authorized, tested changes on GammaLoop's `feynkit` branch, the HEPKit bridge
   PR in symbolica-community, and the 2026-10-06 authorization to update HEPKit
