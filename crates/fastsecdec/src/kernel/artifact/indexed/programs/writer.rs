@@ -57,7 +57,13 @@ impl<W: Write + Seek> ProgramArchiveWriter<W> {
         if writer.stream_position().map_err(failure)? != 0 {
             return Err(failure("threshold writer must start at byte zero"));
         }
-        writer.write_all(super::MAGIC_V3).map_err(failure)?;
+        writer
+            .write_all(if summary.runtime_guard.is_some() {
+                super::MAGIC_V4
+            } else {
+                super::MAGIC_V3
+            })
+            .map_err(failure)?;
         Ok(Self {
             writer,
             source_identity: summary.source_identity.clone(),
@@ -154,7 +160,9 @@ impl<W: Write + Seek> ProgramArchiveWriter<W> {
             })
             .collect::<Result<Vec<_>, _>>()?;
         let catalogue = ProgramArchiveCatalogue::finish(self.source_identity, recipes, end)?;
-        let footer = if catalogue.version == 3 {
+        let footer = if catalogue.version == 4 {
+            super::FOOTER_V4
+        } else if catalogue.version == 3 {
             super::FOOTER_V3
         } else {
             super::FOOTER

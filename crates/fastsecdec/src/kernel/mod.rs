@@ -29,6 +29,7 @@ mod evaluator;
 mod exact;
 mod metadata;
 mod model_constraints;
+pub(crate) mod parameter_guard;
 /// Data-only threshold provenance. Structural admission does not certify the
 /// referenced mathematics or create an executable threshold artifact.
 pub mod threshold_metadata;
@@ -712,6 +713,9 @@ impl KernelSet {
             descriptor.admit_runtime()?;
         }
         let ordered = self.ordered_runtime_parameters(values)?;
+        if let Some(threshold) = &self.threshold {
+            threshold.admit_parameter_point(&self.runtime_parameters, &ordered)?;
+        }
         if self.runtime_parameters.is_empty() {
             return Ok(());
         }
@@ -824,3 +828,6 @@ pub use compilation::{
 
 #[cfg(all(test, feature = "threshold-decomposition"))]
 mod algebraic_tests;
+
+#[cfg(all(test, feature = "threshold-decomposition"))]
+mod parameter_template_tests;

@@ -20,6 +20,7 @@ pub struct ThresholdMetadata {
     /// and grouping. Global source/proof replay requires external evidence.
     semantic: Arc<str>,
     orders: Arc<Vec<i32>>,
+    parameter_guard: Option<Arc<super::parameter_guard::ExactParameterGuard>>,
 }
 #[derive(bincode::Encode, bincode::Decode)]
 #[bincode(decode_context = "symbolica::state::StateMap")]
@@ -128,9 +129,10 @@ impl ThresholdMetadata {
         runtime: &[Symbol],
     ) -> Result<(), KernelError> {
         self.validate_local_tables()?;
-        if !runtime.is_empty() || self.orders.as_slice() != orders {
+        if self.orders.as_slice() != orders {
             return Err(invalid("fixed fiber/layout differs"));
         }
+        self.validate_parameter_guard(runtime)?;
         let checked = self
             .manifest
             .validate_structure(&self.tables(), m::Limits::default())
@@ -223,6 +225,12 @@ impl ThresholdMetadata {
         if let Some(local) = &self.local {
             local.visit_atoms(f);
         }
+        if let Some(guard) = &self.parameter_guard {
+            guard.stored().visit_atoms(f);
+            for symbol in guard.stored().symbols() {
+                f(&Atom::var(symbol));
+            }
+        }
         for s in &self.symbols {
             f(&Atom::var(*s))
         }
@@ -261,6 +269,7 @@ impl ThresholdMetadata {
     pub(crate) fn restore(saved: Saved) -> Result<Self, KernelError> {
         let d: Descriptor = serde_json::from_slice(&saved.descriptor)?;
         Ok(Self {
+            parameter_guard: None,
             manifest: Arc::new(d.manifest),
             records: d.records,
             resident: d.resident,
@@ -649,6 +658,7 @@ mod build {
             let manifest = m::LineageManifestV1 {
                 version: 1,
                 preparation: m::Preparation {
+                    runtime_chamber: None,
                     source_identity: source,
                     extent: m::SourceExtent::Full {
                         ordinary_geometry: None,
@@ -720,6 +730,7 @@ impl ThresholdResultScope {
 }
 
 mod local;
+mod parameters;
 pub(crate) use local::SavedV16;
 #[cfg(feature = "threshold-decomposition")]
 pub(crate) use local::{StagedTablePlan, StagedTables};
@@ -756,6 +767,7 @@ impl ThresholdMetadata {
             })
             .collect();
         Ok(Self {
+            parameter_guard: None,
             manifest: Arc::new(manifest),
             atoms,
             local: None,

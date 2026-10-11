@@ -184,8 +184,8 @@ impl ProgramRecipeCatalogue {
             content_id: summary.complete_content_id.clone(),
             orders: layout.orders,
             components: layout.components,
-            runtime_parameters: layout.runtime_parameters,
-            physics_parameters: Vec::new(),
+            runtime_parameters: layout.runtime_parameters.clone(),
+            physics_parameters: layout.runtime_parameters,
             recipe_parameters: Vec::new(),
             records: layout.records,
             threshold: Some(summary),
@@ -321,7 +321,13 @@ impl ProgramArchiveCatalogue {
     ) -> Result<Self, KernelError> {
         recipes.sort_by_key(|recipe| recipe.recipe);
         let mut catalogue = Self {
-            version: if recipes.iter().any(|r| r.threshold.is_some()) {
+            version: if recipes.iter().any(|r| {
+                r.threshold
+                    .as_ref()
+                    .is_some_and(|s| s.runtime_guard.is_some())
+            }) {
+                4
+            } else if recipes.iter().any(|r| r.threshold.is_some()) {
                 3
             } else {
                 2
@@ -358,13 +364,22 @@ impl ProgramArchiveCatalogue {
             recipe.validate_schema()?;
             return self.legacy_catalogue()?.validate(integrity);
         }
-        if !matches!(self.version, 2 | 3) || self.recipes.is_empty() {
+        if !matches!(self.version, 2..=4) || self.recipes.is_empty() {
             return Err(failure("unsupported or empty program archive"));
         }
-        if (self.version == 3) != self.recipes.iter().any(|r| r.threshold.is_some())
-            || self.version == 3 && self.recipes.len() != 1
+        if (self.version >= 3) != self.recipes.iter().any(|r| r.threshold.is_some())
+            || self.version >= 3 && self.recipes.len() != 1
         {
             return Err(failure("threshold archive recipe capability"));
+        }
+        if (self.version == 4)
+            != self.recipes.iter().any(|r| {
+                r.threshold
+                    .as_ref()
+                    .is_some_and(|s| s.runtime_guard.is_some())
+            })
+        {
+            return Err(failure("uniform parameter archive version"));
         }
         let source = self
             .source_identity

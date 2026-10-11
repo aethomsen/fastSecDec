@@ -1,4 +1,4 @@
-//! Projection of the checked fixed secant family into local arithmetic lineage.
+//! Projection of the checked fixed or uniform secant family into local lineage.
 //! No saved descriptor can construct the geometric owner consumed here.
 use super::*;
 use crate::threshold::{
@@ -63,14 +63,46 @@ impl ThresholdMetadata {
         if !matches!(request.domain().origin(), DomainOrigin::NativeUnitCube)
             || staged.len() != certificate.charts().len()
             || staged.iter().any(|r| !r.algebraic)
-            || !request.kinematics().runtime_parameters.is_empty()
         {
             return Err(invalid(
                 "incomplete or unsupported certified fixed secant family",
             ));
         }
+        let chamber = certificate.parameter_chamber();
+        let runtime = certificate.runtime_parameters();
+        if runtime != request.kinematics().runtime_parameters
+            || chamber.is_some() != !runtime.is_empty()
+        {
+            return Err(invalid("runtime family lacks its uniform chamber owner"));
+        }
         let original_symbols = request.input().parameters();
         let coordinates = certificate.coordinates();
+        let integration_axes =
+            if let Some(chamber) = chamber {
+                if !Arc::ptr_eq(chamber.decomposition(), certificate.owner())
+                    || chamber.runtime_parameters() != runtime
+                    || chamber.layout().units() != coordinates
+                    || chamber
+                        .cell_indices()
+                        .collect::<std::collections::BTreeSet<_>>()
+                        != certificate
+                            .charts()
+                            .iter()
+                            .map(|c| c.geometry().source().cell_index())
+                            .collect()
+                    || chamber.integration_axes().len() != original_symbols.len()
+                    || chamber.integration_axes().iter().zip(original_symbols).any(
+                        |(axis, symbol)| chamber.layout().raw_symbols().get(*axis) != Some(symbol),
+                    )
+                {
+                    return Err(invalid(
+                        "uniform chamber complete family/source role association",
+                    ));
+                }
+                chamber.integration_axes().to_vec()
+            } else {
+                (0..original_symbols.len()).collect::<Vec<_>>()
+            };
         let mut symbols = original_symbols.to_vec();
         let original = (0..symbols.len())
             .map(m::NativeSymbolId)
@@ -84,6 +116,14 @@ impl ThresholdMetadata {
             .copied()
             .collect::<Vec<_>>();
         let physical_ids = physical
+            .iter()
+            .map(|s| {
+                let id = m::NativeSymbolId(symbols.len());
+                symbols.push(*s);
+                id
+            })
+            .collect::<Vec<_>>();
+        let runtime_ids = runtime
             .iter()
             .map(|s| {
                 let id = m::NativeSymbolId(symbols.len());
@@ -340,26 +380,35 @@ impl ThresholdMetadata {
                         original_symbols
                             .iter()
                             .zip(coordinates)
-                            .take(section.axis())
-                            .map(|(s, u)| {
+                            .zip(&integration_axes)
+                            .filter(|(_, axis)| **axis < section.axis())
+                            .map(|((s, u), _)| {
                                 Replacement::new(
                                     Pattern::Literal(Atom::var(*s)),
                                     Pattern::Literal(Atom::var(*u)),
                                 )
                             }),
                     );
+                    let integration_axis = integration_axes
+                        .iter()
+                        .position(|axis| *axis == section.axis())
+                        .ok_or_else(|| invalid("selected root is not an integration axis"))?;
                     let root_variable = if paired {
                         equation = equation
-                            .replace(Atom::var(original_symbols[section.axis()]))
+                            .replace(Atom::var(original_symbols[integration_axis]))
                             .with(Atom::var(branch_symbols[role].0));
                         branch_symbols[role].1
                     } else {
-                        original[section.axis()]
+                        original[integration_axis]
                     };
                     let root = m::RootSection {
                         polynomial: push(&mut atoms, equation),
                         root_variable,
-                        preceding_coordinates: units[..section.axis()].to_vec(),
+                        preceding_coordinates: units
+                            .iter()
+                            .zip(&integration_axes)
+                            .filter_map(|(u, axis)| (*axis < section.axis()).then_some(*u))
+                            .collect(),
                         domain: match section.bound().index_domain {
                             symgcad::output::RootIndexDomain::Real => m::RootDomain::RealAscending,
                             symgcad::output::RootIndexDomain::Positive => m::RootDomain::Positive,
@@ -503,10 +552,50 @@ impl ThresholdMetadata {
                     .collect::<Vec<_>>()
             );
         }
+        let runtime_chamber = chamber
+            .map(
+                |chamber| -> Result<m::UniformParameterChamberV1, KernelError> {
+                    let guard = chamber.guard();
+                    let guard_semantic = m::Digest(guard.semantic_identity().map_err(invalid)?);
+                    let family_certificate = digest(
+                        "threshold-uniform-family-v1",
+                        &(
+                            &source,
+                            &guard_semantic,
+                            &values,
+                            &functions,
+                            &semantic_helpers,
+                            &common,
+                            &policy,
+                        ),
+                    )?;
+                    let descriptor = m::UniformParameterChamberV1 {
+                        version: 1,
+                        runtime_parameters: runtime_ids,
+                        prefix_to_public: guard.prefix_to_public().to_vec(),
+                        integration_axes: integration_axes.clone(),
+                        predicates: guard.predicate_roles().map_err(invalid)?,
+                        guard_semantic,
+                        family_certificate,
+                    };
+                    semantic_projection["projection_version"] = serde_json::json!(5);
+                    // Native role-table indices are structural only; the semantic guard
+                    // already includes ordered physical names and actual predicates.
+                    semantic_projection["uniform_parameter_chamber"] = serde_json::json!({
+                        "version": 1, "guard": descriptor.guard_semantic,
+                        "family": descriptor.family_certificate,
+                        "prefix_to_public": descriptor.prefix_to_public,
+                        "integration_axes": descriptor.integration_axes,
+                    });
+                    Ok(descriptor)
+                },
+            )
+            .transpose()?;
         let semantic = serde_json::to_string(&semantic_projection)?;
         let manifest = m::LineageManifestV1 {
             version: 1,
             preparation: m::Preparation {
+                runtime_chamber,
                 source_identity: source,
                 extent: m::SourceExtent::Full {
                     ordinary_geometry: None,
@@ -543,6 +632,10 @@ impl ThresholdMetadata {
             }],
             contributions,
         };
-        Self::issued(manifest, atoms, symbols, semantic, orders)
+        let mut owner = Self::issued(manifest, atoms, symbols, semantic, orders)?;
+        if let Some(chamber) = chamber {
+            owner.attach_parameter_guard(chamber.guard().clone())?;
+        }
+        Ok(owner)
     }
 }

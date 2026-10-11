@@ -147,8 +147,15 @@ These are generic-degree simple-root constructions within the documented
 geometry class, not arbitrary algebraic endpoint resolution. See the
 [automatic-factory review](reviews/no-deformation-regular-family-factory.md).
 Default native consumers restore these programs without GCAD; portable
-root-bearing records remain unsupported. Runtime parameter chambers, moving
-brackets and general root collisions remain separate delivery gates. The
+root-bearing records remain unsupported. Issued regular native-cube families
+also support checked runtime parameters through
+`NormalizedFamily::admit_parameter_affine_shifted` and the same native compile
+and detached-publication APIs. They save v18 programs with a shared exact
+parameter guard and an explicit v4 archive capability. Rebinding admitted
+points retains compiled IR; rejected points leave the previous binding intact.
+See the [compiled-template review](reviews/no-deformation-compiled-parameter-templates.md).
+Automatic CLI/HEPKit parameter-chamber preparation, projective parameterized
+sources, moving brackets and general root collisions remain separate gates. The
 existing native HEPKit owner forwards to the shared preparation factory;
 the new sextic's recorded end-to-end execution gate is the CLI. See also the
 [algebraic-kernel review](reviews/no-deformation-algebraic-kernels.md).

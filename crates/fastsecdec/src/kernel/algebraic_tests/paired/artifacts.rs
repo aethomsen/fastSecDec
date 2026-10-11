@@ -99,6 +99,7 @@ fn paired_geometry_and_saved_helper_tampering_refused() {
     ])
     .unwrap();
     let program = crate::kernel::program::PreparedCoefficientVector {
+        runtime_parameters: Vec::new(),
         coordinates: f.coordinates().to_vec(),
         coefficients: f.roots().iter().cloned().map(Into::into).collect(),
         functions: Default::default(),

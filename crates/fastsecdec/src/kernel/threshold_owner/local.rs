@@ -388,6 +388,7 @@ impl ThresholdMetadata {
             return Err(invalid("v16 parent descriptor reference"));
         }
         let value = Self {
+            parameter_guard: None,
             manifest,
             atoms: Vec::new(),
             local: Some(LocalTables { directory, values }),
@@ -423,6 +424,7 @@ mod staging {
     pub(crate) struct StagedTables {
         owner: ThresholdMetadata,
         refs: BTreeMap<m::Digest, RecordRef>,
+        guard: Option<crate::kernel::parameter_guard::staging::StagedGuard>,
     }
     #[derive(serde::Serialize, serde::Deserialize)]
     #[serde(deny_unknown_fields)]
@@ -430,6 +432,8 @@ mod staging {
         parent: Parent,
         records: Vec<m::RecordLineageV1>,
         refs: Vec<(m::Digest, RecordRef)>,
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        guard: Option<crate::kernel::parameter_guard::staging::StagedGuard>,
     }
     impl ThresholdMetadata {
         pub(crate) fn stage_tables(mut self, root: &Path) -> Result<StagedTables, KernelError> {
@@ -453,7 +457,18 @@ mod staging {
                 .map_err(invalid)?;
                 refs.insert(identity, record);
             }
-            Ok(StagedTables { owner: self, refs })
+            let guard = self
+                .parameter_guard
+                .take()
+                .map(|guard| {
+                    crate::kernel::parameter_guard::staging::write(root, &guard).map_err(invalid)
+                })
+                .transpose()?;
+            Ok(StagedTables {
+                owner: self,
+                refs,
+                guard,
+            })
         }
     }
     impl StagedTables {
@@ -461,6 +476,7 @@ mod staging {
             let local = self.owner.local.as_ref().expect("staged local owner");
             (
                 StagedTablePlan {
+                    guard: self.guard.clone(),
                     parent: Parent {
                         manifest: self.owner.manifest.as_ref().clone(),
                         directory: local.directory.as_ref().clone(),
@@ -486,6 +502,7 @@ mod staging {
             let parent = plan.parent;
             let descriptor = parent.manifest.descriptor_digest().map_err(invalid)?;
             let owner = ThresholdMetadata {
+                parameter_guard: None,
                 manifest: Arc::new(parent.manifest),
                 atoms: Vec::new(),
                 local: Some(LocalTables {
@@ -523,7 +540,21 @@ mod staging {
             {
                 return Err(invalid("incomplete staged table directory"));
             }
-            Ok(Self { owner, refs })
+            if owner
+                .manifest
+                .preparation
+                .runtime_chamber
+                .as_ref()
+                .map(|c| c.guard_semantic.0.as_str())
+                != plan.guard.as_ref().map(|g| g.semantic.as_str())
+            {
+                return Err(invalid("staged parameter guard association"));
+            }
+            Ok(Self {
+                owner,
+                refs,
+                guard: plan.guard,
+            })
         }
         pub(crate) fn publication(
             &self,
@@ -577,6 +608,9 @@ mod staging {
                 });
             }
             Ok(ThresholdArchiveSummary {
+                runtime_guard: crate::kernel::indexed::ThresholdRuntimeGuard::from_owner(
+                    &self.owner,
+                )?,
                 parent: self.owner.resident.manifest.clone(),
                 source_identity: self.owner.manifest.preparation.source_identity.0.clone(),
                 source_extent: self.owner.manifest.preparation.extent.clone(),
@@ -590,6 +624,9 @@ mod staging {
         }
         pub(crate) fn manifest(&self) -> &m::LineageManifestV1 {
             &self.owner.manifest
+        }
+        pub(crate) fn runtime_parameters(&self) -> Result<Vec<Symbol>, KernelError> {
+            self.owner.runtime_parameters()
         }
         pub(crate) fn orders(&self) -> &[i32] {
             &self.owner.orders
@@ -631,6 +668,24 @@ mod staging {
                 .map_err(invalid)?;
             let required = owner.required_tables()?;
             let mut total = 0u64;
+            if let Some(guard) = &self.guard {
+                total = total
+                    .checked_add(guard.record.bytes)
+                    .filter(|n| *n <= limit)
+                    .ok_or_else(|| invalid("parameter guard transport limit"))?;
+                let expected = &owner
+                    .manifest
+                    .preparation
+                    .runtime_chamber
+                    .as_ref()
+                    .ok_or_else(|| invalid("guard without uniform chamber"))?
+                    .guard_semantic
+                    .0;
+                let restored =
+                    crate::kernel::parameter_guard::staging::read(root, guard, expected, limit)
+                        .map_err(invalid)?;
+                owner.attach_parameter_guard(restored)?;
+            }
             for id in required {
                 let record = self
                     .refs
@@ -665,6 +720,8 @@ pub(crate) use staging::{StagedTablePlan, StagedTables};
 
 impl ThresholdMetadata {
     pub(crate) fn merge_local(&mut self, other: &Self) -> Result<(), KernelError> {
+        self.validate_parameter_guard(&self.runtime_parameters()?)?;
+        other.validate_parameter_guard(&other.runtime_parameters()?)?;
         let a = self
             .local
             .as_mut()

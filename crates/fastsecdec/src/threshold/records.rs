@@ -61,6 +61,8 @@ struct Stored {
     chart: usize,
     maximum: i32,
     coordinates: Vec<usize>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    runtime_parameters: Vec<usize>,
     kind: VectorKind,
     coefficients: Vec<(i32, Aliased)>,
     definitions: Vec<Definition>,
@@ -97,6 +99,7 @@ pub(crate) struct StagedVector {
 pub(crate) struct LocalVector {
     pub roots: algebraic::Scope,
     pub coordinates: Vec<Symbol>,
+    pub runtime_parameters: Vec<Symbol>,
     pub coefficients: BTreeMap<i32, AliasedAtom>,
     pub functions: FunctionMap,
     pub profiles: Vec<generation::EndpointProfileRow>,
@@ -184,6 +187,11 @@ pub(crate) fn write(
         .iter()
         .map(|s| symbol_index(&mut symbols, *s))
         .collect();
+    let runtime_parameters = source
+        .runtime_parameters()
+        .iter()
+        .map(|s| symbol_index(&mut symbols, *s))
+        .collect();
     let zero_digests = coefficient_zeros
         .iter()
         .map(|p| (p.order, p.digest.clone()))
@@ -248,6 +256,7 @@ pub(crate) fn write(
             chart,
             maximum,
             coordinates,
+            runtime_parameters,
             kind,
             coefficients,
             definitions,
@@ -298,6 +307,7 @@ pub(crate) fn read(
         && (!stored.coefficient_zeros.is_empty()
             || !record.coefficient_zeros.is_empty()
             || !stored.roots.is_empty()
+            || !stored.runtime_parameters.is_empty()
             || stored
                 .definitions
                 .iter()
@@ -378,6 +388,21 @@ pub(crate) fn read(
         .into_iter()
         .map(symbol)
         .collect::<Result<Vec<_>>>()?;
+    let runtime_parameters = stored
+        .runtime_parameters
+        .into_iter()
+        .map(symbol)
+        .collect::<Result<Vec<_>>>()?;
+    if coordinates
+        .iter()
+        .chain(&runtime_parameters)
+        .copied()
+        .collect::<BTreeSet<_>>()
+        .len()
+        != coordinates.len() + runtime_parameters.len()
+    {
+        return Err(invalid("local vector runtime/coordinate roles"));
+    }
     if coordinates.is_empty()
         || coordinates.iter().copied().collect::<BTreeSet<_>>().len() != coordinates.len()
     {
@@ -497,6 +522,7 @@ pub(crate) fn read(
     Ok(LocalVector {
         roots,
         coordinates,
+        runtime_parameters,
         coefficients,
         functions,
         profiles: stored.profiles,
@@ -510,6 +536,7 @@ pub(crate) fn write_exact(
     root: &Path,
     parent: &str,
     coordinates: &[Symbol],
+    runtime_parameters: &[Symbol],
     coefficients: &BTreeMap<i32, Atom>,
     maximum: i32,
 ) -> Result<StagedVector> {
@@ -529,6 +556,8 @@ pub(crate) fn write_exact(
         chart: usize::MAX,
         maximum,
         coordinates: (0..coordinates.len()).collect(),
+        runtime_parameters: (coordinates.len()..coordinates.len() + runtime_parameters.len())
+            .collect(),
         kind: VectorKind::Exact {},
         coefficients: values,
         definitions: Vec::new(),
@@ -539,10 +568,18 @@ pub(crate) fn write_exact(
     let record = codec::write(
         root,
         "threshold-exact-sum",
-        KIND,
+        if runtime_parameters.is_empty() {
+            KIND
+        } else {
+            ALGEBRAIC_KIND
+        },
         &stored,
         atoms,
-        coordinates.to_vec(),
+        coordinates
+            .iter()
+            .chain(runtime_parameters)
+            .copied()
+            .collect(),
     )?;
     Ok(StagedVector {
         record,
@@ -550,7 +587,7 @@ pub(crate) fn write_exact(
         minimum,
         maximum,
         kind: VectorKind::Exact {},
-        algebraic: false,
+        algebraic: !runtime_parameters.is_empty(),
         coefficient_zeros: Vec::new(),
     })
 }

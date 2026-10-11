@@ -204,6 +204,7 @@ impl KernelSet {
             |step: &super::CompilationProgress| progress(&KernelLoadProgress::Restoring(*step));
         let kernels = if bytes.starts_with(indexed::programs::MAGIC)
             || bytes.starts_with(indexed::programs::MAGIC_V3)
+            || bytes.starts_with(indexed::programs::MAGIC_V4)
         {
             indexed::programs::from_bytes(bytes, options, &mut progress)
         } else if bytes.starts_with(indexed::MAGIC) {

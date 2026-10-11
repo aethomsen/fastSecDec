@@ -36,6 +36,7 @@ fn fixture() -> LineageManifestV1 {
     LineageManifestV1 {
         version: 1,
         preparation: Preparation {
+            runtime_chamber: None,
             source_identity: digest(1),
             extent: SourceExtent::Selected {
                 selection,
@@ -674,4 +675,51 @@ fn every_tagged_variant_rejects_unknown_wire_fields() {
         accepted.is_empty(),
         "unknown metadata accepted by {accepted:?}"
     );
+}
+
+#[test]
+fn uniform_runtime_capability_has_strict_roles_and_explicit_optional_wire() {
+    let fixed = fixture();
+    assert!(
+        serde_json::to_value(&fixed).unwrap()["preparation"]
+            .get("runtime_chamber")
+            .is_none()
+    );
+    let mut manifest = fixed;
+    manifest.preparation.runtime_chamber = Some(UniformParameterChamberV1 {
+        version: 1,
+        runtime_parameters: vec![NativeSymbolId(6)],
+        prefix_to_public: vec![0],
+        integration_axes: vec![1, 2],
+        predicates: vec![ParameterPredicateV1 {
+            role: ParameterPredicateRole::LowerBound,
+            index: 0,
+            positive_selector: false,
+            predicate: digest(31),
+        }],
+        guard_semantic: digest(32),
+        family_certificate: digest(33),
+    });
+    manifest
+        .validate_structure(&tables(), Limits::default())
+        .unwrap();
+    for mutation in 0..6 {
+        let mut bad = manifest.clone();
+        let chamber = bad.preparation.runtime_chamber.as_mut().unwrap();
+        match mutation {
+            0 => chamber.version = 2,
+            1 => chamber.runtime_parameters[0] = NativeSymbolId(0),
+            2 => chamber.runtime_parameters[0] = NativeSymbolId(4),
+            3 => chamber.prefix_to_public[0] = 1,
+            4 => chamber.integration_axes = vec![0, 1],
+            _ => chamber.predicates.push(chamber.predicates[0].clone()),
+        }
+        assert!(
+            bad.validate_structure(&tables(), Limits::default())
+                .is_err()
+        );
+    }
+    let mut json = serde_json::to_value(&manifest).unwrap();
+    json["preparation"]["runtime_chamber"]["claimed_geometry_proof"] = true.into();
+    assert!(serde_json::from_value::<LineageManifestV1>(json).is_err());
 }

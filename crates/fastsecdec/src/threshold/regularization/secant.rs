@@ -7,6 +7,9 @@ mod density;
 mod faces;
 #[path = "secant/geometry.rs"]
 mod geometry;
+#[path = "secant/parameters.rs"]
+mod parameters;
+pub use parameters::UniformParameterChamber;
 #[path = "secant/paired.rs"]
 mod paired;
 #[path = "secant/zeros.rs"]
@@ -215,6 +218,8 @@ enum RootRecipe {
 pub struct NormalizedFamily {
     owner: Arc<VerifiedDecomposition>,
     coordinates: Vec<Symbol>,
+    chamber: Option<UniformParameterChamber>,
+    arguments: Vec<Atom>,
     regulators: Vec<Symbol>,
     charts: Vec<NormalizedChart>,
     strip: ConvergenceStrip,
@@ -227,6 +232,23 @@ pub struct NormalizedFamily {
     limits: Limits,
 }
 impl NormalizedFamily {
+    /// Uniform chamber admitted with the complete family, never a per-cell fiber.
+    pub fn parameter_chamber(&self) -> Option<&UniformParameterChamber> {
+        self.chamber.as_ref()
+    }
+    pub fn runtime_parameters(&self) -> &[Symbol] {
+        self.chamber
+            .as_ref()
+            .map_or(&[], UniformParameterChamber::runtime_parameters)
+    }
+    /// Compile-once static-cylinder family with unsampled parameter inputs.
+    pub fn admit_parameter_affine_shifted(
+        owner: Arc<VerifiedDecomposition>,
+        coordinates: Vec<Symbol>,
+        limits: Limits,
+    ) -> Result<Self> {
+        density::admit_parameters(owner, coordinates, limits)
+    }
     pub fn admit(
         owner: Arc<VerifiedDecomposition>,
         coordinates: Vec<Symbol>,
@@ -362,3 +384,7 @@ pub(crate) fn attempt_affine_shifted(
         RootRecipe::ShiftedAffine,
     )
 }
+
+#[cfg(test)]
+#[path = "secant/parameter_tests.rs"]
+mod parameter_tests;

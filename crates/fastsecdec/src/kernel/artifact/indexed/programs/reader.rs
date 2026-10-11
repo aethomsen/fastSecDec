@@ -129,18 +129,27 @@ impl<R: Read + Seek> ProgramArchiveReader<R> {
                 options,
             });
         }
-        if header != super::MAGIC && header != super::MAGIC_V3 {
+        if header != super::MAGIC && header != super::MAGIC_V3 && header != super::MAGIC_V4 {
             return Err(failure("unsupported program archive header"));
         }
         let (catalogue, start): (ProgramArchiveCatalogue, _) = transport::read_footer(
             &mut reader,
-            if header == super::MAGIC_V3 {
+            if header == super::MAGIC_V4 {
+                super::FOOTER_V4
+            } else if header == super::MAGIC_V3 {
                 super::FOOTER_V3
             } else {
                 super::FOOTER
             },
         )?;
-        if catalogue.version != if header == super::MAGIC_V3 { 3 } else { 2 }
+        if catalogue.version
+            != if header == super::MAGIC_V4 {
+                4
+            } else if header == super::MAGIC_V3 {
+                3
+            } else {
+                2
+            }
             || catalogue.records_end != start
         {
             return Err(failure(

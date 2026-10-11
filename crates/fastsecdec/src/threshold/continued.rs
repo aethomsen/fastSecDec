@@ -37,6 +37,12 @@ impl ContinuedSource<'_> {
             Self::Algebraic(b) => b.certificate().coordinates().to_vec(),
         }
     }
+    pub fn runtime_parameters(&self) -> &[Symbol] {
+        match self {
+            Self::Rational(_) => &[],
+            Self::Algebraic(b) => b.certificate().runtime_parameters(),
+        }
+    }
     pub fn regulators(&self) -> Vec<Symbol> {
         match self {
             Self::Rational(b) => b.regulators().to_vec(),

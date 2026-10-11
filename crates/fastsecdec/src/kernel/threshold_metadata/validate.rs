@@ -236,6 +236,73 @@ impl LineageManifestV1 {
         {
             return Err(invalid("coordinate/regulator/physical binding roles"));
         }
+        let runtime = p
+            .runtime_chamber
+            .as_ref()
+            .map_or(&[][..], |c| c.runtime_parameters.as_slice());
+        if let Some(chamber) = &p.runtime_chamber {
+            let n = chamber.runtime_parameters.len();
+            if chamber.version != 1 || n == 0 {
+                return Err(invalid("uniform parameter chamber capability"));
+            }
+            symbols(runtime, tables, &mut budget)?;
+            budget.refs(chamber.prefix_to_public.len())?;
+            budget.refs(chamber.integration_axes.len())?;
+            budget.nodes(chamber.predicates.len())?;
+            chamber.guard_semantic.validate()?;
+            chamber.family_certificate.validate()?;
+            if chamber.prefix_to_public.len() != n
+                || chamber
+                    .prefix_to_public
+                    .iter()
+                    .copied()
+                    .collect::<BTreeSet<_>>()
+                    != (0..n).collect()
+                || chamber.integration_axes.len() != p.original_coordinates.len()
+                || chamber.integration_axes.iter().copied().ne(n..n
+                    .checked_add(p.original_coordinates.len())
+                    .ok_or(Error::Limit)?)
+                || runtime.iter().any(|s| {
+                    *s == p.regulator
+                        || p.original_coordinates.contains(s)
+                        || p.fiber.physical_parameters.contains(s)
+                })
+            {
+                return Err(invalid("uniform runtime/prefix/integration roles"));
+            }
+            let mut predicates = BTreeSet::new();
+            for row in &chamber.predicates {
+                row.predicate.validate()?;
+                if !predicates.insert((row.role, row.index)) {
+                    return Err(invalid("duplicate parameter predicate role"));
+                }
+                match row.role {
+                    ParameterPredicateRole::LowerBound | ParameterPredicateRole::UpperBound
+                        if row.index >= n =>
+                    {
+                        return Err(invalid("parameter bound axis"));
+                    }
+                    ParameterPredicateRole::StrictPositive | ParameterPredicateRole::Nonzero
+                        if row.positive_selector =>
+                    {
+                        return Err(invalid("selector on non-bound predicate"));
+                    }
+                    _ => {}
+                }
+            }
+            for role in [
+                ParameterPredicateRole::StrictPositive,
+                ParameterPredicateRole::Nonzero,
+            ] {
+                let indices = predicates
+                    .iter()
+                    .filter_map(|(r, i)| (*r == role).then_some(*i))
+                    .collect::<Vec<_>>();
+                if indices.iter().copied().ne(0..indices.len()) {
+                    return Err(invalid("parameter predicate inventory"));
+                }
+            }
+        }
         budget.refs(p.fiber.bindings.len())?;
         for binding in &p.fiber.bindings {
             atom(binding.value, &p.expressions, tables)?;
@@ -246,12 +313,9 @@ impl LineageManifestV1 {
             .map(|p| &p.map)
             .chain(self.endpoint_charts.iter().map(|c| &c.map))
         {
-            if map
-                .geometry()
-                .coordinates
-                .iter()
-                .any(|s| *s == p.regulator || p.fiber.physical_parameters.contains(s))
-            {
+            if map.geometry().coordinates.iter().any(|s| {
+                *s == p.regulator || p.fiber.physical_parameters.contains(s) || runtime.contains(s)
+            }) {
                 return Err(invalid(
                     "map coordinate captures a regulator or physical parameter",
                 ));
@@ -266,6 +330,7 @@ impl LineageManifestV1 {
                 && sections.iter().any(|s| {
                     s.root_variable == p.regulator
                         || p.fiber.physical_parameters.contains(&s.root_variable)
+                        || runtime.contains(&s.root_variable)
                 })
             {
                 return Err(invalid(

@@ -1,5 +1,8 @@
 use super::*;
-use crate::{parametric::FactorRole, threshold::phase::CausalCell};
+use crate::{
+    parametric::FactorRole,
+    threshold::{maps::ParameterChamber, phase::CausalCell},
+};
 use regular::{
     Budget,
     callback::{RootProgram, Scope},
@@ -130,8 +133,56 @@ pub(super) fn attempt(
             .map(ChartGeometry::Paired)
             .collect(),
     };
-    assemble(owner, coordinates, limits, root_recipe, budget, geometry)
-        .map_err(regular::ProposalError::Failure)
+    assemble(
+        owner,
+        coordinates,
+        limits,
+        root_recipe,
+        budget,
+        geometry,
+        None,
+    )
+    .map_err(regular::ProposalError::Failure)
+}
+
+pub(super) fn admit_parameters(
+    owner: Arc<VerifiedDecomposition>,
+    coordinates: Vec<Symbol>,
+    limits: Limits,
+) -> Result<NormalizedFamily> {
+    if owner.request().kinematics().runtime_parameters.is_empty() {
+        return Err(unsupported(
+            "uniform parameter family requires a nonempty chamber",
+        ));
+    }
+    let parameters = &owner.request().kinematics().runtime_parameters;
+    if owner.request().prepared_terms().iter().any(|term| {
+        term.monomial_powers()
+            .iter()
+            .chain(term.factors().iter().map(|factor| factor.exponent()))
+            .any(|exponent| parameters.iter().any(|p| exponent.contains_symbol(*p)))
+    }) {
+        return Err(unsupported(
+            "uniform parameter family requires parameter-independent exponents",
+        ));
+    }
+    let mut budget = Budget::new(limits.geometry.clone());
+    if let Some(cancel) = &limits.cancellation {
+        budget = budget.with_cancellation(cancel.clone());
+    }
+    let geometry = geometry::admit_uniform(&owner, &coordinates, &limits, &mut budget)
+        .map_err(|error| error.into_error(unsupported))?;
+    let chamber = ParameterChamber::prepare(geometry.iter().map(|g| g.source().clone()).collect())
+        .map_err(native)?;
+    assemble(
+        owner,
+        coordinates,
+        limits,
+        RootRecipe::ShiftedAffine,
+        budget,
+        geometry.into_iter().map(ChartGeometry::Single).collect(),
+        Some(chamber),
+    )
 }
 
 fn assemble(
@@ -141,6 +192,7 @@ fn assemble(
     root_recipe: RootRecipe,
     budget: Budget,
     geometry: Vec<ChartGeometry>,
+    chamber: Option<Arc<ParameterChamber>>,
 ) -> Result<NormalizedFamily> {
     let request = owner.request();
     let eps = request.input().regulator();
@@ -178,10 +230,16 @@ fn assemble(
         RootRecipe::Affine => RootProgram::prepare_affine,
         RootRecipe::ShiftedAffine => RootProgram::prepare_affine_shifted,
     };
-    let unit_atoms = coordinates
+    let unit_atoms = geometry[0]
+        .source()
+        .axes()
         .iter()
-        .copied()
-        .map(Atom::var)
+        .map(|axis| {
+            Atom::var(
+                axis.unit_index()
+                    .map_or(axis.symbol(), |slot| coordinates[slot]),
+            )
+        })
         .collect::<Vec<_>>();
     let mut roots = Vec::new();
     let mut scope = Scope::default();
@@ -227,9 +285,10 @@ fn assemble(
     let mut bodies = Vec::new();
     let mut body_plan = Vec::new();
     let mut prefactors = Vec::new();
+    let mut prefactor_atoms = Vec::new();
     for term in request.prepared_terms() {
         budget.check()?;
-        let body = term
+        let mut body = term
             .factors()
             .iter()
             .filter(|f| f.role() == FactorRole::Polynomial)
@@ -240,6 +299,19 @@ fn assemble(
                     .pow(request.kinematics().specialize_exact(f.exponent()))
             })
             .product::<Atom>();
+        let mut prefactor = request.kinematics().specialize_exact(term.prefactor());
+        if request
+            .kinematics()
+            .runtime_parameters
+            .iter()
+            .any(|p| prefactor.contains_symbol(*p))
+        {
+            // A finite exact polynomial prefactor belongs to the smooth numerator.
+            // General parameter-dependent meromorphic/Gamma factors stay refused.
+            coefficient_bodies(&prefactor, &source_coordinates, eps, &limits)?;
+            body *= &prefactor;
+            prefactor = Atom::one();
+        }
         let mut parts = Vec::new();
         for (order, body) in coefficient_bodies(&body, &source_coordinates, eps, &limits)? {
             if bodies.len() >= limits.density.terms {
@@ -250,13 +322,10 @@ fn assemble(
         }
         body_plan.push(parts);
         prefactors.push(
-            meromorphic::MeromorphicPrefactor::admit(
-                request.kinematics().specialize_exact(term.prefactor()),
-                eps,
-                limits.density,
-            )
-            .map_err(meromorphic_error)?,
+            meromorphic::MeromorphicPrefactor::admit(prefactor.clone(), eps, limits.density)
+                .map_err(meromorphic_error)?,
         );
+        prefactor_atoms.push(prefactor);
     }
     let mut strip = ConvergenceStrip::default();
     let mut charts = Vec::new();
@@ -300,7 +369,7 @@ fn assemble(
             }
         };
         let mut mapped = unit_atoms.clone();
-        mapped[n - 1] = image.clone();
+        *mapped.last_mut().expect("nonempty source axes") = image.clone();
         let cell = owner
             .cells()
             .nth(g.source().cell_index())
@@ -309,12 +378,16 @@ fn assemble(
         let mut terms = Vec::new();
         for (ti, term) in request.prepared_terms().iter().enumerate() {
             let mut powers = vec![Atom::zero(); n];
-            for (i, s) in source_coordinates.iter().enumerate() {
+            for axis in g.source().axes() {
+                let Some(i) = axis.unit_index() else {
+                    continue;
+                };
+                let s = axis.symbol();
                 let source_index = request
                     .domain()
                     .coordinates()
                     .iter()
-                    .position(|p| p == s)
+                    .position(|p| *p == s)
                     .ok_or_else(|| invalid("source coordinate role"))?;
                 let a = request
                     .kinematics()
@@ -429,7 +502,7 @@ fn assemble(
                 let call = numerator
                     .call_args(std::iter::once(Atom::num(*slot)).chain(mapped.iter().cloned()));
                 terms.push(NormalizedTerm {
-                    prefactor: request.kinematics().specialize_exact(term.prefactor())
+                    prefactor: prefactor_atoms[ti].clone()
                         * &phases.term_phases()[ti]
                         * Atom::var(eps).pow(*order),
                     regular: &regular * call,
@@ -464,6 +537,8 @@ fn assemble(
     Ok(NormalizedFamily {
         owner,
         coordinates,
+        chamber: chamber.map(UniformParameterChamber::issued),
+        arguments: unit_atoms,
         regulators: vec![eps],
         charts,
         strip,

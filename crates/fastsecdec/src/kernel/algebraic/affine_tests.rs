@@ -329,6 +329,7 @@ fn nondyadic_native_kernel_artifacts_and_mixed_recipe_inspection() {
                 ..Default::default()
             };
             let program = PreparedCoefficientVector {
+                runtime_parameters: Vec::new(),
                 coordinates: vec![x],
                 coefficients: values.iter().cloned().map(Into::into).collect(),
                 functions: Default::default(),

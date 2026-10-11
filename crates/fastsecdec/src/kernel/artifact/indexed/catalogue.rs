@@ -80,7 +80,7 @@ impl RecordReceipt {
         }
         if !(matches!((self.version, self.recipe), (1, None) | (2, Some(_)))
             && self.threshold.is_none()
-            || self.version == 3 && self.threshold.is_some())
+            || matches!(self.version, 3 | 4) && self.threshold.is_some())
             || self.length == 0
         {
             return Err(failure("unsupported or empty worker record"));

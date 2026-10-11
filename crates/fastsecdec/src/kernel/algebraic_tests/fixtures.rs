@@ -99,6 +99,7 @@ pub(super) fn make_kernel_with_policy(
     )
     .unwrap();
     let vector = PreparedCoefficientVector {
+        runtime_parameters: Vec::new(),
         coordinates: family.coordinates().to_vec(),
         coefficients: orders
             .iter()

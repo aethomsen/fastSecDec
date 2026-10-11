@@ -74,12 +74,7 @@ pub(super) fn reduce(
             };
             // Exact issued-root equality binds its branch and current prefix.
             // Prefix face substitutions need a separate transported-root contract.
-            if definition.formals != family.formals
-                || !actual[..n - 1].iter().eq(family.coordinates[..n - 1]
-                    .iter()
-                    .map(|s| Atom::var(*s))
-                    .collect::<Vec<_>>()
-                    .iter())
+            if definition.formals != family.formals || actual[..n - 1] != family.arguments[..n - 1]
             {
                 failure = Some(unsupported(
                     "finite root face requires its issued prefix arguments",

@@ -5,6 +5,7 @@
 //! separate certificates; this module does not infer them from sample fibers.
 
 mod linear;
+mod parameters;
 mod program;
 pub mod regular;
 
@@ -14,6 +15,9 @@ use symgcad::output::Axis;
 
 use super::gcad::{AliasRole, GcadError, Result, VerifiedDecomposition};
 pub use linear::{LinearAxis, LinearCellMap, ParameterAdmission, RationalMappedPoint};
+pub use parameters::{
+    AdmittedParameterFiber, ParameterChamber, ParameterInputLayout, ParameterPrefix,
+};
 pub use program::CompiledCellMap;
 
 /// The symbol roles and unit-coordinate association in native lifting order.
@@ -138,6 +142,10 @@ impl CellMap {
     /// their polynomial/index/domain define a section, never the enclosure.
     pub fn native_axes(&self) -> &[Axis] {
         &self.owner.native_result().cells[self.cell_index].axes
+    }
+    /// Lower only the actual parameter prefix, preserving nonlinear integration bounds.
+    pub fn parameter_prefix(self: &Arc<Self>) -> Result<Arc<ParameterPrefix>> {
+        ParameterPrefix::prepare(self.clone())
     }
     pub fn linear(self: &Arc<Self>) -> Result<Arc<LinearCellMap>> {
         LinearCellMap::new(self.clone())

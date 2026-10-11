@@ -28,6 +28,7 @@ fn write_artifacts(directory: &std::path::Path) {
                     )
                     .unwrap();
                     PreparedCoefficientVector {
+                        runtime_parameters: Vec::new(),
                         coordinates: family.coordinates().to_vec(),
                         coefficients: orders
                             .iter()

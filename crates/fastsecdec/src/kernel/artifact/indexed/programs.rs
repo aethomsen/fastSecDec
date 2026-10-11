@@ -14,6 +14,8 @@ pub use writer::ProgramArchiveWriter;
 
 pub(crate) const MAGIC: &[u8] = b"FastSecDec\0indexed\x02";
 pub(crate) const MAGIC_V3: &[u8] = b"FastSecDec\0indexed\x03";
+pub(crate) const MAGIC_V4: &[u8] = b"FastSecDec\0indexed\x04";
+const FOOTER_V4: &[u8] = b"FastSecDec\0catalogue\x04";
 const FOOTER_V3: &[u8] = b"FastSecDec\0catalogue\x03";
 const FOOTER: &[u8] = b"FastSecDec\0catalogue\x02";
 

@@ -4251,3 +4251,24 @@ native polynomial isolation and symbolic primitive check supply its finite
 imaginary reference. The complete vector/covariance gate and independent
 scientific review pass. The new example contains no alternate CAS, root solver,
 graph type or estimator; the recorded debug timing is not a performance claim.
+
+## Compiled parameter templates
+
+The [compiled-template review](reviews/no-deformation-compiled-parameter-templates.md)
+records native polynomial/meromorphic admission, explicit parameter roles,
+exact rational point checks and existing evaluator/codec reuse. Complete
+uniform geometry admission remains with the native family issuer; saved guards
+restore arithmetic and source associations, not a new geometry proof. Binding
+and loading do not rerun GCAD, symbolic subtraction or optimization. Existing
+atomic binding, detached jobs, indexed selective loading and QMC/covariance
+owners are reused, with no new numerical loop or worker pool.
+
+The coordinator verifies 52 source pairs and 277 evidence pins in handoff
+`8ffec128e5aa3c78ee7bd8e65d967da1269f160296aec50aa7fc2488da05e413`.
+Independent source/ecosystem review, focused consuming scientific/transport
+gates, strict workspace/all-target checks and the 88-test private portable
+consumer pass. Fresh-process old/new format controls retain legacy results and
+refuse unsupported new capabilities. Parameterized CLI/HEPKit preparation,
+physical projective sources, general chamber atlases and the general resolver
+remain explicitly unfinished. No dependency revision or replacement algebra
+implementation is introduced.

@@ -75,6 +75,7 @@ impl KernelSet {
                 "threshold staging directory must be empty".into(),
             ));
         }
+        let runtime = Arc::new(source.runtime_parameters().to_vec());
         let request = source.request();
         let parent = request
             .source_identity()
@@ -103,6 +104,11 @@ impl KernelSet {
         for record in &records {
             let local = record::read(staging, record, &parent, u64::MAX)
                 .map_err(|e| KernelError::Artifact(e.to_string()))?;
+            if local.runtime_parameters != *runtime {
+                return Err(KernelError::Artifact(
+                    "local template runtime schema".into(),
+                ));
+            }
             let coefficients = orders
                 .iter()
                 .map(|o| {
@@ -131,6 +137,7 @@ impl KernelSet {
                     let roots = local.roots;
                     let input = program::PreparedCoefficientVector {
                         coordinates: local.coordinates,
+                        runtime_parameters: local.runtime_parameters,
                         coefficients,
                         functions: Arc::new(local.functions),
                         endpoint_profiles: local.profiles,
@@ -141,7 +148,7 @@ impl KernelSet {
                         request_lookup: None,
                         index: sectors.len(),
                         input: CompilationInput::Prepared(Arc::new(input)),
-                        runtime_parameters: Arc::new(Vec::new()),
+                        runtime_parameters: runtime.clone(),
                         precision: precision.clone(),
                         settings,
                         use_complex: true,
@@ -168,7 +175,7 @@ impl KernelSet {
             precision,
             None,
             true,
-            Vec::new(),
+            runtime.as_ref().clone(),
             settings,
         )?;
         kernels.attach_threshold(metadata)?;

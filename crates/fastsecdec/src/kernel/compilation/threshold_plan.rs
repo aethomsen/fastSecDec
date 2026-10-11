@@ -185,9 +185,15 @@ impl ThresholdCompilationPlan {
             for coefficient in exact.values_mut() {
                 *coefficient = generation::normalize_exact_coefficient(coefficient);
             }
-            let vector =
-                record::write_exact(staging, &parent, &source.coordinates(), &exact, maximum)
-                    .map_err(failure)?;
+            let vector = record::write_exact(
+                staging,
+                &parent,
+                &source.coordinates(),
+                source.runtime_parameters(),
+                &exact,
+                maximum,
+            )
+            .map_err(failure)?;
             specifications.push(Specification {
                 kind: ThresholdJobKind::Exact {
                     contributions: exact_ids,
@@ -321,6 +327,7 @@ impl ThresholdCompilationJob {
         let prepared = &self.prepared;
         let specification = &prepared.specifications[self.index];
         let orders = prepared.tables.orders();
+        let runtime = Arc::new(prepared.tables.runtime_parameters()?);
         let local = specification
             .vector
             .as_ref()
@@ -334,6 +341,12 @@ impl ThresholdCompilationJob {
                 .map_err(failure)
             })
             .transpose()?;
+        if local
+            .as_ref()
+            .is_some_and(|l| l.runtime_parameters != *runtime)
+        {
+            return Err(failure("local template runtime schema"));
+        }
         let remaining = maximum_bytes
             .checked_sub(specification.vector.as_ref().map_or(0, |r| r.record.bytes))
             .ok_or_else(|| failure("native worker transport limit"))?;
@@ -367,6 +380,7 @@ impl ThresholdCompilationJob {
                 let roots = local.roots;
                 let input = program::PreparedCoefficientVector {
                     coordinates: local.coordinates,
+                    runtime_parameters: local.runtime_parameters,
                     coefficients,
                     functions: Arc::new(local.functions),
                     endpoint_profiles: local.profiles,
@@ -378,7 +392,7 @@ impl ThresholdCompilationJob {
                         request_lookup: None,
                         index: self.index,
                         input: CompilationInput::Prepared(Arc::new(input)),
-                        runtime_parameters: Arc::new(Vec::new()),
+                        runtime_parameters: runtime.clone(),
                         precision: prepared.precision.clone(),
                         settings: prepared.settings,
                         use_complex: true,
@@ -404,7 +418,7 @@ impl ThresholdCompilationJob {
             prepared.precision.clone(),
             None,
             true,
-            Vec::new(),
+            runtime.as_ref().clone(),
             prepared.settings,
         )?;
         kernels.attach_threshold(prepared.tables.load(&prepared.root, selection, remaining)?)?;

@@ -108,3 +108,10 @@ offsets, then use the existing atomic binding commit. Default-native template
 restoration, two-point full-vector evaluation and rejected-binding atomicity
 remain pending. Native allocation limits are not inferred from post-evaluation
 output-size checks.
+
+## Compiled-template follow-up
+
+The [compiled-family implementation review](no-deformation-compiled-parameter-templates.md)
+records the subsequent native runtime, artifact and binding work. The research
+refusals above describe the earlier snapshot; the successor review states the
+implemented scope and the remaining frontend and general-resolution gaps.

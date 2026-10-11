@@ -67,14 +67,50 @@ pub struct RationalBinding {
     pub value: NativeAtomId,
 }
 
-/// The initial executable capability freezes every physical parameter.
-/// No runtime rebind is licensed by this descriptor.
+/// Fixed physical bindings. This descriptor alone licenses no runtime rebind;
+/// a separate explicit uniform chamber is required for remaining runtime roles.
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct FixedRationalFiber {
     pub physical_parameters: Vec<NativeSymbolId>,
     pub bindings: Vec<RationalBinding>,
     pub admission: Digest,
+}
+
+/// Role of one exact predicate in the issued parameter-prefix checker.
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum ParameterPredicateRole {
+    LowerBound,
+    UpperBound,
+    StrictPositive,
+    Nonzero,
+}
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct ParameterPredicateV1 {
+    pub role: ParameterPredicateRole,
+    /// Raw-prefix axis for a bound, otherwise position within this role's list.
+    pub index: usize,
+    pub positive_selector: bool,
+    /// Canonical exact N/D pair or polynomial with its public parameter roles.
+    pub predicate: Digest,
+}
+/// Compact association to a source-issued complete uniform family. Reading
+/// these fields restores no geometry proof. Native executable records must
+/// separately own the exact predicate program with this semantic identity.
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct UniformParameterChamberV1 {
+    pub version: u32,
+    pub runtime_parameters: Vec<NativeSymbolId>,
+    pub prefix_to_public: Vec<usize>,
+    /// Raw CAD axes in original integration-coordinate order; never sample the
+    /// parameter prefix or reinterpret it as an integration dimension.
+    pub integration_axes: Vec<usize>,
+    pub predicates: Vec<ParameterPredicateV1>,
+    pub guard_semantic: Digest,
+    pub family_certificate: Digest,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
@@ -91,6 +127,8 @@ pub struct Preparation {
     pub original_coordinates: Vec<NativeSymbolId>,
     pub regulator: NativeSymbolId,
     pub fiber: FixedRationalFiber,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub runtime_chamber: Option<UniformParameterChamberV1>,
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]

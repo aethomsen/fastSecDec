@@ -6,10 +6,50 @@ use crate::kernel::{KernelError, ThresholdMetadata, threshold_metadata as m};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeSet;
 
+/// Explicit v4 runtime capability, shared by the compact parent and records.
+/// This is arithmetic association, never a serialized uniform geometry proof.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct ThresholdRuntimeGuard {
+    pub semantic: m::Digest,
+    pub parameters: Vec<String>,
+}
+impl ThresholdRuntimeGuard {
+    pub(crate) fn from_owner(owner: &ThresholdMetadata) -> Result<Option<Self>, KernelError> {
+        owner
+            .lineage()
+            .preparation
+            .runtime_chamber
+            .as_ref()
+            .map(|chamber| {
+                Ok(Self {
+                    semantic: chamber.guard_semantic.clone(),
+                    parameters: owner
+                        .runtime_parameters()?
+                        .iter()
+                        .map(|s| s.get_name().to_owned())
+                        .collect(),
+                })
+            })
+            .transpose()
+    }
+    fn validate(&self) -> Result<(), KernelError> {
+        self.semantic.validate().map_err(failure)?;
+        if self.parameters.is_empty()
+            || self.parameters.iter().any(String::is_empty)
+            || self.parameters.iter().collect::<BTreeSet<_>>().len() != self.parameters.len()
+        {
+            return Err(failure("uniform template runtime schema"));
+        }
+        Ok(())
+    }
+}
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct ThresholdRecordReceipt {
     pub parent: m::Digest,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub runtime_guard: Option<ThresholdRuntimeGuard>,
     /// The unique exact/setup carrier contains the inline compact native parent.
     pub carrier: bool,
     /// None is permitted only for the explicit zero-offset setup carrier.
@@ -28,6 +68,8 @@ pub struct ThresholdExpectedRecord {
 #[serde(deny_unknown_fields)]
 pub struct ThresholdArchiveSummary {
     pub parent: m::Digest,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub runtime_guard: Option<ThresholdRuntimeGuard>,
     pub source_identity: String,
     pub source_extent: m::SourceExtent,
     pub contributions: Vec<m::Contribution>,
@@ -37,11 +79,20 @@ pub struct ThresholdArchiveSummary {
 impl ThresholdRecordReceipt {
     pub(super) fn validate(&self, receipt: &RecordReceipt) -> Result<(), KernelError> {
         self.parent.validate().map_err(failure)?;
-        if receipt.version != 3
+        match &self.runtime_guard {
+            Some(guard) => {
+                guard.validate()?;
+                if receipt.version != 4 || receipt.runtime_parameters != guard.parameters {
+                    return Err(failure("guarded threshold receipt capability"));
+                }
+            }
+            None if receipt.version == 3 && receipt.runtime_parameters.is_empty() => {}
+            None => return Err(failure("fixed threshold receipt capability")),
+        }
+        if !matches!(receipt.version, 3 | 4)
             || receipt.recipe != Some(super::ProgramRecipe::ThresholdV1)
             || !receipt.source_indices.is_empty()
             || receipt.source_scope.is_some()
-            || !receipt.runtime_parameters.is_empty()
         {
             return Err(failure(
                 "threshold receipt used legacy source/runtime schema",
@@ -81,6 +132,9 @@ impl ThresholdRecordReceipt {
 impl ThresholdArchiveSummary {
     pub(crate) fn validate(&self, records: &[RecordDescriptor]) -> Result<(), KernelError> {
         self.parent.validate().map_err(failure)?;
+        if let Some(guard) = &self.runtime_guard {
+            guard.validate()?;
+        }
         super::super::validate_content_id(&self.source_identity)?;
         super::super::validate_content_id(&self.complete_content_id)?;
         if self.contributions.is_empty()
@@ -99,7 +153,8 @@ impl ThresholdArchiveSummary {
                 .as_ref()
                 .ok_or_else(|| failure("threshold directory has legacy record"))?;
             receipt.validate(&record.receipt)?;
-            if receipt.parent != self.parent
+            if receipt.runtime_guard != self.runtime_guard
+                || receipt.parent != self.parent
                 || receipt.carrier != expected.carrier
                 || receipt.lineage != expected.lineage
                 || record.receipt.native_content_id != expected.native_content_id
@@ -148,7 +203,8 @@ impl ThresholdArchiveSummary {
         Ok(())
     }
     pub(crate) fn check_parent(&self, owner: &ThresholdMetadata) -> Result<(), KernelError> {
-        if owner.lineage().descriptor_digest().map_err(failure)? != self.parent
+        if ThresholdRuntimeGuard::from_owner(owner)? != self.runtime_guard
+            || owner.lineage().descriptor_digest().map_err(failure)? != self.parent
             || owner.lineage().preparation.source_identity.0 != self.source_identity
             || owner.lineage().preparation.extent != self.source_extent
             || owner.lineage().contributions != self.contributions
@@ -177,6 +233,7 @@ pub(crate) fn write_record(
     }
     let threshold = ThresholdRecordReceipt {
         parent: owner.resident().manifest.clone(),
+        runtime_guard: ThresholdRuntimeGuard::from_owner(owner)?,
         carrier,
         lineage: owner.combined_record_lineage()?,
     };
@@ -186,14 +243,22 @@ pub(crate) fn write_record(
     }
     let receipt = RecordReceipt {
         source_scope: None,
-        version: 3,
+        version: if threshold.runtime_guard.is_some() {
+            4
+        } else {
+            3
+        },
         recipe: Some(super::ProgramRecipe::ThresholdV1),
         length: bytes.len() as u64,
         digest: blake3::hash(&bytes).to_hex().to_string(),
         native_content_id: id,
         orders: kernels.orders().to_vec(),
         components: kernels.components().to_vec(),
-        runtime_parameters: Vec::new(),
+        runtime_parameters: kernels
+            .runtime_parameters
+            .iter()
+            .map(|s| s.get_name().to_owned())
+            .collect(),
         dimension: kernels.sectors().first().map(|s| s.dimension()),
         statistics: kernels.sectors().first().map(|s| s.statistics().clone()),
         source_indices: Vec::new(),

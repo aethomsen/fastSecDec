@@ -6,6 +6,7 @@ use symbolica::evaluate::FunctionMap;
 
 pub(crate) struct PreparedCoefficientVector {
     pub coordinates: Vec<Symbol>,
+    pub runtime_parameters: Vec<Symbol>,
     pub coefficients: Vec<AliasedAtom>,
     pub functions: Arc<FunctionMap>,
     pub endpoint_profiles: Vec<crate::generation::EndpointProfileRow>,
@@ -25,13 +26,14 @@ impl PreparedCoefficientVector {
         if self
             .coordinates
             .iter()
+            .chain(&self.runtime_parameters)
             .copied()
             .collect::<BTreeSet<_>>()
             .len()
-            != self.coordinates.len()
+            != self.coordinates.len() + self.runtime_parameters.len()
         {
             return Err(KernelError::Compilation(
-                "duplicate prepared coordinate".into(),
+                "duplicate prepared coordinate or runtime role".into(),
             ));
         }
         let cancellation = Cancellation::from_endpoint_profiles(
@@ -47,6 +49,7 @@ impl PreparedCoefficientVector {
         let variables = self
             .coordinates
             .iter()
+            .chain(&self.runtime_parameters)
             .map(|s| Atom::var(*s))
             .collect::<Vec<_>>();
         let exact = build_expression_program(
@@ -59,7 +62,7 @@ impl PreparedCoefficientVector {
         Ok(SectorProgram {
             symbolic_endpoint_contour_partials: None,
             parameters: self.coordinates.clone(),
-            runtime_parameters: Vec::new(),
+            runtime_parameters: self.runtime_parameters.clone(),
             exact,
             cancellation,
             exact_zero: roots.iter().map(|root| root.is_zero()).collect(),

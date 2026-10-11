@@ -18,6 +18,7 @@ fn callback_scope_and_bounded_codec() {
         crate::kernel::EvaluatorBackend::Symjit,
     ] {
         let program = crate::kernel::program::PreparedCoefficientVector {
+            runtime_parameters: Vec::new(),
             coordinates: vec![x],
             coefficients: vec![(Atom::var(x) + Atom::one()).into()],
             functions: Default::default(),

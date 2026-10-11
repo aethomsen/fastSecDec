@@ -81,7 +81,10 @@ impl SecantGeometry {
                     Pattern::Literal(if i == n {
                         root.clone()
                     } else {
-                        Atom::var(self.source.unit_coordinates()[i])
+                        match self.source.axes()[i].unit_index() {
+                            Some(slot) => Atom::var(self.source.unit_coordinates()[slot]),
+                            None => Atom::var(self.source.axes()[i].symbol()),
+                        }
                     }),
                 )
             }))
@@ -153,7 +156,7 @@ pub(super) fn positive_proposal(
 fn width(
     algebra: &Algebra,
     p: Poly,
-    axis: usize,
+    sampled_prefix: std::ops::Range<usize>,
     constraints: &[Poly],
     domain: &Domain,
     limits: &Limits,
@@ -162,15 +165,18 @@ fn width(
     if p.is_zero() {
         return Err(unsupported("identically collapsed cell width").into());
     }
-    if p.degree(axis) > 0 {
+    if p.degree(sampled_prefix.end) > 0 {
         return Err(invalid("endpoint width retains eliminated coordinate").into());
     }
-    let powers = (0..axis).map(|i| p.degree_bounds(i).0).collect::<Vec<_>>();
+    let powers = sampled_prefix
+        .clone()
+        .map(|i| p.degree_bounds(i).0)
+        .collect::<Vec<_>>();
     let mut monomial = p.constant(Rational::one());
     for (i, power) in powers.iter().enumerate() {
         monomial = &monomial
             * &algebra
-                .parse(&algebra.names[i])
+                .parse(&algebra.names[sampled_prefix.start + i])
                 .map_err(native)?
                 .pow(*power as usize);
     }
@@ -197,11 +203,22 @@ pub(super) fn topology(
     owner: &Arc<VerifiedDecomposition>,
     coordinates: &[Symbol],
 ) -> Result<Vec<CellInterval>> {
+    topology_with_parameters(owner, coordinates, false)
+}
+fn topology_with_parameters(
+    owner: &Arc<VerifiedDecomposition>,
+    coordinates: &[Symbol],
+    parameters: bool,
+) -> Result<Vec<CellInterval>> {
     let request = owner.request();
-    let n = request.domain().coordinates().len();
-    if n == 0
+    let p = request.kinematics().runtime_parameters.len();
+    let integration = request.domain().coordinates().len();
+    let n = p
+        .checked_add(integration)
+        .ok_or_else(|| invalid("raw axis count overflow"))?;
+    if integration == 0
         || !matches!(request.domain().origin(), DomainOrigin::NativeUnitCube)
-        || !request.kinematics().runtime_parameters.is_empty()
+        || (!parameters && p != 0)
     {
         return Err(unsupported(
             "first issuer requires a fixed native cube, with no free runtime parameters",
@@ -216,14 +233,19 @@ pub(super) fn topology(
     for cell in owner.cells() {
         let map =
             CellMap::new(owner.clone(), cell.index(), coordinates.to_vec()).map_err(native)?;
-        if map
-            .axes()
-            .iter()
-            .any(|a| a.role() != AliasRole::IntegrationCoordinate)
+        if map.axes().len() != n
+            || map.axes()[..p]
+                .iter()
+                .any(|a| a.role() != AliasRole::RuntimeParameter)
+            || map.axes()[p..]
+                .iter()
+                .any(|a| a.role() != AliasRole::IntegrationCoordinate)
         {
-            return Err(unsupported("unexpected nonintegration axis"));
+            return Err(unsupported(
+                "unexpected parameter/integration axis ordering",
+            ));
         }
-        for axis in 0..n - 1 {
+        for axis in p..n - 1 {
             if constant_bound(&map, axis, SectionSide::Lower)? != Some(Rational::zero())
                 || constant_bound(&map, axis, SectionSide::Upper)? != Some(Rational::one())
             {
@@ -267,17 +289,35 @@ pub(super) fn admit(
     limits: &Limits,
     budget: &mut Budget,
 ) -> ProposalResult<Vec<Arc<SecantGeometry>>> {
+    admit_with_parameters(owner, coordinates, limits, budget, false)
+}
+pub(super) fn admit_uniform(
+    owner: &Arc<VerifiedDecomposition>,
+    coordinates: &[Symbol],
+    limits: &Limits,
+    budget: &mut Budget,
+) -> ProposalResult<Vec<Arc<SecantGeometry>>> {
+    admit_with_parameters(owner, coordinates, limits, budget, true)
+}
+fn admit_with_parameters(
+    owner: &Arc<VerifiedDecomposition>,
+    coordinates: &[Symbol],
+    limits: &Limits,
+    budget: &mut Budget,
+    parameters: bool,
+) -> ProposalResult<Vec<Arc<SecantGeometry>>> {
     if limits.unit_margin <= Rational::zero() {
         return Err(invalid("positive unit margin required").into());
     }
     budget.check()?;
-    let n = owner.request().domain().coordinates().len();
+    let p = owner.request().kinematics().runtime_parameters.len();
+    let n = owner.native_result().order.len();
     let mut outputs = Vec::new();
     for CellInterval {
         map,
         lower_cell,
         side,
-    } in topology(owner, coordinates)?
+    } in topology_with_parameters(owner, coordinates, parameters)?
     {
         // This is the FULL cell-range cylinder, derived from certified constant
         // neighbors0/1. A narrow root-only bracket is never used for the secant.
@@ -358,7 +398,7 @@ pub(super) fn admit(
         let width = width(
             &algebra,
             signed_value,
-            n - 1,
+            p..n - 1,
             &constraints,
             &domain,
             limits,

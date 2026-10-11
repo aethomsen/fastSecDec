@@ -16,6 +16,7 @@ use symbolica::{
     atom::{Atom, AtomCore, Symbol},
     state::{State, StateMap},
 };
+mod parameters;
 #[cfg(test)]
 mod tests;
 
@@ -26,6 +27,7 @@ const MAGIC_V11: &[u8] = b"FastSecDec\0binserde\x0b";
 const MAGIC_V12: &[u8] = b"FastSecDec\0binserde\x0c";
 const MAGIC_V15: &[u8] = b"FastSecDec\0binserde\x0f";
 const MAX_ROOT_RECORD_BYTES: usize = 256 * 1024 * 1024;
+const MAGIC_V18: &[u8] = b"FastSecDec\0binserde\x12";
 const MAGIC_V17: &[u8] = b"FastSecDec\0binserde\x11";
 const MAGIC_V16: &[u8] = b"FastSecDec\0binserde\x10";
 const MAGIC_V14: &[u8] = b"FastSecDec\0binserde\x0e";
@@ -533,7 +535,24 @@ fn encode_with_threshold(
         .metadata
         .as_mut()
         .map_or_else(Vec::new, PortableMetadata::take_contour_definitions);
-    let (magic, payload) = if !roots.is_empty() {
+    let (magic, payload) = if let Some(owner) =
+        threshold.filter(|o| o.lineage().preparation.runtime_chamber.is_some())
+    {
+        if source_scope.is_some() {
+            return Err(failure("uniform template has legacy source scope"));
+        }
+        content_id = owner.semantic_identity(&payload.compiler_policy, &payload.precision)?;
+        let base = PayloadV12 {
+            base: payload,
+            descriptor,
+            exact_requests,
+            contour_definitions,
+        };
+        (
+            MAGIC_V18,
+            parameters::encode(base, owner, roots, inline_threshold_parent)?,
+        )
+    } else if !roots.is_empty() {
         if source_scope.is_some()
             || payload.metadata.is_some()
             || descriptor.is_some()
@@ -1059,7 +1078,9 @@ pub(super) fn load_with_primary_and_parent(
     progress: &mut impl FnMut(&crate::kernel::CompilationProgress) -> std::ops::ControlFlow<()>,
     threshold_parent: Option<&crate::kernel::ThresholdMetadata>,
 ) -> Result<KernelSet, KernelError> {
-    let (wire, magic, version) = if let Some(wire) = bytes.strip_prefix(MAGIC_V17) {
+    let (wire, magic, version) = if let Some(wire) = bytes.strip_prefix(MAGIC_V18) {
+        (wire, MAGIC_V18, 18)
+    } else if let Some(wire) = bytes.strip_prefix(MAGIC_V17) {
         (wire, MAGIC_V17, 17)
     } else if let Some(wire) = bytes.strip_prefix(MAGIC_V16) {
         (wire, MAGIC_V16, 16)
@@ -1102,7 +1123,7 @@ pub(super) fn load_with_primary_and_parent(
     {
         return Err(failure("content identity mismatch"));
     }
-    if version == 17
+    if version >= 17
         && (envelope.state.len() > MAX_ROOT_RECORD_BYTES
             || envelope.payload.len() > MAX_ROOT_RECORD_BYTES)
     {
@@ -1128,7 +1149,13 @@ pub(super) fn load_with_primary_and_parent(
     let mut source_scope = None;
     let mut threshold = None;
     let mut roots = crate::kernel::algebraic::Scope::default();
-    let (mut payload, used): (Payload, usize) = if version == 17 {
+    let (mut payload, used): (Payload, usize) = if version == 18 {
+        let (payload, owner, restored_roots, used) =
+            parameters::decode(envelope.payload, context, threshold_parent)?;
+        threshold = Some(owner);
+        roots = restored_roots;
+        (payload, used)
+    } else if version == 17 {
         let (payload, used): (PayloadV17, usize) = bincode::decode_from_slice_with_context(
             envelope.payload,
             bincode::config::standard().with_limit::<MAX_ROOT_RECORD_BYTES>(),
@@ -1496,7 +1523,7 @@ pub(super) fn load_with_primary_and_parent(
             progress,
         )
     })?;
-    if version == 17
+    if version >= 17
         && crate::kernel::algebraic::Scope::merged(kernels.sectors.iter().map(|s| &s.algebraic))
             .map_err(failure)?
             .saved()

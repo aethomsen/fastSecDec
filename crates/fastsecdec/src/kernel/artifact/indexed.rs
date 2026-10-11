@@ -105,4 +105,6 @@ pub(crate) fn from_bytes(
 }
 
 pub(crate) mod threshold;
-pub use threshold::{ThresholdArchiveSummary, ThresholdExpectedRecord, ThresholdRecordReceipt};
+pub use threshold::{
+    ThresholdArchiveSummary, ThresholdExpectedRecord, ThresholdRecordReceipt, ThresholdRuntimeGuard,
+};

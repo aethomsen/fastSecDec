@@ -200,6 +200,88 @@ fn parameter_chambers_are_exact_guards_not_unit_dimensions() {
 }
 
 #[test]
+fn nonlinear_parameter_prefix_retains_complete_source_and_roles() {
+    let (p, y, u) = symbol!(
+        "parameter_prefix_test::p",
+        "parameter_prefix_test::y",
+        "parameter_prefix_test::u"
+    );
+    // The parameter lies outside the unit interval; only y is integrated.
+    let input = source(
+        vec![y],
+        Atom::var(y).pow(5) + Atom::var(y) - Atom::var(p) + Atom::num(2),
+        ParametricDomain::UnitCube,
+    );
+    let kinematics = GcadKinematics {
+        runtime_parameters: vec![p],
+        strict_positive: vec![
+            Atom::var(p) - Atom::num((9, 4)),
+            Atom::num((5, 2)) - Atom::var(p),
+        ],
+        ..GcadKinematics::default()
+    };
+    let owner = solve(&input, kinematics.clone());
+    assert_eq!(owner.cells().len(), 2);
+    let maps = (0..owner.cells().len())
+        .map(|i| CellMap::new(owner.clone(), i, vec![u]).unwrap())
+        .collect::<Vec<_>>();
+    for map in &maps {
+        let prefix = map.parameter_prefix().unwrap();
+        assert!(Arc::ptr_eq(prefix.source(), map));
+        assert_eq!(prefix.runtime_parameters(), &[p]);
+        assert_eq!(prefix.raw_parameters().collect::<Vec<_>>(), [p]);
+        assert_eq!(prefix.axes().len(), 1);
+        assert_eq!(
+            prefix
+                .admit(&BTreeMap::from([(p, Rational::from((19, 8)))]))
+                .unwrap()
+                .raw_values(),
+            &[Rational::from((19, 8))]
+        );
+        assert!(
+            prefix
+                .admit(&BTreeMap::from([(p, Rational::from((9, 4)))]))
+                .is_err()
+        );
+        assert!(prefix.admit(&BTreeMap::new()).is_err());
+        assert_eq!(prefix.axes()[0].lower(), Some(&Atom::num((9, 4))));
+        assert_eq!(prefix.axes()[0].upper(), Some(&Atom::num((5, 2))));
+        assert!(matches!(map.linear(), Err(GcadError::Unsupported(_))));
+    }
+    let chamber = ParameterChamber::prepare(maps.iter().rev().cloned().collect()).unwrap();
+    assert!(Arc::ptr_eq(chamber.decomposition(), &owner));
+    assert_eq!(chamber.prefixes().len(), 2);
+    assert!(Arc::ptr_eq(
+        chamber.prefixes()[0].guard().unwrap(),
+        chamber.prefixes()[1].guard().unwrap()
+    ));
+    assert_eq!(chamber.prefixes()[0].source().cell_index(), 0);
+    assert_eq!(chamber.prefixes()[1].source().cell_index(), 1);
+    let layout = chamber.layout();
+    assert_eq!(layout.raw_to_runtime(), &[Some(0), None]);
+    assert_eq!(layout.raw_to_unit(), &[None, Some(0)]);
+    assert_eq!(layout.map_inputs().collect::<Vec<_>>(), [p, u]);
+    assert_eq!(layout.kernel_inputs().collect::<Vec<_>>(), [u, p]);
+    assert_eq!(layout.map_from_kernel().collect::<Vec<_>>(), [1, 0]);
+    assert!(matches!(
+        ParameterChamber::prepare(vec![maps[0].clone()]),
+        Err(GcadError::Invalid(_))
+    ));
+    assert!(matches!(
+        ParameterChamber::prepare(vec![maps[0].clone(), maps[0].clone()]),
+        Err(GcadError::Invalid(_))
+    ));
+    let foreign = solve(&input, kinematics);
+    assert!(matches!(
+        ParameterChamber::prepare(vec![
+            maps[0].clone(),
+            CellMap::new(foreign, 1, vec![u]).unwrap()
+        ]),
+        Err(GcadError::Invalid(_))
+    ));
+}
+
+#[test]
 fn exact_nonlinear_and_unbounded_cells_remain_inspectable_but_do_not_lower() {
     let (x, t) = symbol!("linear_cell_test::x", "linear_cell_test::t");
     let input = source(

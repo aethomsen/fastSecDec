@@ -130,10 +130,11 @@ impl CompilationJob {
             CompilationInput::Prepared(vector) => {
                 if self.program_descriptor.is_some()
                     || self.request_lookup.is_some()
-                    || !self.runtime_parameters.is_empty()
+                    || self.runtime_parameters.as_slice() != vector.runtime_parameters
                 {
                     return Err(KernelError::Compilation(
-                        "prepared fixed-fiber vector received contour/runtime state".into(),
+                        "prepared vector received contour state or a different runtime schema"
+                            .into(),
                     ));
                 }
                 vector.build(self.settings)?

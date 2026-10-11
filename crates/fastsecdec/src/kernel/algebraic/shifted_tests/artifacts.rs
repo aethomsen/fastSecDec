@@ -27,6 +27,7 @@ fn saved_eager_symjit_and_mixed_recipe_inventory() {
                 ..Default::default()
             };
             let program = PreparedCoefficientVector {
+                runtime_parameters: Vec::new(),
                 coordinates: vec![x],
                 coefficients: values.iter().cloned().map(Into::into).collect(),
                 functions: Default::default(),

@@ -190,7 +190,8 @@ impl ThresholdCompilationPlan {
             .threshold
             .as_ref()
             .ok_or_else(|| failure("worker omitted threshold lineage"))?;
-        if actual.parent != summary.parent
+        if actual.runtime_guard != summary.runtime_guard
+            || actual.parent != summary.parent
             || actual.carrier != expected.carrier
             || actual.lineage != expected.lineage
             || receipt.record.native_content_id != expected.native_content_id
@@ -335,7 +336,8 @@ impl ThresholdPublicationPlan {
             .threshold
             .as_ref()
             .ok_or_else(|| failure("missing worker lineage"))?;
-        if actual.parent != self.summary.parent
+        if actual.runtime_guard != self.summary.runtime_guard
+            || actual.parent != self.summary.parent
             || actual.carrier != expected.carrier
             || actual.lineage != expected.lineage
             || receipt.record.native_content_id != expected.native_content_id
