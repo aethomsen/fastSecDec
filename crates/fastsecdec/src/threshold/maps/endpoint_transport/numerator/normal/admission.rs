@@ -87,8 +87,9 @@ pub(super) fn prepare(
     normal: Symbol,
     settings: OptimizationSettings,
     work: &mut Work<'_>,
+    observer: &mut progress::Observer<'_>,
 ) -> Result<Admission> {
-    prepare_arguments(
+    prepare_arguments_observed(
         catalogue,
         chart,
         normal,
@@ -96,6 +97,7 @@ pub(super) fn prepare(
         chart.chart().source_images(),
         settings,
         work,
+        observer,
     )
 }
 /// Shared admission of only the demanded finite arguments. The original
@@ -109,6 +111,31 @@ pub(in super::super) fn prepare_arguments(
     argument_images: &[Atom],
     settings: OptimizationSettings,
     work: &mut Work<'_>,
+) -> Result<Admission> {
+    prepare_arguments_observed(
+        catalogue,
+        chart,
+        normal,
+        formals,
+        argument_images,
+        settings,
+        work,
+        &mut progress::ignore,
+    )
+}
+#[expect(
+    clippy::too_many_arguments,
+    reason = "Preserve the shared mixed admission inputs"
+)]
+fn prepare_arguments_observed(
+    catalogue: &SourceNumerators,
+    chart: &IssuedEndpointChart,
+    normal: Symbol,
+    formals: &[Symbol],
+    argument_images: &[Atom],
+    settings: OptimizationSettings,
+    work: &mut Work<'_>,
+    observer: &mut progress::Observer<'_>,
 ) -> Result<Admission> {
     if formals.len() != argument_images.len() {
         return Err(Error::Invalid(
@@ -150,6 +177,12 @@ pub(in super::super) fn prepare_arguments(
         if !Arc::ptr_eq(section.prefix().source(), prefix.source()) {
             return Err(Error::Invalid("foreign selected section source".into()));
         }
+        emit(
+            PreparationStage::SelectedParameters { section: i },
+            Started,
+            work,
+            observer,
+        )?;
         let parameters = chart.section_parameter_images(section)?;
         for p in &parameters {
             if !p
@@ -165,7 +198,31 @@ pub(in super::super) fn prepare_arguments(
             // polynomial fence makes the no-new-pole prerequisite explicit.
             ring.polynomial(p, &work.budget)?;
         }
+        emit(
+            PreparationStage::SelectedParameters { section: i },
+            Completed,
+            work,
+            observer,
+        )?;
+        emit(
+            PreparationStage::RootProgram { section: i },
+            Started,
+            work,
+            observer,
+        )?;
         let program = section.root_program(settings.clone())?;
+        emit(
+            PreparationStage::RootProgram { section: i },
+            Completed,
+            work,
+            observer,
+        )?;
+        emit(
+            PreparationStage::RootCall { section: i },
+            Started,
+            work,
+            observer,
+        )?;
         let tag = definitions::fresh_root_tag(catalogue, chart, i);
         let call = program.call(tag, section.coefficients())?;
         let call = pull(&call, &section.chart().parameters, &parameters);
@@ -178,7 +235,14 @@ pub(in super::super) fn prepare_arguments(
             section: section.clone(),
             parameter_images: parameters,
         });
+        emit(
+            PreparationStage::RootCall { section: i },
+            Completed,
+            work,
+            observer,
+        )?;
     }
+    emit(PreparationStage::ArgumentDomain, Started, work, observer)?;
     let face_roles = roles
         .iter()
         .copied()
@@ -205,9 +269,16 @@ pub(in super::super) fn prepare_arguments(
         .as_ref()
         .map(|r| r.box_domain(&bounds, &work.budget))
         .transpose()?;
+    emit(PreparationStage::ArgumentDomain, Completed, work, observer)?;
     let mut arguments = Vec::new();
     let mut images = Vec::new();
-    for (&source_coordinate, image) in formals.iter().zip(argument_images) {
+    for (argument, (&source_coordinate, image)) in formals.iter().zip(argument_images).enumerate() {
+        emit(
+            PreparationStage::FiniteArgument { argument },
+            Started,
+            work,
+            observer,
+        )?;
         work.check()?;
         work.nodes(image, work.limits.max_coefficient_nodes)?;
         if !image
@@ -228,6 +299,12 @@ pub(in super::super) fn prepare_arguments(
             },
         )
         .map_err(super::super::preflight_error)?;
+        emit(
+            PreparationStage::RationalArgument { argument },
+            Started,
+            work,
+            observer,
+        )?;
         let ratio: RationalPolynomial<Z, u32> = image
             .try_to_rational_polynomial(&Q, &Z, variables.clone())
             .map_err(native)?;
@@ -240,6 +317,18 @@ pub(in super::super) fn prepare_arguments(
                 "native finite-coordinate rational reconstruction".into(),
             ));
         }
+        emit(
+            PreparationStage::RationalArgument { argument },
+            Completed,
+            work,
+            observer,
+        )?;
+        emit(
+            PreparationStage::Denominator { argument },
+            Started,
+            work,
+            observer,
+        )?;
         let face_denominator = pull(&denominator, &[normal], &[Atom::zero()]);
         let (denominator_orientation, denominator_certificate, constraints, domain) =
             if let Ok(q) = Rational::try_from(face_denominator.as_view()) {
@@ -287,6 +376,18 @@ pub(in super::super) fn prepare_arguments(
                     Some(domain.clone()),
                 )
             };
+        emit(
+            PreparationStage::Denominator { argument },
+            Completed,
+            work,
+            observer,
+        )?;
+        emit(
+            PreparationStage::ArgumentComposition { argument },
+            Started,
+            work,
+            observer,
+        )?;
         // Retain original D, even if cancellation produces a simple center.
         let canonical = &numerator / &denominator;
         let composed = pull(&canonical, &roots, &calls);
@@ -302,6 +403,18 @@ pub(in super::super) fn prepare_arguments(
             constraints,
             domain,
         });
+        emit(
+            PreparationStage::ArgumentComposition { argument },
+            Completed,
+            work,
+            observer,
+        )?;
+        emit(
+            PreparationStage::FiniteArgument { argument },
+            Completed,
+            work,
+            observer,
+        )?;
     }
     Ok(Admission {
         arguments,

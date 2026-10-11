@@ -408,7 +408,15 @@ fn compact_normal_staged_template_matches_native_series_for_each_source_tag() {
         budget: Budget::new(limits.algebra.clone()),
         callback: &mut progress,
     };
-    let admitted = admission::prepare(&catalogue, &chart, normal, settings(), &mut work).unwrap();
+    let admitted = admission::prepare(
+        &catalogue,
+        &chart,
+        normal,
+        settings(),
+        &mut work,
+        &mut progress::ignore,
+    )
+    .unwrap();
     assert!(
         admitted
             .root_calls
@@ -445,7 +453,15 @@ fn compact_normal_staged_template_preserves_cancellation_and_node_allowance() {
         budget: Budget::new(limits.algebra.clone()),
         callback: &mut progress,
     };
-    let admitted = admission::prepare(&catalogue, &chart, normal, settings(), &mut work).unwrap();
+    let admitted = admission::prepare(
+        &catalogue,
+        &chart,
+        normal,
+        settings(),
+        &mut work,
+        &mut progress::ignore,
+    )
+    .unwrap();
     let head = definitions::fresh_head(&catalogue, &chart);
     let small = Limits {
         max_coefficient_nodes: 8,
@@ -457,7 +473,16 @@ fn compact_normal_staged_template_preserves_cancellation_and_node_allowance() {
         callback: &mut progress,
     };
     assert!(matches!(
-        series::prepare(&catalogue, &chart, &admitted, head, normal, 4, &mut bounded),
+        series::prepare(
+            &catalogue,
+            &chart,
+            &admitted,
+            head,
+            normal,
+            4,
+            &mut bounded,
+            &mut progress::ignore
+        ),
         Err(Error::ResourceIncomplete(_))
     ));
     let mut checks = 0;
@@ -482,8 +507,188 @@ fn compact_normal_staged_template_preserves_cancellation_and_node_allowance() {
             head,
             normal,
             4,
-            &mut cancelled
+            &mut cancelled,
+            &mut progress::ignore,
         ),
         Err(Error::Cancelled)
     ));
+}
+
+#[test]
+fn compact_normal_progress_is_sparse_nested_and_preserves_exact_and_numeric_output() {
+    let (catalogue, transport) = source();
+    let chart = transport.issued_chart(0).unwrap();
+    let normal = chart.target_units()[0];
+    let ordinary = prepare(catalogue.clone(), chart.clone(), normal);
+    let mut events = Vec::new();
+    let mut polls = 0usize;
+    let observed = NormalNumeratorJets::prepare_with_progress(
+        catalogue.clone(),
+        chart,
+        normal,
+        4,
+        settings(),
+        &Limits::default(),
+        || {
+            polls += 1;
+            ControlFlow::Continue(())
+        },
+        |event| {
+            events.push(event);
+            ControlFlow::Continue(())
+        },
+    )
+    .unwrap();
+    // Node/cancellation polls do not invoke the observer. A stack also checks
+    // that returning from a detailed phase restores its enclosing operation.
+    assert!(polls > events.len() * 4);
+    let mut stack = Vec::new();
+    for event in &events {
+        match event.state {
+            Started => stack.push(event.stage),
+            Completed => assert_eq!(stack.pop(), Some(event.stage)),
+        }
+    }
+    assert!(stack.is_empty());
+    assert_eq!(events.first().unwrap().stage, PreparationStage::Preparation);
+    assert_eq!(
+        events.last().unwrap(),
+        &PreparationProgress {
+            stage: PreparationStage::Preparation,
+            state: Completed,
+        }
+    );
+    for stage in [
+        PreparationStage::RootProgram { section: 0 },
+        PreparationStage::Denominator { argument: 0 },
+        PreparationStage::Template,
+        PreparationStage::Definitions,
+    ] {
+        assert!(events.contains(&PreparationProgress {
+            stage,
+            state: Started
+        }));
+        assert!(events.contains(&PreparationProgress {
+            stage,
+            state: Completed
+        }));
+    }
+    assert_eq!(ordinary.coefficients.len(), observed.coefficients.len());
+    for (a, b) in ordinary.coefficients.iter().zip(&observed.coefficients) {
+        assert_eq!(a.record, b.record);
+        assert_eq!(a.values, b.values);
+    }
+    assert_eq!(ordinary.definitions.len(), observed.definitions.len());
+    for (a, b) in ordinary.definitions.iter().zip(&observed.definitions) {
+        assert_eq!(a.head, b.head);
+        assert_eq!(a.tags, b.tags);
+        assert_eq!(a.formals, b.formals);
+        assert_eq!(a.body, b.body);
+        assert_eq!(a.orders, b.orders);
+        assert_eq!(a.always_inline, b.always_inline);
+    }
+    let eps = catalogue.preparation().input().regulator();
+    let point =
+        [Rational::from((2, 5)), Rational::from((1, 3))].map(|q| Float::rational_at(&q, 128));
+    let values = [ordinary, observed].map(|owner| {
+        let compiled = Arc::new(
+            CompiledNormalNumeratorJets::prepare(
+                owner,
+                &[eps],
+                FunctionMap::new(),
+                settings(),
+                &Budget::new(Limits::default().algebra),
+            )
+            .unwrap(),
+        );
+        compiled
+            .map::<Float>(128)
+            .unwrap()
+            .evaluate(
+                &point,
+                &[Complex::new(
+                    Float::rational_at(&Rational::from((1, 7)), 128),
+                    Float::exact_zero_at(128),
+                )],
+            )
+            .unwrap()
+    });
+    assert_eq!(values[0], values[1]);
+}
+
+#[test]
+fn compact_normal_progress_preserves_cancellation_and_unfinished_stages() {
+    let (catalogue, transport) = source();
+    let chart = transport.issued_chart(0).unwrap();
+    let normal = chart.target_units()[0];
+    let target = PreparationProgress {
+        stage: PreparationStage::RootProgram { section: 0 },
+        state: Started,
+    };
+    let mut events = Vec::new();
+    let cancelled = NormalNumeratorJets::prepare_with_progress(
+        catalogue.clone(),
+        chart.clone(),
+        normal,
+        4,
+        settings(),
+        &Limits::default(),
+        || ControlFlow::Continue(()),
+        |event| {
+            events.push(event);
+            if event == target {
+                ControlFlow::Break(())
+            } else {
+                ControlFlow::Continue(())
+            }
+        },
+    );
+    assert!(matches!(cancelled, Err(Error::Cancelled)));
+    assert_eq!(events.last(), Some(&target));
+    assert!(!events.contains(&PreparationProgress {
+        stage: target.stage,
+        state: Completed
+    }));
+    let mut observed = false;
+    let cancelled = NormalNumeratorJets::prepare_with_progress(
+        catalogue.clone(),
+        chart.clone(),
+        normal,
+        4,
+        settings(),
+        &Limits::default(),
+        || ControlFlow::Break(()),
+        |_| {
+            observed = true;
+            ControlFlow::Continue(())
+        },
+    );
+    assert!(matches!(cancelled, Err(Error::Cancelled)));
+    assert!(!observed);
+    events.clear();
+    let refused = NormalNumeratorJets::prepare_with_progress(
+        catalogue,
+        chart.clone(),
+        chart.target_units()[2],
+        4,
+        settings(),
+        &Limits::default(),
+        || ControlFlow::Continue(()),
+        |event| {
+            events.push(event);
+            ControlFlow::Continue(())
+        },
+    );
+    assert!(matches!(refused, Err(Error::Unsupported(_))));
+    assert!(!events.contains(&PreparationProgress {
+        stage: PreparationStage::Preparation,
+        state: Completed
+    }));
+    assert!(events.iter().any(|event| matches!(
+        event,
+        PreparationProgress {
+            stage: PreparationStage::Denominator { .. },
+            state: Started
+        }
+    )));
 }

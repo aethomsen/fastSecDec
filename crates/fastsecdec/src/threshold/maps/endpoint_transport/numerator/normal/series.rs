@@ -63,9 +63,22 @@ fn arguments(
     normal: Symbol,
     depth: u32,
     work: &mut Work<'_>,
+    observer: &mut progress::Observer<'_>,
 ) -> Result<Vec<Atom>> {
     let mut root_jets = Vec::with_capacity(admitted.root_calls.len());
     for (i, call) in admitted.root_calls.iter().enumerate() {
+        emit(
+            PreparationStage::RootJet { section: i },
+            Started,
+            work,
+            observer,
+        )?;
+        emit(
+            PreparationStage::RootArguments { section: i },
+            Started,
+            work,
+            observer,
+        )?;
         let input = replace_roots(call, &admitted.root_calls[..i], &root_jets, work)?;
         let AtomView::Fun(root) = input.as_view() else {
             return Err(Error::Invalid("admitted native root call".into()));
@@ -78,33 +91,87 @@ fn arguments(
             .add_args(&args)
             .finish();
         work.nodes(&derivative, work.limits.max_coefficient_nodes)?;
+        emit(
+            PreparationStage::RootArguments { section: i },
+            Completed,
+            work,
+            observer,
+        )?;
         let mut jet = Atom::zero();
         for order in 0..depth {
             work.check()?;
             if order != 0 {
                 // Keep the native implicit derivative hook. In particular,
                 // avoid collect_symbol(ROOT_V3) on its rational derivatives.
+                emit(
+                    PreparationStage::RootDerivative { section: i, order },
+                    Started,
+                    work,
+                    observer,
+                )?;
                 derivative = derivative.derivative(normal);
                 work.nodes(&derivative, work.limits.max_coefficient_nodes)?;
+                emit(
+                    PreparationStage::RootDerivative { section: i, order },
+                    Completed,
+                    work,
+                    observer,
+                )?;
             }
+            emit(
+                PreparationStage::RootRestriction { section: i, order },
+                Started,
+                work,
+                observer,
+            )?;
             let coefficient = pull(&derivative, &[normal], &[Atom::zero()])
                 / Atom::num(Integer::factorial(order));
             work.nodes(&coefficient, work.limits.max_coefficient_nodes)?;
             jet += coefficient * Atom::var(normal).pow(i64::from(order));
             work.nodes(&jet, work.limits.max_coefficient_nodes)?;
+            emit(
+                PreparationStage::RootRestriction { section: i, order },
+                Completed,
+                work,
+                observer,
+            )?;
         }
         root_jets.push(jet);
+        emit(
+            PreparationStage::RootJet { section: i },
+            Completed,
+            work,
+            observer,
+        )?;
     }
     admitted
         .images
         .iter()
-        .map(|image| {
+        .enumerate()
+        .map(|(argument, image)| {
+            emit(
+                PreparationStage::ArgumentSeries { argument },
+                Started,
+                work,
+                observer,
+            )?;
             let input = replace_roots(image, &admitted.root_calls, &root_jets, work)?;
-            truncate(&input, normal, depth, work)
+            let jet = truncate(&input, normal, depth, work)?;
+            emit(
+                PreparationStage::ArgumentSeries { argument },
+                Completed,
+                work,
+                observer,
+            )?;
+            Ok(jet)
         })
         .collect()
 }
 
+#[expect(
+    clippy::too_many_arguments,
+    reason = "Observe the existing native template inputs without repackaging them"
+)]
 pub(super) fn prepare(
     catalogue: &SourceNumerators,
     chart: &IssuedEndpointChart,
@@ -113,7 +180,9 @@ pub(super) fn prepare(
     normal: Symbol,
     depth: u32,
     work: &mut Work<'_>,
+    observer: &mut progress::Observer<'_>,
 ) -> Result<Template> {
+    emit(PreparationStage::TemplateRoles, Started, work, observer)?;
     // Reserve the entire owner inventory, including unused source roles and
     // root metadata tags. The template tag is constant with respect to normal.
     let mut occupied: BTreeSet<_> = chart
@@ -156,7 +225,9 @@ pub(super) fn prepare(
         .map(|i| symbolica::symbol!(format!("fastsecdec::normal_series_{i}::record")))
         .find(|s| !occupied.contains(s) && s.is_exportable())
         .expect("finite occupied symbol inventory");
-    let images = arguments(admitted, normal, depth, work)?;
+    emit(PreparationStage::TemplateRoles, Completed, work, observer)?;
+    let images = arguments(admitted, normal, depth, work, observer)?;
+    emit(PreparationStage::OuterSeries, Started, work, observer)?;
     let mut args = vec![Atom::var(record)];
     args.extend(images);
     let call = FunctionBuilder::new(head).add_args(&args).finish();
@@ -176,6 +247,7 @@ pub(super) fn prepare(
             Ok(value)
         })
         .collect::<Result<_>>()?;
+    emit(PreparationStage::OuterSeries, Completed, work, observer)?;
     Ok(Template {
         record,
         coefficients,

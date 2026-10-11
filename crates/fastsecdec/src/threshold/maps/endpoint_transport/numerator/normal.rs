@@ -3,6 +3,7 @@
 pub(super) mod admission;
 pub(super) mod definitions;
 pub mod program;
+mod progress;
 mod series;
 #[cfg(test)]
 mod tests;
@@ -15,6 +16,11 @@ use crate::{
     },
 };
 pub use admission::{FiniteArgument, SelectedExtension};
+pub use progress::{PreparationProgress, PreparationStage, PreparationState};
+use progress::{
+    PreparationState::{Completed, Started},
+    emit,
+};
 use std::{ops::ControlFlow, sync::Arc};
 use symbolica::{
     atom::{Atom, AtomCore, Symbol},
@@ -87,14 +93,55 @@ impl NormalNumeratorJets {
         depth: u32,
         settings: OptimizationSettings,
         limits: &Limits,
+        progress: impl FnMut() -> ControlFlow<()>,
+    ) -> Result<Arc<Self>> {
+        Self::prepare_with_progress(
+            catalogue,
+            chart,
+            normal,
+            depth,
+            settings,
+            limits,
+            progress,
+            progress::ignore,
+        )
+    }
+
+    /// Prepare the same source-owned symbolic jets with sparse caller-owned
+    /// stage observations. The cancellation callback retains its ordinary
+    /// polling frequency; the observer is never called for node visits.
+    /// Neither callback makes an indivisible native call interruptible.
+    #[expect(
+        clippy::too_many_arguments,
+        reason = "Keep existing cancellation separate from sparse observation"
+    )]
+    pub fn prepare_with_progress(
+        catalogue: Arc<SourceNumerators>,
+        chart: IssuedEndpointChart,
+        normal: Symbol,
+        depth: u32,
+        settings: OptimizationSettings,
+        limits: &Limits,
         mut progress: impl FnMut() -> ControlFlow<()>,
+        mut observer: impl FnMut(PreparationProgress) -> ControlFlow<()>,
     ) -> Result<Arc<Self>> {
         let mut work = Work {
             limits,
             budget: Budget::new(limits.algebra.clone()),
             callback: &mut progress,
         };
-        work.check()?;
+        emit(
+            PreparationStage::Preparation,
+            Started,
+            &mut work,
+            &mut observer,
+        )?;
+        emit(
+            PreparationStage::Validation,
+            Started,
+            &mut work,
+            &mut observer,
+        )?;
         if !Arc::ptr_eq(
             catalogue.preparation(),
             chart.parent_prefix().source().decomposition().preparation(),
@@ -117,23 +164,104 @@ impl NormalNumeratorJets {
                     Error::ResourceIncomplete("normal coefficient count overflow".into())
                 })?,
         )?;
-        let admitted = admission::prepare(&catalogue, &chart, normal, settings, &mut work)?;
+        emit(
+            PreparationStage::Validation,
+            Completed,
+            &mut work,
+            &mut observer,
+        )?;
+        emit(
+            PreparationStage::Admission,
+            Started,
+            &mut work,
+            &mut observer,
+        )?;
+        let admitted = admission::prepare(
+            &catalogue,
+            &chart,
+            normal,
+            settings,
+            &mut work,
+            &mut observer,
+        )?;
+        emit(
+            PreparationStage::Admission,
+            Completed,
+            &mut work,
+            &mut observer,
+        )?;
+        emit(
+            PreparationStage::Template,
+            Started,
+            &mut work,
+            &mut observer,
+        )?;
         let head = definitions::fresh_head(&catalogue, &chart);
         let mut coefficients = Vec::new();
         if catalogue.records().iter().any(|r| r.degrees().is_some()) {
             let template = series::prepare(
-                &catalogue, &chart, &admitted, head, normal, depth, &mut work,
+                &catalogue,
+                &chart,
+                &admitted,
+                head,
+                normal,
+                depth,
+                &mut work,
+                &mut observer,
             )?;
             for (record, source) in catalogue.records().iter().enumerate() {
                 if source.degrees().is_some() {
+                    emit(
+                        PreparationStage::Record { record },
+                        Started,
+                        &mut work,
+                        &mut observer,
+                    )?;
                     coefficients.push(NormalCoefficient {
                         record,
                         values: template.record(record, &mut work)?,
                     });
+                    emit(
+                        PreparationStage::Record { record },
+                        Completed,
+                        &mut work,
+                        &mut observer,
+                    )?;
                 }
             }
         }
-        let definitions = definitions::collect(&catalogue, head, &coefficients, depth, &mut work)?;
+        emit(
+            PreparationStage::Template,
+            Completed,
+            &mut work,
+            &mut observer,
+        )?;
+        emit(
+            PreparationStage::Definitions,
+            Started,
+            &mut work,
+            &mut observer,
+        )?;
+        let definitions = definitions::collect(
+            &catalogue,
+            head,
+            &coefficients,
+            depth,
+            &mut work,
+            &mut observer,
+        )?;
+        emit(
+            PreparationStage::Definitions,
+            Completed,
+            &mut work,
+            &mut observer,
+        )?;
+        emit(
+            PreparationStage::Assembly,
+            Started,
+            &mut work,
+            &mut observer,
+        )?;
         let directions = chart
             .target_units()
             .iter()
@@ -141,7 +269,7 @@ impl NormalNumeratorJets {
             .filter(|s| *s != normal)
             .collect();
         work.check()?;
-        Ok(Arc::new(Self {
+        let owner = Arc::new(Self {
             catalogue,
             chart,
             normal,
@@ -153,6 +281,19 @@ impl NormalNumeratorJets {
             definitions,
             head,
             scope: admitted.scope,
-        }))
+        });
+        emit(
+            PreparationStage::Assembly,
+            Completed,
+            &mut work,
+            &mut observer,
+        )?;
+        emit(
+            PreparationStage::Preparation,
+            Completed,
+            &mut work,
+            &mut observer,
+        )?;
+        Ok(owner)
     }
 }

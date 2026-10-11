@@ -1,5 +1,13 @@
 # Ecosystem reuse evidence
 
+## Sparse normal preparation progress (2026-10-11)
+
+The [progress review](reviews/no-deformation-normal-progress.md) records a
+caller-owned typed observer around existing native preparation operations.
+It reuses budget/cancellation ownership without changing algebra, source
+identity or certificates. Independent source review, 23 focused numerator
+tests and strict workspace/all-target Clippy pass at this milestone.
+
 ## Latest symGCAD and physical margin proofs (2026-10-11)
 
 The [adoption review](reviews/no-deformation-latest-symgcad.md) records the latest

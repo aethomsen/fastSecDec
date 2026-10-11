@@ -127,19 +127,21 @@ pub(in super::super) fn collect(
     coefficients: &[NormalCoefficient],
     depth: u32,
     work: &mut Work<'_>,
+    observer: &mut progress::Observer<'_>,
 ) -> Result<Vec<Definition>> {
     let bodies = catalogue
         .records()
         .iter()
         .map(|r| r.degrees().map(|_| r.body()))
         .collect::<Vec<_>>();
-    collect_bodies(
+    collect_bodies_observed(
         catalogue.preparation().coordinates(),
         &bodies,
         head,
         coefficients.iter().flat_map(|c| &c.values),
         depth,
         work,
+        observer,
     )
 }
 /// Same native tagged-partial collector, with source-owned coefficient bodies.
@@ -151,8 +153,33 @@ pub(in super::super) fn collect_bodies<'a>(
     depth: u32,
     work: &mut Work<'_>,
 ) -> Result<Vec<Definition>> {
+    collect_bodies_observed(
+        formals,
+        bodies,
+        head,
+        values,
+        depth,
+        work,
+        &mut progress::ignore,
+    )
+}
+fn collect_bodies_observed<'a>(
+    formals: &[Symbol],
+    bodies: &[Option<&Atom>],
+    head: Symbol,
+    values: impl IntoIterator<Item = &'a Atom>,
+    depth: u32,
+    work: &mut Work<'_>,
+    observer: &mut progress::Observer<'_>,
+) -> Result<Vec<Definition>> {
     let mut demands = BTreeSet::new();
-    for value in values {
+    for (coefficient, value) in values.into_iter().enumerate() {
+        emit(
+            PreparationStage::DefinitionScan { coefficient },
+            Started,
+            work,
+            observer,
+        )?;
         let mut failure = None;
         value.visitor(&mut |node| {
             if failure.is_some() {
@@ -175,9 +202,20 @@ pub(in super::super) fn collect_bodies<'a>(
             return Err(e);
         }
         work.entries(demands.len())?;
+        emit(
+            PreparationStage::DefinitionScan { coefficient },
+            Completed,
+            work,
+            observer,
+        )?;
     }
     let mut out = Vec::new();
-    for signature in demands {
+    for (demand, signature) in demands.into_iter().enumerate() {
+        let stage = PreparationStage::SourcePartial {
+            record: signature.record,
+            demand,
+        };
+        emit(stage, Started, work, observer)?;
         work.check()?;
         let body = bodies
             .get(signature.record)
@@ -220,6 +258,7 @@ pub(in super::super) fn collect_bodies<'a>(
             orders: derivative.then_some(signature.orders),
             always_inline: true,
         });
+        emit(stage, Completed, work, observer)?;
     }
     Ok(out)
 }
