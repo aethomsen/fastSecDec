@@ -45,7 +45,7 @@ impl SignDefiniteSource {
         limits: &CertificateOptions,
     ) -> Result<Self> {
         let request = decomposition.request();
-        if !request.kinematics().runtime_parameters.is_empty() || decomposition.cells().is_empty() {
+        if !request.kinematics().runtime_parameters.is_empty() || decomposition.cells().len() == 0 {
             return Err(unsupported(
                 "sign-definite source requires fixed kinematics and nonempty verified geometry",
             ));
