@@ -4453,3 +4453,26 @@ Its 604,005 unbounded cells and the observed nonlinear selectors identify the
 next real mapping operations. Existing native orthant maps and regular-root
 facilities are being audited for reuse. Map completion, all-face endpoint
 resolution and executable double-box integration remain separate gates.
+
+## Source-bound half-infinite interval maps
+
+The [open-interval review](reviews/no-deformation-open-intervals.md) checks
+finite intervals and rays attached to actual positive-projective cell axes.
+Native finite-root extraction, Symbolica substitution/differentiation and
+matrix determinants supply the algebra. A public API/source audit and native
+two-cell probe found no existing Numerica/HEPKit owner for this operation.
+The implementation retains root selectors, leading denominators and both face
+origins, including the infinity Jacobian powers. The old finite-only path
+keeps its existing refusals.
+
+Independent review checks inverse orientation, positive triangular factors,
+source ownership and explicit limits. No root solver, CAS, graph type, proof
+format or scheduler is added. A separately admitted suffix axis does not imply
+that earlier nonlinear coordinates are executable or that the full density
+has a closed-face endpoint certificate.
+
+All 21 consuming map tests, strict workspace/all-target Clippy and formatting
+pass. An actual physical-source run freshly verifies the saved complete proof
+and issues six finite/ray axis maps with exact inverse/Jacobian controls. Its
+nonlinear prefixes remain explicitly unresolved; no integration statistic is
+issued by these checks.

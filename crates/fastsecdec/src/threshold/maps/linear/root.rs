@@ -25,6 +25,27 @@ pub(in crate::threshold::maps) fn lower_geometry(
     map_axes: &[super::super::MapAxis],
     range: Range<usize>,
 ) -> Result<Vec<LinearAxis>> {
+    lower_bound_geometry(source, cell_index, map_axes, range, false)
+}
+
+/// Extract the same finite linear roots for a separately admitted open-interval
+/// caller. Missing sides remain missing; this alone supplies no interval map.
+pub(in crate::threshold::maps) fn lower_open_geometry(
+    source: &super::super::source::GeometryView<'_>,
+    cell_index: usize,
+    map_axes: &[super::super::MapAxis],
+    range: Range<usize>,
+) -> Result<Vec<LinearAxis>> {
+    lower_bound_geometry(source, cell_index, map_axes, range, true)
+}
+
+fn lower_bound_geometry(
+    source: &super::super::source::GeometryView<'_>,
+    cell_index: usize,
+    map_axes: &[super::super::MapAxis],
+    range: Range<usize>,
+    open_intervals: bool,
+) -> Result<Vec<LinearAxis>> {
     if range.start > range.end || range.end > map_axes.len() {
         return Err(GcadError::Invalid("linear lowering axis range".into()));
     }
@@ -99,7 +120,8 @@ pub(in crate::threshold::maps) fn lower_geometry(
         .take(range.end)
         .skip(range.start)
     {
-        if role.role == AliasRole::IntegrationCoordinate
+        if !open_intervals
+            && role.role == AliasRole::IntegrationCoordinate
             && (axis.lower.is_none() || axis.upper.is_none())
         {
             return Err(GcadError::Unsupported(

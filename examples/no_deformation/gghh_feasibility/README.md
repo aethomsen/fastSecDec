@@ -131,8 +131,10 @@ fresh verification. Peak child RSS is 10.688 GiB; sampled aggregate RSS is
 processes. Native configured limits and the public CLI wrapper are not identical
 to the external supervisor, as for the earlier probes.
 
-This result clears GCAD feasibility at the fixed point. The homogeneous quotient
-still needs its source-bound integration measure, closed-face endpoint
-regularization and compiled density. Integration time and SD remain unavailable.
+This result clears GCAD feasibility at the fixed point. The subsequent
+[positive-projective source binding](../../../docs/reviews/no-deformation-positive-projective.md)
+retains the complete physical numerator and checks its exact homogeneous measure
+against the saved proof. General cell maps, closed-face endpoint regularization
+and the compiled density still remain. Integration time and SD remain unavailable.
 Native compatibility merges do not replace the certified raw cells or their
 seams. Raw proofs, caches and binaries remain untracked.

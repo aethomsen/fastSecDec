@@ -5,10 +5,13 @@
 //! separate certificates; this module does not infer them from sample fibers.
 
 mod linear;
+mod open;
+mod open_interval;
 mod parameters;
 mod program;
 mod projective;
 mod source;
+pub use open::{IntervalSide, OpenFace, OpenFaceOrigin, OpenFiniteBound, OpenProjectiveAxis};
 pub use projective::PositiveProjectiveCellMap;
 pub mod regular;
 
@@ -130,5 +133,7 @@ pub(crate) fn coordinate_symbols(request: &super::gcad::GcadRequest) -> BTreeSet
     occupied
 }
 
+#[cfg(test)]
+mod open_tests;
 #[cfg(test)]
 mod tests;
