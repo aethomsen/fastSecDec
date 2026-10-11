@@ -124,16 +124,17 @@ mod etale_tests;
 mod tests;
 
 pub use blowup::{
-    CarriedCompanionChart, CarriedCompanionSupport, CarriedMonomialCenter, CheckedRecursiveCenter,
-    CompletedLocalContinuation, ContinuationAdvance, ContinuationCompletion, ContinuationLimits,
-    ContinuationNode, EmbeddedChildCycle, InducedCenterProduction, InducedChildChart,
-    LocalCompanionContinuation, LocalPrincipalization, PrincipalizationProduction,
-    RecursiveAdaptation, RecursiveAdaptedOpen, RecursiveCenterOrigin, RelativeBlowupGeometry,
-    RelativeMarkedTransform, RelativeRecursiveBlowup, RelativeRecursiveChart, SaturatedSupport,
-    StrictContactSupport, StrictSupportOpen, SupportedGenerator, SupportedMarkedTransform,
-    adapt_recursive_center, blowup_recursive_center, carry_companion_chart,
-    certify_local_principalization, induce_child_chart, produce_induced_monomial_center,
-    restrict_relative_chart, transport_contact_support,
+    CarriedCompanionChart, CarriedCompanionSupport, CarriedMonomialCenter,
+    CenterNormalPresentation, CheckedRecursiveCenter, CompletedLocalContinuation,
+    ContinuationAdvance, ContinuationCompletion, ContinuationLimits, ContinuationNode,
+    EmbeddedChildCycle, InducedCenterProduction, InducedChildChart, LocalCompanionContinuation,
+    LocalPrincipalization, PrincipalizationProduction, RecursiveAdaptation, RecursiveAdaptedOpen,
+    RecursiveCenterOrigin, RelativeBlowupGeometry, RelativeMarkedTransform,
+    RelativeRecursiveBlowup, RelativeRecursiveChart, SaturatedSupport, StrictContactSupport,
+    StrictSupportOpen, SupportedGenerator, SupportedMarkedTransform, adapt_recursive_center,
+    blowup_recursive_center, carry_companion_chart, certify_local_principalization,
+    induce_child_chart, produce_induced_monomial_center, restrict_relative_chart,
+    transport_contact_support,
 };
 pub use blowup::{
     CompletedEmbeddedChild, EmbeddedCenterProduction, EmbeddedMonomialCenter, EmbeddedPresentation,

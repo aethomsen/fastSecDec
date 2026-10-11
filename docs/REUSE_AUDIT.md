@@ -4184,3 +4184,12 @@ pairs and 30 evidence/native/binary pins. The consuming workspace passes 162
 resolver tests and strict workspace/all-target lint, formatting and diff checks.
 The timed-out downstream all-pivot diagnostic remains explicitly ignored; this
 increment does not complete global resolution or the real integration atlas.
+
+An independently reviewed optional follow-up reuses `QuotientNormalizer` and
+native candidate equality to simplify the same center's generating list.
+Original source, ideal, history and divisor incidence remain unchanged; the
+existing adaptation still checks rank, normal crossings and all local pivots.
+The previously incomplete local path now completes in a bounded private control.
+The linked review records its precise scope. Nine focused consuming tests,
+strict workspace/all-target lint, formatting and diff checks pass, without
+inferring a general resolver or matched performance ratio.

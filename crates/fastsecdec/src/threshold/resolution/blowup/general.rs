@@ -29,6 +29,7 @@ pub struct CheckedRecursiveCenter {
     ideal: Ideal,
     normals: Vec<Poly>,
     contained: Vec<bool>,
+    normal_presentation: Option<Arc<super::normal_presentation::CenterNormalPresentation>>,
 }
 impl CheckedRecursiveCenter {
     pub fn origin(&self) -> &RecursiveCenterOrigin {
@@ -48,6 +49,29 @@ impl CheckedRecursiveCenter {
     }
     pub fn contained_boundaries(&self) -> &[bool] {
         &self.contained
+    }
+    pub fn normal_presentation(
+        &self,
+    ) -> Option<&Arc<super::normal_presentation::CenterNormalPresentation>> {
+        self.normal_presentation.as_ref()
+    }
+    /// Optional same-center presentation. Existing rank/transversality/cover
+    /// checks remain required; native normalization is not a smoothness proof.
+    pub fn with_simplified_normals(self: &Arc<Self>, b: &mut Budget) -> Result<Arc<Self>> {
+        if self.normal_presentation.is_some() {
+            return Ok(self.clone());
+        }
+        let receipt = super::normal_presentation::prepare(self.clone(), b)?;
+        b.reserve_slots(receipt.selected().ideal().generators().len())?;
+        Ok(Arc::new(Self {
+            origin: self.origin.clone(),
+            history: self.history.clone(),
+            source: self.source.clone(),
+            ideal: self.ideal.clone(),
+            normals: receipt.selected().ideal().generators().to_vec(),
+            contained: self.contained.clone(),
+            normal_presentation: Some(receipt),
+        }))
     }
     pub fn new(origin: RecursiveCenterOrigin, b: &mut Budget) -> Result<Arc<Self>> {
         let (frame, history, source, ideal, normals) = match &origin {
@@ -160,6 +184,7 @@ impl CheckedRecursiveCenter {
             ideal: ideal.clone(),
             normals: normals.to_vec(),
             contained,
+            normal_presentation: None,
             origin,
         }))
     }

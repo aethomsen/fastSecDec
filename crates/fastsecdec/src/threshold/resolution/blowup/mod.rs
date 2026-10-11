@@ -7,6 +7,8 @@ mod adapted;
 mod embedded_center;
 mod embedding;
 mod general;
+mod normal_presentation;
+pub use normal_presentation::CenterNormalPresentation;
 mod general_transform;
 mod graph;
 mod helpers;
