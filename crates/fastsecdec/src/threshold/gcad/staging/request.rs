@@ -61,14 +61,16 @@ struct StoredRequest {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     represented: Option<StoredRepresentation>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    preparametric_graph: Option<StoredGraph>,
+    preparametric_graph: Option<StoredOriginal>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    preparametric_family: Option<StoredOriginal>,
 }
 
 /// Association bytes only: replay requires the original native graph owner and
 /// re-runs bounded conversion/parameterization. This is not a graph decoder.
 #[derive(Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
-struct StoredGraph {
+struct StoredOriginal {
     version: u32,
     meaning: crate::threshold::represented::NumericalMeaning,
     limits: crate::threshold::represented::Limits,
@@ -118,6 +120,9 @@ fn witness(request: &GcadRequest, source_identity: &str) -> Result<String> {
     }
     if let Some(r) = request.preparametric_graph_input() {
         item(&mut hash, &(1u32, r.limits(), r.source_witness()))?;
+    }
+    if let Some(r) = request.preparametric_family_input() {
+        item(&mut hash, &("family-v1", r.limits(), r.source_witness()))?;
     }
     item(&mut hash, &Origin::from(request.domain().origin()))?;
     item(
@@ -278,12 +283,20 @@ pub(super) fn write(root: &Path, request: &GcadRequest) -> Result<RequestRecord>
         witness: witness(request, &source_identity)?,
         input,
         represented,
-        preparametric_graph: request.preparametric_graph_input().map(|r| StoredGraph {
+        preparametric_graph: request.preparametric_graph_input().map(|r| StoredOriginal {
             version: 1,
             meaning: r.meaning(),
             limits: r.limits(),
             source_witness: r.source_witness().to_owned(),
         }),
+        preparametric_family: request
+            .preparametric_family_input()
+            .map(|r| StoredOriginal {
+                version: 1,
+                meaning: r.meaning(),
+                limits: r.limits(),
+                source_witness: r.source_witness().to_owned(),
+            }),
         origin: request.domain().origin().into(),
         coordinates: request
             .domain()
@@ -326,22 +339,47 @@ pub(super) fn write(root: &Path, request: &GcadRequest) -> Result<RequestRecord>
     })
 }
 
+pub(super) enum OriginalSource<'a> {
+    Graph {
+        original: std::sync::Arc<crate::threshold::represented::graph::GraphPoint>,
+        observer: &'a mut dyn FnMut(
+            crate::threshold::represented::graph::Progress,
+        ) -> std::ops::ControlFlow<()>,
+    },
+    Family {
+        original: std::sync::Arc<crate::threshold::represented::family::FamilyPoint>,
+        observer: &'a mut dyn FnMut(
+            crate::threshold::represented::family::Progress,
+        ) -> std::ops::ControlFlow<()>,
+    },
+}
+
 pub(super) fn read(
     root: &Path,
     receipt: &RequestRecord,
     conversion_cap: crate::threshold::represented::Limits,
-    original_graph: Option<std::sync::Arc<crate::threshold::represented::graph::GraphPoint>>,
-    observer: &mut dyn FnMut(
-        crate::threshold::represented::graph::Progress,
-    ) -> std::ops::ControlFlow<()>,
+    original: Option<OriginalSource<'_>>,
 ) -> Result<GcadRequest> {
     let (stored, atoms, symbols): (StoredRequest, _, _) = codec::read(root, &receipt.record, KIND)?;
-    if stored.represented.is_some() && stored.preparametric_graph.is_some() {
+    if usize::from(stored.represented.is_some())
+        + usize::from(stored.preparametric_graph.is_some())
+        + usize::from(stored.preparametric_family.is_some())
+        > 1
+    {
         return Err(Error::Association);
     }
-    if stored.preparametric_graph.is_none() && original_graph.is_some() {
+    if matches!(&original, Some(OriginalSource::Graph { .. }))
+        && stored.preparametric_graph.is_none()
+        || matches!(&original, Some(OriginalSource::Family { .. }))
+            && stored.preparametric_family.is_none()
+    {
         return Err(Error::Association);
     }
+    let (original_graph, original_family) = match original {
+        Some(OriginalSource::Graph { original, observer }) => (Some((original, observer)), None),
+        Some(OriginalSource::Family { original, observer }) => (None, Some((original, observer))),
+        None => (None, None),
+    };
     let symbol = |i: usize| {
         symbols
             .get(i)
@@ -361,8 +399,26 @@ pub(super) fn read(
         if r.version != 1 || !r.limits.is_within(conversion_cap) {
             return Err(invalid("pre-parametric conversion version or caller resource cap").into());
         }
-        let original = original_graph.ok_or(Error::OriginalGraphRequired)?;
+        let (original, observer) = original_graph.ok_or(Error::OriginalGraphRequired)?;
         let rebuilt = crate::threshold::represented::graph::ExactRepresentedGraphInput::prepare(
+            original, r.meaning, r.limits, observer,
+        )
+        .map_err(super::GcadError::from)?;
+        if rebuilt.source_witness() != r.source_witness || rebuilt.exact().as_ref() != &input {
+            return Err(Error::Association);
+        }
+        Some(std::sync::Arc::new(rebuilt))
+    } else {
+        None
+    };
+    let family = if let Some(r) = stored.preparametric_family {
+        if r.version != 1 || !r.limits.is_within(conversion_cap) {
+            return Err(
+                invalid("pre-parametric family conversion version or caller resource cap").into(),
+            );
+        }
+        let (original, observer) = original_family.ok_or(Error::OriginalFamilyRequired)?;
+        let rebuilt = crate::threshold::represented::family::ExactRepresentedFamilyInput::prepare(
             original, r.meaning, r.limits, observer,
         )
         .map_err(super::GcadError::from)?;
@@ -466,6 +522,8 @@ pub(super) fn read(
         request.retain_represented(r)?
     } else if let Some(r) = graph {
         request.retain_preparametric(r)?
+    } else if let Some(r) = family {
+        request.retain_preparametric_family(r)?
     } else {
         request
     };
@@ -554,8 +612,9 @@ mod graph_wire_tests {
                 codec::read(dir.path(), &saved.receipt().record, KIND).unwrap();
             let ordinary = serde_json::to_value(&stored).unwrap();
             assert!(ordinary.get("preparametric_graph").is_none());
+            assert!(ordinary.get("preparametric_family").is_none());
             assert!(ordinary.get("represented").is_none());
-            stored.preparametric_graph = Some(StoredGraph {
+            stored.preparametric_graph = Some(StoredOriginal {
                 version: if case == 2 { 2 } else { 1 },
                 meaning: NumericalMeaning::RepresentedValues,
                 limits: Limits::default(),
@@ -590,9 +649,54 @@ mod graph_wire_tests {
                 _ => assert!(result.is_err()),
             }
         }
+        for case in 0..4 {
+            let (mut stored, mut atoms, symbols): (StoredRequest, _, _) =
+                codec::read(dir.path(), &saved.receipt().record, KIND).unwrap();
+            let original = || StoredOriginal {
+                version: 1,
+                meaning: NumericalMeaning::RepresentedValues,
+                limits: Limits::default(),
+                source_witness: "not authority".into(),
+            };
+            stored.preparametric_family = Some(original());
+            if case == 1 {
+                stored.preparametric_graph = Some(original());
+            }
+            if case == 2 {
+                stored.represented = Some(StoredRepresentation {
+                    version: 1,
+                    meaning: NumericalMeaning::RepresentedValues,
+                    limits: Limits::default(),
+                    exact_input: Input::encode(&input, &mut atoms),
+                    literals: vec![],
+                });
+            }
+            if case == 3 {
+                stored.preparametric_family.as_mut().unwrap().version = 2;
+            }
+            let record = codec::write(
+                dir.path(),
+                "family-wire-tamper",
+                KIND,
+                &stored,
+                atoms,
+                symbols,
+            )
+            .unwrap();
+            let receipt = RequestRecord {
+                source_identity: saved.receipt().source_identity.clone(),
+                record,
+            };
+            let result = StagedRequest::read(dir.path(), &receipt, 10_000_000);
+            if case == 0 {
+                assert!(matches!(result, Err(Error::OriginalFamilyRequired)));
+            } else {
+                assert!(result.is_err());
+            }
+        }
         let mut graph = serde_json::json!({"version":1,"meaning":"represented_values","limits":Limits::default(),"source_witness":"none"});
-        assert!(serde_json::from_value::<StoredGraph>(graph.clone()).is_ok());
+        assert!(serde_json::from_value::<StoredOriginal>(graph.clone()).is_ok());
         graph["unknown_source"] = serde_json::json!(true);
-        assert!(serde_json::from_value::<StoredGraph>(graph).is_err());
+        assert!(serde_json::from_value::<StoredOriginal>(graph).is_err());
     }
 }

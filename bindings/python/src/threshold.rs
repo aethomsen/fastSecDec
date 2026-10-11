@@ -38,10 +38,12 @@ impl PyThresholdSettings {
     /// limits.workers must remain one; schedule processes in the caller.
     /// Byte limits cover transport, not native decoded/compiler RSS.
     /// numerical_meaning="represented_values" explicitly preserves the stored
-    /// Float values in fixed graph kinematics, scalar bindings and loop measure.
-    /// It uses the native pre-parametric provenance owner, without guessing
-    /// rationals or inferring uncertainty bounds. Graph numerator/projector
-    /// payloads and IntegralFamily inputs currently require exact expressions.
+    /// Float values in fixed kinematics, scalar bindings and loop measure.
+    /// An already exact IntegralFamily also accepts an explicit represented
+    /// scalar numerator. Original native owners and precision are retained,
+    /// without guessing rationals or inferring uncertainty. Stored family basis
+    /// and assumptions, and graph numerator/projector payloads, must be exact;
+    /// this cannot recover numerical arithmetic performed before supplying them.
     /// Omit numerical_meaning to retain the ordinary exact-input path.
     #[new]
     #[pyo3(signature=(*, gcad_limits_json=None, solver_options_json=None, maximum_transport_bytes=1_073_741_824, numerical_meaning=None, represented_limits_json=None))]

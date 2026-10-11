@@ -84,7 +84,8 @@ Both generation schedules publish the same indexed format for ordinary or serial
 integration. Native HEPKit inputs also expose this path through
 `Integral.generation_session(threshold_decomposition=True)`: explicit `step()`
 calls prepare and compile native records, returning the existing recipe archive.
-The binding accepts exact fixed inputs. Existing diagram/family
+The binding accepts exact fixed inputs and the explicit represented-value
+paths described below. Existing diagram/family
 `sector_decompose(threshold_decomposition=True)` calls return a native prepared
 owner with a separate `compile()` action. The general algebraic resolver remains
 a separate gate. See the
@@ -102,10 +103,17 @@ The existing Python graph entrypoints now select this owner with
 `prepare_graph`, `resume_graph` and `resume_graph_evidence` share the existing
 preparation and recovery pipeline. `Integral` retains the original graph point
 without family arithmetic; explicit generation/parametrization performs the
-full native basis and scalar-point checks. Represented integral-family inputs
-still require their own provenance owner and are refused. See the
+full native basis and scalar-point checks. See the
 [HEPKit represented-input review](reviews/no-deformation-hepkit-represented.md)
 for validation timing, progress, recovery and selected-result serialization.
+The native `threshold::represented::family::ExactRepresentedFamilyInput`
+similarly retains an existing exact `IntegralFamily` and its original numerical
+point. It converts numerator and measure separately before native specialization,
+preserving complete kinematic assumptions and precision. Existing family/free
+HEPKit entrypoints use the same explicit represented-value setting and native
+`prepare_family`/`resume_family` recovery. Stored Float family construction,
+uncertainty-bearing input and implicit runtime specialization remain unsupported.
+See the [native family review](reviews/no-deformation-represented-family.md).
 The separate `KernelSet::compile_threshold_family` factory accepts an issued
 regular algebraic secant family. It shares detached compilation and indexed
 publication, saving record-local root helpers in native v17. This path keeps

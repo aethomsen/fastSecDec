@@ -23,6 +23,7 @@ pub(super) type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 enum Input {
     Parametric(Arc<ParametricIntegrand>),
     Graph(Arc<fastsecdec::threshold::represented::graph::GraphPoint>),
+    Family(Arc<fastsecdec::threshold::represented::family::FamilyPoint>),
 }
 pub(super) struct Work {
     pub options: PreparationOptions,
@@ -63,11 +64,11 @@ impl Work {
     pub fn initialize(&mut self, input: ParametricIntegrand) -> Result<()> {
         self.initialize_input(Input::Parametric(Arc::new(input)))
     }
-    pub fn initialize_graph(
-        &mut self,
-        input: Arc<fastsecdec::threshold::represented::graph::GraphPoint>,
-    ) -> Result<()> {
-        self.initialize_input(Input::Graph(input))
+    pub fn initialize_represented(&mut self, input: crate::input::RepresentedPoint) -> Result<()> {
+        self.initialize_input(match input {
+            crate::input::RepresentedPoint::Graph(point) => Input::Graph(point),
+            crate::input::RepresentedPoint::Family(point) => Input::Family(point),
+        })
     }
     fn initialize_input(&mut self, input: Input) -> Result<()> {
         self.storage = Some(Rc::new(
@@ -146,6 +147,22 @@ impl Work {
                 self.options
                     .represented
                     .ok_or("graph requires represented policy")?
+                    .1,
+                root,
+                &c,
+                &format!("vectors-{}", self.attempt),
+                resume_source.as_deref().expect("resume checked above"),
+                self.limit,
+                &mut observe,
+            ),
+            (Input::Family(input), None) => {
+                native::prepare_family(input.clone(), self.options.clone(), root, &mut observe)
+            }
+            (Input::Family(input), Some(c)) => native::resume_family_evidence(
+                input.clone(),
+                self.options
+                    .represented
+                    .ok_or("family requires represented policy")?
                     .1,
                 root,
                 &c,
@@ -249,12 +266,11 @@ fn accept_native_source(
             *source = Some(request.source_identity.clone());
         }
     }
-    if let Some(raw) = &progress.receipts.raw {
-        if progress.receipts.request.as_ref() != Some(&raw.request)
-            || source.as_deref() != Some(raw.request.source_identity.as_str())
-        {
-            return Err("native threshold raw evidence has a different request");
-        }
+    if let Some(raw) = &progress.receipts.raw
+        && (progress.receipts.request.as_ref() != Some(&raw.request)
+            || source.as_deref() != Some(raw.request.source_identity.as_str()))
+    {
+        return Err("native threshold raw evidence has a different request");
     }
     Ok(())
 }

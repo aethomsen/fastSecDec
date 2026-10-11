@@ -3883,3 +3883,20 @@ equations retain their issued ledger entries. Complements retain ambient and
 other-ancestor work. Independent source and ecosystem reviews accept this local
 construction; full resolution, integration coverage and measured RSS remain
 separate gates.
+
+## Represented native family points
+
+The [native family review](reviews/no-deformation-represented-family.md)
+records public API, source and executable controls for the existing native
+`IntegralFamily`, immutable kinematic scalar-value mapper and family preparation
+operations. A separate original point is converted before numerator/measure
+multiplication and specialization. Complete unused assumptions and Float
+precision remain source-bound. Replay requires the original native owner and
+uses the existing verifier; it does not rerun GCAD or reconstruct a family
+from receipt text.
+
+Independent runtime and coordinator reviews accept the native ownership and
+thin HEPKit dispatch. Real host tests exercise cancellation, replay and complete
+complex vectors; native and portable emitted-stub tests preserve the existing
+capability split. Stored Float family history, graph Float payloads, general
+algebraic geometry and measured residency remain separate obligations.

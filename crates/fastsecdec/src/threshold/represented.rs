@@ -1,5 +1,6 @@
 //! Threshold-only faithful interpretation of finite represented coefficients.
 //! No geometry, branch, endpoint or convergence certificate is constructed.
+pub mod family;
 pub mod graph;
 #[cfg(test)]
 mod tests;

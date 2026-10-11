@@ -1,7 +1,9 @@
 //! Caller-run admitted threshold preparation. The expensive native owners live
 //! only in this call; the returned descriptors contain no global CAD proof.
 mod configuration;
+mod family;
 mod graph;
+pub use family::{prepare_family, resume_family, resume_family_evidence};
 pub use graph::{prepare_graph, resume_graph, resume_graph_evidence};
 #[cfg(test)]
 mod tests;
@@ -101,6 +103,9 @@ pub struct Progress {
     /// Input conversion/parameterization detail; absent on legacy input paths.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub graph_input: Option<represented::graph::Progress>,
+    /// Original native family point conversion; absent on all older paths.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub family_input: Option<represented::family::Progress>,
     pub completed: usize,
     pub total: Option<usize>,
     pub elapsed_seconds: f64,
@@ -166,6 +171,7 @@ struct Reporter<'a, F> {
     stage_start: Instant,
     stage: Stage,
     graph_input: Option<represented::graph::Progress>,
+    family_input: Option<represented::family::Progress>,
     configuration: Option<crate::generation::streaming::RecordRef>,
     receipts: EvidenceReceipts,
     timings: Vec<Timing>,
@@ -180,6 +186,7 @@ impl<F: FnMut(&Progress) -> ControlFlow<()>> Reporter<'_, F> {
             self.stage = stage;
             if stage != Stage::Input {
                 self.graph_input = None;
+                self.family_input = None;
             }
             self.stage_start = Instant::now();
         }
@@ -189,6 +196,7 @@ impl<F: FnMut(&Progress) -> ControlFlow<()>> Reporter<'_, F> {
         if (self.observer)(&Progress {
             stage: self.stage,
             graph_input: self.graph_input,
+            family_input: self.family_input,
             completed,
             total,
             elapsed_seconds: self.start.elapsed().as_secs_f64(),
@@ -287,6 +295,7 @@ fn prepare_with<F: FnMut(&Progress) -> ControlFlow<()>>(
         stage_start: start,
         stage: Stage::Input,
         graph_input: None,
+        family_input: None,
         configuration: None,
         receipts: Default::default(),
         timings: Vec::new(),
@@ -442,6 +451,10 @@ pub fn resume_evidence(
         &mut observer,
     )
 }
+enum OriginalPoint {
+    Graph(Arc<represented::graph::GraphPoint>),
+    Family(Arc<represented::family::FamilyPoint>),
+}
 #[allow(clippy::too_many_arguments)]
 fn recover<F: FnMut(&Progress) -> ControlFlow<()>>(
     root: &Path,
@@ -450,7 +463,7 @@ fn recover<F: FnMut(&Progress) -> ControlFlow<()>>(
     expected_source: &str,
     expected_prepared: Option<&str>,
     maximum_bytes: u64,
-    graph: Option<(Arc<represented::graph::GraphPoint>, represented::Limits)>,
+    original: Option<(OriginalPoint, represented::Limits)>,
     observer: &mut F,
 ) -> Result<PreparedThreshold> {
     let start = Instant::now();
@@ -460,6 +473,7 @@ fn recover<F: FnMut(&Progress) -> ControlFlow<()>>(
         stage_start: start,
         stage: Stage::Input,
         graph_input: None,
+        family_input: None,
         configuration: Some(checkpoint.configuration.clone()),
         receipts: EvidenceReceipts {
             request: Some(checkpoint.evidence.request.clone()),
@@ -490,35 +504,55 @@ fn recover<F: FnMut(&Progress) -> ControlFlow<()>>(
     if request.source_identity != expected_source {
         return Err(Error::Association("resume original source"));
     }
-    let is_graph = graph.is_some();
-    let staged = if let Some((original, conversion_cap)) = graph {
-        graph::admission(&options)?;
-        gcad::staging::StagedRequest::read_with_original_graph(
-            root,
-            request,
-            remaining,
-            original,
-            conversion_cap,
-            |p| {
-                reporter.graph_input = Some(p);
-                if reporter.poll(p.converted_literals, None).is_ok() {
-                    ControlFlow::Continue(())
-                } else {
-                    ControlFlow::Break(())
-                }
-            },
-        )
-        .map_err(|error| match error {
-            gcad::staging::Error::Gcad(gcad::GcadError::Represented(
-                represented::Error::Cancelled,
-            )) => Error::Cancelled,
-            error => Error::Evidence(error),
-        })?
-    } else {
-        gcad::staging::StagedRequest::read(root, request, remaining)?
-    };
-    if is_graph {
+    let staged = match original {
+        Some((OriginalPoint::Graph(original), conversion_cap)) => {
+            graph::admission(&options)?;
+            gcad::staging::StagedRequest::read_with_original_graph(
+                root,
+                request,
+                remaining,
+                original,
+                conversion_cap,
+                |p| {
+                    reporter.graph_input = Some(p);
+                    if reporter.poll(p.converted_literals, None).is_ok() {
+                        ControlFlow::Continue(())
+                    } else {
+                        ControlFlow::Break(())
+                    }
+                },
+            )
+        }
+        Some((OriginalPoint::Family(original), conversion_cap)) => {
+            family::admission(&options)?;
+            gcad::staging::StagedRequest::read_with_original_family(
+                root,
+                request,
+                remaining,
+                original,
+                conversion_cap,
+                |p| {
+                    reporter.family_input = Some(p);
+                    if reporter.poll(p.converted_literals, None).is_ok() {
+                        ControlFlow::Continue(())
+                    } else {
+                        ControlFlow::Break(())
+                    }
+                },
+            )
+        }
+        None => gcad::staging::StagedRequest::read(root, request, remaining),
+    }
+    .map_err(|error| match error {
+        gcad::staging::Error::Gcad(gcad::GcadError::Represented(represented::Error::Cancelled)) => {
+            Error::Cancelled
+        }
+        error => Error::Evidence(error),
+    })?;
+    if staged.request().preparametric_graph_input().is_some() {
         graph::request_options(&options, staged.request())?;
+    } else if staged.request().preparametric_family_input().is_some() {
+        family::request_options(&options, staged.request())?;
     } else if let Some(owner) = staged.request().represented_input() {
         // Legacy v1 configurations did not repeat the parametric represented
         // policy. Recover it only from the reconstructed native request owner;

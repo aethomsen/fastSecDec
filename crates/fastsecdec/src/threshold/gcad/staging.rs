@@ -33,6 +33,8 @@ pub enum Error {
     RecordLimit,
     #[error("pre-parametric graph replay requires its original native GraphPoint owner")]
     OriginalGraphRequired,
+    #[error("pre-parametric family replay requires its original native FamilyPoint owner")]
+    OriginalFamilyRequired,
 }
 impl From<crate::generation::GenerationError> for Error {
     fn from(error: crate::generation::GenerationError) -> Self {
@@ -153,13 +155,7 @@ impl StagedRequest {
         preflight(root, &[&receipt.record], maximum_bytes)?;
         Ok(Self {
             receipt: receipt.clone(),
-            request: Arc::new(request::read(
-                root,
-                receipt,
-                conversion_cap,
-                None,
-                &mut |_| std::ops::ControlFlow::Continue(()),
-            )?),
+            request: Arc::new(request::read(root, receipt, conversion_cap, None)?),
         })
     }
     /// Reconstruct a pre-parametric graph request from the original native point.
@@ -184,8 +180,37 @@ impl StagedRequest {
                 root,
                 receipt,
                 conversion_cap,
-                Some(original),
-                &mut observer,
+                Some(request::OriginalSource::Graph {
+                    original,
+                    observer: &mut observer,
+                }),
+            )?),
+        })
+    }
+    /// Rebuild a represented family request from the caller's original native
+    /// family/point, then check complete source/conversion and density association.
+    /// This never solves GCAD or imports verification authority.
+    pub fn read_with_original_family(
+        root: &Path,
+        receipt: &RequestRecord,
+        maximum_bytes: u64,
+        original: Arc<crate::threshold::represented::family::FamilyPoint>,
+        conversion_cap: crate::threshold::represented::Limits,
+        mut observer: impl FnMut(
+            crate::threshold::represented::family::Progress,
+        ) -> std::ops::ControlFlow<()>,
+    ) -> Result<Self> {
+        preflight(root, &[&receipt.record], maximum_bytes)?;
+        Ok(Self {
+            receipt: receipt.clone(),
+            request: Arc::new(request::read(
+                root,
+                receipt,
+                conversion_cap,
+                Some(request::OriginalSource::Family {
+                    original,
+                    observer: &mut observer,
+                }),
             )?),
         })
     }

@@ -143,6 +143,7 @@ pub enum SourceProvenance {
     Exact,
     ParametricRepresented(Arc<crate::threshold::represented::ExactRepresentedInput>),
     PreparametricGraph(Arc<crate::threshold::represented::graph::ExactRepresentedGraphInput>),
+    PreparametricFamily(Arc<crate::threshold::represented::family::ExactRepresentedFamilyInput>),
 }
 
 /// Exact, typed request association carried with unverified native evidence.
@@ -530,6 +531,45 @@ impl GcadRequest {
         }
         self.identity.provenance = SourceProvenance::PreparametricGraph(represented);
         Ok(self)
+    }
+
+    /// Prepare the exact parameterization of an already exact native family at
+    /// an explicitly represented point. Original family/point provenance is retained.
+    pub fn preparametric_family_projective(
+        represented: Arc<crate::threshold::represented::family::ExactRepresentedFamilyInput>,
+        eliminated_index: usize,
+        solver: SolverOptions,
+        limits: Limits,
+    ) -> Result<Self> {
+        let preparation =
+            AffineProjectivePreparation::eliminate(represented.exact(), eliminated_index)
+                .map_err(|e| GcadError::Invalid(e.to_string()))?;
+        Self::projective(preparation, GcadKinematics::default(), solver, limits)?
+            .retain_preparametric_family(represented)
+    }
+    pub(crate) fn retain_preparametric_family(
+        mut self,
+        represented: Arc<crate::threshold::represented::family::ExactRepresentedFamilyInput>,
+    ) -> Result<Self> {
+        if !matches!(self.identity.provenance, SourceProvenance::Exact)
+            || self.input() != represented.exact().as_ref()
+            || self.kinematics() != &GcadKinematics::default()
+            || self.projective_preparation().is_none()
+        {
+            return Err(GcadError::RequestMismatch);
+        }
+        self.identity.provenance = SourceProvenance::PreparametricFamily(represented);
+        Ok(self)
+    }
+    /// Original native family/point and its faithful pre-specialization evidence.
+    /// `input()` is the exact parameterization, not an invented Float density.
+    pub fn preparametric_family_input(
+        &self,
+    ) -> Option<&crate::threshold::represented::family::ExactRepresentedFamilyInput> {
+        match &self.identity.provenance {
+            SourceProvenance::PreparametricFamily(owner) => Some(owner),
+            _ => None,
+        }
     }
 
     pub fn source_provenance(&self) -> &SourceProvenance {

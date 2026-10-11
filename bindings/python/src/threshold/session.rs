@@ -76,9 +76,9 @@ impl PyThresholdGenerationSession {
         if !self.work.initialized() {
             crate::citations::mark_threshold_generation();
             if self.work.options.represented.is_some() {
-                let source = self.input.represented_graph_point(py)?;
+                let source = self.input.represented_point()?;
                 self.work
-                    .initialize_graph(source)
+                    .initialize_represented(source)
                     .map_err(|e| error::native(py, "threshold input", e))?;
             } else {
                 self.status.stage = GenerationStage::Parametrization;
@@ -103,14 +103,12 @@ impl PyThresholdGenerationSession {
         let started = Instant::now();
         let status = &mut self.status;
         let mut callback_error = None;
-        let mut graph_parametrization_started: Option<Instant> = None;
+        let mut input_parametrization_started: Option<Instant> = None;
         let result = self.work.prepare(|native| {
-            let parameterizing = native.graph_input.is_some_and(|detail| {
-                detail.stage == fastsecdec::threshold::represented::graph::Stage::Parameterization
-            });
-            if parameterizing && graph_parametrization_started.is_none() {
-                graph_parametrization_started = Some(Instant::now());
-            } else if !parameterizing && let Some(started) = graph_parametrization_started.take() {
+            let parameterizing = parameterizing(native);
+            if parameterizing && input_parametrization_started.is_none() {
+                input_parametrization_started = Some(Instant::now());
+            } else if !parameterizing && let Some(started) = input_parametrization_started.take() {
                 status.timings.parametrization_seconds += started.elapsed().as_secs_f64();
             }
             update(status, native, elapsed + started.elapsed().as_secs_f64());
@@ -123,7 +121,7 @@ impl PyThresholdGenerationSession {
                 }
             }
         });
-        if let Some(started) = graph_parametrization_started.take() {
+        if let Some(started) = input_parametrization_started.take() {
             self.status.timings.parametrization_seconds += started.elapsed().as_secs_f64();
         }
         self.status.elapsed_seconds = elapsed + started.elapsed().as_secs_f64();
@@ -245,6 +243,13 @@ impl PyThresholdGenerationSession {
         Ok(())
     }
 }
+fn parameterizing(p: &fastsecdec::threshold::generation::Progress) -> bool {
+    p.graph_input.is_some_and(|d| {
+        d.stage == fastsecdec::threshold::represented::graph::Stage::Parameterization
+    }) || p.family_input.is_some_and(|d| {
+        d.stage == fastsecdec::threshold::represented::family::Stage::Parameterization
+    })
+}
 fn update(status: &mut GenerationSnapshot, p: &Progress, elapsed: f64) {
     status.stage = match p.stage {
         Stage::Input => GenerationStage::Input,
@@ -259,7 +264,17 @@ fn update(status: &mut GenerationSnapshot, p: &Progress, elapsed: f64) {
     status.elapsed_seconds = elapsed;
     status.timings.total_seconds = elapsed;
     status.detail = p.graph_input.map_or_else(
-        || format!("Native threshold {:?}", p.stage),
+        || {
+            p.family_input.map_or_else(
+                || format!("Native threshold {:?}", p.stage),
+                |detail| {
+                    format!(
+                        "Native family {:?}; {} represented literals",
+                        detail.stage, detail.converted_literals
+                    )
+                },
+            )
+        },
         |detail| {
             format!(
                 "Native graph {:?}; {} represented literals",
@@ -267,9 +282,7 @@ fn update(status: &mut GenerationSnapshot, p: &Progress, elapsed: f64) {
             )
         },
     );
-    if p.graph_input.is_some_and(|detail| {
-        detail.stage == fastsecdec::threshold::represented::graph::Stage::Parameterization
-    }) {
+    if parameterizing(p) {
         status.stage = GenerationStage::Parametrization;
     }
 }

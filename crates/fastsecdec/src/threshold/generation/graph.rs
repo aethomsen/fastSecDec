@@ -99,7 +99,7 @@ pub fn resume_graph_evidence(
         expected_source,
         None,
         maximum_bytes,
-        Some((original, conversion_cap)),
+        Some((OriginalPoint::Graph(original), conversion_cap)),
         &mut observer,
     )
 }
@@ -133,7 +133,7 @@ pub fn resume_graph(
         expected_source,
         Some(expected_prepared),
         maximum_bytes,
-        Some((original, conversion_cap)),
+        Some((OriginalPoint::Graph(original), conversion_cap)),
         &mut observer,
     )
 }

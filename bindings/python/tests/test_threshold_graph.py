@@ -95,9 +95,4 @@ def test_represented_graph_frontend_replay_and_full_complex_oracle():
     _ = gc.collect()
     restored=sd.Kernels.from_bytes(float_bytes)
     assert restored.content_id==float_id
-    # The existing family path remains exact-only until it owns pre-arithmetic provenance.
-    try:sd.sector_decompose(family,regulator=eps,powers=[1,1],numerator=E("1"),
-        threshold_decomposition=True,threshold_settings=represented,progress=None)
-    except sd.FastSecDecError as error:assert "original-family provenance" in str(error)
-    else:raise AssertionError("represented family provenance fabricated")
     print("represented graph frontend, raw replay, full complex oracle and artifact-only reload: PASS")

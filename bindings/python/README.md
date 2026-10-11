@@ -379,15 +379,40 @@ completed records and raw evidence for native reverification. An indivisible CAS
 call cannot be interrupted by this wrapper. The caller owns hard process/RSS
 limits. Transport byte limits do not bound decoded native memory.
 
-This initial native binding requires exact fixed physical inputs
-(`model_parameters="fixed"`, no runtime physical parameters) and the existing
-certified one-dimensional rational-cell path, including the affine projective
-2-to-1 bubble. Unsupported geometry fails explicitly; the general algebraic
-resolver remains under development. The graph bubble controls use exact scalar
-expressions and rational kinematics. Numerical Float inputs are the next adapter
-step through the existing native represented-value owner, preserving original
-literals, conversion policy and authoritative source identity; no rational
-guessing or new input parser is planned. They are not supported by this slice.
+Threshold preparation requires fixed physical inputs (`model_parameters="fixed"`
+for graphs, no runtime physical parameters) and the currently certified
+one-dimensional rational-cell path, including the affine projective 2-to-1
+bubble. Unsupported geometry fails explicitly; the general resolver remains
+under development. Ordinary calls use exact expressions. Explicit
+`ThresholdSettings(numerical_meaning="represented_values")` preserves the actual
+finite Float values before native family arithmetic, with their precision and
+original source associations. It does not infer uncertainty or simpler rational
+values.
+
+For graphs, represented slots are kinematic assumptions, scalar bindings and
+the loop measure; graph numerator/projector payloads must still be exact. For an
+already exact native `IntegralFamily`, the new explicit point may also contain
+represented values in its separately supplied scalar numerator:
+
+```python
+settings = sd.ThresholdSettings(numerical_meaning="represented_values")
+prepared = family.sector_decompose(
+    regulator=eps, powers=[1, 1], numerator=E("0.5"),
+    kinematics=point_kinematics, scalar_values={s: E("16.0"), m2: E("3.0")},
+    measure_multiplier=E("2.0"), threshold_decomposition=True,
+    threshold_settings=settings,
+)
+kernels = prepared.compile()  # integration is still a separate action
+```
+
+The stored family basis and its original assumptions must be exact. This entry
+cannot recover numerical arithmetic that happened before constructing that
+family. A point must agree with already stored external products after the same
+closed scalar binding. Original unused assumptions and all numerator/measure
+slots remain in provenance. Resume requires the retained original family/point,
+repeats bounded conversion and parameterization, and reverifies raw evidence
+without rerunning the solver. Loading completed integration artifacts does not
+need that original owner.
 
 `ThresholdSettings(gcad_limits_json='{"memory_mib":1024}')` overlays the native
 one-worker defaults. The native solver JSON schema and transport limit are

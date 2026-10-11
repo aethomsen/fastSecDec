@@ -3,6 +3,9 @@ use super::{GcadError, GcadRequest, Result};
 use crate::generation::{self, identity::CanonicalAtom};
 impl GcadRequest {
     pub fn source_identity(&self) -> Result<String> {
+        if let Some(family) = self.preparametric_family_input() {
+            return Ok(family.source_identity().to_owned());
+        }
         if let Some(graph) = self.preparametric_graph_input() {
             return Ok(graph.source_identity().to_owned());
         }

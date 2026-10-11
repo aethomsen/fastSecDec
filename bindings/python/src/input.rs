@@ -68,7 +68,7 @@ struct GraphInput {
 /// Retained native data only. Specialization, projection and numerator algebra
 /// are deferred until the caller explicitly starts generation.
 struct FamilyInput {
-    family: IntegralFamily,
+    family: Arc<IntegralFamily>,
     powers: Vec<i32>,
     numerator: Atom,
     measure_multiplier: Atom,
@@ -106,39 +106,53 @@ pub(crate) struct RuntimeInputs {
     pub(crate) defaults: BTreeMap<String, f64>,
 }
 
+#[cfg(feature = "native")]
+pub(crate) enum RepresentedPoint {
+    Graph(Arc<fastsecdec::threshold::represented::graph::GraphPoint>),
+    Family(Arc<fastsecdec::threshold::represented::family::FamilyPoint>),
+}
+
 impl PyIntegral {
     #[cfg(feature = "native")]
-    pub(crate) fn represented_graph_point(
-        &self,
-        py: Python<'_>,
-    ) -> PyResult<Arc<fastsecdec::threshold::represented::graph::GraphPoint>> {
+    pub(crate) fn represented_point(&self) -> PyResult<RepresentedPoint> {
         if !self.runtime_parameters.is_empty() || self.runtime_model.is_some() {
             return Err(pyo3::exceptions::PyValueError::new_err(
                 "represented threshold preparation requires model_parameters='fixed' and no runtime_parameters",
             ));
         }
-        let IntegralInput::Graph(source) = &self.input else {
-            return Err(error::native(
-                py,
-                "represented input",
-                "represented native family preparation requires its own original-family provenance owner and is not yet supported",
-            ));
-        };
-        Ok(Arc::new(
-            fastsecdec::threshold::represented::graph::GraphPoint {
-                diagram: source.diagram.clone(),
-                kinematics: source.kinematics.clone(),
-                scalar_values: source.scalar_values.clone(),
-                auxiliary_momenta: source.auxiliary_momenta.clone(),
-                powers: source.powers.clone(),
-                measure_multiplier: source.measure_multiplier.clone(),
-                coordinates: (0..source.propagator_edges.len())
-                    .map(|i| symbolica::symbol!(format!("fastsecdec::hepkit::x{i}")))
-                    .collect(),
-                regulator: self.regulator,
-                dimension: self.dimension.clone(),
-            },
-        ))
+        match &self.input {
+            IntegralInput::Graph(source) => Ok(RepresentedPoint::Graph(Arc::new(
+                fastsecdec::threshold::represented::graph::GraphPoint {
+                    diagram: source.diagram.clone(),
+                    kinematics: source.kinematics.clone(),
+                    scalar_values: source.scalar_values.clone(),
+                    auxiliary_momenta: source.auxiliary_momenta.clone(),
+                    powers: source.powers.clone(),
+                    measure_multiplier: source.measure_multiplier.clone(),
+                    coordinates: (0..source.propagator_edges.len())
+                        .map(|i| symbolica::symbol!(format!("fastsecdec::hepkit::x{i}")))
+                        .collect(),
+                    regulator: self.regulator,
+                    dimension: self.dimension.clone(),
+                },
+            ))),
+            IntegralInput::Family(source) => Ok(RepresentedPoint::Family(Arc::new(
+                fastsecdec::threshold::represented::family::FamilyPoint {
+                    family: source.family.clone(),
+                    powers: source.powers.clone(),
+                    numerator: source.numerator.clone(),
+                    measure_multiplier: source.measure_multiplier.clone(),
+                    kinematics: source.kinematics.as_ref().map(|k| Arc::new(k.clone())),
+                    scalar_values: source.scalar_values.clone(),
+                    auxiliary_momenta: source.auxiliary_momenta.clone(),
+                    coordinates: (0..source.powers.iter().filter(|p| **p > 0).count())
+                        .map(|i| symbolica::symbol!(format!("fastsecdec::hepkit::x{i}")))
+                        .collect(),
+                    regulator: self.regulator,
+                    dimension: self.dimension.clone(),
+                },
+            ))),
+        }
     }
 
     pub(crate) fn parametrize(
@@ -372,7 +386,7 @@ impl PyIntegral {
         let regulator = symbol(py, regulator, "regulator")?;
         Ok(Self {
             input: IntegralInput::Family(Arc::new(FamilyInput {
-                family: family.as_family().clone(),
+                family: Arc::new(family.as_family().clone()),
                 powers,
                 numerator: numerator.expr.clone(),
                 measure_multiplier: measure_multiplier.map_or_else(Atom::one, |v| v.expr.clone()),
