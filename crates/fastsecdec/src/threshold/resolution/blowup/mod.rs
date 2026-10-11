@@ -28,7 +28,7 @@ pub use general::{
 };
 pub use general_transform::{
     RelativeBlowupGeometry, RelativeMarkedTransform, RelativeRecursiveBlowup,
-    RelativeRecursiveChart, blowup_recursive_center,
+    RelativeRecursiveChart, blowup_recursive_center, restrict_relative_chart,
 };
 pub use incidence::{
     CompletedEmbeddedChild, IncidenceContinuation, IncidenceDrop, MarkedCosupport,
@@ -112,4 +112,11 @@ mod continued_frontier;
 pub use continued_frontier::{
     CompletedContinuedCharts, ContinuedChartAdvance, ContinuedChartState,
     ContinuedFrontierCompletion, ContinuedSupportedFrontier,
+};
+
+mod support_preparation;
+pub use support_preparation::{StrictSupportPreparation, SupportGuardPullback};
+mod chart_refinement;
+pub use chart_refinement::{
+    ContinuedRefinementFrontier, ContinuedRefinementState, StrictSupportRefinement,
 };

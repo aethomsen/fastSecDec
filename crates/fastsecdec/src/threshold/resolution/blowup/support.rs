@@ -2,10 +2,8 @@
 //! frames on a complete minor cover. Empty support is a geometric outcome.
 use super::super::*;
 use super::{
-    embedding::SupportEmbedding,
-    general_transform::RelativeBlowupGeometry,
-    helpers::*,
-    saturation::{SaturatedSupport, saturate_support},
+    embedding::SupportEmbedding, general_transform::RelativeBlowupGeometry, helpers::*,
+    saturation::SaturatedSupport, support_preparation::StrictSupportPreparation,
 };
 use std::sync::Arc;
 use symbolica::symbol;
@@ -70,6 +68,7 @@ impl UnresolvedSupportFrame {
 }
 #[derive(Clone, Debug)]
 pub struct StrictContactSupport {
+    preparation: Arc<StrictSupportPreparation>,
     geometry: Arc<RelativeBlowupGeometry>,
     embedding: Arc<SupportEmbedding>,
     saturation: Arc<SaturatedSupport>,
@@ -81,6 +80,9 @@ pub struct StrictContactSupport {
     cover: VerifiedOpenCover,
 }
 impl StrictContactSupport {
+    pub fn preparation(&self) -> &Arc<StrictSupportPreparation> {
+        &self.preparation
+    }
     pub fn geometry(&self) -> &Arc<RelativeBlowupGeometry> {
         &self.geometry
     }
@@ -127,56 +129,12 @@ pub(crate) fn transport_embedding(
     namespace: &str,
     b: &mut Budget,
 ) -> Result<Arc<StrictContactSupport>> {
-    let ambient = geometry.center().history().ledger().frame();
-    if !Arc::ptr_eq(ambient, embedding.ambient()) {
-        return Err(Error::Invalid(
-            "strict embedded support current ambient owner",
-        ));
-    }
-    let mut totals = Vec::new();
-    b.reserve_slots(embedding.equations().generators().len())?;
-    for f in embedding.equations().generators() {
-        totals.push(geometry.pull(f, b)?);
-    }
+    let preparation =
+        StrictSupportPreparation::prepare(geometry.clone(), embedding.clone(), namespace, b)?;
     let target = geometry.frame();
     let local = target.local();
-    let pulled = Arc::new(Ideal::new(local.ring().clone(), totals, b)?);
-    let factor = geometry
-        .exceptional()
-        .cloned()
-        .unwrap_or_else(|| local.ring().one());
-    let saturation = saturate_support(
-        local.clone(),
-        pulled,
-        factor,
-        &format!("{namespace}_sat"),
-        b,
-    )?;
-    // A contact presentation can require a further derivative open. For a
-    // nonempty strict support, never enlarge that source open to its closure.
-    // An exactly empty saturated support has no inverse-coordinate map to
-    // construct; retain its empty receipt and the entire ambient chart instead.
-    let mut source_units = Vec::new();
-    if !saturation.empty() {
-        b.reserve_slots(embedding.frame().local().guards().len())?;
-        for g in embedding.frame().local().guards() {
-            if (embedding.extension().source().len()..g.factor.nvars())
-                .any(|i| g.factor.degree(i) > 0)
-            {
-                return Err(Error::ResourceIncomplete(
-                    "strict support needs source guard lift",
-                ));
-            }
-            let factor = super::super::elimination::remap(&g.factor, ambient.local().ring(), b)?;
-            let pulled = geometry.pull(&factor, b)?;
-            if !unit(local, &pulled, b)? {
-                return Err(Error::ResourceIncomplete(
-                    "strict support needs original contact localization",
-                ));
-            }
-            source_units.push(pulled);
-        }
-    }
+    let saturation = preparation.saturation().clone();
+    let source_units = preparation.ambient_units(b)?;
     let codim = embedding.codimension();
     if codim == 0 || codim > target.free_axes().len() {
         return Err(Error::Invalid("embedded support relative codimension"));
@@ -332,6 +290,7 @@ pub(crate) fn transport_embedding(
     }
     .verify(b)?;
     Ok(Arc::new(StrictContactSupport {
+        preparation,
         geometry,
         embedding,
         saturation,

@@ -3853,3 +3853,33 @@ history retention, full ambient inventory and caller-owned retry behavior.
 Native tests and the external consumer pass. Higher contact stacks, enclosing
 physical ascent, general gluing, durable recovery and measured memory bounds
 remain separate work.
+
+## Constant-rational root brackets: generic-degree numerical probe
+
+Native Symbolica polynomial substitution, differentiation, prepared evaluators
+and `nsolve_bracketed` support normalizing a certified rational bracket to
+`[0,1]`. Exact source/API checks and five executable groups cover degrees 5, 7
+and 17, non-dyadic faces, shifted-polynomial cancellation, implicit derivatives
+and incoming real/imaginary uncertainty. Endpoint specialization is permitted
+only for exact zero-error solver coordinates; a point merely centered on a
+face retains its coordinate uncertainty. No replacement solver, CAS, AD or
+error estimator is needed.
+
+The independent resolver and coordinator reviews accept this arithmetic probe.
+The coordinator verified 26 source, dependency and evidence digests in handoff
+`f044e9b59c5b23f7f864203d51633460d0128d64bd73961d01b7a205c2dddff6`.
+The five groups pass in 0.265 seconds and strict direct Clippy passes.
+Production recipe/codec work remains separate: existing saved kernels still
+use their admitted static exact-f64 brackets. This probe does not certify
+moving brackets, root collisions, nested towers or the general endpoint atlas.
+
+## Source-bound physical chart refinement
+
+The [physical chart review](reviews/no-deformation-physical-chart-refinement.md)
+records the native support saturation, full ambient cover, principal-open
+composition and original-hierarchy continuation. Every Jacobian, controlled
+generator and historical divisor uses the same native map. Unit strict-divisor
+equations retain their issued ledger entries. Complements retain ambient and
+other-ancestor work. Independent source and ecosystem reviews accept this local
+construction; full resolution, integration coverage and measured RSS remain
+separate gates.

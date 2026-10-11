@@ -5,12 +5,16 @@ use super::{
     standard::{StandardGeometry, standard_chart},
 };
 use std::sync::Arc;
+mod restricted;
+use restricted::RestrictedGeometry;
+pub use restricted::restrict_relative_chart;
 
 #[derive(Clone, Debug)]
 pub struct RelativeBlowupGeometry {
     center: Arc<CheckedRecursiveCenter>,
     open: Arc<RecursiveAdaptedOpen>,
     geometry: Arc<StandardGeometry>,
+    restriction: Option<Arc<RestrictedGeometry>>,
     ledger: Arc<VerifiedRelativeSnc>,
     divisors: Vec<DivisorReceipt>,
     born: Option<(BoundaryId, u64)>,
@@ -23,7 +27,9 @@ impl RelativeBlowupGeometry {
         &self.open
     }
     pub fn frame(&self) -> &Arc<EtaleFrame> {
-        &self.geometry.frame
+        self.restriction
+            .as_ref()
+            .map_or(&self.geometry.frame, |r| r.open.history().ledger().frame())
     }
     pub fn ledger(&self) -> &Arc<VerifiedRelativeSnc> {
         &self.ledger
@@ -35,7 +41,10 @@ impl RelativeBlowupGeometry {
         self.born
     }
     pub fn exceptional(&self) -> Option<&Poly> {
-        self.geometry.exceptional.as_ref()
+        self.restriction.as_ref().map_or_else(
+            || self.geometry.exceptional.as_ref(),
+            |r| r.exceptional.as_ref(),
+        )
     }
     pub fn pivot_normal(&self) -> Option<usize> {
         self.geometry
@@ -43,13 +52,22 @@ impl RelativeBlowupGeometry {
             .and_then(|p| self.geometry.center_axes.iter().position(|a| *a == p))
     }
     pub fn jacobian(&self) -> &Poly {
-        &self.geometry.jacobian
+        self.restriction
+            .as_ref()
+            .map_or(&self.geometry.jacobian, |r| &r.jacobian)
     }
     pub fn original_coordinate_jacobian(&self) -> &Poly {
-        &self.geometry.original_coordinate_jacobian
+        self.restriction
+            .as_ref()
+            .map_or(&self.geometry.original_coordinate_jacobian, |r| {
+                &r.original_coordinate_jacobian
+            })
     }
     pub fn pull(&self, p: &Poly, b: &mut Budget) -> Result<Poly> {
-        self.geometry.pull_from_source(p, b)
+        match &self.restriction {
+            Some(r) => r.open.open().extension().pull(&r.parent.pull(p, b)?, b),
+            None => self.geometry.pull_from_source(p, b),
+        }
     }
 }
 #[derive(Clone, Debug)]
@@ -247,6 +265,7 @@ fn one(
         center,
         open,
         geometry,
+        restriction: None,
         ledger,
         divisors,
         born,

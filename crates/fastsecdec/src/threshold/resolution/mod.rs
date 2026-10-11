@@ -126,7 +126,7 @@ pub use blowup::{
     StrictContactSupport, StrictSupportOpen, SupportedGenerator, SupportedMarkedTransform,
     adapt_recursive_center, blowup_recursive_center, carry_companion_chart,
     certify_local_principalization, induce_child_chart, produce_induced_monomial_center,
-    transport_contact_support,
+    restrict_relative_chart, transport_contact_support,
 };
 pub use blowup::{
     CompletedEmbeddedChild, EmbeddedCenterProduction, EmbeddedMonomialCenter, EmbeddedPresentation,
@@ -144,3 +144,6 @@ pub use blowup::{SupportedProblemAncestor, SupportedProblemChart, SupportedProbl
 pub use recursive::{SupportedDropInventory, SupportedDropRecord, SupportedResidualDrop};
 
 pub use blowup::{ContinuedSupportedCenter, ContinuedSupportedChart, ContinuedSupportedProduction};
+
+pub use blowup::{ContinuedRefinementFrontier, ContinuedRefinementState, StrictSupportRefinement};
+pub use blowup::{StrictSupportPreparation, SupportGuardPullback};

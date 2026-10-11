@@ -390,6 +390,126 @@ fn original_native_surviving_child_anchor_and_same_physical_transform() {
                                                     println!(
                                                         "retained second chart{vi} pending {reason}"
                                                     );
+                                                    if matches!(vi, 4 | 5 | 7) {
+                                                        let ancestor = &next.ancestors()[0];
+                                                        let embedding = SupportEmbedding::strict(
+                                                            ancestor.support().clone(),
+                                                            ancestor.open().clone(),
+                                                            &mut b,
+                                                        )
+                                                        .unwrap();
+                                                        let prep =
+                                                            StrictSupportPreparation::prepare(
+                                                                next_blowup.charts()[vi]
+                                                                    .geometry()
+                                                                    .clone(),
+                                                                embedding,
+                                                                &format!("nonunit_chart{vi}"),
+                                                                &mut b,
+                                                            )
+                                                            .unwrap();
+                                                        assert!(matches!(
+                                                            prep.physical_cover(&mut b),
+                                                            Err(Error::ResourceIncomplete(
+                                                                "original guard is nonunit on strict support"
+                                                            ))
+                                                        ));
+                                                    }
+                                                    if vi == 8 {
+                                                        let chart =
+                                                            next_blowup.charts()[vi].clone();
+                                                        let anchor = AnchoredOriginalTree::new(
+                                                            OriginalAnchorCenter::Continued(
+                                                                next.clone(),
+                                                            ),
+                                                            &mut b,
+                                                        )
+                                                        .unwrap();
+                                                        let prep =
+                                                            StrictSupportPreparation::prepare(
+                                                                chart.geometry().clone(),
+                                                                anchor.embeddings()[0].clone(),
+                                                                "actual_chart8_prepare",
+                                                                &mut b,
+                                                            )
+                                                            .unwrap();
+                                                        let owner =
+                                                            StrictSupportRefinement::prepare(
+                                                                chart.clone(),
+                                                                prep,
+                                                                &mut b,
+                                                            )
+                                                            .unwrap();
+                                                        assert_eq!(owner.cover().opens().len(), 4);
+                                                        assert!(matches!(
+                                                            ContinuedRefinementFrontier::new(
+                                                                Arc::new((*next).clone()),
+                                                                owner.clone(),
+                                                                "wrong_refinement_center".into(),
+                                                                &mut b
+                                                            ),
+                                                            Err(Error::Invalid(_))
+                                                        ));
+                                                        let mut refined =
+                                                            ContinuedRefinementFrontier::new(
+                                                                next.clone(),
+                                                                owner,
+                                                                "actual_chart8".into(),
+                                                                &mut b,
+                                                            )
+                                                            .unwrap();
+                                                        let mut stopped = Budget::new(Limits {
+                                                            max_operations: 0,
+                                                            ..Limits::default()
+                                                        });
+                                                        assert!(matches!(
+                                                            refined
+                                                                .advance(0, &mut stopped)
+                                                                .unwrap(),
+                                                            ContinuedChartAdvance::Incomplete { .. }
+                                                        ));
+                                                        assert!(!refined.complete_inventory());
+                                                        for side in
+                                                            (0..refined.states().len()).rev()
+                                                        {
+                                                            assert_eq!(
+                                                                refined
+                                                                    .advance(side, &mut b)
+                                                                    .unwrap(),
+                                                                ContinuedChartAdvance::Complete
+                                                            );
+                                                        }
+                                                        assert!(refined.complete_inventory());
+                                                        let mut accepted = 0;
+                                                        let mut truly_empty = 0;
+                                                        for (side, state) in
+                                                            refined.states().iter().enumerate()
+                                                        {
+                                                            match state{
+                                                            ContinuedRefinementState::Carried{localization,chart:done}=>{
+                                                                accepted+=1;assert_eq!(done.ancestors().len(),next.ancestors().len());
+                                                                assert!(done.chart().history().same_root(chart.history()));assert_eq!(done.chart().history().births(),chart.history().births());assert_eq!(done.chart().history().stage(),chart.history().stage());
+                                                                assert!(Arc::ptr_eq(done.chart().geometry().target_restriction().unwrap().1,localization));
+                                                                println!("ACTUAL_CHART8 side{side} full hierarchy PASS ancestors{} child-levels{} opens{}",done.ancestors().len(),done.child().levels().len(),done.opens().len());
+                                                            },
+                                                            ContinuedRefinementState::EmptyPrincipal{..}=>truly_empty+=1,
+                                                            _=>panic!("pending physical open"),
+                                                        }
+                                                        }
+                                                        assert!(accepted > 0);
+                                                        assert_eq!(accepted + truly_empty, 4);
+                                                        let mut stopped = Budget::new(Limits {
+                                                            max_operations: 0,
+                                                            ..Limits::default()
+                                                        });
+                                                        for side in 0..refined.states().len() {
+                                                            assert_eq!(refined.advance(side,&mut stopped).unwrap(),ContinuedChartAdvance::AlreadyComplete);
+                                                        }
+                                                        assert_eq!(stopped.operations(), 0);
+                                                        println!(
+                                                            "ACTUAL_CHART8 full physical cover retained {accepted} carried, {truly_empty} genuinely empty; births unchanged"
+                                                        );
+                                                    }
                                                 }
                                                 ContinuedChartAdvance::Complete => {
                                                     let ContinuedChartState::Complete(transition) =
