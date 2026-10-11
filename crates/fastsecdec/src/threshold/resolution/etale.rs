@@ -51,8 +51,12 @@ fn close_derivation(
     local: &LocalizedAlgebra,
     coefficients: &mut [Poly],
     budget: &mut Budget,
+    membership: &mut super::prepared_membership::PreparedLocalZero<'_>,
 ) -> Result<()> {
     let ring = local.ring();
+    if !membership.is_for(local) {
+        return Err(Error::Invalid("derivation membership localization owner"));
+    }
     // Guard factors have no inverse-variable dependence by constructor.
     for guard in local.guards() {
         let derivative = apply(coefficients, &guard.factor, budget)?;
@@ -65,7 +69,7 @@ fn close_derivation(
         .iter()
         .chain(local.unit_relations())
     {
-        if !local.zero(&apply(coefficients, equation, budget)?, budget)? {
+        if !membership.zero(&apply(coefficients, equation, budget)?, budget)? {
             return Err(Error::Invalid(
                 "relative derivative does not preserve relation",
             ));
@@ -142,22 +146,24 @@ impl EtaleCertificate {
                 .ok_or(Error::ResourceIncomplete("affine frame slots"))?;
             budget.reserve_slots(count)?;
             let mut derivations = Vec::new();
+            let mut membership =
+                super::prepared_membership::PreparedLocalZero::new(&self.source, budget)?;
             for free in &self.free_axes {
                 let mut coefficients = vec![ring.one().zero(); ring.len()];
                 coefficients[*free] = ring.one();
-                close_derivation(&self.source, &mut coefficients, budget)?;
+                close_derivation(&self.source, &mut coefficients, budget, &mut membership)?;
                 derivations.push(coefficients);
             }
             let frame = EtaleFrame {
                 determinant: ring.one(),
                 local: self.source.clone(),
-                source: self.source,
+                source: self.source.clone(),
                 equations: self.equations,
                 dependent_axes: self.dependent_axes,
                 free_axes: self.free_axes,
                 derivations,
             };
-            frame.check_commutators(budget)?;
+            frame.check_commutators(budget, &mut membership)?;
             return Ok(frame);
         }
         let inverse_axis = self
@@ -297,6 +303,7 @@ impl EtaleCertificate {
         budget.reserve_slots(count)?;
         let inverse = ring.coordinate(inverse_axis)?;
         let mut derivations = Vec::new();
+        let mut membership = super::prepared_membership::PreparedLocalZero::new(&local, budget)?;
         for free in &self.free_axes {
             budget.reserve_slots(n)?;
             let rhs = Matrix::from_linear(
@@ -321,19 +328,19 @@ impl EtaleCertificate {
                 let numerator = ring.atom(&cleared)?;
                 coefficients[*axis] = budget.mul(&inverse, &numerator)?;
             }
-            close_derivation(&local, &mut coefficients, budget)?;
+            close_derivation(&local, &mut coefficients, budget, &mut membership)?;
             derivations.push(coefficients);
         }
         let frame = EtaleFrame {
             source: self.source,
-            local,
+            local: local.clone(),
             equations: self.equations,
             dependent_axes: self.dependent_axes,
             free_axes: self.free_axes,
             determinant,
             derivations,
         };
-        frame.check_commutators(budget)?;
+        frame.check_commutators(budget, &mut membership)?;
         Ok(frame)
     }
 }
@@ -366,13 +373,20 @@ impl EtaleFrame {
         self.local.supports(p)?;
         apply(self.coefficients(free_index)?, p, budget)
     }
-    fn check_commutators(&self, budget: &mut Budget) -> Result<()> {
+    fn check_commutators(
+        &self,
+        budget: &mut Budget,
+        membership: &mut super::prepared_membership::PreparedLocalZero<'_>,
+    ) -> Result<()> {
+        if !membership.is_for(&self.local) {
+            return Err(Error::Invalid("commutator membership localization owner"));
+        }
         for i in 0..self.derivations.len() {
             for j in i + 1..self.derivations.len() {
                 for axis in 0..self.local.ring().len() {
                     let difference = self.derivative(i, &self.derivations[j][axis], budget)?
                         - self.derivative(j, &self.derivations[i][axis], budget)?;
-                    if !self.local.zero(&difference, budget)? {
+                    if !membership.zero(&difference, budget)? {
                         return Err(Error::Invalid("relative lifts do not commute"));
                     }
                 }

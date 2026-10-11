@@ -526,6 +526,16 @@ and unresolved terminal component covers. The
 conditional compact-cover construction with native quintic probes. Neither
 review changes the incomplete status of G0, the full G3 driver, or G5.
 
+The [original-factor continuation review](reviews/no-deformation-original-factor-continuation.md)
+adds a checked original-source inventory through two physical maps, separate
+per-factor local terminal tests, and a new ambient companion cycle after a
+proved complete residual-order drop. Selected third-map controls retain every
+original generator, exceptional multiplier and composed Jacobian. A resolved
+generated ideal is explicitly insufficient to certify its individual factors.
+The source ancestry is currently restricted; these receipts do not complete a
+general physical continuation driver, simultaneous divisor construction or a
+real integration atlas.
+
 The G3–G6 gate family must include arbitrarily parameterized test families that
 exercise nontrivial centers, higher-degree algebraic towers, intersecting
 discriminants, and seam/regulator cancellation. Passing the earlier scalar

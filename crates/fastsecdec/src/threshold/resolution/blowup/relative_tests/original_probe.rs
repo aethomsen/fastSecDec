@@ -31,7 +31,10 @@ fn factor_order(
     };
     Arc::new(*o)
 }
-fn original(b: &mut Budget) -> Arc<CompanionCenter> {
+pub(crate) fn original(b: &mut Budget) -> Arc<CompanionCenter> {
+    original_with_factors(b, false)
+}
+pub(crate) fn original_with_factors(b: &mut Budget, extra: bool) -> Arc<CompanionCenter> {
     let r = Arc::new(
         Ring::new(
             vec![
@@ -71,14 +74,13 @@ fn original(b: &mut Budget) -> Arc<CompanionCenter> {
         r.coordinate(1).unwrap(),
         r.coordinate(2).unwrap(),
     ];
-    let source = Arc::new(
-        MarkedIdeal::new(
-            Ideal::new(r, vec![z.pow(2) + x.pow(3) + y.pow(3)], b).unwrap(),
-            1,
-            b,
-        )
-        .unwrap(),
-    );
+    let f = z.pow(2) + x.pow(3) + y.pow(3);
+    let generators = if extra {
+        vec![f.clone(), &x * &f]
+    } else {
+        vec![f]
+    };
+    let source = Arc::new(MarkedIdeal::new(Ideal::new(r, generators, b).unwrap(), 1, b).unwrap());
     let order = factor_order(history, source, "original_nested_factors", b);
     for i in 0..order.upper_order_cover().opens().len() {
         let CompanionOpenProduction::Contact(o) =

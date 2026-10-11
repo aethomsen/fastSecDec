@@ -2,7 +2,7 @@ use std::{collections::BTreeSet, sync::Arc};
 use symbolica::{
     atom::{Atom, AtomCore, Symbol},
     domains::rational::{Q, RationalField},
-    poly::{GrevLexOrder, MonomialOrder, PolyVariable, polynomial::MultivariatePolynomial},
+    poly::{MonomialOrder, PolyVariable, polynomial::MultivariatePolynomial},
 };
 
 pub type Poly = MultivariatePolynomial<RationalField, u16>;
@@ -349,38 +349,7 @@ impl Ideal {
     ) -> Result<bool> {
         self.ring.check(p)?;
         budget.poly(p)?;
-        budget.reserve_slots(
-            self.generators
-                .len()
-                .checked_add(relations.len())
-                .ok_or(Error::ResourceIncomplete("localized ideal count"))?,
-        )?;
-        let ideal = Self::new(
-            self.ring.clone(),
-            self.generators.iter().chain(relations).cloned().collect(),
-            budget,
-        )?;
-        // Native division is a one-way constructive membership witness even
-        // when the original generators are not a Groebner basis. Nonzero is
-        // inconclusive and must still use the checked native basis.
-        budget.charge(1)?;
-        let direct = p.reduce(&ideal.generators);
-        budget.poly(&direct)?;
-        if direct.is_zero() {
-            return Ok(true);
-        }
-        // Membership needs no elimination ordering. Retain Lex in the explicit
-        // elimination APIs and use native GrevLex only for this zero test.
-        let generators = ideal
-            .generators
-            .iter()
-            .map(|f| f.reorder::<GrevLexOrder>())
-            .collect::<Vec<_>>();
-        let query = p.reorder::<GrevLexOrder>();
-        let basis = super::native_basis::checked_ordered(&generators, budget)?;
-        budget.charge(1)?;
-        let remainder = query.reduce(&basis);
-        budget.poly(&remainder)?;
-        Ok(remainder.is_zero())
+        super::prepared_membership::PreparedMembership::new(self, relations, budget)?
+            .contains(p, budget)
     }
 }

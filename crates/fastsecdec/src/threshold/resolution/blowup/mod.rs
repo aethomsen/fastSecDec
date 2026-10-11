@@ -120,3 +120,11 @@ mod chart_refinement;
 pub use chart_refinement::{
     ContinuedRefinementFrontier, ContinuedRefinementState, StrictSupportRefinement,
 };
+
+mod physical_cycle;
+pub use physical_cycle::{
+    AccumulatedExceptional, AmbientContinuationCenter, AmbientCycleCarry, AmbientDropInventory,
+    AmbientDropRecord, AmbientNextChart, AmbientResidualDrop, OriginalCompanionPullback,
+    OriginalDivisorTerminal, OriginalFactorTerminal, OriginalGeneratorPullback,
+    OriginalTerminalInventory, OriginalTerminalRecord,
+};

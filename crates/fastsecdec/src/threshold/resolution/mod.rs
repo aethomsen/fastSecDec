@@ -26,6 +26,7 @@ mod localized;
 mod marked;
 mod matrix;
 mod native_basis;
+mod prepared_membership;
 mod producer;
 mod recursive;
 mod transform;
@@ -147,3 +148,10 @@ pub use blowup::{ContinuedSupportedCenter, ContinuedSupportedChart, ContinuedSup
 
 pub use blowup::{ContinuedRefinementFrontier, ContinuedRefinementState, StrictSupportRefinement};
 pub use blowup::{StrictSupportPreparation, SupportGuardPullback};
+
+pub use blowup::{
+    AccumulatedExceptional, AmbientContinuationCenter, AmbientCycleCarry, AmbientDropInventory,
+    AmbientDropRecord, AmbientNextChart, AmbientResidualDrop, OriginalCompanionPullback,
+    OriginalDivisorTerminal, OriginalFactorTerminal, OriginalGeneratorPullback,
+    OriginalTerminalInventory, OriginalTerminalRecord,
+};

@@ -13,6 +13,7 @@ pub struct CycleSnapshot {
 pub enum CycleOrigin {
     AfterResidualDrop(Arc<ResidualDrop>),
     AfterSupportedDrop(Arc<SupportedResidualDrop>),
+    AfterAmbientDrop(Arc<AmbientResidualDrop>),
     InitialProblem {
         problem: Arc<InitialProblem>,
         order: Arc<ComponentResidualOrder>,
@@ -74,6 +75,24 @@ impl CycleSnapshot {
             old,
         }))
     }
+    pub fn after_ambient_drop(
+        origin: Arc<AmbientResidualDrop>,
+        b: &mut Budget,
+    ) -> Result<Arc<Self>> {
+        if origin.inventory().proved_maximum().is_none()
+            || origin.current().algebraic_maximum_on_cosupport() == 0
+        {
+            return Err(Error::Invalid("ambient cycle needs complete positive drop"));
+        }
+        let history = origin.current().factor().data().history().clone();
+        b.reserve_slots(history.ledger().divisors().len())?;
+        let old = history.ledger().divisors().iter().map(|d| d.id).collect();
+        Ok(Arc::new(Self {
+            origin: CycleOrigin::AfterAmbientDrop(origin),
+            history,
+            old,
+        }))
+    }
     pub fn origin(&self) -> &CycleOrigin {
         &self.origin
     }
@@ -99,6 +118,7 @@ impl CycleSnapshot {
         let order = match &self.origin {
             CycleOrigin::AfterResidualDrop(d) => d.current(),
             CycleOrigin::AfterSupportedDrop(d) => d.current(),
+            CycleOrigin::AfterAmbientDrop(d) => d.current(),
             CycleOrigin::InitialProblem { order, .. } => order,
         };
         if !Arc::ptr_eq(open.order(), order) {

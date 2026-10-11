@@ -3918,3 +3918,36 @@ mathematical and transport identities. The coordinator verifies all 51 frozen
 evidence/source digests. Constant rational brackets do not provide collision
 resolution, general root towers, runtime parameter chambers or global atlas
 coverage; tracked numerical acceptance is not a certified interval proof.
+
+## Original-factor terminal checks and ambient continuation
+
+The [original-factor review](reviews/no-deformation-original-factor-continuation.md)
+records the exact native generator, exceptional-divisor, companion, component
+order and Jacobian operations used to continue an original source through
+physical resolution maps. Existing native immutable owners bind the source,
+factor inventory, new cycle and map. No graph, CAS, AD or execution infrastructure
+is duplicated. An adversarial generated-ideal control confirms that individual
+unresolved factors cannot be admitted by principalizing their common ideal.
+
+Independent runtime and root reviews accept the restricted local construction
+and its explicit incomplete results. The normal production divisor inventory
+still needs a product or proved simultaneous-resolution contract. General
+source ancestry, BM gluing, real closed-face coverage, physical density labels,
+causal phases and boundary jets remain outstanding; no local receipt bypasses
+those scientific gates.
+
+## Caller-scoped native membership reuse
+
+The [membership review](reviews/no-deformation-prepared-membership.md) records
+public API, source and executable evidence for reusing Symbolica's existing
+checked Groebner basis and exact polynomial reduction. One immutable localized
+owner is retained for each verifier batch. Variable maps, support, current
+resource limits, direct and basis remainders, and atomic admission remain
+checked. No alternative division, global cache or serialized proof authority
+is introduced; explicit Lex elimination is unchanged.
+
+Independent producer and root reviews accept the source and focused regressions.
+The matched diagnostic advances farther through coordinate preparation, but
+the full pivot inventory remains incomplete even in its separate 600-second
+run. Object lifetime controls and sampled process memory are not an aggregate
+RSS guarantee or a completed-construction performance result.

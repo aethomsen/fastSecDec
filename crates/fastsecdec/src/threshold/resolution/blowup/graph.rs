@@ -159,7 +159,9 @@ pub(super) fn graph_coordinates(
         }
         .verify(b)?,
     );
-    if !graph.local().zero(&(graph.determinant() - &expected), b)? {
+    let mut membership =
+        super::super::prepared_membership::PreparedLocalZero::new(graph.local(), b)?;
+    if !membership.zero(&(graph.determinant() - &expected), b)? {
         return Err(Error::Invalid("adapted graph Schur minor"));
     }
     if !unit(
@@ -171,10 +173,7 @@ pub(super) fn graph_coordinates(
     }
     for (i, c) in clearing.iter().enumerate() {
         let h = extension.pull(&c.original, b)?;
-        if !graph
-            .local()
-            .zero(&(&h - &ring.coordinate(coordinate_axes[i])?), b)?
-        {
+        if !membership.zero(&(&h - &ring.coordinate(coordinate_axes[i])?), b)? {
             return Err(Error::Invalid("adapted coordinate identity"));
         }
         for (j, axis) in graph.free_axes().iter().enumerate() {
@@ -183,10 +182,7 @@ pub(super) fn graph_coordinates(
             } else {
                 ring.one().zero()
             };
-            if !graph
-                .local()
-                .zero(&(graph.derivative(j, &h, b)? - want), b)?
-            {
+            if !membership.zero(&(graph.derivative(j, &h, b)? - want), b)? {
                 return Err(Error::Invalid("adapted derivative identity"));
             }
         }
