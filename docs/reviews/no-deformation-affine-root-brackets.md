@@ -98,3 +98,33 @@ preparation remain separate obligations. At `P_z=0`, implicit differentiation
 is not accepted as a substitute for resolution. Existing portable builds
 retain their capabilities; root-bearing threshold execution in WASM remains
 deferred.
+
+## Narrow-bracket limitation found during factory integration
+
+A later automatic-factory control exposes a limitation of the composed V2
+arithmetic which the earlier wide-bracket tests did not exercise. For
+`P=1+x-16*z+16*z^6`, its certified upper bracket `[31/32,127/128]` fails at
+`x=0.9999325137757114`. The helper rounds the physical image `z=a+(b-a)*s`
+before evaluating `P`. Relative refinement in `s` can then demand finer
+physical resolution than that evaluation provides. The native solver correctly
+refuses stagnation instead of returning a midpoint or a fabricated zero.
+
+The failure occurs in both ordinary and error-tracked arithmetic. A matched
+448-evaluation diagnostic covers both roots, wide/narrow brackets and several
+precision tiers; only narrow V2 fails. A separate exact-helper trace reproduces
+the failed point through 4096 bits. Merely escalating precision is insufficient
+because the coordinate-scale mismatch persists. V1 physical-coordinate
+evaluation succeeds in these controls.
+
+An exact Symbolica lowering of the small polynomial `Q(s)` succeeds at the
+failed point with unchanged solver options. Its generic-degree cost, tracked
+accuracy, saved-program compatibility and full integration still require
+acceptance before replacing the measured representation above. The full density
+need not be expanded. No native root-solver defect or accepted production fix
+is established by this diagnostic.
+
+The frozen diagnostic handoff is
+`3c963f13e6cf68b8985e66897e19cd2c8b8c9fb28f300a9fd1955442f925c270`;
+the coordinator verified all 24 source, evidence and executable pins. The
+automatic normal/serial numerical matrix remains blocked on this correction;
+generation success alone is not reported as an integration pass.

@@ -25,6 +25,29 @@ interface and higher-dimensional physics suite remain under development. A
 verified GCAD result alone is not an executable integral. See the
 [reuse and acceptance ledger](REUSE_AUDIT.md#no-contour-foundation-and-consolidation-2026-10-10).
 
+## Algebraic boundaries beyond quadratics
+
+The native map interface retains a boundary as its exact polynomial and a
+certified real-root selector. It does not require a formula in radicals.
+Prepared polynomial evaluators and native bracketed refinement evaluate the
+selected root; symbolic implicit differentiation supplies its derivatives.
+For a regular branch `P(x,r(x)) = 0`, the first derivative is
+`dr/dx_j = -P_x_j/P_r`, with higher derivatives obtained through Symbolica.
+Composed map programs keep these root calls separate from the full density.
+
+The regular-section controls include degrees 7, 11 and 17, and a complete
+fixed sextic three-cell family has a native low-level integration control.
+These controls do not complete automatic high-degree generation. In particular,
+the automatic factory exposed a [narrow-bracket numerical limitation](reviews/no-deformation-affine-root-brackets.md#narrow-bracket-limitation-found-during-factory-integration).
+Its correction and the normal/serial CLI acceptance matrix remain in progress.
+
+Root collisions and vanishing `P_r` need the general algebraic endpoint resolver
+and branch normalization; they cannot use the regular implicit derivative above.
+Uniform branch selection, every subtraction face and the entire cell inventory
+remain proof obligations regardless of polynomial degree. See the
+[regular-section review](reviews/no-deformation-regular-sections.md) and
+[general resolver contract](NO_DEFORMATION_RESOLVER.md).
+
 ## Native interface
 
 `fastsecdec::input::GraphSymanzik::from_graph(&graph, parameters)` delegates to
