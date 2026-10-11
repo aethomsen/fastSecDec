@@ -1,0 +1,21 @@
+# Native incoming++ point at sqrt(s)=1000 GeV, t=-97077 GeV^2.
+[parameters]
+eps1eps1 = 0.0
+eps1eps2 = -0.9999999999999998
+eps2eps2 = 0.0
+"model::Gf" = 0.0000116639
+"model::MT" = 172.5
+"model::MZ" = 91.188
+"model::aEWM1" = 132.507
+"model::aS" = 0.118
+"model::ymt" = 172.5
+p0eps1 = 0.0
+p0eps2 = 0.0
+p0p1 = 500000.0
+p0p2 = 56351.0
+p1eps1 = 0.0
+p1eps2 = 0.0
+p1p2 = 443649.0
+p2eps1 = 205.39627454751948
+p2eps2 = 205.39627454751948
+p2p2 = 15625.0

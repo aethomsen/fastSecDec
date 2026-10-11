@@ -4392,3 +4392,48 @@ Independent scientific and ecosystem reviews, all 24 source pre/postimages,
 104 evidence files and the combined consuming gate pass: 24 maintained groups,
 strict workspace/all-target Clippy, formatting and diff checks. One existing
 expensive diagnostic remains ignored. No dependency revision changes.
+
+## Exact rational-invariant ggHH external data
+
+The [rational-point review](reviews/no-deformation-rational-point.md) checks the
+existing Rust example's explicit Mandelstam-t input. Native Rational/Atom
+arithmetic, HEPKit diagram routing, FourMomentum products and FeynKit helicity
+wavefunctions still own the physical data. This is a parameterization of the
+existing example, not a second kinematic, graph or polarization library.
+
+The rationalized 1000 GeV point has exact s/t/u, on-shell and conservation checks,
+with all polarization products regenerated. A 650 GeV point independently
+reproduces the original angle constructor. Both historical runtime cards remain
+byte-identical; their exact JSON receives only adopted native display attributes,
+and their validation records update the helper's source hash. Six maintained
+tests, strict Clippy and formatting pass. The fixture establishes consistent
+input for future matched comparisons, not completed no-contour integration.
+
+## CLI forwarding of uniform threshold templates
+
+The [CLI template review](reviews/no-deformation-cli-parameter-templates.md)
+checks direct and native graph parameter roles, native V4 restoration and the
+catalogue's full bound-point identity during selective loading. Existing native
+preparation, binding, guards, recovery, serialization and statistical sessions
+remain the sole owners. No duplicated CAS, binding engine or sampler is added.
+
+All eight process-level physics lanes, complete covariance, independent pole and
+finite references, checkpoint/point refusals and raw/prepared recovery pass.
+Independent reviews and all 12 source/290 evidence checks precede import. The
+consuming checkout passes seven maintained tests and strict workspace checks.
+The CLI interfaces retain explicit limits for runtime masses and unsupported
+families; they do not imply a completed physical ggHH threshold integrator.
+
+## Verified physical double-box geometry
+
+The [verified-geometry review](reviews/no-deformation-gghh-verified.md) records
+the adopted symGCAD homogeneous and conditional-quadratic constructors, native
+positive certificates, exact source association and fresh-process verification.
+The complete fixed-point sign geometry now has 644,699 verified cells. Native
+projection, lifting, serialization, verification and memory costs remain distinct.
+The coordinator rehashes the saved raw proof; only compact results are tracked.
+
+Neither a custom elimination algorithm nor a replacement cell merger is added.
+The genuine homogeneous quotient must still receive a source-bound density and
+closed-face/infinity endpoint treatment. Compatibility merges and generic-open
+signs do not issue that authority. Integration and SD remain pending.

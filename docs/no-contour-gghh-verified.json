@@ -1,0 +1,112 @@
+{
+  "schema": 1,
+  "scope": "verified fixed-point full generic-open GCAD geometry; no endpoint/integration artifact",
+  "source_commit": "20bb812e31bc09a8a28a122d914a1de75e92cae7",
+  "dependencies": {
+    "symgcad": "a1132d4f4545c7784b3ec61239a05485e544b403",
+    "symbolica_numerica": "ae0c82b7bda670fdb9f6229226bd47b13bb49a20"
+  },
+  "point": {
+    "s": "1000000",
+    "t": "-97077",
+    "u": "-871673",
+    "mH_squared": "15625",
+    "mt": "345/2",
+    "mt_squared": "119025/4"
+  },
+  "domain": "complete original strict positive orthant x0..x6, modulo the verified positive homogeneous scale",
+  "engine": "native homogeneous reduction, conditional quadratic monotone peel, optimized base",
+  "order": [
+    "x0",
+    "x1",
+    "x3",
+    "x4",
+    "x5",
+    "x6",
+    "x2"
+  ],
+  "anchor": "x0",
+  "monotone_negative_target": false,
+  "monotone_base": "optimized",
+  "merged_cells_used": false,
+  "status": "complete_generic",
+  "verification": {
+    "verified": true,
+    "cells": 644699,
+    "stacks": 447886,
+    "rejected_branches": 807325
+  },
+  "original_cells": 644699,
+  "base_cells": 464265,
+  "native_solver": {
+    "total_seconds": 36.356010099,
+    "projection_seconds": 0.44648934,
+    "lifting_seconds": 23.186048513,
+    "ordering_seconds": 0.0065046670000000004,
+    "search_seconds": 0.0,
+    "merging_seconds": 1.8e-07,
+    "raw_cells": 644699,
+    "visited_stacks": 912150,
+    "rejected_branches": 807325
+  },
+  "timings_seconds": {
+    "native_solver": 36.356010099,
+    "helper_solve_including_raw_serialization": 152.309764784,
+    "solve_process": 156.52647641627118,
+    "fresh_verify_process": 142.07181939808652,
+    "pooled_geometry": 298.6011842517182,
+    "helper_fresh_verify_including_decode": 135.377783083
+  },
+  "resource_metrics": {
+    "solve_child_peak_rss_kib": 10030140,
+    "verify_child_peak_rss_kib": 11206688,
+    "maximum_sampled_cohort_rss_bytes": 11874897920,
+    "cohort_definition": "original extended optimized supervisor/child plus successor supervisor/child; no unrelated host work",
+    "raw_proof_bytes": 5283717247,
+    "rss_is_sampled": true
+  },
+  "limits": {
+    "pooled_external_wall_seconds": 3600.0,
+    "external_address_space_bytes": 100000000000,
+    "sampled_cohort_rss_allowance_bytes": 100000000000,
+    "native_limits": {
+      "wall_time_secs": 3600.0,
+      "memory_mib": 65536,
+      "workers": 1,
+      "max_cells": null
+    },
+    "rayon_threads": 1,
+    "cpu_affinity": [
+      18,
+      19
+    ]
+  },
+  "saved_raw_proof": {
+    "sha256": "6f0df3b9fa950b70a1c6bfeab150db5fac0b45a0a6789ecf5bef79adeef3fa7f",
+    "bytes": 5283717247,
+    "tracked": false,
+    "root_handoff_rehash": true
+  },
+  "handoff_sha256": "db8a646630616baed7bf561f19e0a4ec36a6b1af831fc60c517eea3d2a98974e",
+  "independent_outcome_review_sha256": "dbdde88277b57b93319c1da5dbe782f1a555ca18fc6d3925d70f6aeb1507b3f0",
+  "prepared_problem_sha256": "3a4965dcd9fb4698afb8cade7192bb4ad9a3e0e9e80430e8275be98651b4abfe",
+  "reproduction_card": "examples/no_deformation/gghh_feasibility/fixed-monotone-prepared.toml",
+  "reproduction_only_difference": "checkpoint directory changed to a portable relative output path",
+  "scope_limits": {
+    "complete_generation_seconds": null,
+    "integration_seconds": null,
+    "integration_peak_rss_bytes": null,
+    "estimator_sd": null,
+    "reason": "source-bound quotient density, closed-face endpoint resolution and compiled integration remain unfinished"
+  },
+  "other_trials": "Initial three scouts retained separately. The original one-hour optimized-order run reached its external wall cap without a raw result or verification; bounded local and deterministic-resultant probes also produced no complete result.",
+  "original_optimized_baseline": {
+    "outcome": "pooled_wall_cap",
+    "pooled_seconds": 3600.5980922579765,
+    "child_peak_rss_kib": 918988,
+    "sampled_cohort_peak_rss_bytes": 957394944,
+    "saved_raw_result": false,
+    "verification_started": false,
+    "evidence_inventory_sha256": "7d133dc35d7ad04d4e2887209ede90b44a2714cf31e6bce99823a448a2ea577b"
+  }
+}

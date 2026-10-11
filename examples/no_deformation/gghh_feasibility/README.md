@@ -1,13 +1,13 @@
 # Physical D05: bounded GCAD feasibility
 
-This input reproduces the **geometry-only** double-box trials recorded in
+These inputs reproduce the **geometry-only** double-box trials recorded in
 [`docs/no-contour-gghh-feasibility.json`](../../../docs/no-contour-gghh-feasibility.json)
-and [`docs/benchmark.pdf`](../../../docs/benchmark.pdf). None returned a complete
-GCAD result within the tested deadlines. These are the three initial short scouts;
-the separately budgeted extended rational-point trial is not included here.
-They do not produce an integrable
-artifact or a helicity amplitude. The larger no-contour implementation goal
-remains open.
+and [`docs/benchmark.pdf`](../../../docs/benchmark.pdf). The three initial short
+scouts stopped during projection. The later `fixed-monotone-prepared.toml` trial
+**completed and passed independent verification**, as recorded separately in
+[`docs/no-contour-gghh-verified.json`](../../../docs/no-contour-gghh-verified.json).
+These geometry results do not yet produce an integrable artifact or a helicity
+amplitude. The larger no-contour implementation goal remains open.
 
 The original graph/model/numerator remain the maintained
 [`gghh_double_box`](../../gghh_double_box/) assets. `parametric.toml` is an export
@@ -24,7 +24,12 @@ Native exact on-shell/Gram checks pass; the new `cosθ` is approximately
 new point, including fresh external wavefunctions. Fully parametric masses were
 not tested.
 
-The three `*-prepared.toml` files are exact symGCAD problem inputs, including
+The native [rational-point exporter and fixture](../../contour/gghh_double_box_1000_rational/README.md)
+regenerate the complete external Gram data for this point, including polarization
+products. They also supply the consistent runtime point for a future matched
+contour comparison; input validation is separate from a completed integration.
+
+The `*-prepared.toml` files are exact symGCAD problem inputs, including
 source polynomials, bindings, chamber constraints, given order, native positive
 homogeneous block/anchor and options. They use the whole positive orthant, not a
 unit cube substituted for the projective domain. The native homogeneous recipe
@@ -90,9 +95,44 @@ The public symGCAD CLI owns a different worker/resource wrapper and its own
 verification limit, so the commands reproduce the mathematical input and
 algorithm/options, not identical timing or interruption serialization.
 
-No trial reached a cell or memory cap. Last completed projection checkpoints
+None of the three initial trials reached a cell or memory cap. Last completed projection checkpoints
 are diagnostic only. The fully rational point reached more projection stages
 than the two-parameter family, but this does not establish either eventual
 completion or impossibility. A different gauge/order or improved projection may
 change the result; only CompleteGeneric plus successful independent verification
 can establish the required generic-cell completion.
+
+## Completed fixed-point geometry
+
+The adopted native monotone engine admits a conditional quadratic elimination
+in `x2` on the complete domain, preserving both signs of F. Order
+`[x0,x1,x3,x4,x5,x6,x2]`, the same positive homogeneous anchor and the optimized
+base engine give 644,699 original generic-open cells. A separate fresh verifier
+accepts the exact original problem, order and complete result.
+
+```sh
+symgcad solve examples/no_deformation/gghh_feasibility/fixed-monotone-prepared.toml \
+  --output target/gghh-gcad-reproduction/monotone-result.json
+symgcad verify target/gghh-gcad-reproduction/monotone-result.json
+```
+
+Use the same pinned dependency graph described above. For a cold reproduction,
+choose a fresh checkpoint directory. The published card changes only that path
+from the measured card. It retains all exact polynomials, constraints, masses,
+order, engine, homogeneous block, native defaults and no cell limit.
+
+The recorded Rust library trial has a pooled one-hour solve/verification budget,
+100 GB decimal address space per child and 100 GB aggregate owned-process RSS
+allowance. It completes in 298.601 s: 156.526 s for the solve process including
+its 5.284 GB raw proof, then 142.072 s for fresh verification. Native solver
+statistics report 36.356 s; this excludes the expensive raw serialization and
+fresh verification. Peak child RSS is 10.688 GiB; sampled aggregate RSS is
+11.875 GB and includes the concurrently running original baseline's owned
+processes. Native configured limits and the public CLI wrapper are not identical
+to the external supervisor, as for the earlier probes.
+
+This result clears GCAD feasibility at the fixed point. The homogeneous quotient
+still needs its source-bound integration measure, closed-face endpoint
+regularization and compiled density. Integration time and SD remain unavailable.
+Native compatibility merges do not replace the certified raw cells or their
+seams. Raw proofs, caches and binaries remain untracked.

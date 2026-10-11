@@ -1,0 +1,158 @@
+{
+  "dependent_coordinates": [
+    "gammalooprs::{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,spenso::tensor-label:p}::P(3)"
+  ],
+  "external_index_by_coordinate": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "independent_coordinates": [
+    "gammalooprs::{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,spenso::tensor-label:p}::P(0)",
+    "gammalooprs::{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,spenso::tensor-label:p}::P(1)",
+    "gammalooprs::{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,spenso::tensor-label:p}::P(2)"
+  ],
+  "physical_momenta": {
+    "0": [
+      "500",
+      "0",
+      "0",
+      "500"
+    ],
+    "1": [
+      "500",
+      "0",
+      "0",
+      "-500"
+    ],
+    "2": [
+      "500",
+      "1/500*21093814799^(1/2)",
+      "0",
+      "193649/500"
+    ],
+    "3": [
+      "500",
+      "-1/500*21093814799^(1/2)",
+      "0",
+      "-193649/500"
+    ]
+  },
+  "polarization_components": [
+    [
+      [
+        -0.0,
+        -0.0
+      ],
+      [
+        -0.7071067811865475,
+        -0.0
+      ],
+      [
+        -0.0,
+        -0.7071067811865475
+      ],
+      [
+        -0.0,
+        -0.0
+      ]
+    ],
+    [
+      [
+        -0.0,
+        -0.0
+      ],
+      [
+        -0.7071067811865475,
+        -0.0
+      ],
+      [
+        -0.0,
+        0.7071067811865475
+      ],
+      [
+        -0.0,
+        -0.0
+      ]
+    ]
+  ],
+  "polarization_gram_checks_complete": true,
+  "products": [
+    {
+      "left": "gammalooprs::{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,spenso::tensor-label:p}::P(0)",
+      "right": "gammalooprs::{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,spenso::tensor-label:p}::P(0)",
+      "value": "0"
+    },
+    {
+      "left": "gammalooprs::{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,spenso::tensor-label:p}::P(0)",
+      "right": "gammalooprs::{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,spenso::tensor-label:p}::P(1)",
+      "value": "500000"
+    },
+    {
+      "left": "gammalooprs::{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,spenso::tensor-label:p}::P(0)",
+      "right": "gammalooprs::{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,spenso::tensor-label:p}::P(2)",
+      "value": "56351"
+    },
+    {
+      "left": "gammalooprs::{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,spenso::tensor-label:p}::P(0)",
+      "right": "gghh::{spenso::tensor,spenso::rank1}::eps1",
+      "value": "0"
+    },
+    {
+      "left": "gammalooprs::{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,spenso::tensor-label:p}::P(0)",
+      "right": "gghh::{spenso::tensor,spenso::rank1}::eps2",
+      "value": "0"
+    },
+    {
+      "left": "gammalooprs::{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,spenso::tensor-label:p}::P(1)",
+      "right": "gammalooprs::{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,spenso::tensor-label:p}::P(1)",
+      "value": "0"
+    },
+    {
+      "left": "gammalooprs::{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,spenso::tensor-label:p}::P(1)",
+      "right": "gammalooprs::{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,spenso::tensor-label:p}::P(2)",
+      "value": "443649"
+    },
+    {
+      "left": "gammalooprs::{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,spenso::tensor-label:p}::P(1)",
+      "right": "gghh::{spenso::tensor,spenso::rank1}::eps1",
+      "value": "0"
+    },
+    {
+      "left": "gammalooprs::{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,spenso::tensor-label:p}::P(1)",
+      "right": "gghh::{spenso::tensor,spenso::rank1}::eps2",
+      "value": "0"
+    },
+    {
+      "left": "gammalooprs::{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,spenso::tensor-label:p}::P(2)",
+      "right": "gammalooprs::{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,spenso::tensor-label:p}::P(2)",
+      "value": "15625"
+    },
+    {
+      "left": "gammalooprs::{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,spenso::tensor-label:p}::P(2)",
+      "right": "gghh::{spenso::tensor,spenso::rank1}::eps1",
+      "value": "1592262918131443/1125899906842624000*21093814799^(1/2)"
+    },
+    {
+      "left": "gammalooprs::{spenso::rank1,spenso::tensor,spenso::component-labels:subscript,spenso::tensor-label:p}::P(2)",
+      "right": "gghh::{spenso::tensor,spenso::rank1}::eps2",
+      "value": "1592262918131443/1125899906842624000*21093814799^(1/2)"
+    },
+    {
+      "left": "gghh::{spenso::tensor,spenso::rank1}::eps1",
+      "right": "gghh::{spenso::tensor,spenso::rank1}::eps1",
+      "value": "0"
+    },
+    {
+      "left": "gghh::{spenso::tensor,spenso::rank1}::eps1",
+      "right": "gghh::{spenso::tensor,spenso::rank1}::eps2",
+      "value": "-2535301200456458353478625262249/2535301200456458802993406410752"
+    },
+    {
+      "left": "gghh::{spenso::tensor,spenso::rank1}::eps2",
+      "right": "gghh::{spenso::tensor,spenso::rank1}::eps2",
+      "value": "0"
+    }
+  ]
+}

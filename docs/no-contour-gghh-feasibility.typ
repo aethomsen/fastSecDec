@@ -48,12 +48,11 @@ unreported trial projections. The final completed projection records contain
 baseline and 25 / 1643 for its alternative. These are partial diagnostic
 records, not verified cells.
 
-*None of these initial trials returned a SolveResult, so no independent verification or complete
-artifact exists.* Integration runtime, sampling RAM and SD are therefore
-unavailable for the no-contour double box. These timeouts do not prove mathematical
-infeasibility. A separate extended rational-point trial is underway with a one-hour
-solve/verification budget and 100 GB memory allowance. Its results are not included
-in this table; endpoint resolution and integration are still required afterward.
+*None of these initial trials returned a SolveResult.* They do not prove
+mathematical infeasibility. The next page reports the successful independently
+verified rational-point geometry obtained with a different native prescription
+and a larger allowance. That result is separate from this initial table;
+endpoint resolution and integration are still required afterward.
 
 The runner links release-built public symGCAD `a1132d4f` and
 Symbolica/Numerica `ae0c82b7`; its small standalone driver uses opt-level zero

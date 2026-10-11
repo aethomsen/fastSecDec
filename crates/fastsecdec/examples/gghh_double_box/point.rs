@@ -94,6 +94,55 @@ impl Point {
         if sqrt_s_gev <= 250 {
             return Err("sqrt(s) must exceed the two-Higgs threshold of 250 GeV".into());
         }
+        let energy = Atom::num((i64::from(sqrt_s_gev), 2));
+        let spatial = (energy.pow(2) - Atom::num(125 * 125)).sqrt();
+        Self::with_spatial_components(
+            diagram,
+            sqrt_s_gev,
+            &spatial * Atom::num((3, 5)),
+            spatial * Atom::num((4, 5)),
+        )
+    }
+
+    /// Exact physical point with mH=125 and t=(p_in[0]-p_out[0])².
+    /// Incoming/outgoing labels are sorted as in `with_sqrt_s`. The outgoing
+    /// transverse momentum has the same positive-x convention. Wavefunctions
+    /// and every Gram entry still come from the shared native primitives.
+    #[allow(dead_code, reason = "shared with the explicit-point input exporter")]
+    pub fn with_mandelstam_t(
+        diagram: &FeynmanDiagram,
+        sqrt_s_gev: u32,
+        t: Rational,
+    ) -> Result<Self> {
+        if sqrt_s_gev <= 250 {
+            return Err("sqrt(s) must exceed the two-Higgs threshold of 250 GeV".into());
+        }
+        let energy = Rational::from((i64::from(sqrt_s_gev), 2));
+        let energy_squared = &energy * &energy;
+        let mass_squared = Rational::from(125 * 125);
+        let longitudinal = (t - &mass_squared + &energy_squared * &Rational::from(2))
+            / Rational::from(i64::from(sqrt_s_gev));
+        let transverse_squared = energy_squared - mass_squared - &longitudinal * &longitudinal;
+        if transverse_squared < 0 {
+            return Err("Mandelstam t is outside the physical two-Higgs angular range".into());
+        }
+        Self::with_spatial_components(
+            diagram,
+            sqrt_s_gev,
+            Atom::num(transverse_squared).sqrt(),
+            Atom::num(longitudinal),
+        )
+    }
+
+    fn with_spatial_components(
+        diagram: &FeynmanDiagram,
+        sqrt_s_gev: u32,
+        px: Atom,
+        pz: Atom,
+    ) -> Result<Self> {
+        if sqrt_s_gev <= 250 {
+            return Err("sqrt(s) must exceed the two-Higgs threshold of 250 GeV".into());
+        }
         let mut incoming = Vec::new();
         let mut outgoing = Vec::new();
         let external_by_edge = diagram
@@ -114,9 +163,6 @@ impl Point {
         // Native exact arithmetic keeps the on-shell and conservation
         // identities exact. Helicity vectors come from the shared primitive.
         let energy = Atom::num((i64::from(sqrt_s_gev), 2));
-        let spatial = (energy.pow(2) - Atom::num(125 * 125)).sqrt();
-        let px = &spatial * Atom::num((3, 5));
-        let pz = spatial * Atom::num((4, 5));
         let vectors = [
             FourMomentum::from_args(energy.clone(), Atom::Zero, Atom::Zero, energy.clone()),
             FourMomentum::from_args(energy.clone(), Atom::Zero, Atom::Zero, -&energy),

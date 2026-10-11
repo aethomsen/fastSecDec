@@ -218,7 +218,7 @@
   ],
   "schema": 1,
   "source_blake3": {
-    "crates/fastsecdec/examples/gghh_double_box/point.rs": "9b3d99dbbd15fedb03c76fea059025cf337c8cee76c09052182b4bfba4b5a1f5",
+    "crates/fastsecdec/examples/gghh_double_box/point.rs": "801dbddd173eb52ecec7a3226f6b9449c8b8a1ba4a28bd6d55f83df95ec57f23",
     "crates/fastsecdec/examples/gghh_double_box/select.rs": "2d08b43c7726bd7eb4062c8c1af922664bec6527de4a31c968b1bff1146adb73",
     "example/gg_hh_one_loop_ME/threshold/point.json": "53f9b0d8fc0b1ceea7a321591d82c5562b10b0eb18a188517bd12aa5c9763a2f",
     "examples/gghh_double_box/graph.dot": "bbf4a489ac1bfd93b68104f47c7ffa773bdabcb37625a866f446bd0f1432b986",

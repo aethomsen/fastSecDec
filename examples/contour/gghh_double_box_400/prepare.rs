@@ -6,6 +6,7 @@ use fastsecdec::input::RuntimeModelBindings;
 use feynkit_graph::FeynmanDiagram;
 use feynkit_kinematics::FourMomentum;
 use feynkit_model::{Model, ParameterCard};
+use numerica::domains::rational::Rational;
 use serde_json::{Value, json};
 use std::{
     collections::{BTreeMap, BTreeSet},
@@ -55,6 +56,14 @@ fn run(root: &Path, output: &Path) -> Result<()> {
     run_at_energy(root, output, 400)
 }
 fn run_at_energy(root: &Path, output: &Path, sqrt_s_gev: u32) -> Result<()> {
+    run_at_point(root, output, sqrt_s_gev, None)
+}
+fn run_at_point(
+    root: &Path,
+    output: &Path,
+    sqrt_s_gev: u32,
+    mandelstam_t: Option<Rational>,
+) -> Result<()> {
     require(!output.exists(), "use a fresh output directory")?;
     let source = root.join("examples/gghh_double_box");
     let run_text = std::fs::read_to_string(source.join("run.toml"))?;
@@ -98,7 +107,10 @@ fn run_at_energy(root: &Path, output: &Path, sqrt_s_gev: u32) -> Result<()> {
     let model_inputs = RuntimeModelBindings::new(&diagram, Some(&card), &BTreeMap::new())?;
     let defaults = model_inputs.defaults();
     let old_native = point::Point::with_sqrt_s(&diagram, 300)?;
-    let new_native = point::Point::with_sqrt_s(&diagram, sqrt_s_gev)?;
+    let new_native = match &mandelstam_t {
+        Some(t) => point::Point::with_mandelstam_t(&diagram, sqrt_s_gev, t.clone())?,
+        None => point::Point::with_sqrt_s(&diagram, sqrt_s_gev)?,
+    };
     require(
         new_native.polarization_gram_checks_complete,
         "native polarization checks incomplete",
@@ -187,7 +199,7 @@ fn run_at_energy(root: &Path, output: &Path, sqrt_s_gev: u32) -> Result<()> {
             .iter()
             .map(|c| point::expression(c))
             .collect::<Result<Vec<_>>>()?;
-        if sqrt_s_gev == 400 {
+        if sqrt_s_gev == 400 && mandelstam_t.is_none() {
             for (j, component) in components.iter().enumerate() {
                 let expected = reference["physical_momenta_GeV"][i][j]
                     .as_f64()
@@ -229,6 +241,16 @@ fn run_at_energy(root: &Path, output: &Path, sqrt_s_gev: u32) -> Result<()> {
             .is_zero(),
         "s invariant mismatch",
     )?;
+    if let Some(t) = &mandelstam_t {
+        require(
+            (Atom::num(125 * 125)
+                - vectors[0].dot(&vectors[2]) * Atom::num(2)
+                - Atom::num(t.clone()))
+            .expand()
+            .is_zero(),
+            "requested t invariant mismatch",
+        )?;
+    }
     let mut generated_run = run.clone();
     for (key, file) in [
         ("graph", "graph.dot"),
@@ -259,16 +281,28 @@ fn run_at_energy(root: &Path, output: &Path, sqrt_s_gev: u32) -> Result<()> {
                 .to_string(),
         );
     }
-    let report = json!({
+    let mut report = json!({
         "schema":1,"status":"native input checks passed; generation and numerical integration not run",
         "sqrt_s_GeV":sqrt_s_gev,"model_fingerprint":model_fingerprint,"source_blake3":hashes,
         "native_topology":topology,"card_model_keys":card_keys,"card_contains_only_model_parameters":true,
         "fixed_gram_products":fixed,"regenerated_runtime_products":regenerated,"inherited_runtime_model_defaults":inherited,
-        "native_300_GeV_values_reproduced_bitwise":true,"matches_shared_400_GeV_momenta_bitwise":(sqrt_s_gev == 400).then_some(true),
+        "native_300_GeV_values_reproduced_bitwise":true,"matches_shared_400_GeV_momenta_bitwise":(sqrt_s_gev == 400 && mandelstam_t.is_none()).then_some(true),
         "exact_on_shell_and_conservation":true,"native_incoming_plus_plus_wavefunction_checks":true,
         "normalization":{"color_projector":"unnormalized delta_ab","measure_multiplier":"1","loop_measure":"prod_l d^D k_l / (i*pi^(D/2))","dimension":"4-2*eps","individual_diagram":"D05 s-channel","spin_or_color_average":false,"diagram_sum":false},
         "not_run":["tensor contraction","parametric or sector generation","contour admission","numerical integration","independent physical reference"]
     });
+    if let Some(t) = &mandelstam_t {
+        report["mandelstam_t_GeV2"] = json!(t.to_string());
+        report["mandelstam_u_GeV2"] = json!(
+            (Atom::num(2 * 125 * 125)
+                - Atom::num(u64::from(sqrt_s_gev).pow(2))
+                - Atom::num(t.clone()))
+            .to_canonical_string()
+        );
+    }
+    let angle_description = mandelstam_t
+        .as_ref()
+        .map_or_else(|| "cos(theta)=4/5".to_owned(), |t| format!("t={t} GeV^2"));
     std::fs::create_dir_all(output)?;
     std::fs::write(
         output.join("run.toml"),
@@ -280,7 +314,7 @@ fn run_at_energy(root: &Path, output: &Path, sqrt_s_gev: u32) -> Result<()> {
     std::fs::write(
         output.join("point.toml"),
         format!(
-            "# Native incoming++ point at sqrt(s)={sqrt_s_gev} GeV, cos(theta)=4/5.\n{}",
+            "# Native incoming++ point at sqrt(s)={sqrt_s_gev} GeV, {angle_description}.\n{}",
             toml::to_string_pretty(&toml::Value::Table(
                 [(String::from("parameters"), toml::Value::Table(parameters))]
                     .into_iter()
@@ -305,15 +339,28 @@ fn run_at_energy(root: &Path, output: &Path, sqrt_s_gev: u32) -> Result<()> {
 fn main() -> Result<()> {
     let args = std::env::args().skip(1).collect::<Vec<_>>();
     require(
-        args.len() == 2 || (args.len() == 4 && args[2] == "--sqrt-s"),
-        "usage: prepare REPOSITORY_ROOT FRESH_OUTPUT_DIRECTORY [--sqrt-s GEV]",
+        args.len() == 2
+            || (args.len() == 4 && args[2] == "--sqrt-s")
+            || (args.len() == 6 && args[2] == "--sqrt-s" && args[4] == "--t"),
+        "usage: prepare REPOSITORY_ROOT FRESH_OUTPUT_DIRECTORY [--sqrt-s GEV [--t EXACT_RATIONAL]]",
     )?;
     if args.len() == 2 {
         run(Path::new(&args[0]), Path::new(&args[1]))
-    } else {
+    } else if args.len() == 4 {
         run_at_energy(Path::new(&args[0]), Path::new(&args[1]), args[3].parse()?)
+    } else {
+        let t = Rational::try_from(point::expression(&args[5])?)?;
+        run_at_point(
+            Path::new(&args[0]),
+            Path::new(&args[1]),
+            args[3].parse()?,
+            Some(t),
+        )
     }
 }
+
+#[cfg(test)]
+mod rational_point_tests;
 
 #[cfg(test)]
 mod tests {

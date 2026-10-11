@@ -229,8 +229,8 @@ GB and MB are decimal; RSS includes the owned parent and child processes.
 
 *No-contour status:* the double-box threshold-decomposition comparison is not
 available yet. The new no-contour profiles below cover complete small inputs.
-The bounded parametric and rational-point GCAD trials in section 3 stopped
-during projection; solving GCAD alone would not complete endpoint resolution.
+The extended exact-point GCAD trial in section 3 now completes with independent
+verification; the physical density and endpoint-resolution bridge remains open.
 
 == Five minutes on 50 physical cores
 #table(columns: (1.05fr, .9fr, 1.15fr, 1fr, 1fr), inset: 5pt, stroke: 0.4pt + rgb("cbd5e1"),
@@ -284,6 +284,9 @@ campaign executables precede the loader-cache update in section 4.
 
 #pagebreak()
 #include "no-contour-gghh-feasibility.typ"
+
+#pagebreak()
+#include "no-contour-gghh-verified.typ"
 
 #pagebreak()
 = Implementation and performance

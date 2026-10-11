@@ -1,0 +1,98 @@
+# D05 input with native 1000 GeV runtime data; shared assets remain unchanged.
+[generation]
+contour = true
+order = 0
+
+[generation.coefficient_expansion]
+method = "coefficient_series"
+
+[input]
+graph = "../../gghh_double_box/graph.dot"
+model = "../../gghh_double_box/model.json"
+parameter_card = "../../gghh_double_box/parameters.json"
+
+[integral]
+dimension = "4-2*eps"
+measure_multiplier = "1"
+regulator = "eps"
+
+[kinematics]
+auxiliary_momenta = [
+    "gghh::{spenso::tensor,spenso::rank1}::eps1",
+    "gghh::{spenso::tensor,spenso::rank1}::eps2",
+]
+
+[[kinematics.products]]
+left = "gammalooprs::{spenso::rank1,spenso::tensor}::P(0)"
+right = "gammalooprs::{spenso::rank1,spenso::tensor}::P(0)"
+value = "0"
+
+[[kinematics.products]]
+left = "gammalooprs::{spenso::rank1,spenso::tensor}::P(0)"
+right = "gammalooprs::{spenso::rank1,spenso::tensor}::P(1)"
+symbol = "p0p1"
+
+[[kinematics.products]]
+left = "gammalooprs::{spenso::rank1,spenso::tensor}::P(0)"
+right = "gammalooprs::{spenso::rank1,spenso::tensor}::P(2)"
+symbol = "p0p2"
+
+[[kinematics.products]]
+left = "gammalooprs::{spenso::rank1,spenso::tensor}::P(0)"
+right = "gghh::{spenso::tensor,spenso::rank1}::eps1"
+symbol = "p0eps1"
+
+[[kinematics.products]]
+left = "gammalooprs::{spenso::rank1,spenso::tensor}::P(0)"
+right = "gghh::{spenso::tensor,spenso::rank1}::eps2"
+symbol = "p0eps2"
+
+[[kinematics.products]]
+left = "gammalooprs::{spenso::rank1,spenso::tensor}::P(1)"
+right = "gammalooprs::{spenso::rank1,spenso::tensor}::P(1)"
+value = "0"
+
+[[kinematics.products]]
+left = "gammalooprs::{spenso::rank1,spenso::tensor}::P(1)"
+right = "gammalooprs::{spenso::rank1,spenso::tensor}::P(2)"
+symbol = "p1p2"
+
+[[kinematics.products]]
+left = "gammalooprs::{spenso::rank1,spenso::tensor}::P(1)"
+right = "gghh::{spenso::tensor,spenso::rank1}::eps1"
+symbol = "p1eps1"
+
+[[kinematics.products]]
+left = "gammalooprs::{spenso::rank1,spenso::tensor}::P(1)"
+right = "gghh::{spenso::tensor,spenso::rank1}::eps2"
+symbol = "p1eps2"
+
+[[kinematics.products]]
+left = "gammalooprs::{spenso::rank1,spenso::tensor}::P(2)"
+right = "gammalooprs::{spenso::rank1,spenso::tensor}::P(2)"
+symbol = "p2p2"
+
+[[kinematics.products]]
+left = "gammalooprs::{spenso::rank1,spenso::tensor}::P(2)"
+right = "gghh::{spenso::tensor,spenso::rank1}::eps1"
+symbol = "p2eps1"
+
+[[kinematics.products]]
+left = "gammalooprs::{spenso::rank1,spenso::tensor}::P(2)"
+right = "gghh::{spenso::tensor,spenso::rank1}::eps2"
+symbol = "p2eps2"
+
+[[kinematics.products]]
+left = "gghh::{spenso::tensor,spenso::rank1}::eps1"
+right = "gghh::{spenso::tensor,spenso::rank1}::eps1"
+symbol = "eps1eps1"
+
+[[kinematics.products]]
+left = "gghh::{spenso::tensor,spenso::rank1}::eps1"
+right = "gghh::{spenso::tensor,spenso::rank1}::eps2"
+symbol = "eps1eps2"
+
+[[kinematics.products]]
+left = "gghh::{spenso::tensor,spenso::rank1}::eps2"
+right = "gghh::{spenso::tensor,spenso::rank1}::eps2"
+symbol = "eps2eps2"
