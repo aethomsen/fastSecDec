@@ -1,7 +1,7 @@
 # Finite-coefficient Overview checkpoint
 
 The opening three landscape pages use only the new 25-worker integration
-campaign. Eighteen selected generation/kernel profiles and 52 integration
+campaign. Nineteen selected generation/kernel profiles and 69 integration
 estimates are independently checked at this checkpoint. Five excluded attempts
 remain recorded; further confirmations and instrumented runs are in progress.
 Missing or refused entries are explicit. The report does not claim a complete
@@ -63,15 +63,19 @@ An independent native comparison validates the saved-result association and
 uses Numerica exact binary64 conversion and matrix determinant/solve for each
 complex covariance block. All available Laurent orders are compared across
 independent seeds and against correctly normalized references where available.
-The largest nonsingular distance is 2.93 across all orders. Singular or
+The largest nonsingular mutual distance is 2.93 across all orders; the largest
+reference distance is 3.08. Singular or
 rounding-sensitive controls are explicitly unresolved; no covariance padding or
 diagonal substitution is permitted. Bubble, triangle, box and sunrise reference
 associations are recorded; the different historical kite point is excluded.
 These diagnostics do not establish reference accuracy for either D05 integral.
 
 Reviewed normalized dataset SHA-256:
-`db8f68c44c0af0cf2f2df504b2398b52b2449c2adcd0bd0395b9aeb032234db1`.
+`7e98b3d7370cd4e23fb76d7094a845b042dbc985da301476ab1231665e380852`.
 Reviewed normalization bundle SHA-256:
 `de5c0a3d4c06254f1aee1b2616a6e12063caded4ca915f31f901edab24464fe9`.
+The following additions preserve all previous native observations and profiles:
+64-run bundle `4c8a8825f7bb297358398d6d8437b8386da5f39f6677b34d27b7c566cd3ed0db`,
+then 69-run bundle `384b7b76f5353de96327deb655a1f39ace96f6f9502416d6affd474f26b388ae`.
 The local raw campaign receipts are untracked. Further confirmation updates
 must repeat the native-result accounting and table admission review.

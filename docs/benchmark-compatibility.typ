@@ -3,7 +3,7 @@
 #let compatibility = json("benchmark-compatibility-results.json")
 #let fmt-distance(value) = if value == none { [—] } else { str(calc.round(value, digits: 2)) }
 
-This checkpoint compares 52 completed, accepted production estimates. The tests
+This checkpoint compares #compatibility.accepted_runs completed, accepted production estimates. The tests
 use the full real–imaginary covariance, retained before rounding for display.
 For two independent runs, the difference uses $C_1+C_2$. The diagnostic distance
 is $sqrt(Delta^T C^(-1) Delta)$. It is an estimated-covariance diagnostic, not a
@@ -26,8 +26,8 @@ summary below concerns $epsilon^0$.
 
 No disagreement requiring a new tuning choice is indicated by these completed
 checks. They include comparisons between samplers, prescriptions and work/time
-arms where results are available. The largest nonsingular distance over all
-orders is 2.93. These many comparisons are correlated with one another and are
+arms where results are available. The largest nonsingular mutual distance over
+all orders is 2.93; the largest reference distance is 3.08. These many comparisons are correlated with one another and are
 not independent repetitions of a significance test. Later campaign closures
 and instrumented reruns still require the same audit.
 

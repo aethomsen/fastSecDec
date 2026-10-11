@@ -150,8 +150,9 @@ Displayed errors use the requested **MC-equivalent heuristic**: multiply by
 `K` and displayed average target `N_average`. This does not alter any native
 estimate, covariance, seed or allocation, and is **not a QMC convergence law**.
 The average-work targets are pilot-derived round display values: bubble 30M,
-triangle 80M, box 70M, sunrise 60M, kite 40M and scalar double box 4M evaluations
-per sector. The physical double-box target remains pending its dynamic pilot.
+triangle 80M, box 70M, sunrise 60M, kite 40M, scalar double box 4M and physical
+double box 6M evaluations per sector. The physical target uses the completed
+independent fixed and dynamical pilots.
 Unequal actual sector allocations remain intact. Record each correction factor;
 large work rescalings remain heuristic. Within each topology, accepted timed
 runs must each lie between 480 and 750 native seconds and satisfy
@@ -168,11 +169,14 @@ separate: a precision rescue is not a new sampling point.
 
 Cancellation and peak-weight ratios require a future instrumented measurement;
 the existing receipts do not contain the committed absolute-weight sums.
-The proposed numerator is the sector sum of production averages of the absolute
-final ε⁰ complex weight (all coordinate, periodization and importance factors
-once), divided by `|I|`. In discrete MC the final weight includes inverse sector
-selection probability and is averaged over all global batch points. Keep any
-exact offset separate. The maximum is an observed, proposal-dependent sample
+The cancellation numerator is the sector sum of production averages of the
+absolute final ε⁰ complex weight (all coordinate, periodization and continuous
+importance factors once), plus the magnitude of the combined exact offset once.
+Divide by `|I|` and retain the exact offset separately in the native receipt.
+In discrete MC the absolute-integral estimator includes inverse sector-selection
+probability and averages over all global batch points. The observed maximum
+uses sector-local weights, removing that discrete selection factor while
+retaining continuous importance factors. It is a proposal-dependent sample
 maximum, not a supremum. Existing pilot-inclusive operational maxima do not
 stand in for committed-production statistics.
 

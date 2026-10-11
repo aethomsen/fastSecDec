@@ -72,13 +72,13 @@
       "sunrise": 60000000,
       "kite": 40000000,
       "d05-scalar": 4000000,
-      "d05-physical": null
+      "d05-physical": 6000000
     },
     "relative_error": "delta-method radial sigma(norm(complex mean))/norm(complex mean)",
     "scope": "MC-equivalent display heuristic; not a QMC convergence law",
     "preserve_raw_covariance_and_observations": true,
     "sector_calls_scope": "observed logical callbacks; unpublished tails possible; backend rescue counts separate",
-    "weight_statistics": "pending native committed-production instrumentation",
+    "weight_statistics": "pending measured native committed-production instrumentation; cancellation adds combined exact magnitude once, discrete maximum removes sector-selection inverse probability",
     "allowed_native_seconds": [
       480,
       750
