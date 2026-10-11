@@ -1,5 +1,21 @@
 # Ecosystem reuse evidence
 
+## Original physical factors on every relative face (2026-10-11)
+
+The [factor-face review](reviews/no-deformation-factor-faces.md) records exact
+native restriction, original factor/sign associations and existing symGCAD
+positive-margin certificates. Selected-root owners and interval bounds remain
+attached to every issued chart. Two visibility-only changes reuse the existing
+polynomial/domain adapter; constants use native Rational comparison.
+
+Four maintained test groups and independent scientific/source review pass.
+The consuming workspace/all-target strict Clippy and formatting gates pass.
+Exact zeros and missed margin proposals remain pending refinement. Inventory
+completion cannot be mistaken for factor regularity, and factor regularity
+alone does not issue a complete density or integration kernel. The separate
+physical first-cell scan and its remaining obligations are reported explicitly.
+No CAS, root solver, graph representation, sampler or execution pool is added.
+
 ## Complete replacement covers for endpoint charts (2026-10-11)
 
 The [chart-cover review](reviews/no-deformation-child-chart-cover.md) records

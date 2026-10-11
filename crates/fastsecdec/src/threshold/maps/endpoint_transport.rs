@@ -12,6 +12,7 @@ pub use cover::{
     ChildBoundary, CoverLeaf, EndpointChartCover, HalfCube, IssuedEndpointChart, SplitInterval,
 };
 mod clearing;
+pub mod factors;
 pub mod numerator;
 #[cfg(test)]
 mod tests;

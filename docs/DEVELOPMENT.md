@@ -205,6 +205,13 @@ associations for downstream face operations. Ancestor unit maps remain
 polynomial on the closed cube; physical source-coordinate images may still
 have poles. See the [chart-cover review](reviews/no-deformation-child-chart-cover.md).
 
+`endpoint_transport::factors::FactorFacePortfolio` records original singular
+factor obligations on every compatible nonempty relative face of an issued
+chart. Native positive-margin proofs distinguish signed units from exact zeros
+and unresolved bounds. A zero remains pending refinement; even all signed units
+do not establish numerator/measure regularity or authorize subtraction. See the
+[factor-face review](reviews/no-deformation-factor-faces.md).
+
 Select exactly one arithmetic backend: `native` provides GMP/MPFR and supports
 either SymJIT O2 or Symbolica's eager evaluator; `portable` uses the eager
 evaluator with Malachite/Astro. The CLI defaults to SymJIT O2 locally. Python

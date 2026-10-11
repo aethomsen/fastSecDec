@@ -17,7 +17,7 @@ pub(super) fn pull(a: &Atom, variables: &[Symbol], values: &[Atom]) -> Atom {
     }))
 }
 #[derive(Debug)]
-pub(super) struct Ring {
+pub(crate) struct Ring {
     pub native: Algebra,
     symbols: Vec<Symbol>,
     aliases: Vec<Symbol>,
