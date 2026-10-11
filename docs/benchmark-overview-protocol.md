@@ -1,9 +1,10 @@
 # Twenty-five-core finite-coefficient benchmark protocol
 
-Status: running with frozen dependency, executable and recorded run plans.
-Generation and explicit-Off cost measurements are available; confirmation
-integration remains in progress. No earlier historical number is relabelled as
-a measurement of this campaign.
+Status: all 38 admitted instrumented timed arms are complete, with frozen
+dependency, executable and recorded run plans. Generation, explicit-Off costs
+and confirmation estimates are recorded; unsupported no-contour routes remain
+unfinished. No earlier historical number is relabelled as a measurement of this
+campaign.
 
 The opening report is `benchmark-overview.typ`, driven by
 `benchmark-overview-results.json`. It uses A4 landscape topology blocks with
@@ -130,9 +131,11 @@ significance claim.
 | f | Integration GB | Sampled aggregate owned integration RSS peak. This implements the stated interpretation of the duplicated RAM request. |
 | g | Sum f64 / checked µs | Sum of raw f64 per-sector mean costs for one full sweep; separately, measured wall cost for the same complete sweep with normal stability/rescue enabled. Do not substitute summed worker spans for wall time. |
 | h | Average-work relative error | Delta-method standard error of the complex ε⁰ norm, divided by that norm, rescaled to the displayed average evaluations per sector. |
-| i | Average-work SE | Absolute joint ε⁰ standard error rescaled to that same average-work target. |
-| j | 600 s relative error | Delta-method standard error of the complex ε⁰ norm, divided by that norm, rescaled to 600 native seconds. This is the primary comparison. |
-| k | Sector calls | Reported logical callbacks during the fixed-time invocation, in millions, including observed pilot/discarded work. Prefix-only counters are labelled ≥, never exact totals. |
+| i | Average-work SE, retained in details | Absolute joint ε⁰ standard error rescaled to that same average-work target; omitted from the opening table. |
+| C | Cancellation ratio | Committed-production absolute-integral estimate, including the combined exact offset magnitude once, divided by the finite integral magnitude. |
+| max / &#124;I&#124; | Maximum-weight ratio | Maximum observed committed sector-local complex weight magnitude divided by the finite integral magnitude; not a supremum. |
+| k | Sector calls, penultimate column | Logical callbacks during the fixed-time invocation, in millions, including pilot/discarded work. Exact only after a complete native drain; older observed-prefix counts carry ≥. |
+| j | 600 s relative error, final column | Delta-method standard error of the complex ε⁰ norm, divided by that norm, rescaled to 600 native seconds. This is the primary comparison. |
 
 For finite-component indices `(r,i)`, native joint SE is
 `sqrt(C[r,r] + C[i,i])` with the covariance **of the estimated mean**. It is not

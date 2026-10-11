@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "status": "running",
+  "status": "admitted_instrumented_campaign_complete; unsupported_routes_pending",
   "target_order": 0,
   "resource_policy": {
     "workers": 25,
@@ -25,7 +25,8 @@
     "matched_work_unit": "committed native sector-point evaluations",
     "target": {
       "laurent_order": 0,
-      "uncertainty": "sqrt(trace(native finite covariance-of-mean block))"
+      "uncertainty": "native stopping/retained joint SE: sqrt(trace(native finite covariance-of-mean block))",
+      "display_uncertainty": "delta-method radial standard error of the complex norm divided by that norm; final table column"
     },
     "confirmation_seeds_per_sampler_arm": 1,
     "work_and_time_seeds_disjoint": true,
@@ -41,9 +42,11 @@
     "f64_max_avg_us",
     "integration_peak_gb",
     "sum_f64_checked_us",
-    "work_relative_se",
-    "work_joint_se",
-    "time_relative_se"
+    "work_radial_relative_se",
+    "cancellation_ratio",
+    "maximum_ratio",
+    "time_reported_sector_calls_million",
+    "time_radial_relative_se"
   ],
   "freeze_required": [
     "source commit and postimages",
@@ -86,5 +89,17 @@
       750
     ],
     "large_uncertainty_dagger_threshold_joint_relative_se": 0.1
-  }
+  },
+  "retained_legacy_metric_keys": [
+    "generation_seconds",
+    "generation_peak_gb",
+    "artifact_mb",
+    "stochastic_sectors",
+    "f64_max_avg_us",
+    "integration_peak_gb",
+    "sum_f64_checked_us",
+    "work_relative_se",
+    "work_joint_se",
+    "time_relative_se"
+  ]
 }

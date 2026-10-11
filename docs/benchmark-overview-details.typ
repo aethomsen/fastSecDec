@@ -3,7 +3,8 @@
 
 #let overview-data = json("benchmark-overview-results.json")
 #block(width: 100%, inset: 8pt, fill: rgb("edf4f7"), radius: 3pt)[
-  *Campaign in progress.* A dash is an unavailable or pending measurement,
+  *All 38 admitted timed arms complete.* The no-contour routes marked unsupported
+  or in preparation remain unfinished. A dash is an unavailable measurement,
   never a zero. The opening tables use the new finite-coefficient campaign only.
   Historical studies below retain their original points, settings and resources;
   they are not substituted for missing new measurements.
@@ -139,8 +140,8 @@ input inventory describe reproduction. These measured binaries use the pinned
 symGCAD revision `644a560e69a064f811fa93aff33a247ea7fcdfca`.
 
 == Current admission limits
-The bubble has a complete no-contour integration route. Native CLI preparation
-currently reports “Unsupported” for the triangle, box, sunrise and kite:
+The bubble has a complete no-contour integration route. The frozen campaign CLI
+reports “Unsupported” for the triangle, box, sunrise and kite:
 the affine-projective preparation guard stops before GCAD is called. This is an
 implementation gap in the complete multidimensional cell-to-endpoint route,
 not a failed GCAD solve or a rejection of the physical integral. A separate
