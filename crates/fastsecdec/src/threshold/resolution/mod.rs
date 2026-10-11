@@ -173,3 +173,8 @@ pub use blowup::{
 };
 
 pub use recursive::RecursivePresentation;
+
+pub use blowup::{
+    CarriedPowerAdvance, CarriedPowerCompanion, CarriedPowerState, CarriedPowerTransition,
+    PendingPowerTransition, PowerCosupportProof,
+};

@@ -1,5 +1,34 @@
 # Ecosystem reuse evidence
 
+## Prepared-root observer owner API (2026-10-11)
+
+The [observer review](reviews/no-deformation-root-observer.md) records the
+API/source/probe audit and narrow [Symbolica PR #71](https://github.com/symbolica-dev/symbolica/pull/71).
+It adds a borrowed observation/caller-stop hook to the existing native solver,
+preserving tracked candidates without claiming certification. Actual owner tests,
+native default-path differential tests and portable numeric controls pass;
+strict changed-source lint passes while whole-owner Clippy encounters existing
+Numerica diagnostics. FastSecDec dependencies and production callbacks are
+unchanged. No root solver, error estimator, cache or executor is duplicated.
+
+## Carried power identities and auxiliary lifecycle (2026-10-11)
+
+The [carried-power review](reviews/no-deformation-carried-powers.md) records
+subsequent same-map transport using existing native support, marked-cosupport,
+controlled-transform, localization and history operations. Original and
+effective sources retain separate proofs. Completed sources, completed
+companions and empty strict supports have distinct meanings; none removes a
+physical density. No algebra, graph, numerical or execution primitive is
+duplicated. Native caller-stepped objects remain independent of presentation
+and HEPKit/community contains no substantive code.
+
+Independent scientific/source review passes. The consuming public-dependency
+gate passes all 151 resolver controls and strict workspace/all-target Clippy,
+formatting and diff checks. The seven-file import preserves all original
+physical factors and Jacobians in the six-map control. The complete
+physical-frontier adapter, general invariant and atlas remain pending; no
+sampling performance or aggregate RSS bound is claimed.
+
 ## Two regular algebraic boundaries and exact local coefficients (2026-10-11)
 
 The [paired-family review](reviews/no-deformation-paired-algebraic-cells.md)

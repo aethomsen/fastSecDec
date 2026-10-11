@@ -139,3 +139,9 @@ pub use descent::{CenterOverlap, GluedAdmissibleCenter, LocalCenter, PrincipalCe
 pub use descent::{
     MonomialCenterRestriction, MonomialMaximumSelection, SelectedCenterState, SelectedMonomialCover,
 };
+
+mod carried_power;
+pub use carried_power::{
+    CarriedPowerAdvance, CarriedPowerCompanion, CarriedPowerState, CarriedPowerTransition,
+    PendingPowerTransition, PowerCosupportProof,
+};

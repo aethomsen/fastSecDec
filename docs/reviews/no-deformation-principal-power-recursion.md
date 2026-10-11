@@ -45,7 +45,9 @@ mark 10. The original marked source retains mark 6, and the effective source
 mark 3. The pulled unit uses an ordinary total pullback with exceptional
 exponent zero, independently of these controlled source transforms.
 
-This does not implement later general power-aware continuation. The existing
+The later [retained-power owner](no-deformation-carried-powers.md) now follows
+already-issued physical maps with explicit source and companion retirement.
+It is separate from a complete general continuation driver. The existing
 coordinate carry and component-localization consumers explicitly return
 `ResourceIncomplete` when they cannot preserve the edge. A completed lower
 companion must retain its last admissible frame as ancestry; its power edge
