@@ -133,3 +133,9 @@ pub use contact_dispatch::{
     ContactComponentFrontier, ContactComponentWork, ContactDispatchAdvance, DispatchAncestorOrder,
     DispatchedContactCenter,
 };
+
+mod companion_dispatch;
+pub use companion_dispatch::{
+    CompanionAncestorOrder, CompanionContactDispatcher, CompanionDispatchOrigin,
+    CompanionDispatchedCenter, CompanionOuterFrontier, CompanionOuterWork,
+};

@@ -107,7 +107,9 @@ pub use producer::{
 };
 pub use recursive::{
     AuxiliaryRecursionOrigin, BoundaryFreeFirstCenter, CarriedFirstBlowup, CarriedFirstChart,
-    CompanionCenter, CompanionCenterOutcome, CompanionFirstCenter, ComponentLocalization,
+    CompanionAncestorOrder, CompanionCenter, CompanionCenterOutcome, CompanionContactDispatcher,
+    CompanionDispatchOrigin, CompanionDispatchedCenter, CompanionFirstCenter,
+    CompanionOuterFrontier, CompanionOuterWork, ComponentLocalization,
     ComponentLocalizationAdvance, ComponentLocalizationFrontier, ComponentLocalizationState,
     ControlledGenerator, CycleOrigin, CycleSnapshot, FirstBlowup, InitialProblem,
     InitialProblemRecursion, LiftReceipt, LocalizedComponentCenter, LocalizedComponentSources,
@@ -139,8 +141,9 @@ pub use blowup::{
 pub use blowup::{
     CompletedEmbeddedChild, EmbeddedCenterProduction, EmbeddedMonomialCenter, EmbeddedPresentation,
     EmbeddedTransition, EmbeddedTransitionOpen, IncidenceContinuation, IncidenceDrop,
-    MarkedCosupport, PhysicalSupportCover, PhysicalSupportOpen, PhysicalSupportRestriction,
-    SupportEmbedding, produce_embedded_monomial_center,
+    MarkedCosupport, MatchedPhysicalRestriction, MatchedPhysicalSupport, PhysicalSupportCover,
+    PhysicalSupportOpen, PhysicalSupportRestriction, SupportEmbedding,
+    produce_embedded_monomial_center,
 };
 
 pub use blowup::OriginalProblemCenter;

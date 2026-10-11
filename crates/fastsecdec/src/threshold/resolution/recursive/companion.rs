@@ -95,6 +95,27 @@ impl CompanionFirstCenter {
             outcome: CompanionCenterOutcome::Pending,
         })
     }
+    /// Forward the actual interrupted lower recursion with its original outer
+    /// companion owner. This does not initialize another auxiliary history.
+    pub fn finite_contact_dispatcher(
+        &self,
+        namespace: String,
+        b: &mut Budget,
+    ) -> Result<Option<CompanionContactDispatcher>> {
+        let Some(child) = self
+            .child
+            .finite_contact_dispatcher(format!("{namespace}_child"), b)?
+        else {
+            return Ok(None);
+        };
+        Ok(Some(CompanionContactDispatcher::prepare(
+            self.coefficient.clone(),
+            &self.child_source,
+            child,
+            namespace,
+            b,
+        )?))
+    }
     pub fn outcome(&self) -> &CompanionCenterOutcome {
         &self.outcome
     }

@@ -8,6 +8,7 @@ use std::sync::Arc;
 
 #[derive(Clone, Debug)]
 pub enum RecursiveCenterOrigin {
+    DispatchedCompanion(Arc<CompanionDispatchedCenter>),
     DispatchedContact(Arc<DispatchedContactCenter>),
     LocalizedComponent(Arc<LocalizedComponentCenter>),
     BoundaryFree {
@@ -75,6 +76,13 @@ impl CheckedRecursiveCenter {
     }
     pub fn new(origin: RecursiveCenterOrigin, b: &mut Budget) -> Result<Arc<Self>> {
         let (frame, history, source, ideal, normals) = match &origin {
+            RecursiveCenterOrigin::DispatchedCompanion(center) => (
+                center.frame(),
+                center.history(),
+                center.source(),
+                center.ideal(),
+                center.normals(),
+            ),
             RecursiveCenterOrigin::DispatchedContact(center) => (
                 center.frame(),
                 center.history(),

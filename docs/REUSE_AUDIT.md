@@ -4227,3 +4227,16 @@ The previously incomplete local path now completes in a bounded private control.
 The linked review records its precise scope. Nine focused consuming tests,
 strict workspace/all-target lint, formatting and diff checks pass, without
 inferring a general resolver or matched performance ratio.
+
+The companion continuation now reuses native frame joins, localized unit and
+ideal-membership checks, derivative layers and the same checked-center and
+blow-up owners. Original physical ideals and histories remain distinct from the
+auxiliary companion. An empty auxiliary contact explicitly retains unresolved
+physical work. The [updated review](reviews/no-deformation-contact-dispatch.md#companion-contact-continuation)
+records the independent scientific/reuse review and all 13 source pairs plus
+39 evidence pins. Four consuming controls and strict workspace/all-target lint
+pass with unchanged public dependencies; formatting and diff checks pass after
+one coordinator-owned line wrap. A nonzero old-incidence example retains an
+explicit native coefficient-mark resource refusal. This is local continuation,
+not a completed global resolver, parameter-family proof or real integration
+atlas.

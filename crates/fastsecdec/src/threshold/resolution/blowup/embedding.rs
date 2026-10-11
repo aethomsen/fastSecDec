@@ -154,3 +154,6 @@ impl SupportEmbedding {
 mod cover;
 mod nested;
 pub use cover::{PhysicalSupportCover, PhysicalSupportOpen, PhysicalSupportRestriction};
+
+mod matched;
+pub use matched::{MatchedPhysicalRestriction, MatchedPhysicalSupport};

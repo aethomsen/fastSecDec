@@ -77,3 +77,65 @@ formatting and diff checks. The preceding 162-test resolver gate covers the
 unchanged surrounding paths.
 This completes the tested local all-pivot construction; companion forwarding
 and canonical global selection remain separate obligations.
+
+## Companion contact continuation
+
+The next increment supplies the corresponding caller-stepped continuation for
+`CompanionFirstCenter`. Its active companion ideal `G` and mark drive contact
+construction, while the original physical ideal `I`, its mark and its divisor
+history remain separate. The existing native frame join matches each lower
+restriction to the actual outer contact. Unit, equation, codimension and
+derivation checks establish this association; a freshly reconstructed source
+or history cannot replace the original owner.
+
+Ascent checks the ambient derivative layers of both original and companion
+ideals before restricting them. Denominators used for order inclusion need to
+be units near the center; normal-coordinate inverses require the stronger
+whole-open unit check. The existing checked-center admission, adaptation and
+controlled-transform implementations handle the resulting center. This adds
+dispatch and ownership checks, not another ideal or differentiation engine.
+
+Every opening remains in the inventory. In particular,
+`DeferredEmptyContact` means that the auxiliary contact is empty while physical
+ambient work remains. Only `EmptyPrincipal` proves the entire physical opening
+empty. Completing the inventory therefore does not prove global maximality,
+termination, a disjoint real atlas or a regularized integral.
+
+The source control `z^2 + (x^2 + y^3*(y-1)^4)^2` has eight original order
+openings. The test processes one of them, retaining all 15 outer companion
+openings, 11 child ambient openings and four child contact branches. It produces
+one actual outer center and 24 deferred physical outcomes. Optional native
+normal presentation then permits four adaptation opens and all six local
+pivots. Separate original and companion controlled-transform identities are
+checked on every pivot. This is not coverage of all eight original openings.
+
+An actual old divisor `z=0` retains its history and passes all nine pivots, with
+27 deferred outcomes. Its restricted incidence is zero, so this is not evidence
+for arbitrary nonzero old incidence. The separate `x=0` control retains nonzero
+incidence and explicitly stops at the existing coefficient-mark LCM budget:
+25 companion openings, 21 child ambient openings and eight contact branches
+are preserved, with `complete_inventory=false`. That refusal completes in
+0.415 seconds. No cap increase, history reset or successful-resolution claim
+replaces it.
+
+Independent scientific and ecosystem-reuse review accepts this local scope.
+The coordinator verified all 13 source preimages/postimages and 39
+evidence/native/test-binary pins in handoff
+`60231e04f4282107a6eb0403796d6c0018965ebce2c45bcc0a3817be63e29fb2`.
+The final independent review receipt is
+`e97ecbc1e32ad8ef1b7e5aeeb510d5f6836aa951a2335e0280ed35ef6fc9bfe7`.
+Four private maintained groups pass in 28.98 seconds, including reordered work,
+original/companion identities, history, missing/foreign owners, resource retry
+and the deferred-work distinction. Those private tests use the documented
+diagnostic dependency build. In the consuming workspace with the unchanged
+public Symbolica dependency, all four groups pass in 30.67 seconds and strict
+workspace/all-target lint passes in 30.85 seconds. Formatting and diff checks
+pass after the coordinator wraps one overlong reexport line; that whitespace
+amendment is the sole change to the frozen source handoff. The existing
+threshold-only compiler recursion limit of 256 needs no further change.
+
+Execution remains caller-owned. This increment retains proof associations and
+compact work inventories but makes no new aggregate RSS or durable unfinished
+native-algebra restart claim. Further coefficient recursion, coherent selection
+of the global invariant maximum, repeated resolution and the real integration
+atlas remain required by the active plan.

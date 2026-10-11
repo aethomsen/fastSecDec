@@ -22,7 +22,8 @@ pub use embedded_center::{
     EmbeddedCenterProduction, EmbeddedMonomialCenter, produce_embedded_monomial_center,
 };
 pub use embedding::{
-    PhysicalSupportCover, PhysicalSupportOpen, PhysicalSupportRestriction, SupportEmbedding,
+    MatchedPhysicalRestriction, MatchedPhysicalSupport, PhysicalSupportCover, PhysicalSupportOpen,
+    PhysicalSupportRestriction, SupportEmbedding,
 };
 pub use general::{
     CheckedRecursiveCenter, RecursiveAdaptation, RecursiveAdaptedOpen, RecursiveCenterOrigin,
