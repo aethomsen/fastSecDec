@@ -4240,3 +4240,14 @@ one coordinator-owned line wrap. A nonzero old-incidence example retains an
 explicit native coefficient-mark resource refusal. This is local continuation,
 not a completed global resolver, parameter-family proof or real integration
 atlas.
+
+## Complete generic-degree regular integral
+
+The [degree-seven control](reviews/no-deformation-regular-sections.md#complete-degree-seven-control)
+uses the existing automatic GCAD/regular-family preparation, Symbolica root
+programs and symbolic subtraction, indexed artifact loader, native QMC and
+tracked precision rescue without changing their implementation. An independent
+native polynomial isolation and symbolic primitive check supply its finite
+imaginary reference. The complete vector/covariance gate and independent
+scientific review pass. The new example contains no alternate CAS, root solver,
+graph type or estimator; the recorded debug timing is not a performance claim.

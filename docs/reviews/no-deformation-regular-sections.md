@@ -93,3 +93,34 @@ multidimensional symbolic subtraction and the general integration atlas remain
 unfinished. The [secant-unit construction](no-deformation-secant-units.md) is the
 reviewed next bridge for regular sections; its stronger interval conditions must
 be checked independently rather than inferred from the root bracket.
+
+## Complete degree-seven control
+
+The later automatic preparation and saved-kernel path also passes the complete
+unit-square integral of `(y^7+y-x-i0)^(-1-epsilon)`, through finite order. The
+reproducible input is
+[`regular_degree_seven.toml`](../../examples/no_deformation/regular_degree_seven.toml).
+It produces two verified cells and two endpoint charts with full-integral scope,
+then loads their saved programs in a separate CLI integration process.
+
+For fixed `y`, native Symbolica verifies the primitive
+`(y^7+y-x)^(-epsilon)/epsilon`. Its causal imaginary boundary value integrates
+to `pi*r`, where the unique root satisfies `r^7+r=1` in `(0,1)`. Independent
+native exact root isolation gives `2.5024178911883874`. The QMC estimate is
+`2.502417893750741 +/- 1.1013230273037872e-8`; both epsilon-pole components
+cancel. The complete real/imaginary vector and all 16 covariance entries are
+retained. The finite real estimate has no independent oracle in this control.
+
+The bounded run uses 1,024 points, four shared shifts, Korobov3 and two workers:
+8,192 sector evaluations, 5,829 precision rescues, at most 256 bits, and zero
+failed or cutoff-zero samples. The existing debug binary takes 0.816 seconds
+for generation and 17.753 seconds for the integration command. These are
+correctness-run wall times, not release performance or a generic-degree cost
+claim. No native source or dependency changes were needed.
+
+Independent scientific review accepts the analytic phase, pole cancellation
+and scope. Raw commands, native oracle source, complete outputs and executable
+identities are retained under `target/no-deformation-generic-degree-seven/`.
+This extends the earlier degree-7/11/17 map controls to a complete degree-seven
+regular integral. Colliding roots, changing polynomial degree, moving brackets
+and general singular algebraic integration remain separate obligations.

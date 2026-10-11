@@ -52,3 +52,22 @@ used. Ordinary and serial generation produce the same artifact identity, and
 both integration modes pass the [four-way correctness control](../../docs/reviews/no-deformation-regular-family-factory.md).
 This is the fixed regular-branch subset. Colliding roots, general algebraic
 towers and runtime parameter chambers remain under development.
+
+## Regular degree-seven boundary
+
+`regular_degree_seven.toml` integrates `(y^7+y-x-i0)^(-1-eps)` over
+the full unit square. The same automatic path constructs its two cells using
+the defining polynomial and root selector. The pole cancels; its finite
+imaginary coefficient is `pi*r = 2.5024178911883874`, where `r^7+r=1`.
+
+```sh
+fastsecdec generate examples/no_deformation/regular_degree_seven.toml \
+  --workers 1 --output degree-seven.fsd
+fastsecdec integrate degree-seven.fsd --points 1024 --shifts 4 --workers 2 \
+  --seed 202610119073 --target-order 0 --max-rounds 1
+```
+
+The [complete-vector control](../../docs/reviews/no-deformation-regular-sections.md#complete-degree-seven-control)
+checks the saved-artifact path, causal imaginary part, pole cancellation and
+full covariance. These regular boundaries require no radical formulas;
+singular branch collisions still require the general resolver under development.

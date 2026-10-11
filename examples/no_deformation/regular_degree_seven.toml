@@ -1,0 +1,42 @@
+# Generic-degree regular boundary: the full unit-square integral of
+# (y^7+y-x-i0)^(-1-eps). Two verified cells, no radical root formula.
+# The epsilon pole cancels. The finite imaginary coefficient is pi*r,
+# where r^7+r=1 and 0<r<1: 2.5024178911883874.
+# This control does not require, or demonstrate, singular-root resolution.
+#
+# fastsecdec generate examples/no_deformation/regular_degree_seven.toml -o target/degree-seven/integral.fsd --workers 1
+# fastsecdec integrate target/degree-seven/integral.fsd --points 1024 --shifts 4 --workers 2 --seed 202610119073 --target-order 0 --max-rounds 1
+[direct]
+domain = "unit_cube"
+parameters = ["x", "y"]
+
+[[direct.terms]]
+prefactor = "1"
+monomial_powers = ["0", "0"]
+
+[[direct.terms.factors]]
+polynomial = "y^7+y-x"
+exponent = "-1-eps"
+semantics = "causal"
+
+[generation]
+threshold_decomposition = true
+order = 0
+
+[threshold_decomposition.solver]
+order = ["v0", "v1"]
+
+[threshold_decomposition.gcad_limits]
+wall_time_secs = 30.0
+memory_mib = 1024
+
+[integration]
+points = 1024
+shifts = 4
+workers = 2
+periodization = "korobov3"
+relative_tolerance = 0.01
+accuracy_target = { target = "laurent_order", order = 0 }
+
+[integration.stability]
+mode = "validated"
