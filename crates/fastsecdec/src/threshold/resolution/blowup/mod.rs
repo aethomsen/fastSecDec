@@ -135,3 +135,7 @@ pub use physical_cycle::{
 
 mod descent;
 pub use descent::{CenterOverlap, GluedAdmissibleCenter, LocalCenter, PrincipalCenterAtlas};
+
+pub use descent::{
+    MonomialCenterRestriction, MonomialMaximumSelection, SelectedCenterState, SelectedMonomialCover,
+};

@@ -2,6 +2,7 @@ use super::*;
 #[derive(Clone, Debug)]
 enum LocalAdmissibility {
     Monomial(Box<ProducedMonomialCenter>),
+    Selection(Arc<MonomialCenterRestriction>),
     EmptyCosupport {
         witness: MonomialWitness,
         progress: MonomialProgress,
@@ -16,6 +17,21 @@ pub struct LocalCenter {
     presentation: Option<Ideal>,
 }
 impl LocalCenter {
+    pub(super) fn from_selection(restriction: Arc<MonomialCenterRestriction>) -> Arc<Self> {
+        Arc::new(Self {
+            atlas: restriction.selection().atlas().clone(),
+            index: restriction.index(),
+            presentation: restriction.ideal().cloned(),
+            proof: LocalAdmissibility::Selection(restriction),
+        })
+    }
+    pub fn selection_restriction(&self) -> Option<&Arc<MonomialCenterRestriction>> {
+        match &self.proof {
+            LocalAdmissibility::Selection(r) => Some(r),
+            _ => None,
+        }
+    }
+
     pub fn monomial(
         atlas: Arc<PrincipalCenterAtlas>,
         index: usize,

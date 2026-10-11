@@ -1,14 +1,19 @@
 //! Admissible center descent on a checked principal-open cover of ONE ambient.
-//! No canonical BM maximum, global driver, parameter-stratification or real atlas.
+//! Includes a separate whole-ambient monomial selection/restriction owner.
+//! No general BM invariant, physical driver, parameter-stratification or real atlas.
 use super::super::prepared_membership::PreparedMembership;
 use super::super::*;
 use std::sync::Arc;
 mod atlas;
 mod center;
 mod overlap;
+mod selection;
 pub use atlas::PrincipalCenterAtlas;
 pub use center::LocalCenter;
 pub use overlap::CenterOverlap;
+pub use selection::{
+    MonomialCenterRestriction, MonomialMaximumSelection, SelectedCenterState, SelectedMonomialCover,
+};
 type Result<T> = std::result::Result<T, Error>;
 
 fn equal_ideals(local: &LocalizedAlgebra, a: &Ideal, z: &Ideal, b: &mut Budget) -> Result<()> {

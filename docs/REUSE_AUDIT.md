@@ -1,5 +1,27 @@
 # Ecosystem reuse evidence
 
+## Global monomial restrictions and principal-power receipts (2026-10-11)
+
+The [monomial-selection review](reviews/no-deformation-monomial-selection.md)
+records one native whole-ambient choice and its exact restrictions. It retains
+source/history/event identity and distinguishes an empty selected center from
+an empty marked cosupport. Native localization, prepared membership, the
+existing monomial producer and complete overlap checks supply the algebra.
+
+The [principal-power review](reviews/no-deformation-principal-powers.md)
+records an explicit auxiliary marked equivalence using native square-free
+factorization, integer gcd, unit membership and exact polynomial reconstruction.
+It preserves original physical multiplicities. It does not masquerade as
+same-ideal normalization; its recursive execution adapter remains separate.
+
+Independent source/scientific reviews accept both limited contracts. Neither
+slice adds a CAS, graph object, numerical accumulator, RNG or executor. Native
+operations remain in FastSecDec; HEPKit/community receives no heavy code.
+Owner-release and bookkeeping checks do not establish a measured RSS bound.
+The combined adopted-dependency gate passes all 142 resolver controls in
+286.07 seconds, strict workspace/all-target Clippy in 35.69 seconds,
+formatting and diff checks. General recursion and the real atlas remain open.
+
 ## Repeated physical lineage and same-ambient center descent (2026-10-11)
 
 The [physical-lineage review](reviews/no-deformation-physical-lineage.md)

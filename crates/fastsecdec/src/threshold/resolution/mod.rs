@@ -24,6 +24,7 @@ mod iteration;
 mod localization;
 mod localized;
 mod marked;
+mod marked_equivalence;
 mod matrix;
 mod native_basis;
 mod prepared_membership;
@@ -95,6 +96,11 @@ pub use marked::{
     CenterCertificate, CoefficientRestriction, CompanionArithmetic, MarkedIdeal, RecordedInvariant,
     VerifiedCenter,
 };
+pub use marked_equivalence::{
+    PrincipalPowerFactor, PrincipalPowerOutcome, PrincipalPowerPresentation,
+    PrincipalPowerProgress, PrincipalPowerUnchanged, PrincipalPowerUnchangedReason,
+    produce_principal_power_presentation,
+};
 pub use producer::{
     ContactCandidate, DerivativeStage, OrderProduction, ProducedContactCover, ProductionProgress,
     produce_ordinary_contact_cover,
@@ -161,3 +167,7 @@ pub use blowup::{
 };
 
 pub use blowup::{CenterOverlap, GluedAdmissibleCenter, LocalCenter, PrincipalCenterAtlas};
+
+pub use blowup::{
+    MonomialCenterRestriction, MonomialMaximumSelection, SelectedCenterState, SelectedMonomialCover,
+};
