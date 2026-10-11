@@ -4434,6 +4434,22 @@ projection, lifting, serialization, verification and memory costs remain distinc
 The coordinator rehashes the saved raw proof; only compact results are tracked.
 
 Neither a custom elimination algorithm nor a replacement cell merger is added.
-The genuine homogeneous quotient must still receive a source-bound density and
-closed-face/infinity endpoint treatment. Compatibility merges and generic-open
-signs do not issue that authority. Integration and SD remain pending.
+The subsequent source binding below retains the genuine homogeneous quotient.
+Closed-face/infinity endpoint treatment remains required. Compatibility merges
+and generic-open signs do not issue that authority. Integration and SD remain pending.
+
+## Physical source binding and positive-projective maps
+
+The [positive-projective review](reviews/no-deformation-positive-projective.md)
+checks native homogeneity, graph provenance, exact factor association and a
+single shared, freshly verified proof for all 156 physical numerator terms.
+The positive U certificate is separate from causal F's actual split identity.
+Existing native map admission and lowering are shared through a sealed view;
+the source-symbol inventory is cached once. Foreign-symbol alias capture has
+a dedicated regression. No CAS, root solver or serialization replacement is added.
+
+The actual physical source and complete 644,699-cell proof bind successfully.
+Its 604,005 unbounded cells and the observed nonlinear selectors identify the
+next real mapping operations. Existing native orthant maps and regular-root
+facilities are being audited for reuse. Map completion, all-face endpoint
+resolution and executable double-box integration remain separate gates.

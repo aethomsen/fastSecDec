@@ -11,10 +11,24 @@ pub(in crate::threshold::maps) fn lower_axes(
     source: &CellMap,
     range: Range<usize>,
 ) -> Result<Vec<LinearAxis>> {
-    if range.start > range.end || range.end > source.axes.len() {
+    lower_geometry(
+        &super::super::source::GeometryView::standard(&source.owner),
+        source.cell_index,
+        &source.axes,
+        range,
+    )
+}
+
+pub(in crate::threshold::maps) fn lower_geometry(
+    source: &super::super::source::GeometryView<'_>,
+    cell_index: usize,
+    map_axes: &[super::super::MapAxis],
+    range: Range<usize>,
+) -> Result<Vec<LinearAxis>> {
+    if range.start > range.end || range.end > map_axes.len() {
         return Err(GcadError::Invalid("linear lowering axis range".into()));
     }
-    let raw = source.owner.native_result();
+    let raw = source.raw;
     let algebra = Algebra::new(&raw.order).map_err(|e| GcadError::Invalid(e.to_string()))?;
     let mut roots = BTreeMap::<(usize, usize), Arc<LinearRoot>>::new();
     let mut make_root = |axis: usize, bound: &RootBound| -> Result<Arc<LinearRoot>> {
@@ -42,7 +56,7 @@ pub(in crate::threshold::maps) fn lower_axes(
         {
             return Err(GcadError::Unsupported(format!(
                 "cell {} axis {} needs a nonlinear or nontriangular root section",
-                source.cell_index, axis
+                cell_index, axis
             )));
         }
         let coefficients = polynomial.to_univariate_polynomial_list(axis);
@@ -63,7 +77,7 @@ pub(in crate::threshold::maps) fn lower_axes(
                     Symbol::parse(name, "symgcad").expect("native Algebra already validated alias");
                 Replacement::new(
                     Pattern::Literal(Atom::var(alias)),
-                    Pattern::Literal(Atom::var(source.axes[i].symbol)),
+                    Pattern::Literal(Atom::var(map_axes[i].symbol)),
                 )
             }));
         let root = Arc::new(LinearRoot {
@@ -77,10 +91,10 @@ pub(in crate::threshold::maps) fn lower_axes(
         Ok(root)
     };
     let mut axes = Vec::with_capacity(range.len());
-    for (index, (axis, role)) in source
-        .native_axes()
+    for (index, (axis, role)) in raw.cells[cell_index]
+        .axes
         .iter()
-        .zip(&source.axes)
+        .zip(map_axes)
         .enumerate()
         .take(range.end)
         .skip(range.start)

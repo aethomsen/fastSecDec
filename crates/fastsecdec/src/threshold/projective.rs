@@ -25,6 +25,8 @@ pub enum FactorOrigin {
 
 #[derive(Debug, thiserror::Error)]
 pub enum ProjectiveError {
+    #[error("invalid positive projective preparation: {0}")]
+    InvalidAnchor(String),
     #[error("invalid affine projective preparation: {0}")]
     Invalid(String),
 }
@@ -196,3 +198,6 @@ impl AffineProjectivePreparation {
 
 #[cfg(test)]
 mod tests;
+
+mod anchor;
+pub use anchor::PositiveProjectivePreparation;

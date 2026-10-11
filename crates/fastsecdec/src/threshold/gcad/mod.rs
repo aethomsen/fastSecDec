@@ -4,10 +4,12 @@
 //! generic open-cell decomposition is not an endpoint-normalization certificate
 //! or authorization to publish a complete integral.
 
+mod anchor;
 mod request;
 mod source_identity;
 pub mod staging;
 mod verified;
+pub use anchor::{PositiveProjectiveQuotient, ProjectiveFactorAuthority};
 
 pub use request::{
     AliasRole, DomainOrigin, GcadKinematics, GcadRequest, PreparedDomain, RequestIdentity,
@@ -37,5 +39,7 @@ pub enum GcadError {
 
 pub type Result<T> = std::result::Result<T, GcadError>;
 
+#[cfg(test)]
+mod anchor_tests;
 #[cfg(test)]
 mod tests;

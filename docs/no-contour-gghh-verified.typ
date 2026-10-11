@@ -49,10 +49,15 @@ processes; it excludes unrelated host work. The actual enforcement is
 The native 65536 MiB setting is recorded separately. Neither external memory
 nor the pooled 3600-second deadline is reached by this successful trial.
 
+The subsequent native source-binding check retains the actual 156-term physical
+numerator and freshly verifies its association with this complete cell inventory.
+It finds 604,005 cells with an infinite boundary. The attempted maps reach explicit
+nonlinear-root and infinity refusals. This separate correctness build is detailed
+in `docs/reviews/no-deformation-positive-projective.md`.
+
 *This completes the fixed-point generic-open geometry gate, not the physical
-integration.* The saved homogeneous quotient must be bound to the complete
-native density with its correct measure. Closed faces, causal zero sections,
-infinity boundaries and exceptional seams still require endpoint treatment.
+integration.* General cell maps, closed faces, causal zero sections,
+infinity boundaries and exceptional seams still require treatment.
 Native compatibility merges are not silently substituted for certified cells.
 Consequently there is no double-box no-contour integration runtime or SD yet.
 

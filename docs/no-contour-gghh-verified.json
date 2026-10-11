@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "scope": "verified fixed-point full generic-open GCAD geometry; no endpoint/integration artifact",
+  "scope": "verified fixed-point full generic-open GCAD geometry and physical density association; no endpoint/integration artifact",
   "source_commit": "20bb812e31bc09a8a28a122d914a1de75e92cae7",
   "dependencies": {
     "symgcad": "a1132d4f4545c7784b3ec61239a05485e544b403",
@@ -97,7 +97,7 @@
     "integration_seconds": null,
     "integration_peak_rss_bytes": null,
     "estimator_sd": null,
-    "reason": "source-bound quotient density, closed-face endpoint resolution and compiled integration remain unfinished"
+    "reason": "general cell maps, closed-face endpoint resolution and compiled integration remain unfinished"
   },
   "other_trials": "Initial three scouts retained separately. The original one-hour optimized-order run reached its external wall cap without a raw result or verification; bounded local and deterministic-resultant probes also produced no complete result.",
   "original_optimized_baseline": {
@@ -108,5 +108,28 @@
     "saved_raw_result": false,
     "verification_started": false,
     "evidence_inventory_sha256": "7d133dc35d7ad04d4e2887209ede90b44a2714cf31e6bce99823a448a2ea577b"
+  },
+  "physical_density_association": {
+    "physical_term_count": 156,
+    "physical_source_identity": "ce87d1ac10eaa1190cc61cd5b13c176684e85bc49704cba032920cfac9bb0c65",
+    "original_cells": 644699,
+    "quotient_cells": 644699,
+    "cells_with_unbounded_axis": 604005,
+    "complete_ordinal_association_native_verified": true,
+    "borrowed_actual_reduced_proof": true,
+    "source_seconds": 3.516092231,
+    "decode_seconds": 130.107337885,
+    "binding_and_verification_seconds": 112.779142694,
+    "map_probe_seconds": 0.139542287,
+    "total_seconds": 246.551109932,
+    "process_seconds": 251.36055752215907,
+    "timing_scope": "separate debug-build correctness consumer, not a release comparison or additive generation stage",
+    "handoff_sha256": "b775803edc90f456e376a7f342ea5cfc9636bff15a609fe64da22ee82e0493ae",
+    "independent_source_review_sha256": "b251afe6f2b24a248cbdf98f3555d4820ce56c11145360f8817caf1a5498c3b5",
+    "mapped_ordinals_attempted": [
+      0,
+      644698
+    ],
+    "outcome": "source-bound verified owner accepted; both attempted finite-linear maps explicitly refuse unsupported bounds"
   }
 }

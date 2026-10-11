@@ -10,7 +10,7 @@ use symbolica::{
 /// A sole scaling power proves homogeneity, not that its coefficient is nonzero.
 /// Return `None` when native recognition is inconclusive so the existing sparse
 /// support admission can resolve cancellations or reject nonpolynomial input.
-pub(super) fn degree(expression: &Atom, parameters: &[Symbol]) -> Option<u32> {
+pub(crate) fn degree(expression: &Atom, parameters: &[Symbol]) -> Option<u32> {
     let atoms = parameters.iter().map(|s| Atom::var(*s)).collect::<Vec<_>>();
     let indeterminates = expression.is_polynomial(true, false)?;
     if !indeterminates.iter().all(|indeterminate| {

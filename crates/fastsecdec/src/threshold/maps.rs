@@ -7,6 +7,9 @@
 mod linear;
 mod parameters;
 mod program;
+mod projective;
+mod source;
+pub use projective::PositiveProjectiveCellMap;
 pub mod regular;
 
 use std::{collections::BTreeSet, sync::Arc};
@@ -55,70 +58,8 @@ impl CellMap {
         cell_index: usize,
         unit_coordinates: Vec<Symbol>,
     ) -> Result<Arc<Self>> {
-        let request = owner.request();
-        let raw = owner.native_result();
-        let cell = raw.cells.get(cell_index).ok_or_else(|| {
-            GcadError::Invalid("cell-map index is outside the verified raw cells".into())
-        })?;
-        if unit_coordinates.len() != request.domain().coordinates().len()
-            || unit_coordinates
-                .iter()
-                .copied()
-                .collect::<BTreeSet<_>>()
-                .len()
-                != unit_coordinates.len()
-        {
-            return Err(GcadError::Invalid(
-                "cell map needs distinct unit symbols for exactly its integration dimensions"
-                    .into(),
-            ));
-        }
-        let occupied = coordinate_symbols(request);
-        if unit_coordinates.iter().any(|s| occupied.contains(s)) {
-            return Err(GcadError::Invalid(
-                "unit coordinates collide with an original density/domain symbol".into(),
-            ));
-        }
-        if cell.axes.len() != raw.order.len() {
-            return Err(GcadError::Invalid(
-                "verified cell axis/order shape differs".into(),
-            ));
-        }
-        let mut axes = Vec::with_capacity(raw.order.len());
-        let mut integration_count = 0;
-        for (name, axis) in raw.order.iter().zip(&cell.axes) {
-            let alias = request
-                .aliases()
-                .iter()
-                .find(|a| &a.name == name)
-                .ok_or_else(|| {
-                    GcadError::Invalid("cell lifting symbol has no source association".into())
-                })?;
-            if &axis.variable != name
-                || (integration_count > 0 && alias.role == AliasRole::RuntimeParameter)
-            {
-                return Err(GcadError::Invalid(
-                    "cell map changes native axis order or mixes parameter fibers".into(),
-                ));
-            }
-            let unit_index = if alias.role == AliasRole::IntegrationCoordinate {
-                let index = integration_count;
-                integration_count += 1;
-                Some(index)
-            } else {
-                None
-            };
-            axes.push(MapAxis {
-                symbol: alias.symbol,
-                role: alias.role,
-                unit_index,
-            });
-        }
-        if integration_count != unit_coordinates.len() {
-            return Err(GcadError::Invalid(
-                "cell map integration roles differ from prepared domain".into(),
-            ));
-        }
+        let view = source::GeometryView::standard(&owner);
+        let axes = view.admit(cell_index, &unit_coordinates)?;
         Ok(Arc::new(Self {
             owner,
             cell_index,
