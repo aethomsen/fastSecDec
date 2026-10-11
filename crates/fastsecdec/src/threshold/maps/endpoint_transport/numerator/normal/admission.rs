@@ -78,6 +78,8 @@ pub(in super::super) struct Admission {
     pub sections: Vec<SelectedExtension>,
     pub images: Vec<Atom>,
     pub scope: Scope,
+    // Exact native calls in ancestor order; private arithmetic staging only.
+    pub(super) root_calls: Vec<Atom>,
 }
 pub(super) fn prepare(
     catalogue: &SourceNumerators,
@@ -306,5 +308,6 @@ pub(in super::super) fn prepare_arguments(
         sections,
         images,
         scope,
+        root_calls: calls,
     })
 }

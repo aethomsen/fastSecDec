@@ -392,3 +392,98 @@ fn compact_normal_jets_zero_source_coordinate_keeps_integer_powers() {
         );
     }
 }
+
+#[test]
+fn compact_normal_staged_template_matches_native_series_for_each_source_tag() {
+    use symbolica::{atom::FunctionBuilder, poly::series::SeriesDepth};
+
+    let (catalogue, transport) = source();
+    let chart = transport.issued_chart(0).unwrap();
+    let normal = chart.target_units()[0];
+    let owner = prepare(catalogue.clone(), chart.clone(), normal);
+    let limits = Limits::default();
+    let mut progress = || ControlFlow::Continue(());
+    let mut work = Work {
+        limits: &limits,
+        budget: Budget::new(limits.algebra.clone()),
+        callback: &mut progress,
+    };
+    let admitted = admission::prepare(&catalogue, &chart, normal, settings(), &mut work).unwrap();
+    assert!(
+        admitted
+            .root_calls
+            .iter()
+            .any(|a| a.contains_symbol(normal))
+    );
+    assert!(owner.coefficients().len() >= 2);
+    for row in owner.coefficients() {
+        // The old native series path uses the original, untruncated argument
+        // chain and a concrete source tag. It is independent of the shared
+        // template and staged root derivative arithmetic under test.
+        let mut args = vec![Atom::num(row.source_record())];
+        args.extend(admitted.images.iter().cloned());
+        let call = FunctionBuilder::new(owner.head).add_args(&args).finish();
+        let reference = call.series(normal, 0, SeriesDepth::absolute(3)).unwrap();
+        for (order, actual) in row.coefficients().iter().enumerate() {
+            let expected = reference
+                .coefficient((order as i64).into())
+                .unwrap_or_else(Atom::zero);
+            assert!((actual - &expected).expand().is_zero());
+        }
+    }
+}
+
+#[test]
+fn compact_normal_staged_template_preserves_cancellation_and_node_allowance() {
+    let (catalogue, transport) = source();
+    let chart = transport.issued_chart(0).unwrap();
+    let normal = chart.target_units()[0];
+    let limits = Limits::default();
+    let mut progress = || ControlFlow::Continue(());
+    let mut work = Work {
+        limits: &limits,
+        budget: Budget::new(limits.algebra.clone()),
+        callback: &mut progress,
+    };
+    let admitted = admission::prepare(&catalogue, &chart, normal, settings(), &mut work).unwrap();
+    let head = definitions::fresh_head(&catalogue, &chart);
+    let small = Limits {
+        max_coefficient_nodes: 8,
+        ..limits.clone()
+    };
+    let mut bounded = Work {
+        limits: &small,
+        budget: Budget::new(small.algebra.clone()),
+        callback: &mut progress,
+    };
+    assert!(matches!(
+        series::prepare(&catalogue, &chart, &admitted, head, normal, 4, &mut bounded),
+        Err(Error::ResourceIncomplete(_))
+    ));
+    let mut checks = 0;
+    let mut cancel = || {
+        checks += 1;
+        if checks >= 10 {
+            ControlFlow::Break(())
+        } else {
+            ControlFlow::Continue(())
+        }
+    };
+    let mut cancelled = Work {
+        limits: &limits,
+        budget: Budget::new(limits.algebra.clone()),
+        callback: &mut cancel,
+    };
+    assert!(matches!(
+        series::prepare(
+            &catalogue,
+            &chart,
+            &admitted,
+            head,
+            normal,
+            4,
+            &mut cancelled
+        ),
+        Err(Error::Cancelled)
+    ));
+}

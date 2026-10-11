@@ -3,6 +3,7 @@
 pub(super) mod admission;
 pub(super) mod definitions;
 pub mod program;
+mod series;
 #[cfg(test)]
 mod tests;
 use super::{Error, Limits, Result, SourceNumerators, Work, native};
@@ -18,7 +19,6 @@ use std::{ops::ControlFlow, sync::Arc};
 use symbolica::{
     atom::{Atom, AtomCore, Symbol},
     evaluate::OptimizationSettings,
-    poly::series::SeriesDepth,
 };
 
 /// A bounded jet of one actual source record. Order j is the Taylor
@@ -120,29 +120,18 @@ impl NormalNumeratorJets {
         let admitted = admission::prepare(&catalogue, &chart, normal, settings, &mut work)?;
         let head = definitions::fresh_head(&catalogue, &chart);
         let mut coefficients = Vec::new();
-        for (record, source) in catalogue.records().iter().enumerate() {
-            if source.degrees().is_none() {
-                continue;
+        if catalogue.records().iter().any(|r| r.degrees().is_some()) {
+            let template = series::prepare(
+                &catalogue, &chart, &admitted, head, normal, depth, &mut work,
+            )?;
+            for (record, source) in catalogue.records().iter().enumerate() {
+                if source.degrees().is_some() {
+                    coefficients.push(NormalCoefficient {
+                        record,
+                        values: template.record(record, &mut work)?,
+                    });
+                }
             }
-            work.check()?;
-            let mut args = vec![Atom::num(record)];
-            args.extend(admitted.images.iter().cloned());
-            let tagged = symbolica::atom::FunctionBuilder::new(head)
-                .add_args(&args)
-                .finish();
-            work.nodes(&tagged, limits.max_coefficient_nodes)?;
-            // Native series differentiates both actual root coefficient maps
-            // and tagged source calls before restriction. No N(phi) expansion.
-            let series = tagged
-                .series(normal, 0, SeriesDepth::absolute(depth as i64 - 1))
-                .map_err(native)?;
-            let values = (0..depth)
-                .map(|j| series.coefficient(j.into()).unwrap_or_else(Atom::zero))
-                .collect::<Vec<_>>();
-            for value in &values {
-                work.nodes(value, limits.max_coefficient_nodes)?;
-            }
-            coefficients.push(NormalCoefficient { record, values });
         }
         let definitions = definitions::collect(&catalogue, head, &coefficients, depth, &mut work)?;
         let directions = chart

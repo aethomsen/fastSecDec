@@ -4674,3 +4674,13 @@ records native HEPKit payload setters and graph serialization, exact U/F and
 denominator-family comparisons, and independent scalar source ownership. No
 graph or algebra implementation was duplicated. The input gates and all-target
 Clippy pass; no complete no-contour integral is claimed from those gates.
+
+## Compact endpoint-series reuse (2026-10-11)
+
+The [endpoint-series review](reviews/no-deformation-compact-endpoint-series.md)
+records native Symbolica differentiation, implicit root hooks, finite series and
+function composition. One admitted geometry template is shared across original
+source numerators; no alternate CAS/AD or expansion of their bulk bodies is
+introduced. Independent source/math/reuse review, 30 numerator tests and strict
+workspace Clippy pass. Existing branch/face admission and serialization remain
+unchanged; the full physical endpoint atlas is still a separate acceptance gate.
