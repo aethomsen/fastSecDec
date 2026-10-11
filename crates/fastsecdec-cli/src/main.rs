@@ -198,6 +198,9 @@ enum Action {
         points: usize,
         #[arg(long, default_value_t = 5)]
         repetitions: usize,
+        /// Unmeasured warmup evaluations per sector (zero disables warmup).
+        #[arg(long, default_value_t = fastsecdec::diagnostics::BenchmarkOptions::default().warmup)]
+        warmup: usize,
     },
     /// Sample bounded coordinate faces from inside, including face intersections.
     CheckBoundaries {
@@ -777,6 +780,7 @@ fn run(cli: Cli) -> CliResult<()> {
             contour,
             points,
             repetitions,
+            warmup,
         } => {
             let (artifact, mut kernels) = contour.load_diagnostics(&artifact)?;
             let mut dashboard = display::Dashboard::new(false, cli.status_json)?;
@@ -786,6 +790,7 @@ fn run(cli: Cli) -> CliResult<()> {
                 &fastsecdec::diagnostics::BenchmarkOptions {
                     points,
                     repetitions,
+                    warmup,
                     ..Default::default()
                 },
                 |progress| diagnostics::observe(&mut dashboard, cli.status_json, progress),

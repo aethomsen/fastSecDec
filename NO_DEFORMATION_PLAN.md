@@ -262,3 +262,12 @@ the 100 GB memory bound and stage measurements; both outer process supervision
 and cooperative preparation limits must permit it. A timed-out preparation is
 an incomplete measurement, not evidence that the requested integral is
 infeasible. Continue compact symbolic-series optimization in parallel.
+
+The user also permits omitting IBP reduction when its generation cost becomes
+excessive. Compare it with the existing direct symbolic Taylor subtraction,
+retaining every required endpoint counterterm, boundary contribution and Laurent
+cancellation. This does not authorize leaving divergent endpoints unsubtracted
+or replacing symbolic endpoint treatment with numerical-dual jets. Record the
+chosen strategy and measure both generation cost and any resulting increase in
+precision rescues and integration time. Expensive finite endpoint coefficients
+shared by both strategies still require compact symbolic preparation.
