@@ -115,9 +115,7 @@ pub(super) fn prepare_terms(
         profile::begin_term();
         let mut powers = coordinates.measure_powers.clone();
         for (row, power) in map.exponent_matrix.iter().zip(term.monomial_powers()) {
-            for (current, exponent) in powers.iter_mut().zip(row) {
-                *current += power * Atom::num(exponent.clone());
-            }
+            add_scaled_powers(&mut powers, power, row)?;
         }
         let prefactor = term.prefactor() * &coordinates.measure_factor;
         let mut residuals = Vec::new();
@@ -247,9 +245,7 @@ pub(super) fn prepare_terms(
                     super::domain::check_residual(&residual, parameters)
                 )?;
             }
-            for (power, valuation) in powers.iter_mut().zip(minima) {
-                *power += factor.exponent() * Atom::num(valuation);
-            }
+            add_scaled_powers(&mut powers, factor.exponent(), &minima)?;
             residuals.push((residual, factor.exponent().clone(), factor.semantics()));
         }
         let powers = powers.into_iter().map(|p| p.expand()).collect::<Vec<_>>();
@@ -468,4 +464,22 @@ pub(super) fn target_parameters(input: &ParametricIntegrand, dimension: usize) -
         }
     }
     unreachable!("finite source symbols cannot exhaust namespaces")
+}
+
+/// Exact exponent transport shared by ordinary and source-bound endpoint maps.
+/// This arithmetic grants no residual unit or endpoint authority.
+pub(crate) fn add_scaled_powers(
+    powers: &mut [Atom],
+    exponent: &Atom,
+    orders: &[Integer],
+) -> Result<(), GenerationError> {
+    if powers.len() != orders.len() {
+        return Err(GenerationError::Invariant(
+            "exponent transport dimension differs".into(),
+        ));
+    }
+    for (power, order) in powers.iter_mut().zip(orders) {
+        *power += exponent * Atom::num(order.clone());
+    }
+    Ok(())
 }

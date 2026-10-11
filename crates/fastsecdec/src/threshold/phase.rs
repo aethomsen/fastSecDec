@@ -57,15 +57,7 @@ impl<'a> CausalCell<'a> {
                         factor.term_index, factor.factor_index
                     )));
                 }
-                let (constant, _) = endpoint_power_with_regulators(&exponent, regulators)
-                    .map_err(|e| GcadError::Unsupported(e.to_string()))?;
-                let constant = Atom::num(constant);
-                // Principal (-1)^(-q0) gives exp(-i*pi*q0), with exact native
-                // integer/half-integer simplification. Never freeze the
-                // regulator-dependent part before removing cell poles.
-                let phase = Atom::num(-1).pow(-&constant)
-                    * (-Atom::i() * Atom::var(Symbol::PI) * (exponent - constant)).exp();
-                term_phases[factor.term_index] *= phase;
+                term_phases[factor.term_index] *= causal_negative_phase(&exponent, regulators)?;
             }
         }
         Ok(Self { cell, term_phases })
@@ -88,6 +80,18 @@ impl<'a> CausalCell<'a> {
             .signed_factors()
             .map(|(factor, sign)| CellMagnitude { factor, sign })
     }
+}
+
+/// Exact lower-lip phase arithmetic only. The caller must supply the actual
+/// negative causal-factor authority and validated source regulator roles.
+pub(crate) fn causal_negative_phase(exponent: &Atom, regulators: &[Symbol]) -> Result<Atom> {
+    let (constant, _) = endpoint_power_with_regulators(exponent, regulators)
+        .map_err(|e| GcadError::Unsupported(e.to_string()))?;
+    let constant = Atom::num(constant);
+    // Principal (-1)^(-q0) gives exp(-i*pi*q0), including the native exact
+    // integer/half-integer simplifications. Keep all regulator dependence.
+    Ok(Atom::num(-1).pow(-&constant)
+        * (-Atom::i() * Atom::var(Symbol::PI) * (exponent - constant)).exp())
 }
 
 /// A positive interior magnitude, subject to the owning cell's kinematic

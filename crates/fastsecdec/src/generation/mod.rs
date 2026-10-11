@@ -49,6 +49,8 @@ mod support;
 mod symmetry;
 mod types;
 mod work;
+#[cfg(feature = "threshold-decomposition")]
+pub(crate) use mapping::add_scaled_powers;
 pub(crate) use mapping::coordinates_from_parts;
 pub use work::{SymbolicCompletion, SymbolicDispatch, SymbolicJob, SymbolicJobId, SymbolicStage};
 

@@ -175,6 +175,18 @@ checkout is required. The feature is excluded from portable consumers:
 cargo test -p fastsecdec --features threshold-decomposition --locked --lib threshold::gcad -- --test-threads=1
 ```
 
+Positive homogeneous projective sources also have native verified cell owners,
+normalized algebraic maps, and `CompiledOpenDensity` evaluation of the original
+complex numerator at explicit nonpole real regulator values. The density uses
+native evaluator composition, preserving the unexpanded source body and causal
+phase. `EndpointTransport` attaches a complete native sector fan, exact clearing
+identities and per-term powers to such a map. These APIs retain pending closed
+faces; they do not yet publish a general multi-dimensional physical integration
+kernel. See the [density](reviews/no-deformation-open-density.md) and
+[transport](reviews/no-deformation-endpoint-transport.md) reviews. The complete
+fixed physical ggHH geometry passes within the enlarged 100 GB budget, while
+its full endpoint regularization and integration remain unfinished.
+
 Select exactly one arithmetic backend: `native` provides GMP/MPFR and supports
 either SymJIT O2 or Symbolica's eager evaluator; `portable` uses the eager
 evaluator with Malachite/Astro. The CLI defaults to SymJIT O2 locally. Python

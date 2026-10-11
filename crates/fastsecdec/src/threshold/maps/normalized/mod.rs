@@ -4,7 +4,7 @@ mod algebra;
 mod certificate;
 pub mod program;
 #[cfg(test)]
-pub(super) mod tests;
+pub(crate) mod tests;
 mod transform;
 mod witness;
 

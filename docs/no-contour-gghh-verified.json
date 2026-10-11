@@ -169,5 +169,87 @@
     "note": "Correctness-build check with proof reload; do not add to or identify with the independent GCAD generation trial.",
     "actual_evidence_sha256": "76707ff06c02cba29ca618a86db55fe50ce8e8a70a0ce24d12945d1221cfa2f1",
     "outcome_review_sha256": "7b7d720984904415522ae3a52dd45bc4cd760d8b10357b04dc6a2ff86ba915ed"
+  },
+  "numerator_infinity_series": {
+    "source_identity": "ce87d1ac10eaa1190cc61cd5b13c176684e85bc49704cba032920cfac9bb0c65",
+    "degree_rows": 156,
+    "unique_numerators": 128,
+    "native_series_cases": 512,
+    "exact_specialized_controls": 12,
+    "wall_seconds": 20.6024107192643,
+    "native_seconds": 20.555140711,
+    "peak_child_rss_kib": 38588,
+    "degree_seconds": 4.888739838,
+    "largest_series_case_seconds": 0.202082768,
+    "series_body_max_canonical_bytes": 233303,
+    "full_term_chart_power_counts": {
+      "3": 624
+    },
+    "scope": "source-owned native numerator coefficients and formal c-power ledger; no new real-face owner, proof load, kernel or integration",
+    "expansion_failures_retained": [
+      "actual-run-r1/process.json",
+      "actual-run-r2/process.json",
+      "actual-run-r2/controlled-stop.json"
+    ],
+    "evidence_handoff_sha256": "3d63ffcb4bc3ab78cbda261e29b4ac1c70b413c3ea0c0670e3d03d8176a94e4b",
+    "native_source_revision": "ae0c82b7bda670fdb9f6229226bd47b13bb49a20",
+    "real_face_admission": false,
+    "full_integrand_generation": false
+  },
+  "open_density_and_endpoint_transport": {
+    "scope": "one actual physical156 source and full original quotient verification, selected cell0 open map/density and four native infinity-chart coordinate transports; no endpoint, Laurent, kernel or integration authority",
+    "physical_source_identity": "ce87d1ac10eaa1190cc61cd5b13c176684e85bc49704cba032920cfac9bb0c65",
+    "original_cells": 644699,
+    "selected_original_cell": 0,
+    "physical_terms": 156,
+    "charts": 4,
+    "epsilons": [
+      "1/8",
+      "1/4"
+    ],
+    "requested_bits": [
+      128,
+      256
+    ],
+    "comparisons": {
+      "term": 6864,
+      "sum": 44,
+      "coordinate_jacobian": 154
+    },
+    "seconds": {
+      "source_seconds": 3.4968054459999998,
+      "decode_seconds": 126.147973384,
+      "binding_and_verification_seconds": 116.081538721,
+      "map_prepare_seconds": 0.05166884,
+      "transport_prepare_seconds": 0.247329141,
+      "density_prepare_seconds": 0.606683266,
+      "density_numerical_seconds": 1.93057711,
+      "total_seconds": 248.902079201
+    },
+    "process_wall_seconds": 254.3084144629538,
+    "peak_child_rss_kib": 11237236,
+    "sampled_aggregate_peak_rss_bytes": 11522334720,
+    "resource_limits": {
+      "wall_seconds": 600,
+      "memory_bytes": 100000000000
+    },
+    "native_exact_codec_bytes": 58933,
+    "codec_scope": "exact IR roundtrip with retained live root scope; no detached proof restore",
+    "build_scope": "Combined private native FastSecDec source with captured development-profile dependencies; ordinary high-precision eager arithmetic, not release SymJIT sampling benchmark",
+    "pre_run_inventory_sha256": "70f14b730132f3aeddc4168ec8189e044fd20367080664051cbaf000f6ffdbb0",
+    "independent_pre_run_review_sha256": "21406307954a78a003ce2ef4be0d88a870691c5ec8aac861eb4887931ba25ff0",
+    "binary_sha256": "2742761cf824336bced5a02a65faa142f585b27c81fa666992c4f147957656d4",
+    "physical_endpoint_authority": false,
+    "laurent_authority": false,
+    "integration_authority": false,
+    "evidence": {
+      "result.json": "c3109c17d99fe301bedb74568d717430364cc8a86f1b60348d9852fffa24881e",
+      "process-result.json": "11cf26a6cac2831ea6126ede6c2ea9a2d04857af03472b516e6651fd457fb158",
+      "density-numerical.json": "7bb4b4df4b1e8eb1474304c1bed5db269b51d8fbc032655cd30feea7c9574144",
+      "transport.json": "4c45970b5569c81860be92c1a3709e14da28aaede0c7633e3c6a0a59163c170c"
+    },
+    "independent_outcome_review_sha256": "c4cfd1b60fae446fb4dc04dd4e0d74eba1637a11975882f6b165df6465537a14",
+    "frozen_evidence_inventory_sha256": "d1dec50ca3113606e5f021fd6f5ed273c1a2241c25f1d11f85f685c6a1549ae5",
+    "independent_exact_replay": true
   }
 }

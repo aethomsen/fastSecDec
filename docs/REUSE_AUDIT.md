@@ -1,5 +1,54 @@
 # Ecosystem reuse evidence
 
+## Compact finite numerator coefficients (2026-10-11)
+
+The [numerator-series review](reviews/no-deformation-numerator-series.md) records
+the public API, source and executable probes for native polynomial degrees,
+linear resultants, finite-depth series and symbolic derivatives. Finite series
+handles all 128 distinct physical numerators on four infinity charts in
+20.602 seconds and 38,588 KiB child RSS, avoiding the much larger fully cleared
+expressions. Twelve exact specialized controls pass. These are source-bound
+research results; real-face admission and composed derivative owners remain
+separate work. No replacement CAS or dependency change is needed.
+
+## Source-bound endpoint transport (2026-10-11)
+
+The [transport review](reviews/no-deformation-endpoint-transport.md) records
+reuse of Symbolica rational polynomials, exact quotient/reconstruction and
+degree bounds, the existing complete sector fan, and the ordinary generator's
+coordinate and exponent helpers. A conservative resource preflight collects
+shared inverse slots with native polynomial operations; it does not replace
+the exact clearing operation. Source indices, factor authorities and root
+selectors remain attached throughout. No graph, CAS or executor is duplicated.
+
+Five focused transport groups, seven ordinary mapping groups and strict native,
+default-feature and test-source checks pass. Independent scientific/reuse review
+passes. The combined actual four-chart/156-term density comparison and consuming
+workspace check also pass. Closed-face regularity, finite numerator coefficients,
+continuation and full physical integration remain separate gates.
+
+## Source-bound open physical densities (2026-10-11)
+
+The [open-density review](reviews/no-deformation-open-density.md) records native
+evaluator composition of the original numerator, per-term powers and causal
+phases with an admitted cell map. Existing phase arithmetic, callback-domain
+checks, native codecs and precision domains supply the operations. A separate
+phase program prevents caller aliases from changing the causal branch.
+
+Six new controls, five existing phase controls and seven normalized-map controls
+pass, including the genuine nonlinear-root fixture and complex numerators.
+All 156 physical prefactors pass the native Gamma capability check without a
+new proof load. No owner-library patch or substitute CAS/AD/graph/codec is needed.
+Execution remains caller-owned; HEPKit's native source objects remain intact.
+This is open-density execution, not endpoint continuation or a completed
+physical integration. Cross-process residency remains an explicit later gate.
+The actual 156-term physical density and its four infinity-chart compositions
+pass 6,864 term and 44 sum comparisons at 128/256 bits, with 154 independent
+directed coordinate/Jacobian controls. Exact QQ replay independently verifies
+the saved inequalities. Its 58,933-byte native IR keeps root expressions out
+of the original numerator. No release sampling-performance claim follows from
+these correctness-stage timings.
+
 ## Normalized source-bound algebraic maps (2026-10-11)
 
 The [normalized-map review](reviews/no-deformation-normalized-maps.md) records

@@ -4,6 +4,7 @@
 //! nonlinear sections, endpoint regularity and full-integral continuation are
 //! separate certificates; this module does not infer them from sample fibers.
 
+pub mod endpoint_transport;
 mod linear;
 pub mod normalized;
 mod open;

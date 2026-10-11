@@ -289,6 +289,9 @@ campaign executables precede the loader-cache update in section 4.
 #include "no-contour-gghh-verified.typ"
 
 #pagebreak()
+#include "no-contour-gghh-density.typ"
+
+#pagebreak()
 = Implementation and performance
 == Preserve algebraic structure and reuse native facilities
 FastSecDec owns the sector/integration interfaces in Rust. Symbolica supplies

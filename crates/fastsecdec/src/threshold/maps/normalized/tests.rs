@@ -100,7 +100,7 @@ fn owner() -> Arc<PositiveProjectiveQuotient> {
         })
         .clone()
 }
-pub(super) fn fixture() -> (Arc<NormalizedPrefix>, SectionProposal, SectionProposal) {
+pub(crate) fn fixture() -> (Arc<NormalizedPrefix>, SectionProposal, SectionProposal) {
     let owner = owner();
     let (u, v, t, p, h, z, w) = symbol!(
         "normalized_test::u",

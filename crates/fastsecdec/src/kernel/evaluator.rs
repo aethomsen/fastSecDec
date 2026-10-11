@@ -12,6 +12,22 @@ pub(super) use conditioning::Conditioning;
 pub(super) use mapping::MappingRequirements;
 pub(in crate::kernel) use saved::SavedPrimary;
 
+#[cfg(feature = "threshold-decomposition")]
+impl crate::kernel::algebraic::Scope {
+    /// Reuse native callback-domain and masked-preparation checks for a
+    /// caller-owned exact program. This confers no kernel or geometry authority.
+    pub(crate) fn map_checked<T: symbolica::evaluate::EvaluationDomain>(
+        &self,
+        exact: &ExactProgram,
+        bits: u32,
+        coefficient: impl Fn(&Complex<symbolica::domains::rational::Rational>) -> T,
+    ) -> Result<symbolica::evaluate::ExpressionEvaluator<T>, String> {
+        self.enter(bits, || {
+            MappingRequirements::new(exact)?.map(exact, coefficient, bits)
+        })
+    }
+}
+
 macro_rules! evaluator {
     ($name:ident, $scalar:ty, $invalid:expr, $physical:expr) => {
         #[derive(Clone)]

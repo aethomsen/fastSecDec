@@ -55,7 +55,8 @@ with two normalized algebraic sections and three compactified rays. All 42
 coordinate/Jacobian comparisons at 128/256 bits pass independent root enclosures.
 Map preparation takes 0.058 s; this separate correctness run, including proof
 reload and verification, takes 258.725 s and peaks at 11.528 GB aggregate RSS.
-It does not time a compiled physical integrand. See
+It does not time a compiled physical integrand. The next page records the
+subsequent full-density and infinity-chart checks. See
 `docs/reviews/no-deformation-normalized-maps.md`.
 
 *This completes the fixed-point generic-open geometry gate, not the physical
