@@ -1,0 +1,1144 @@
+{
+  "schema_version": 1,
+  "campaign_status": "awaiting_dependency_and_executable_freeze",
+  "target_order": 0,
+  "workers": 25,
+  "memory_limit_bytes": 100000000000,
+  "timed_seconds": 600,
+  "historical_measurements_in_table": false,
+  "topologies": [
+    {
+      "id": "bubble",
+      "label": "Massive bubble",
+      "point": "B0(16;3,3), \u03bc\u00b2=1",
+      "methods": [
+        {
+          "id": "fixed",
+          "label": "Fixed",
+          "generation_status": "pending",
+          "status_detail": "Awaiting frozen executable and native admission",
+          "generation": {
+            "generation_seconds": null,
+            "generation_peak_gb": null,
+            "artifact_mb": null,
+            "stochastic_sectors": null
+          },
+          "kernel_cost": {
+            "f64_max_avg_us": null,
+            "sum_f64_checked_us": null
+          },
+          "samplers": [
+            {
+              "id": "qmc",
+              "label": "QMC",
+              "state": "pending",
+              "metrics": {
+                "integration_peak_gb": null,
+                "work_relative_se": null,
+                "work_joint_se": null,
+                "time_relative_se": null
+              },
+              "receipts": []
+            },
+            {
+              "id": "discrete_mc",
+              "label": "MC",
+              "state": "pending",
+              "metrics": {
+                "integration_peak_gb": null,
+                "work_relative_se": null,
+                "work_joint_se": null,
+                "time_relative_se": null
+              },
+              "receipts": []
+            }
+          ]
+        },
+        {
+          "id": "dynamic-polynomial",
+          "label": "Dynamical",
+          "generation_status": "pending",
+          "status_detail": "Awaiting frozen executable and native admission",
+          "generation": {
+            "generation_seconds": null,
+            "generation_peak_gb": null,
+            "artifact_mb": null,
+            "stochastic_sectors": null
+          },
+          "kernel_cost": {
+            "f64_max_avg_us": null,
+            "sum_f64_checked_us": null
+          },
+          "samplers": [
+            {
+              "id": "qmc",
+              "label": "QMC",
+              "state": "pending",
+              "metrics": {
+                "integration_peak_gb": null,
+                "work_relative_se": null,
+                "work_joint_se": null,
+                "time_relative_se": null
+              },
+              "receipts": []
+            },
+            {
+              "id": "discrete_mc",
+              "label": "MC",
+              "state": "pending",
+              "metrics": {
+                "integration_peak_gb": null,
+                "work_relative_se": null,
+                "work_joint_se": null,
+                "time_relative_se": null
+              },
+              "receipts": []
+            }
+          ]
+        },
+        {
+          "id": "no-contour",
+          "label": "No contour",
+          "generation_status": "pending",
+          "status_detail": "Awaiting frozen executable and native admission",
+          "generation": {
+            "generation_seconds": null,
+            "generation_peak_gb": null,
+            "artifact_mb": null,
+            "stochastic_sectors": null
+          },
+          "kernel_cost": {
+            "f64_max_avg_us": null,
+            "sum_f64_checked_us": null
+          },
+          "samplers": [
+            {
+              "id": "qmc",
+              "label": "QMC",
+              "state": "pending",
+              "metrics": {
+                "integration_peak_gb": null,
+                "work_relative_se": null,
+                "work_joint_se": null,
+                "time_relative_se": null
+              },
+              "receipts": []
+            },
+            {
+              "id": "discrete_mc",
+              "label": "MC",
+              "state": "pending",
+              "metrics": {
+                "integration_peak_gb": null,
+                "work_relative_se": null,
+                "work_joint_se": null,
+                "time_relative_se": null
+              },
+              "receipts": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "triangle",
+      "label": "Massive triangle",
+      "point": "C0(0,0,5;1,1,1), \u03bc\u00b2=1",
+      "methods": [
+        {
+          "id": "fixed",
+          "label": "Fixed",
+          "generation_status": "pending",
+          "status_detail": "Awaiting frozen executable and native admission",
+          "generation": {
+            "generation_seconds": null,
+            "generation_peak_gb": null,
+            "artifact_mb": null,
+            "stochastic_sectors": null
+          },
+          "kernel_cost": {
+            "f64_max_avg_us": null,
+            "sum_f64_checked_us": null
+          },
+          "samplers": [
+            {
+              "id": "qmc",
+              "label": "QMC",
+              "state": "pending",
+              "metrics": {
+                "integration_peak_gb": null,
+                "work_relative_se": null,
+                "work_joint_se": null,
+                "time_relative_se": null
+              },
+              "receipts": []
+            },
+            {
+              "id": "discrete_mc",
+              "label": "MC",
+              "state": "pending",
+              "metrics": {
+                "integration_peak_gb": null,
+                "work_relative_se": null,
+                "work_joint_se": null,
+                "time_relative_se": null
+              },
+              "receipts": []
+            }
+          ]
+        },
+        {
+          "id": "dynamic-polynomial",
+          "label": "Dynamical",
+          "generation_status": "pending",
+          "status_detail": "Awaiting frozen executable and native admission",
+          "generation": {
+            "generation_seconds": null,
+            "generation_peak_gb": null,
+            "artifact_mb": null,
+            "stochastic_sectors": null
+          },
+          "kernel_cost": {
+            "f64_max_avg_us": null,
+            "sum_f64_checked_us": null
+          },
+          "samplers": [
+            {
+              "id": "qmc",
+              "label": "QMC",
+              "state": "pending",
+              "metrics": {
+                "integration_peak_gb": null,
+                "work_relative_se": null,
+                "work_joint_se": null,
+                "time_relative_se": null
+              },
+              "receipts": []
+            },
+            {
+              "id": "discrete_mc",
+              "label": "MC",
+              "state": "pending",
+              "metrics": {
+                "integration_peak_gb": null,
+                "work_relative_se": null,
+                "work_joint_se": null,
+                "time_relative_se": null
+              },
+              "receipts": []
+            }
+          ]
+        },
+        {
+          "id": "dynamic-sign-aware",
+          "label": "Sign-aware",
+          "generation_status": "pending",
+          "status_detail": "Awaiting frozen executable and native admission",
+          "generation": {
+            "generation_seconds": null,
+            "generation_peak_gb": null,
+            "artifact_mb": null,
+            "stochastic_sectors": null
+          },
+          "kernel_cost": {
+            "f64_max_avg_us": null,
+            "sum_f64_checked_us": null
+          },
+          "samplers": [
+            {
+              "id": "qmc",
+              "label": "QMC",
+              "state": "pending",
+              "metrics": {
+                "integration_peak_gb": null,
+                "work_relative_se": null,
+                "work_joint_se": null,
+                "time_relative_se": null
+              },
+              "receipts": []
+            },
+            {
+              "id": "discrete_mc",
+              "label": "MC",
+              "state": "pending",
+              "metrics": {
+                "integration_peak_gb": null,
+                "work_relative_se": null,
+                "work_joint_se": null,
+                "time_relative_se": null
+              },
+              "receipts": []
+            }
+          ]
+        },
+        {
+          "id": "no-contour",
+          "label": "No contour",
+          "generation_status": "pending",
+          "status_detail": "Awaiting frozen executable and native admission",
+          "generation": {
+            "generation_seconds": null,
+            "generation_peak_gb": null,
+            "artifact_mb": null,
+            "stochastic_sectors": null
+          },
+          "kernel_cost": {
+            "f64_max_avg_us": null,
+            "sum_f64_checked_us": null
+          },
+          "samplers": [
+            {
+              "id": "qmc",
+              "label": "QMC",
+              "state": "pending",
+              "metrics": {
+                "integration_peak_gb": null,
+                "work_relative_se": null,
+                "work_joint_se": null,
+                "time_relative_se": null
+              },
+              "receipts": []
+            },
+            {
+              "id": "discrete_mc",
+              "label": "MC",
+              "state": "pending",
+              "metrics": {
+                "integration_peak_gb": null,
+                "work_relative_se": null,
+                "work_joint_se": null,
+                "time_relative_se": null
+              },
+              "receipts": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "box",
+      "label": "Massive box",
+      "point": "D0(0,0,0,0,5,\u22121;1,1,1,1), \u03bc\u00b2=1",
+      "methods": [
+        {
+          "id": "fixed",
+          "label": "Fixed",
+          "generation_status": "pending",
+          "status_detail": "Awaiting frozen executable and native admission",
+          "generation": {
+            "generation_seconds": null,
+            "generation_peak_gb": null,
+            "artifact_mb": null,
+            "stochastic_sectors": null
+          },
+          "kernel_cost": {
+            "f64_max_avg_us": null,
+            "sum_f64_checked_us": null
+          },
+          "samplers": [
+            {
+              "id": "qmc",
+              "label": "QMC",
+              "state": "pending",
+              "metrics": {
+                "integration_peak_gb": null,
+                "work_relative_se": null,
+                "work_joint_se": null,
+                "time_relative_se": null
+              },
+              "receipts": []
+            },
+            {
+              "id": "discrete_mc",
+              "label": "MC",
+              "state": "pending",
+              "metrics": {
+                "integration_peak_gb": null,
+                "work_relative_se": null,
+                "work_joint_se": null,
+                "time_relative_se": null
+              },
+              "receipts": []
+            }
+          ]
+        },
+        {
+          "id": "dynamic-polynomial",
+          "label": "Dynamical",
+          "generation_status": "pending",
+          "status_detail": "Awaiting frozen executable and native admission",
+          "generation": {
+            "generation_seconds": null,
+            "generation_peak_gb": null,
+            "artifact_mb": null,
+            "stochastic_sectors": null
+          },
+          "kernel_cost": {
+            "f64_max_avg_us": null,
+            "sum_f64_checked_us": null
+          },
+          "samplers": [
+            {
+              "id": "qmc",
+              "label": "QMC",
+              "state": "pending",
+              "metrics": {
+                "integration_peak_gb": null,
+                "work_relative_se": null,
+                "work_joint_se": null,
+                "time_relative_se": null
+              },
+              "receipts": []
+            },
+            {
+              "id": "discrete_mc",
+              "label": "MC",
+              "state": "pending",
+              "metrics": {
+                "integration_peak_gb": null,
+                "work_relative_se": null,
+                "work_joint_se": null,
+                "time_relative_se": null
+              },
+              "receipts": []
+            }
+          ]
+        },
+        {
+          "id": "dynamic-sign-aware",
+          "label": "Sign-aware",
+          "generation_status": "pending",
+          "status_detail": "Awaiting frozen executable and native admission",
+          "generation": {
+            "generation_seconds": null,
+            "generation_peak_gb": null,
+            "artifact_mb": null,
+            "stochastic_sectors": null
+          },
+          "kernel_cost": {
+            "f64_max_avg_us": null,
+            "sum_f64_checked_us": null
+          },
+          "samplers": [
+            {
+              "id": "qmc",
+              "label": "QMC",
+              "state": "pending",
+              "metrics": {
+                "integration_peak_gb": null,
+                "work_relative_se": null,
+                "work_joint_se": null,
+                "time_relative_se": null
+              },
+              "receipts": []
+            },
+            {
+              "id": "discrete_mc",
+              "label": "MC",
+              "state": "pending",
+              "metrics": {
+                "integration_peak_gb": null,
+                "work_relative_se": null,
+                "work_joint_se": null,
+                "time_relative_se": null
+              },
+              "receipts": []
+            }
+          ]
+        },
+        {
+          "id": "no-contour",
+          "label": "No contour",
+          "generation_status": "pending",
+          "status_detail": "Awaiting frozen executable and native admission",
+          "generation": {
+            "generation_seconds": null,
+            "generation_peak_gb": null,
+            "artifact_mb": null,
+            "stochastic_sectors": null
+          },
+          "kernel_cost": {
+            "f64_max_avg_us": null,
+            "sum_f64_checked_us": null
+          },
+          "samplers": [
+            {
+              "id": "qmc",
+              "label": "QMC",
+              "state": "pending",
+              "metrics": {
+                "integration_peak_gb": null,
+                "work_relative_se": null,
+                "work_joint_se": null,
+                "time_relative_se": null
+              },
+              "receipts": []
+            },
+            {
+              "id": "discrete_mc",
+              "label": "MC",
+              "state": "pending",
+              "metrics": {
+                "integration_peak_gb": null,
+                "work_relative_se": null,
+                "work_joint_se": null,
+                "time_relative_se": null
+              },
+              "receipts": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "sunrise",
+      "label": "Massless sunrise",
+      "point": "p\u00b2=1; all three masses zero",
+      "methods": [
+        {
+          "id": "fixed",
+          "label": "Fixed",
+          "generation_status": "pending",
+          "status_detail": "Awaiting frozen executable and native admission",
+          "generation": {
+            "generation_seconds": null,
+            "generation_peak_gb": null,
+            "artifact_mb": null,
+            "stochastic_sectors": null
+          },
+          "kernel_cost": {
+            "f64_max_avg_us": null,
+            "sum_f64_checked_us": null
+          },
+          "samplers": [
+            {
+              "id": "qmc",
+              "label": "QMC",
+              "state": "pending",
+              "metrics": {
+                "integration_peak_gb": null,
+                "work_relative_se": null,
+                "work_joint_se": null,
+                "time_relative_se": null
+              },
+              "receipts": []
+            },
+            {
+              "id": "discrete_mc",
+              "label": "MC",
+              "state": "pending",
+              "metrics": {
+                "integration_peak_gb": null,
+                "work_relative_se": null,
+                "work_joint_se": null,
+                "time_relative_se": null
+              },
+              "receipts": []
+            }
+          ]
+        },
+        {
+          "id": "dynamic-polynomial",
+          "label": "Dynamical",
+          "generation_status": "pending",
+          "status_detail": "Awaiting frozen executable and native admission",
+          "generation": {
+            "generation_seconds": null,
+            "generation_peak_gb": null,
+            "artifact_mb": null,
+            "stochastic_sectors": null
+          },
+          "kernel_cost": {
+            "f64_max_avg_us": null,
+            "sum_f64_checked_us": null
+          },
+          "samplers": [
+            {
+              "id": "qmc",
+              "label": "QMC",
+              "state": "pending",
+              "metrics": {
+                "integration_peak_gb": null,
+                "work_relative_se": null,
+                "work_joint_se": null,
+                "time_relative_se": null
+              },
+              "receipts": []
+            },
+            {
+              "id": "discrete_mc",
+              "label": "MC",
+              "state": "pending",
+              "metrics": {
+                "integration_peak_gb": null,
+                "work_relative_se": null,
+                "work_joint_se": null,
+                "time_relative_se": null
+              },
+              "receipts": []
+            }
+          ]
+        },
+        {
+          "id": "dynamic-sign-aware",
+          "label": "Sign-aware",
+          "generation_status": "pending",
+          "status_detail": "Awaiting frozen executable and native admission",
+          "generation": {
+            "generation_seconds": null,
+            "generation_peak_gb": null,
+            "artifact_mb": null,
+            "stochastic_sectors": null
+          },
+          "kernel_cost": {
+            "f64_max_avg_us": null,
+            "sum_f64_checked_us": null
+          },
+          "samplers": [
+            {
+              "id": "qmc",
+              "label": "QMC",
+              "state": "pending",
+              "metrics": {
+                "integration_peak_gb": null,
+                "work_relative_se": null,
+                "work_joint_se": null,
+                "time_relative_se": null
+              },
+              "receipts": []
+            },
+            {
+              "id": "discrete_mc",
+              "label": "MC",
+              "state": "pending",
+              "metrics": {
+                "integration_peak_gb": null,
+                "work_relative_se": null,
+                "work_joint_se": null,
+                "time_relative_se": null
+              },
+              "receipts": []
+            }
+          ]
+        },
+        {
+          "id": "no-contour",
+          "label": "No contour",
+          "generation_status": "pending",
+          "status_detail": "Awaiting frozen executable and native admission",
+          "generation": {
+            "generation_seconds": null,
+            "generation_peak_gb": null,
+            "artifact_mb": null,
+            "stochastic_sectors": null
+          },
+          "kernel_cost": {
+            "f64_max_avg_us": null,
+            "sum_f64_checked_us": null
+          },
+          "samplers": [
+            {
+              "id": "qmc",
+              "label": "QMC",
+              "state": "pending",
+              "metrics": {
+                "integration_peak_gb": null,
+                "work_relative_se": null,
+                "work_joint_se": null,
+                "time_relative_se": null
+              },
+              "receipts": []
+            },
+            {
+              "id": "discrete_mc",
+              "label": "MC",
+              "state": "pending",
+              "metrics": {
+                "integration_peak_gb": null,
+                "work_relative_se": null,
+                "work_joint_se": null,
+                "time_relative_se": null
+              },
+              "receipts": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "kite",
+      "label": "Massive-threshold kite",
+      "point": "p\u00b2=16; five internal masses equal to 1",
+      "methods": [
+        {
+          "id": "fixed",
+          "label": "Fixed",
+          "generation_status": "pending",
+          "status_detail": "Awaiting frozen executable and native admission",
+          "generation": {
+            "generation_seconds": null,
+            "generation_peak_gb": null,
+            "artifact_mb": null,
+            "stochastic_sectors": null
+          },
+          "kernel_cost": {
+            "f64_max_avg_us": null,
+            "sum_f64_checked_us": null
+          },
+          "samplers": [
+            {
+              "id": "qmc",
+              "label": "QMC",
+              "state": "pending",
+              "metrics": {
+                "integration_peak_gb": null,
+                "work_relative_se": null,
+                "work_joint_se": null,
+                "time_relative_se": null
+              },
+              "receipts": []
+            },
+            {
+              "id": "discrete_mc",
+              "label": "MC",
+              "state": "pending",
+              "metrics": {
+                "integration_peak_gb": null,
+                "work_relative_se": null,
+                "work_joint_se": null,
+                "time_relative_se": null
+              },
+              "receipts": []
+            }
+          ]
+        },
+        {
+          "id": "dynamic-polynomial",
+          "label": "Dynamical",
+          "generation_status": "pending",
+          "status_detail": "Awaiting frozen executable and native admission",
+          "generation": {
+            "generation_seconds": null,
+            "generation_peak_gb": null,
+            "artifact_mb": null,
+            "stochastic_sectors": null
+          },
+          "kernel_cost": {
+            "f64_max_avg_us": null,
+            "sum_f64_checked_us": null
+          },
+          "samplers": [
+            {
+              "id": "qmc",
+              "label": "QMC",
+              "state": "pending",
+              "metrics": {
+                "integration_peak_gb": null,
+                "work_relative_se": null,
+                "work_joint_se": null,
+                "time_relative_se": null
+              },
+              "receipts": []
+            },
+            {
+              "id": "discrete_mc",
+              "label": "MC",
+              "state": "pending",
+              "metrics": {
+                "integration_peak_gb": null,
+                "work_relative_se": null,
+                "work_joint_se": null,
+                "time_relative_se": null
+              },
+              "receipts": []
+            }
+          ]
+        },
+        {
+          "id": "dynamic-sign-aware",
+          "label": "Sign-aware",
+          "generation_status": "pending",
+          "status_detail": "Awaiting frozen executable and native admission",
+          "generation": {
+            "generation_seconds": null,
+            "generation_peak_gb": null,
+            "artifact_mb": null,
+            "stochastic_sectors": null
+          },
+          "kernel_cost": {
+            "f64_max_avg_us": null,
+            "sum_f64_checked_us": null
+          },
+          "samplers": [
+            {
+              "id": "qmc",
+              "label": "QMC",
+              "state": "pending",
+              "metrics": {
+                "integration_peak_gb": null,
+                "work_relative_se": null,
+                "work_joint_se": null,
+                "time_relative_se": null
+              },
+              "receipts": []
+            },
+            {
+              "id": "discrete_mc",
+              "label": "MC",
+              "state": "pending",
+              "metrics": {
+                "integration_peak_gb": null,
+                "work_relative_se": null,
+                "work_joint_se": null,
+                "time_relative_se": null
+              },
+              "receipts": []
+            }
+          ]
+        },
+        {
+          "id": "no-contour",
+          "label": "No contour",
+          "generation_status": "pending",
+          "status_detail": "Awaiting frozen executable and native admission",
+          "generation": {
+            "generation_seconds": null,
+            "generation_peak_gb": null,
+            "artifact_mb": null,
+            "stochastic_sectors": null
+          },
+          "kernel_cost": {
+            "f64_max_avg_us": null,
+            "sum_f64_checked_us": null
+          },
+          "samplers": [
+            {
+              "id": "qmc",
+              "label": "QMC",
+              "state": "pending",
+              "metrics": {
+                "integration_peak_gb": null,
+                "work_relative_se": null,
+                "work_joint_se": null,
+                "time_relative_se": null
+              },
+              "receipts": []
+            },
+            {
+              "id": "discrete_mc",
+              "label": "MC",
+              "state": "pending",
+              "metrics": {
+                "integration_peak_gb": null,
+                "work_relative_se": null,
+                "work_joint_se": null,
+                "time_relative_se": null
+              },
+              "receipts": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "d05-scalar",
+      "label": "Scalar D05 double box",
+      "point": "s=1000000, t=\u221297077, mH=125, mt=345/2",
+      "methods": [
+        {
+          "id": "fixed",
+          "label": "Fixed",
+          "generation_status": "pending",
+          "status_detail": "Awaiting frozen executable and native admission",
+          "generation": {
+            "generation_seconds": null,
+            "generation_peak_gb": null,
+            "artifact_mb": null,
+            "stochastic_sectors": null
+          },
+          "kernel_cost": {
+            "f64_max_avg_us": null,
+            "sum_f64_checked_us": null
+          },
+          "samplers": [
+            {
+              "id": "qmc",
+              "label": "QMC",
+              "state": "pending",
+              "metrics": {
+                "integration_peak_gb": null,
+                "work_relative_se": null,
+                "work_joint_se": null,
+                "time_relative_se": null
+              },
+              "receipts": []
+            },
+            {
+              "id": "discrete_mc",
+              "label": "MC",
+              "state": "pending",
+              "metrics": {
+                "integration_peak_gb": null,
+                "work_relative_se": null,
+                "work_joint_se": null,
+                "time_relative_se": null
+              },
+              "receipts": []
+            }
+          ]
+        },
+        {
+          "id": "dynamic-polynomial",
+          "label": "Dynamical",
+          "generation_status": "pending",
+          "status_detail": "Awaiting frozen executable and native admission",
+          "generation": {
+            "generation_seconds": null,
+            "generation_peak_gb": null,
+            "artifact_mb": null,
+            "stochastic_sectors": null
+          },
+          "kernel_cost": {
+            "f64_max_avg_us": null,
+            "sum_f64_checked_us": null
+          },
+          "samplers": [
+            {
+              "id": "qmc",
+              "label": "QMC",
+              "state": "pending",
+              "metrics": {
+                "integration_peak_gb": null,
+                "work_relative_se": null,
+                "work_joint_se": null,
+                "time_relative_se": null
+              },
+              "receipts": []
+            },
+            {
+              "id": "discrete_mc",
+              "label": "MC",
+              "state": "pending",
+              "metrics": {
+                "integration_peak_gb": null,
+                "work_relative_se": null,
+                "work_joint_se": null,
+                "time_relative_se": null
+              },
+              "receipts": []
+            }
+          ]
+        },
+        {
+          "id": "no-contour",
+          "label": "No contour",
+          "generation_status": "not_available",
+          "status_detail": "Verified geometry/open maps exist; complete endpoints and integral unavailable",
+          "generation": {
+            "generation_seconds": null,
+            "generation_peak_gb": null,
+            "artifact_mb": null,
+            "stochastic_sectors": null
+          },
+          "kernel_cost": {
+            "f64_max_avg_us": null,
+            "sum_f64_checked_us": null
+          },
+          "samplers": [
+            {
+              "id": "qmc",
+              "label": "QMC",
+              "state": "not_available",
+              "metrics": {
+                "integration_peak_gb": null,
+                "work_relative_se": null,
+                "work_joint_se": null,
+                "time_relative_se": null
+              },
+              "receipts": []
+            },
+            {
+              "id": "discrete_mc",
+              "label": "MC",
+              "state": "not_available",
+              "metrics": {
+                "integration_peak_gb": null,
+                "work_relative_se": null,
+                "work_joint_se": null,
+                "time_relative_se": null
+              },
+              "receipts": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "d05-physical",
+      "label": "Physical D05 double box",
+      "point": "s=1000000, t=\u221297077, mH=125, mt=345/2; incoming ++",
+      "methods": [
+        {
+          "id": "fixed",
+          "label": "Fixed",
+          "generation_status": "pending",
+          "status_detail": "Awaiting frozen executable and native admission",
+          "generation": {
+            "generation_seconds": null,
+            "generation_peak_gb": null,
+            "artifact_mb": null,
+            "stochastic_sectors": null
+          },
+          "kernel_cost": {
+            "f64_max_avg_us": null,
+            "sum_f64_checked_us": null
+          },
+          "samplers": [
+            {
+              "id": "qmc",
+              "label": "QMC",
+              "state": "pending",
+              "metrics": {
+                "integration_peak_gb": null,
+                "work_relative_se": null,
+                "work_joint_se": null,
+                "time_relative_se": null
+              },
+              "receipts": []
+            },
+            {
+              "id": "discrete_mc",
+              "label": "MC",
+              "state": "pending",
+              "metrics": {
+                "integration_peak_gb": null,
+                "work_relative_se": null,
+                "work_joint_se": null,
+                "time_relative_se": null
+              },
+              "receipts": []
+            }
+          ]
+        },
+        {
+          "id": "dynamic-polynomial",
+          "label": "Dynamical",
+          "generation_status": "pending",
+          "status_detail": "Awaiting frozen executable and native admission",
+          "generation": {
+            "generation_seconds": null,
+            "generation_peak_gb": null,
+            "artifact_mb": null,
+            "stochastic_sectors": null
+          },
+          "kernel_cost": {
+            "f64_max_avg_us": null,
+            "sum_f64_checked_us": null
+          },
+          "samplers": [
+            {
+              "id": "qmc",
+              "label": "QMC",
+              "state": "pending",
+              "metrics": {
+                "integration_peak_gb": null,
+                "work_relative_se": null,
+                "work_joint_se": null,
+                "time_relative_se": null
+              },
+              "receipts": []
+            },
+            {
+              "id": "discrete_mc",
+              "label": "MC",
+              "state": "pending",
+              "metrics": {
+                "integration_peak_gb": null,
+                "work_relative_se": null,
+                "work_joint_se": null,
+                "time_relative_se": null
+              },
+              "receipts": []
+            }
+          ]
+        },
+        {
+          "id": "no-contour",
+          "label": "No contour",
+          "generation_status": "not_available",
+          "status_detail": "Verified geometry/open maps exist; complete endpoints and integral unavailable",
+          "generation": {
+            "generation_seconds": null,
+            "generation_peak_gb": null,
+            "artifact_mb": null,
+            "stochastic_sectors": null
+          },
+          "kernel_cost": {
+            "f64_max_avg_us": null,
+            "sum_f64_checked_us": null
+          },
+          "samplers": [
+            {
+              "id": "qmc",
+              "label": "QMC",
+              "state": "not_available",
+              "metrics": {
+                "integration_peak_gb": null,
+                "work_relative_se": null,
+                "work_joint_se": null,
+                "time_relative_se": null
+              },
+              "receipts": []
+            },
+            {
+              "id": "discrete_mc",
+              "label": "MC",
+              "state": "not_available",
+              "metrics": {
+                "integration_peak_gb": null,
+                "work_relative_se": null,
+                "work_joint_se": null,
+                "time_relative_se": null
+              },
+              "receipts": []
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "historical_sources": [
+    {
+      "id": "scalar-20261010",
+      "source": "docs/contour-scalar-results.json",
+      "execution": "one compiler core, in-process native generation, one-core sampling; Horner0 original campaign",
+      "target_order": 0,
+      "reusable": "input/reference definitions only; timings are not new campaign measurements"
+    },
+    {
+      "id": "kite-cap-20261010",
+      "source": "docs/contour-cap-scalar-results.json",
+      "execution": "mixed-mass p\u00b23/1000, Horner10 cap study",
+      "target_order": 0,
+      "reusable": "separate contour tuning evidence at its exact old point"
+    },
+    {
+      "id": "no-contour-20261011",
+      "source": "docs/no-contour-results.json",
+      "execution": "8 workers, ordinary generation, original profiling and timing repeats",
+      "target_order": {
+        "bubble": 1,
+        "degree7": 0,
+        "sextic": 0
+      },
+      "reusable": "finite input/reference and supported-class evidence; regenerate bubble at order0"
+    },
+    {
+      "id": "d05-20261010",
+      "source": "docs/contour-deformation-results.json",
+      "execution": "50 workers, original cos\u03b84/5 point and older dependency identity",
+      "target_order": 0,
+      "reusable": "historical contour performance only; not new exact-t point"
+    }
+  ]
+}

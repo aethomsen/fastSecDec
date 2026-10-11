@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "status": "preparatory",
+  "target_order": 0,
+  "resource_policy": {
+    "workers": 25,
+    "physical_cores": 25,
+    "rss_limit_bytes": 100000000000,
+    "quiet_host_required": false,
+    "parallel_campaigns_allowed": true
+  },
+  "generation": {
+    "serial": true,
+    "endpoint_mode": "symbolic",
+    "order": 0,
+    "jacobian": "selected separately from prior or calibration evidence before confirmation",
+    "full_source_only": true
+  },
+  "integration": {
+    "qmc_scheduler": "serial",
+    "qmc_residence_seconds_proposal": 1,
+    "discrete_mc_scheduler": "ordinary_explicit_user_exception",
+    "fixed_time_seconds": 600,
+    "global_deadline_adapter": "one SIGINT to coordinator after600s; short executable control pending",
+    "matched_work_unit": "committed native sector-point evaluations",
+    "target": {
+      "laurent_order": 0,
+      "uncertainty": "sqrt(trace(native finite covariance-of-mean block))"
+    },
+    "confirmation_seeds_per_sampler_arm": 1,
+    "work_and_time_seeds_disjoint": true
+  },
+  "metric_keys": [
+    "generation_seconds",
+    "generation_peak_gb",
+    "artifact_mb",
+    "stochastic_sectors",
+    "f64_max_avg_us",
+    "integration_peak_gb",
+    "sum_f64_checked_us",
+    "work_relative_se",
+    "work_joint_se",
+    "time_relative_se"
+  ],
+  "freeze_required": [
+    "source commit and postimages",
+    "Cargo.lock and native dependency commits",
+    "release binary and feature hashes",
+    "native fixture/reference admission",
+    "selected Jacobian and contour parameters",
+    "sampler allocations/seeds/residence/global stopping",
+    "observer and cohort enforcement",
+    "raw-f64 and checked cost harness"
+  ],
+  "measurements": []
+}

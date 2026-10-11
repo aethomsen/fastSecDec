@@ -1,0 +1,12 @@
+// Scalar counterpart of examples/graphs/sunset_2loop_numerator.dot.
+// Native admission must match the maintained with_numerator(1) fixture.
+digraph scalar_sunrise {
+  ext0 [style=invis];
+  ext1 [style=invis];
+  v0; v1;
+  v0 -> ext0 [id=0, particle="phi"];
+  v1 -> ext1 [id=1, particle="phi"];
+  v0 -> v1 [id=2, particle="phi", lmb_id=0];
+  v0 -> v1 [id=3, particle="phi", lmb_id=1];
+  v0 -> v1 [id=4, particle="phi"];
+}

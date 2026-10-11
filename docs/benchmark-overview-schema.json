@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Finite-coefficient benchmark Overview data",
+  "type": "object",
+  "required": ["schema_version", "campaign_status", "target_order", "workers", "memory_limit_bytes", "timed_seconds", "historical_measurements_in_table", "topologies"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "campaign_status": {"enum": ["awaiting_dependency_and_executable_freeze", "frozen", "running", "partial", "complete"]},
+    "target_order": {"const": 0},
+    "workers": {"const": 25},
+    "memory_limit_bytes": {"const": 100000000000},
+    "timed_seconds": {"const": 600},
+    "historical_measurements_in_table": {"const": false},
+    "topologies": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/topology"}},
+    "historical_sources": {"type": "array"},
+    "freeze_receipt": {"$ref": "#/$defs/receipt"},
+    "native_measurements": {"type": "array", "items": {"$ref": "#/$defs/native_measurement"}}
+  },
+  "$defs": {
+    "display": {"type": ["string", "number", "null"]},
+    "receipt": {
+      "type": "object", "required": ["path", "sha256"],
+      "properties": {"path": {"type": "string", "minLength": 1}, "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}}
+    },
+    "topology": {
+      "type": "object", "required": ["id", "label", "point", "methods"],
+      "properties": {
+        "id": {"type": "string"}, "label": {"type": "string"}, "point": {"type": "string"},
+        "methods": {"type": "array", "items": {"$ref": "#/$defs/method"}}
+      }
+    },
+    "method": {
+      "type": "object", "required": ["id", "label", "generation_status", "status_detail", "generation", "kernel_cost", "samplers"],
+      "properties": {
+        "id": {"enum": ["fixed", "dynamic-polynomial", "dynamic-sign-aware", "no-contour"]},
+        "label": {"type": "string"}, "status_detail": {"type": "string"},
+        "generation_status": {"enum": ["pending", "measured", "not_available", "refused", "failed", "cancelled", "timeout"]},
+        "generation": {"type": "object", "required": ["generation_seconds", "generation_peak_gb", "artifact_mb", "stochastic_sectors"], "additionalProperties": {"$ref": "#/$defs/display"}},
+        "kernel_cost": {"type": "object", "required": ["f64_max_avg_us", "sum_f64_checked_us"], "additionalProperties": {"$ref": "#/$defs/display"}},
+        "samplers": {"type": "array", "minItems": 2, "maxItems": 2, "items": {"$ref": "#/$defs/sampler"}}
+      }
+    },
+    "sampler": {
+      "type": "object", "required": ["id", "label", "state", "metrics", "receipts"],
+      "properties": {
+        "id": {"enum": ["qmc", "discrete_mc"]}, "label": {"type": "string"},
+        "state": {"enum": ["pending", "measured", "not_available", "refused", "failed", "cancelled", "timeout", "partial"]},
+        "metrics": {"type": "object", "required": ["integration_peak_gb", "work_relative_se", "work_joint_se", "time_relative_se"], "additionalProperties": {"$ref": "#/$defs/display"}},
+        "receipts": {"type": "array", "items": {"$ref": "#/$defs/receipt"}}
+      },
+      "if": {"properties": {"state": {"const": "measured"}}},
+      "then": {"properties": {"receipts": {"minItems": 1}}}
+    },
+    "native_measurement": {
+      "type": "object",
+      "required": ["topology", "method", "sampler", "arm", "seed", "target_order", "point_sha256", "artifact_sha256", "executable_sha256", "native_result", "process_receipt", "accepted_sector_evaluations", "requested_seconds", "actual_seconds", "outcome"],
+      "properties": {
+        "topology": {"type": "string"}, "method": {"type": "string"},
+        "sampler": {"enum": ["qmc", "discrete_mc"]}, "arm": {"enum": ["calibration", "matched_work", "fixed_time"]},
+        "seed": {"type": "integer", "minimum": 0}, "target_order": {"const": 0},
+        "point_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "artifact_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "executable_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "native_result": {"anyOf": [{"$ref": "#/$defs/receipt"}, {"type": "null"}]}, "process_receipt": {"$ref": "#/$defs/receipt"},
+        "accepted_sector_evaluations": {"type": "integer", "minimum": 0},
+        "requested_seconds": {"type": ["number", "null"], "minimum": 0},
+        "actual_seconds": {"type": "number", "minimum": 0},
+        "outcome": {"enum": ["target_reached", "work_limit", "timed_complete_estimate", "unavailable_uncertainty", "incomplete_coverage", "numerical_failure", "native_refusal", "cancelled", "external_timeout", "external_memory_limit"]}
+      }
+    }
+  }
+}

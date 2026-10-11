@@ -1,0 +1,361 @@
+{
+  "schema_version": 1,
+  "status": "preparatory",
+  "all_overview_orders": 0,
+  "fixtures": [
+    {
+      "id": "bubble",
+      "label": "Massive bubble",
+      "exact_point_description": "B0(16;3,3), \u03bc\u00b2=1",
+      "loops": 1,
+      "propagators": 2,
+      "projective_dimension": 1,
+      "independent_reference": "native OneLOop, finite and pole coefficients",
+      "limitation": "complete threshold route previously integrated at \u03b5\u00b9; regenerate at \u03b5\u2070",
+      "native_admission": "pending",
+      "card": "examples/no_deformation/benchmarks/overview/bubble.toml",
+      "source_export": {
+        "outcome": "refused",
+        "historical_executable_sha256": "7f41b135fdde78d89e443bf1372cb7d807e771ecb8bfd7fdf637143e82d64d36",
+        "card_sha256": "069e739b811857a7f2277acd8bec099de18b292c1479579cff14ef809438f851",
+        "source_only": true,
+        "not_campaign_timing": true,
+        "reason": "The exact exporter accepts rational literals; sqrt(3) mass syntax is refused. This is not a generation failure."
+      }
+    },
+    {
+      "id": "triangle",
+      "label": "Massive triangle",
+      "exact_point_description": "C0(0,0,5;1,1,1), \u03bc\u00b2=1",
+      "loops": 1,
+      "propagators": 3,
+      "projective_dimension": 2,
+      "independent_reference": "native OneLOop expression backend",
+      "limitation": "current no-contour multidimensional admission unverified",
+      "native_admission": "input source export passed; generation/reference gate pending",
+      "card": "examples/no_deformation/benchmarks/overview/triangle.toml",
+      "source_export": {
+        "outcome": "PASS",
+        "historical_executable_sha256": "7f41b135fdde78d89e443bf1372cb7d807e771ecb8bfd7fdf637143e82d64d36",
+        "card_sha256": "adfa5a00a5ed89085ed702de7662cacf142763cb061f67078b1f9d919fac32ae",
+        "source_only": true,
+        "not_campaign_timing": true,
+        "bundle_sha256": "5e763bb8677e36b54c66747358a0068c243dc0661a237d08a5495bd3e7cc7d09",
+        "native_numerator": "1",
+        "powers": [
+          1,
+          1,
+          1
+        ],
+        "edge_ids": [
+          3,
+          4,
+          5
+        ],
+        "measure_multiplier": "(symbolica::{}::gamma(-1*feynkit_graph::{}::eps+1))^(-2)*(symbolica::{}::gamma(1+feynkit_graph::{}::eps))^(-1)*symbolica::{}::gamma(-2*feynkit_graph::{}::eps+1)"
+      }
+    },
+    {
+      "id": "box",
+      "label": "Massive box",
+      "exact_point_description": "D0(0,0,0,0,5,\u22121;1,1,1,1), \u03bc\u00b2=1",
+      "loops": 1,
+      "propagators": 4,
+      "projective_dimension": 3,
+      "independent_reference": "native OneLOop expression backend",
+      "limitation": "current no-contour multidimensional admission unverified",
+      "native_admission": "input source export passed; generation/reference gate pending",
+      "card": "examples/no_deformation/benchmarks/overview/box.toml",
+      "source_export": {
+        "outcome": "PASS",
+        "historical_executable_sha256": "7f41b135fdde78d89e443bf1372cb7d807e771ecb8bfd7fdf637143e82d64d36",
+        "card_sha256": "56f5d88f34cb9e2be9bc5add36ceb1247bcb90b12e64af5f8cecc59af1fc0600",
+        "source_only": true,
+        "not_campaign_timing": true,
+        "bundle_sha256": "889f52f84e6de03888bd36f7a730d518974bf8c3a2b58cbca4c8ede57e8f9cfb",
+        "native_numerator": "1",
+        "powers": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "edge_ids": [
+          4,
+          5,
+          6,
+          7
+        ],
+        "measure_multiplier": "(symbolica::{}::gamma(-1*feynkit_graph::{}::eps+1))^(-2)*(symbolica::{}::gamma(1+feynkit_graph::{}::eps))^(-1)*symbolica::{}::gamma(-2*feynkit_graph::{}::eps+1)"
+      }
+    },
+    {
+      "id": "sunrise",
+      "label": "Massless sunrise",
+      "exact_point_description": "p\u00b2=1; all three masses zero",
+      "loops": 2,
+      "propagators": 3,
+      "projective_dimension": 2,
+      "independent_reference": "native Symbolica Gamma identity through \u03b5\u2070",
+      "limitation": "causal branch and endpoint control; F has no interior zero",
+      "native_admission": "input source export passed; generation/reference gate pending",
+      "card": "examples/no_deformation/benchmarks/overview/sunrise.toml",
+      "source_export": {
+        "outcome": "PASS",
+        "historical_executable_sha256": "7f41b135fdde78d89e443bf1372cb7d807e771ecb8bfd7fdf637143e82d64d36",
+        "card_sha256": "e504d9d547ef7247c83a3d4aeb44c5bf2d8214e6baed4ff26bcbbc4a88ac0eed",
+        "source_only": true,
+        "not_campaign_timing": true,
+        "bundle_sha256": "f96d9ac8b2f3c6ca394bdff93d055a3a8fcb56ae55a27aedabf7380cac10fea3",
+        "native_numerator": "1",
+        "powers": [
+          1,
+          1,
+          1
+        ],
+        "edge_ids": [
+          2,
+          3,
+          4
+        ],
+        "measure_multiplier": "1"
+      }
+    },
+    {
+      "id": "kite",
+      "label": "Massive-threshold kite",
+      "exact_point_description": "p\u00b2=16; five internal masses equal to 1",
+      "loops": 2,
+      "propagators": 5,
+      "projective_dimension": 4,
+      "independent_reference": null,
+      "limitation": "Interior native F signs differ, so this is a genuine interior-threshold fixture. Independent integral reference and generation admission remain pending.",
+      "native_admission": "input source export passed; generation/reference gate pending",
+      "card": "examples/no_deformation/benchmarks/overview/kite.toml",
+      "source_export": {
+        "outcome": "PASS",
+        "historical_executable_sha256": "7f41b135fdde78d89e443bf1372cb7d807e771ecb8bfd7fdf637143e82d64d36",
+        "card_sha256": "2637fc2b422de7c132263ce82b689b402d543c846f6f8db1fa04eb66717bcc9c",
+        "source_only": true,
+        "not_campaign_timing": true,
+        "bundle_sha256": "cffa38c25bc6c895b85ec8d5b1958d8ae671b56edf68b94756163c5b3a922c21",
+        "native_numerator": "1",
+        "powers": [
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "edge_ids": [
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "measure_multiplier": "1",
+        "native_interior_signs": {
+          "interior_points": [
+            {
+              "F": "-88",
+              "U": "8",
+              "coordinates": [
+                "1",
+                "1",
+                "1",
+                "1",
+                "1"
+              ]
+            },
+            {
+              "F": "734243/250000000",
+              "U": "601/200000",
+              "coordinates": [
+                "1",
+                "1/1000",
+                "1/1000",
+                "1/1000",
+                "1/1000"
+              ]
+            }
+          ],
+          "mass_squared": [
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "native": "Symbolica exact substitution on HEPKit GraphSymanzik export",
+          "p_squared": 16
+        },
+        "native_sign_receipt_sha256": "9621b317686708adc43d3c9b42ffc537ce3a7ab78f913570c70888254cbae70b"
+      },
+      "native_ordered_denominators": [
+        "(p\u2212k0)\u00b2\u22121",
+        "k1\u00b2\u22121",
+        "k0\u00b2\u22121",
+        "(p\u2212k1)\u00b2\u22121",
+        "(p\u2212k0\u2212k1)\u00b2\u22121"
+      ]
+    },
+    {
+      "id": "d05-scalar",
+      "label": "Scalar D05 double box",
+      "exact_point_description": "s=1000000, t=\u221297077, mH=125, mt=345/2",
+      "loops": 2,
+      "propagators": 7,
+      "projective_dimension": 6,
+      "independent_reference": null,
+      "limitation": "same exact geometry as physical D05; complete no-contour endpoint/integration path pending",
+      "native_admission": "native represented scalar source and exact geometry compatibility PASS; fresh proof binding and integration pending",
+      "represented_source_identity": "baaeca8b802d5b8a39ca8d9412ffe26210532fa06894ee1a3b0c3287c560ec5a",
+      "native_prefactor": "-1*symbolica::{}::gamma(2*gghh_physical::{}::eps+3)",
+      "source_review_sha256": "33bd434cfeb6cb87a063e61a895152046becc22bac35a900b7ed418ced148bc8"
+    },
+    {
+      "id": "d05-physical",
+      "label": "Physical D05 double box",
+      "exact_point_description": "s=1000000, t=\u221297077, mH=125, mt=345/2; incoming ++",
+      "loops": 2,
+      "propagators": 7,
+      "projective_dimension": 6,
+      "independent_reference": null,
+      "limitation": "complete 156-term source; no-contour closed density and integration pending",
+      "native_admission": "pending"
+    }
+  ],
+  "historical": [
+    {
+      "id": "scalar-20261010",
+      "source": "docs/contour-scalar-results.json",
+      "execution": "one compiler core, in-process native generation, one-core sampling; Horner0 original campaign",
+      "target_order": 0,
+      "reusable": "input/reference definitions only; timings are not new campaign measurements"
+    },
+    {
+      "id": "kite-cap-20261010",
+      "source": "docs/contour-cap-scalar-results.json",
+      "execution": "mixed-mass p\u00b23/1000, Horner10 cap study",
+      "target_order": 0,
+      "reusable": "separate contour tuning evidence at its exact old point"
+    },
+    {
+      "id": "no-contour-20261011",
+      "source": "docs/no-contour-results.json",
+      "execution": "8 workers, ordinary generation, original profiling and timing repeats",
+      "target_order": {
+        "bubble": 1,
+        "degree7": 0,
+        "sextic": 0
+      },
+      "reusable": "finite input/reference and supported-class evidence; regenerate bubble at order0"
+    },
+    {
+      "id": "d05-20261010",
+      "source": "docs/contour-deformation-results.json",
+      "execution": "50 workers, original cos\u03b84/5 point and older dependency identity",
+      "target_order": 0,
+      "reusable": "historical contour performance only; not new exact-t point"
+    }
+  ],
+  "source_pins": [
+    {
+      "path": "crates/fastsecdec/examples/contour_scalar_benchmark/fixtures.rs",
+      "sha256": "3fa5c82eb51740c7c961bf1d15c0e1e038b6de00e1057ebfc36389317fa89b63"
+    },
+    {
+      "path": "examples/contour/scalar_benchmarks/kite.dot",
+      "sha256": "58ea02f92442fd8882bf6ef3fd5c3e7d493461d7df419748fd4a893ec8fd0c3c"
+    },
+    {
+      "path": "examples/contour/scalar_benchmarks/model.json",
+      "sha256": "21572d009410e26dba810eb8153f772c26a9f0986032e3aee36326214b755e57"
+    },
+    {
+      "path": "examples/contour/scalar_benchmarks/kite.toml",
+      "sha256": "8273e59bbbb960cd55551f5967d98519500699cd2448105f108becad49a1499f"
+    },
+    {
+      "path": "examples/graphs/kite_2loop.dot",
+      "sha256": "8db3f3dfb3e5902a7fddc9d524924c7b7eaf35c9b589a39b97d565450e414e57"
+    },
+    {
+      "path": "examples/runs/kite_2loop.toml",
+      "sha256": "fbfa457ba7bce87bbf2670b934354b93c599826bd502865f976081342585cdc2"
+    },
+    {
+      "path": "examples/models/scalar.json",
+      "sha256": "b89bf9ca4162d3784896ced020da4efe06aa9b803334fb88761fd501b0cf89f2"
+    },
+    {
+      "path": "examples/models/massive.json",
+      "sha256": "34e866c9aca3280fbbf06da7d0d373e8bba005f92573992d288895c3bfbd8958"
+    },
+    {
+      "path": "examples/contour/gghh_double_box_1000_rational/point-exact.json",
+      "sha256": "875af6890e414cbe4e8b224562d0b1c24f9e67c605b5f82a23d8a7a92a5a0a6a"
+    },
+    {
+      "path": "examples/contour/gghh_double_box_1000_rational/point.toml",
+      "sha256": "6644721226c693d63805d637ddb115d972ce1302f5d3af3a8e9999d815733a43"
+    }
+  ],
+  "admission_requirements": [
+    "native graph/routing/powers and scalar numerator",
+    "exact U/F and full normalization/reference association",
+    "full original-source coverage",
+    "causal pilot for each frozen contour",
+    "current no-contour generation and endpoint admission; no fabricated geometry promotion"
+  ],
+  "kite_candidates": [
+    {
+      "source": "examples/contour/scalar_benchmarks/kite.dot",
+      "masses_squared_in_native_denominator_order": [
+        "1",
+        "1",
+        "1",
+        "0",
+        "0"
+      ],
+      "denominators": [
+        "k0\u00b2\u22121",
+        "(k0+p)\u00b2\u22121",
+        "(k0\u2212k1)\u00b2\u22121",
+        "k1\u00b2",
+        "(k1+p)\u00b2"
+      ],
+      "historical_p_squared": "3/1000",
+      "new_point": null,
+      "status": "historical control only, excluded from requested seven-block new campaign"
+    },
+    {
+      "source": "examples/graphs/kite_2loop.dot",
+      "internal_edge_ids": [
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "masses_squared": [
+        "1",
+        "1",
+        "1",
+        "1",
+        "1"
+      ],
+      "historical_p_squared": "\u22121",
+      "native_ordered_denominators": [
+        "(p\u2212k0)\u00b2\u22121",
+        "k1\u00b2\u22121",
+        "k0\u00b2\u22121",
+        "(p\u2212k1)\u00b2\u22121",
+        "(p\u2212k0\u2212k1)\u00b2\u22121"
+      ],
+      "new_point": "16",
+      "status": "selected by root; native positive and negative F values on strict interior points retained"
+    }
+  ]
+}
