@@ -1,0 +1,50 @@
+# Complete native unit-square family with two degree-six regular sections.
+# Fixed-input sufficient route; no general projective/triangle or collision claim.
+# For P=y^6-y+(1+x)/16, the finite imaginary coefficient is
+# 16*pi*((a(1)-a(0))-(b(1)-b(0))) ~= 3.8521160461762443.
+# Here a(x)<b(x) are its two real roots in (0,1). Both pole components
+# cancel in the complete family. Retain the full complex vector/covariance.
+#
+# Bounded smoke commands from the repository root (after building fastsecdec):
+# fastsecdec generate examples/no_deformation/regular_sextic.toml -o target/regular-sextic/normal.fsd --workers 1
+# fastsecdec generate examples/no_deformation/regular_sextic.toml -o target/regular-sextic/serial.fsd --workers 2 --serial
+# fastsecdec integrate target/regular-sextic/normal.fsd --points 1024 --shifts 4 --workers 2 --seed 202610119061 --target-order 0 --max-rounds 1
+# Repeat integration on serial.fsd; add --serial 0.001 for record-at-a-time integration.
+# A budget stop is a valid incomplete accuracy outcome, not a zero result.
+# These checks exercise fixed-cube regular sections, not general resolution,
+# moving brackets, runtime-parameter rebinding or automatic projective graphs.
+[direct]
+domain = "unit_cube"
+parameters = ["x", "y"]
+
+[[direct.terms]]
+prefactor = "1"
+monomial_powers = ["0", "0"]
+
+[[direct.terms.factors]]
+polynomial = "y^6-y+(1+x)/16"
+exponent = "-1-eps"
+semantics = "causal"
+
+[generation]
+threshold_decomposition = true
+order = 0
+
+[threshold_decomposition.solver]
+order = ["v0", "v1"]
+
+[threshold_decomposition.gcad_limits]
+wall_time_secs = 30.0
+memory_mib = 1024
+
+[integration]
+points = 1024
+shifts = 4
+workers = 8
+periodization = "korobov3"
+relative_tolerance = 0.01
+accuracy_target = { target = "laurent_order", order = 0 }
+
+# Algebraic callbacks require tracked validation; no cutoff-zero routing.
+[integration.stability]
+mode = "validated"

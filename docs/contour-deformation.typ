@@ -1,8 +1,8 @@
 // Rebuild: nix-shell -p typst --run 'typst compile docs/contour-deformation.typ docs/contour-deformation.pdf'
 // Measurements are accompanied by native full-covariance summaries and audit records.
-#set document(title: "Causal contour deformation in FastSecDec", author: "FastSecDec collaboration")
+#set document(title: "Threshold regularisation in FastSecDec", author: "FastSecDec collaboration")
 #set page(paper: "a4", margin: (x: 19mm, top: 18mm, bottom: 19mm),
-  footer: context [#text(size: 8pt, fill: rgb("64748b"))[FastSecDec · contour_deformation] #h(1fr) #counter(page).display()])
+  footer: context [#text(size: 8pt, fill: rgb("64748b"))[FastSecDec · threshold benchmarks] #h(1fr) #counter(page).display()])
 #set text(font: "Libertinus Serif", size: 10.2pt)
 #set par(justify: true, leading: 0.54em)
 #set heading(numbering: "1.1")
@@ -18,11 +18,11 @@
 #let Re = math.op("Re")
 #let Im = math.op("Im")
 
-#text(size: 24pt, weight: "bold", fill: rgb("173e59"))[Causal contour deformation]
+#text(size: 24pt, weight: "bold", fill: rgb("173e59"))[Threshold regularisation]
 
-#text(size: 13pt)[FastSecDec · fixed and smooth dynamic strength]
+#text(size: 13pt)[FastSecDec · contour deformation and threshold decomposition]
 #v(3mm)
-#text(size: 9pt, fill: rgb("64748b"))[Benchmark checkpoint · 10 October 2026]
+#text(size: 9pt, fill: rgb("64748b"))[Benchmark checkpoint · 11 October 2026]
 
 = Deformation styles and formulae
 == Common geometry and fixed strength
@@ -224,8 +224,13 @@ Both use serial generation, SymJIT O2, Horner zero and common-pair cap 1000.
 Dynamic time includes the initial two-worker attempt and its four-worker
 continuation; the 26.1-second restart gap is excluded. Initial native series
 widths are one and two, respectively. These are complete-campaign observations,
-with different worker counts; the matched Jacobian comparison is in section 3.
+with different worker counts; the matched Jacobian comparison is in section 4.
 GB and MB are decimal; RSS includes the owned parent and child processes.
+
+*No-contour status:* the double-box threshold-decomposition comparison is not
+available yet. The new no-contour profiles below cover complete small inputs.
+Parametric and exactly specialized double-box GCAD feasibility are being checked
+separately; solving GCAD alone does not establish endpoint-resolution completion.
 
 == Five minutes on 50 physical cores
 #table(columns: (1.05fr, .9fr, 1.15fr, 1fr, 1fr), inset: 5pt, stroke: 0.4pt + rgb("cbd5e1"),
@@ -263,7 +268,7 @@ production causal checks are disabled. Complete accepted work is drained after
 cancellation, explaining the modest overshoot. All rows retain full covariance
 and independently reserved production streams; incomplete work is not added.
 No independent numerical reference exists for this point. These frozen
-campaign executables precede the loader-cache update in section 3.
+campaign executables precede the loader-cache update in section 4.
 
 #pagebreak()
 #include "contour-scalar-results.typ"
@@ -273,6 +278,9 @@ campaign executables precede the loader-cache update in section 3.
 
 #pagebreak()
 #include "contour-cap-double-box.typ"
+
+#pagebreak()
+#include "no-contour-results.typ"
 
 #pagebreak()
 = Implementation and performance

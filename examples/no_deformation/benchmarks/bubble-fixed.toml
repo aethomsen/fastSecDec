@@ -1,0 +1,39 @@
+# Above-threshold native HEPKit B0: s=16, m1²=m2²=3, mu²=1.
+# Rational cell boundaries are 1/4 and 3/4. The full finite coefficient is
+# 2-(3/2)*log(3)+i*pi/2 after the native OneLOop rGamma normalization below.
+[input]
+graph = "../../graphs/bubble.dot"
+model = "../../models/scalar.json"
+
+[kinematics]
+products = [{ left = 1, right = 1, value = "16" }]
+
+[parameters]
+"UFO::mt" = "sqrt(3)"
+
+[integral]
+dimension = "4-2*eps"
+regulator = "eps"
+measure_multiplier = "gamma(1-2*eps)/(gamma(1+eps)*gamma(1-eps)^2)"
+
+[generation]
+recipe = "fixed-v1"
+order = 1
+
+[integration]
+points = 4096
+shifts = 16
+workers = 8
+periodization = "korobov3"
+relative_tolerance = 0.001
+accuracy_target = { target = "laurent_order", order = 1 }
+
+[integration.stability]
+mode = "validated"
+
+[integration.contour.deformation]
+mode = "fixed"
+lambda = 0.1
+
+[integration.contour.validation]
+policy = "pilot"

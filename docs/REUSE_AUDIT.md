@@ -4338,3 +4338,20 @@ bytes. HEPKit graph input, composed evaluators, indexed records, QMC/covariance
 and OneLOop references remain with their existing owners. Independent review
 and focused native scientific/recovery tests pass without a dependency change.
 Frontend forwarding and serial point identity remain separate delivery gates.
+
+## First complete-input no-contour profiles
+
+The [independent benchmark review](reviews/no-deformation-benchmark-audit.md)
+checks the public-dependency release CLI on the native graph bubble and complete
+regular degree-six/seven controls. Existing generation, native evaluators,
+precision rescue, QMC work reservations and full-vector covariance supply every
+scientific result. External scripts only observe processes and extract native
+records; no alternative integrator, root solver or algebra implementation is
+introduced. Both bubble arms retain the same native input and normalization.
+
+All 24 original integrations and separately attributed profiling repeats pass.
+The report keeps total accepted work, native integration time, process wall,
+sampled aggregate RSS and precision costs distinct. Its SD is estimator standard
+error, not raw-point variance or a certified accuracy bound. Independent review,
+536 handoff evidence checks and PDF rendering checks pass. The measurements do
+not establish general singular-boundary resolution or no-contour ggHH capability.
