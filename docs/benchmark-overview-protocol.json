@@ -14,7 +14,9 @@
     "endpoint_mode": "symbolic",
     "order": 0,
     "jacobian": "selected separately from prior or calibration evidence before confirmation",
-    "full_source_only": true
+    "full_source_only": true,
+    "double_box_cutoff_seconds": 18000,
+    "cutoff_scope": "Latest caller allowance for subsequent generation; completed attempt clocks retained; no change to600s integration"
   },
   "integration": {
     "qmc_scheduler": "serial",
@@ -101,5 +103,14 @@
     "work_relative_se",
     "work_joint_se",
     "time_relative_se"
-  ]
+  ],
+  "supported_triangle_extension": {
+    "timed_arms": 2,
+    "executable_sha256": "35c922899e6b5b92832373b48ad85e845756e00f6f60d86a048598a8ce3985bc",
+    "original_instrumented_arms": 38,
+    "new_total_instrumented_arms": 40,
+    "secondary_native_seconds": 900,
+    "secondary_requested_evaluations": 241606656,
+    "secondary_partial_policy": "MC clean native deadline, full coverage and fixed design; strict allocation incomplete retained, actual-N heuristic only"
+  }
 }

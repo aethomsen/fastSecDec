@@ -3,7 +3,7 @@
 
 #let overview-data = json("benchmark-overview-results.json")
 #block(width: 100%, inset: 8pt, fill: rgb("edf4f7"), radius: 3pt)[
-  *All 38 admitted timed arms complete.* The no-contour routes marked unsupported
+  *All 40 admitted timed arms complete.* The no-contour routes marked unsupported
   or in preparation remain unfinished. A dash is an unavailable measurement,
   never a zero. The opening tables use the new finite-coefficient campaign only.
   Historical studies below retain their original points, settings and resources;
@@ -84,7 +84,11 @@ planned allocation, provided its native full-coverage covariance comes from
 committed complete batches under the same fixed design. Its strict matched-work
 status remains incomplete; the actual count and square-root correction are
 retained explicitly. A completed continuation is used instead of its partial
-prefix, without pooling the two estimates.
+prefix, without pooling the two estimates. For the new triangle no-contour
+secondary arm, QMC completed all 241,606,656 planned evaluations in 402.311
+seconds; MC saved 40,550,400 at its clean 900-second deadline (904.709 seconds
+including drain). That MC allocation remains incomplete. Neither secondary
+time is described as a 600-second measurement.
 
 The timed-call column counts observed logical sector-integrand evaluations,
 including reported pilot and discarded work. Precision-rescue backend calls
@@ -113,6 +117,9 @@ uses 25 workers for both samplers. QMC uses serial residency with a one-second
 minimum stay. MC denotes the existing *ordinary discrete-MC scheduler*, the
 user-authorized exception to serial integration. The shared owned campaign
 cohort observes a 100 GB allowance. Campaigns may overlap; no quiet-machine assumption is made.
+The caller now permits up to five hours for a double-box generation attempt;
+this ceiling is a preparation allowance, not a change to the 600-second
+integration comparison or a relabelling of any completed measurement.
 
 The input cards in `examples/no_deformation/benchmarks/overview/` specify the
 native HEPKit graphs, exact masses/invariants, normalization, symbolic endpoint
@@ -137,21 +144,38 @@ measured full-sweep cost before any confirmation result is available. Full
 commands, artifact identities, evaluator sizes, component layout and binary
 digests are retained in `docs/benchmark-overview-results.json`; the protocol and
 input inventory describe reproduction. These measured binaries use the pinned
-symGCAD revision `644a560e69a064f811fa93aff33a247ea7fcdfca`.
+symGCAD revision `644a560e69a064f811fa93aff33a247ea7fcdfca`. The original 38
+instrumented timed arms use executable `cf9eb450`; the subsequently admitted
+triangle no-contour arms use `35c92289`, with their distinct source/build receipt.
+The latter retains normal stability checks and precision rescue in checked
+costs and integration, even when the raw f64 evaluation is much cheaper.
+Its timed QMC run rescued 115,307,844 of 340,410,368 logical calls (33.9%);
+the MC run rescued all 61,915,136 calls, with zero failures and maximum precision
+256 bits. Their weighted-check / additional-replay counts were 21 / 12 and
+144 / 0. The deterministic profiling coordinates triggered no rescue. These
+are different sampling workloads; the archive has no per-trigger rescue reason
+histogram. The checked integration clock retains this overhead.
 
 == Current admission limits
-The bubble has a complete no-contour integration route. The frozen campaign CLI
-reports “Unsupported” for the triangle, box, sunrise and kite:
-the affine-projective preparation guard stops before GCAD is called. This is an
-implementation gap in the complete multidimensional cell-to-endpoint route,
-not a failed GCAD solve or a rejection of the physical integral. A separate
-triangle probe now solves and freshly verifies its four native cells; connecting
-those cells to complete endpoint continuation remains pending. Its millisecond
-solve is not a complete generation measurement. Verified double-box geometry and open
-maps likewise do not yet provide the complete endpoint continuation needed for
-a full no-contour integral. Those rows remain unavailable; their generation
-time is not replaced by GCAD-only time. The detailed preparation studies below
-report this partial progress separately.
+The bubble and triangle now have complete no-contour integration rows. The
+triangle uses its unchanged native HEPKit graph input, four freshly verified
+source cells, and 18 endpoint charts; its quoted generation time includes the
+complete publication step. Fresh-process loading and separate QMC/MC
+confirmations use that actual artifact. The earlier unsupported attempt is
+retained as historical evidence rather than overwritten.
+
+The frozen benchmark CLI still reports “Unsupported” for box, sunrise and kite
+before invoking GCAD. These are implementation gaps, not rejected physical
+integrals or evidence of GCAD infeasibility. Separate native geometry probes
+have already solved triangle and box; ongoing generic route work is not
+substituted for a completed artifact or a numerical row. The existing native
+HEPKit CLI graph-parametrization route binds the prepared source and input
+fingerprint; it is distinct from the stricter pre-parametrization GraphPoint
+owner API. Surviving inexact geometric coefficients are refused, not rounded.
+Verified double-box geometry and open maps still lack complete endpoint
+continuation for a full no-contour integral. Those rows remain unavailable;
+GCAD-only timings are not used as complete generation measurements. The studies
+below retain their original scope and measurements.
 
 #set text(size: 8pt)
 #table(

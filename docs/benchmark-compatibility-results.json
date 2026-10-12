@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "status": "Instrumented campaign checkpoint; 114 accepted native estimates",
-  "campaign_preview_sha256": "f81ec62f72c9bd989b848244d237d05f7f083f2a05944a2956042eb227e99e6f",
-  "complete_private_audit_sha256": "827c4e8e56f55cdd055ffdbe5cf5fed61a65a57ee0cc53f4a505a3d2e80d7d5c",
+  "status": "Instrumented campaign checkpoint; 118 accepted native estimates",
+  "campaign_preview_sha256": "fdab9f7023bc2f0ba43c775bfd8c5ff9fab8ce79ad17e90c8c59b09453dea283",
+  "complete_private_audit_sha256": "9ea388d2208d23893dc7cedfa936006e52a6db7b3e404219a744a51bf80b3316",
   "native_helper": "crates/fastsecdec/examples/benchmark_compatibility.rs",
   "reference_inventory_sha256": "0a45bf54b72d9300462db9dc2f7903d9febe8537ed4ec22f1248c48941c26c6c",
   "semantics": {
@@ -14,7 +14,7 @@
     "maximum_all_order_reference_distance": 3.077433343072288,
     "secondary_work": "Separately reviewed clean-cap partial allocations may enter with native full-vector covariance; an overlapping prefix is excluded when a completed continuation is used."
   },
-  "accepted_runs": 114,
+  "accepted_runs": 118,
   "topologies": [
     {
       "topology": "bubble",
@@ -134,9 +134,9 @@
     {
       "topology": "triangle",
       "label": "Massive triangle",
-      "runs": 18,
+      "runs": 22,
       "comparisons": {
-        "count": 153,
+        "count": 231,
         "rounding_sensitive_or_singular": 0,
         "maximum_covariance_distance": 2.768149730485125,
         "largest_diagnostic": {
@@ -187,7 +187,7 @@
         }
       },
       "reference_comparisons": {
-        "count": 18,
+        "count": 22,
         "rounding_sensitive_or_singular": 0,
         "maximum_covariance_distance": 2.5799667343713844,
         "largest_diagnostic": {

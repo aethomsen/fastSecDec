@@ -1,6 +1,6 @@
 # Twenty-five-core finite-coefficient benchmark protocol
 
-Status: all 38 admitted instrumented timed arms are complete, with frozen
+Status: all 40 admitted instrumented timed arms are complete, with frozen
 dependency, executable and recorded run plans. Generation, explicit-Off costs
 and confirmation estimates are recorded; unsupported no-contour routes remain
 unfinished. No earlier historical number is relabelled as a measurement of this
@@ -243,3 +243,20 @@ The requested stopping checkpoint is the scalar suite and both exact-point
 double-box rows, with the updated Overview and detailed PDF. Any unresolved
 no-contour double-box entry must state its actual blocker. Completing this
 benchmark checkpoint does not complete the general endpoint resolver.
+
+## Subsequently admitted triangle route
+
+The unchanged native triangle graph now produces four verified cells and 18
+complete endpoint charts. Its source-bound acceptance and benchmark use frozen
+executable `35c92289`, distinct from `cf9eb450` used for the original 38 timed
+arms. New seeds remain separate from acceptance and pilot seeds. Two new native
+600-second arms retain complete drain/call/weight diagnostics and precision
+rescue. The independent work arm targets 241,606,656 accepted evaluations:
+QMC completes it; MC reaches its native 900-second cap with 40,550,400. The
+secondary display admits the latter under the reviewed fixed-design rule,
+retaining `incomplete_requested_work` and its actual count. No estimate is pooled
+with another run or retuned from confirmation values.
+
+The user now allows a five-hour (18,000-second) double-box generation cutoff.
+This applies to subsequent preparation attempts only; completed attempt
+receipts and the primary 600-second integration comparison remain unchanged.
