@@ -180,6 +180,9 @@ impl PositiveProjectiveRequest {
     pub fn problem(&self) -> &Problem {
         &self.problem
     }
+    pub(super) fn matches_native_problem(&self, problem: &Problem) -> bool {
+        serde_json::to_vec(problem).is_ok_and(|bytes| bytes == self.problem_bytes)
+    }
     pub fn source_identity(&self) -> Result<String> {
         match &self.provenance {
             SourceProvenance::Exact => {
@@ -205,7 +208,7 @@ impl PositiveProjectiveRequest {
     /// Fresh native verification; request settings cannot be changed by replay.
     /// Reduced-only geometry never substitutes for the original homogeneous proof.
     pub fn verify(&self, original: Arc<SolveResult>) -> Result<PositiveProjectiveQuotient> {
-        if serde_json::to_vec(&original.problem).map_err(native)? != self.problem_bytes {
+        if !self.matches_native_problem(&original.problem) {
             return Err(GcadError::RequestMismatch);
         }
         match &self.provenance {

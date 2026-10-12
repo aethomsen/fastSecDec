@@ -5,7 +5,9 @@
 //! checkpoint, or a complete integration artifact. Caller process limits remain
 //! responsible for native solve/verification RSS and wall time.
 
+mod positive;
 mod request;
+pub use positive::{PositiveVerificationAttempt, StagedPositiveRequest};
 #[cfg(test)]
 mod tests;
 
@@ -128,6 +130,28 @@ fn preflight(root: &Path, records: &[&RecordRef], maximum_bytes: u64) -> Result<
         record.verify(root)?;
     }
     Ok(())
+}
+
+fn record_observation(
+    root: &Path,
+    receipt: &EvidenceRecord,
+    observation: VerificationObservation,
+) -> Result<ObservationRecord> {
+    let record = codec::write(
+        root,
+        "gcad-verification",
+        OBSERVATION_KIND,
+        &Observation {
+            evidence: receipt.clone(),
+            observation,
+        },
+        Atoms::default(),
+        vec![],
+    )?;
+    Ok(ObservationRecord {
+        evidence: receipt.clone(),
+        record,
+    })
 }
 
 impl StagedRequest {
@@ -314,22 +338,8 @@ impl StagedRequest {
                 diagnostic: error.to_string(),
             },
         };
-        let record = codec::write(
-            root,
-            "gcad-verification",
-            OBSERVATION_KIND,
-            &Observation {
-                evidence: receipt.clone(),
-                observation,
-            },
-            Atoms::default(),
-            vec![],
-        )?;
         Ok(VerificationAttempt {
-            observation: ObservationRecord {
-                evidence: receipt.clone(),
-                record,
-            },
+            observation: record_observation(root, receipt, observation)?,
             result,
         })
     }

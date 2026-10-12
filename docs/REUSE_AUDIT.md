@@ -4979,3 +4979,14 @@ including complete massive-sunrise geometry, actual HEPKit graph ownership and
 rejection of incomplete or mismatched evidence. This is a geometry request API;
 it does not complete endpoint continuation or automatic artifact generation for
 the positive-projective route.
+
+## Original positive-projective evidence recovery (2026-10-12)
+
+The [staging review](reviews/no-deformation-positive-projective-staging.md)
+records reuse of native `RecordRef`, Symbolica Atom and source `Input` codecs,
+HEPKit graph conversion and the independent symGCAD verifier. Saved graph
+requests require the caller's actual original point. Incomplete results remain
+untrusted durable evidence; successful observations never replace fresh replay.
+Existing affine/cube record bytes are unchanged. Independent source/ecosystem
+review and 36 threshold GCAD controls pass, including cold-process restoration.
+Automatic generation routing remains a separate integration step.
