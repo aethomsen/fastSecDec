@@ -124,10 +124,8 @@ impl MapDescriptor {
             .try_for_each(|id| atom(*id, &g.expressions, tables))?;
         atom(g.positive_measure, &g.expressions, tables)?;
         g.certificate.validate()?;
-        if let Self::AlgebraicSectionsV1 { sections, .. } | Self::RegularSecantV1 { sections, .. } =
-            self
-        {
-            if sections.is_empty() {
+        if let Some(sections) = self.sections() {
+            if sections.is_empty() && !matches!(self, Self::ResolvedEndpointV1 { .. }) {
                 return Err(invalid("algebraic map has no sections"));
             }
             budget.nodes(sections.len())?;
@@ -147,14 +145,17 @@ impl MapDescriptor {
                 section.branch_certificate.validate()?;
             }
         }
-        if let Self::RegularSecantV1 { endpoint, .. } = self {
+        if let Some(endpoint) = self.endpoint() {
             symbol(endpoint.regulator, tables)?;
             endpoint.continuation_policy.validate()?;
             endpoint.common_domain.validate()?;
             endpoint.numerator_functions.validate()?;
             budget.nodes(endpoint.terms.len())?;
             budget.refs(endpoint.root_helpers.len())?;
-            if endpoint.terms.is_empty() || endpoint.root_helpers.is_empty() {
+            if endpoint.terms.is_empty()
+                || (endpoint.root_helpers.is_empty()
+                    && matches!(self, Self::RegularSecantV1 { .. }))
+            {
                 return Err(invalid("empty regular-section endpoint record"));
             }
             for d in &endpoint.root_helpers {
@@ -334,13 +335,12 @@ impl LineageManifestV1 {
                     "map coordinate captures a regulator or physical parameter",
                 ));
             }
-            if let MapDescriptor::RegularSecantV1 { endpoint, .. } = map
+            if let Some(endpoint) = map.endpoint()
                 && endpoint.regulator != p.regulator
             {
                 return Err(invalid("normalized endpoint regulator differs from source"));
             }
-            if let MapDescriptor::AlgebraicSectionsV1 { sections, .. }
-            | MapDescriptor::RegularSecantV1 { sections, .. } = map
+            if let Some(sections) = map.sections()
                 && sections.iter().any(|s| {
                     s.root_variable == p.regulator
                         || p.fiber.physical_parameters.contains(&s.root_variable)
@@ -624,7 +624,9 @@ impl LineageManifestV1 {
             .any(|m| {
                 !matches!(
                     m,
-                    MapDescriptor::RationalV1 { .. } | MapDescriptor::RegularSecantV1 { .. }
+                    MapDescriptor::RationalV1 { .. }
+                        | MapDescriptor::RegularSecantV1 { .. }
+                        | MapDescriptor::ResolvedEndpointV1 { .. }
                 )
             })
         {

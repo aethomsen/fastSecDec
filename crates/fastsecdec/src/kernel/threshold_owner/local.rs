@@ -104,6 +104,11 @@ fn localize_map(
             geometry,
             sections,
             endpoint,
+        }
+        | m::MapDescriptor::ResolvedEndpointV1 {
+            geometry,
+            sections,
+            endpoint,
         } => (geometry, Some(sections), Some(endpoint)),
         m::MapDescriptor::RationalV1 { geometry } => (geometry, None, None),
         m::MapDescriptor::AlgebraicSectionsV1 { geometry, sections } => {

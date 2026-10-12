@@ -34,6 +34,7 @@ impl StoredRegular {
             version: match route {
                 Route::FixedCube => 1,
                 Route::Uniform => 2,
+                Route::ResolvedProjective => 3,
                 Route::LegacyFiber => {
                     return Err(Error::Association("legacy route has regular configuration"));
                 }
@@ -58,6 +59,7 @@ impl StoredRegular {
         let valid = match self.version {
             1 => self.coordinates >= 2,
             2 => self.coordinates >= 1,
+            3 => self.coordinates == 2,
             _ => false,
         };
         if !valid {
@@ -69,10 +71,11 @@ impl StoredRegular {
     }
     pub(super) fn route(&self) -> Result<Route> {
         self.coordinate_count()?;
-        Ok(if self.version == 1 {
-            Route::FixedCube
-        } else {
-            Route::Uniform
+        Ok(match self.version {
+            1 => Route::FixedCube,
+            2 => Route::Uniform,
+            3 => Route::ResolvedProjective,
+            _ => unreachable!("validated configuration version above"),
         })
     }
     pub(super) fn restore(

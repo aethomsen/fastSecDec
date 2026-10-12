@@ -35,6 +35,8 @@ pub enum Error {
     Regularization(#[from] regularization::Error),
     #[error(transparent)]
     RegularFamily(#[from] regularization::secant::Error),
+    #[error(transparent)]
+    ResolvedProjective(#[from] super::maps::regular::Error),
     #[error("regular-family discovery incomplete ({reason}): {progress:?}")]
     DiscoveryIncomplete {
         reason: &'static str,
@@ -368,7 +370,75 @@ fn finish<F: FnMut(&Progress) -> ControlFlow<()>>(
     let integration_dimensions = owner.request().domain().coordinates().len();
     let vectors = root.join(work_directory);
     std::fs::create_dir(&vectors)?;
-    let (plan, charts) = if let Some(settings) = &options.regular_family {
+    let (plan, charts) = if let Some(settings) = options.regular_family.as_ref()
+        && matches!(
+            owner.request().domain().origin(),
+            gcad::DomainOrigin::AffineProjective { .. }
+        )
+        && integration_dimensions == 2
+        && owner.request().kinematics().runtime_parameters.is_empty()
+    {
+        let mut limits = regularization::projective_family::Limits {
+            algebra: settings.limits.geometry.clone(),
+            sectors: options.generation.decomposition.clone(),
+            prefactors: settings.limits.density,
+            max_charts: options.regularization.max_charts,
+            max_field_degree: settings.limits.geometry.max_degree,
+        };
+        limits.algebra.wall_time = limits.algebra.wall_time.min(settings.discovery.wall_time);
+        let coordinates = settings
+            .coordinates
+            .as_ref()
+            .ok_or(Error::Association(
+                "unresolved projective chart coordinates",
+            ))?
+            .clone();
+        let family = regularization::projective_family::ResolvedProjectiveFamily::admit(
+            owner,
+            coordinates,
+            limits,
+            |p| {
+                use regularization::projective_family::Progress as P;
+                let completed = match p {
+                    P::Cell(n) | P::Chart(n) | P::Continue(n) => n,
+                    P::Half { cell, .. } => cell,
+                };
+                if settings
+                    .limits
+                    .cancellation
+                    .as_ref()
+                    .is_some_and(|c| c.load(std::sync::atomic::Ordering::Relaxed))
+                    || reporter.poll(completed, None).is_err()
+                {
+                    ControlFlow::Break(())
+                } else {
+                    ControlFlow::Continue(())
+                }
+            },
+        )?;
+        let charts = family.charts().len();
+        reporter.stage(Stage::Continue, 0, Some(charts))?;
+        let continued = family.continue_symbolically(&options.generation, |p| {
+            let completed = match p {
+                regularization::projective_family::Progress::Continue(n) => n,
+                _ => 0,
+            };
+            if reporter.poll(completed, Some(charts)).is_err() {
+                ControlFlow::Break(())
+            } else {
+                ControlFlow::Continue(())
+            }
+        })?;
+        reporter.stage(Stage::StageVectors, 0, Some(charts))?;
+        let plan = ThresholdCompilationPlan::prepare_projective_family(
+            &continued,
+            &vectors,
+            options.generation.max_order,
+            options.precision,
+            options.compilation,
+        )?;
+        (plan, charts)
+    } else if let Some(settings) = &options.regular_family {
         let family = regular::discover(owner, settings, |p| {
             reporter.regular_family = Some(p);
             if reporter.poll(p.family_attempts, None).is_ok() {

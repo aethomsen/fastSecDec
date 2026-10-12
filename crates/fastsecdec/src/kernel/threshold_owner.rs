@@ -203,10 +203,7 @@ impl ThresholdMetadata {
             .endpoint_charts
             .iter()
             .filter(|c| charts.contains(&c.id))
-            .filter_map(|c| match &c.map {
-                m::MapDescriptor::RegularSecantV1 { endpoint, .. } => Some(&endpoint.root_helpers),
-                _ => None,
-            })
+            .filter_map(|c| c.map.endpoint().map(|endpoint| &endpoint.root_helpers))
             .flatten()
             .collect::<std::collections::BTreeSet<_>>();
         for (_, bytes) in roots.saved() {
@@ -739,6 +736,8 @@ pub(crate) use local::{StagedTablePlan, StagedTables};
 
 #[cfg(feature = "threshold-decomposition")]
 mod algebraic;
+#[cfg(feature = "threshold-decomposition")]
+mod resolved;
 
 #[cfg(feature = "threshold-decomposition")]
 impl ThresholdMetadata {

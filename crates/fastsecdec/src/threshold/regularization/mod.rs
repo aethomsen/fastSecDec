@@ -2,6 +2,7 @@
 mod atlas;
 mod bound;
 pub mod meromorphic;
+pub mod projective_family;
 pub mod secant;
 pub mod sign_definite;
 pub use bound::BoundContinuation;
@@ -56,7 +57,7 @@ impl ConvergenceStrip {
     pub fn upper(&self) -> Option<&Rational> {
         self.upper.as_ref()
     }
-    fn admit(&mut self, power: &Atom, eps: Symbol) -> Result<()> {
+    pub(crate) fn admit(&mut self, power: &Atom, eps: Symbol) -> Result<()> {
         let (constant, slopes) = endpoint_power_with_regulators(power, &[eps])
             .map_err(|e| unsupported(&e.to_string()))?;
         let slope = &slopes[0];

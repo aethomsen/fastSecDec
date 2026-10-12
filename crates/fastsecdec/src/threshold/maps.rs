@@ -96,6 +96,11 @@ impl CellMap {
     pub fn linear(self: &Arc<Self>) -> Result<Arc<LinearCellMap>> {
         LinearCellMap::new(self.clone())
     }
+    /// Reuse native finite linear-root admission for a selected triangular
+    /// suffix while earlier axes retain separately issued nonlinear sections.
+    pub(crate) fn linear_axes(&self, range: std::ops::Range<usize>) -> Result<Vec<LinearAxis>> {
+        linear::root::lower_axes(self, range)
+    }
 }
 
 /// Exact occupied native roles shared by cell admission and deferred preparation.

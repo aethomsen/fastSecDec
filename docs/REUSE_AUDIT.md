@@ -4754,3 +4754,39 @@ Symbolica exact algebra supply the operations. Four focused native tests and
 strict core all-target checks pass. Refinement preserves root owners and face
 ancestry; it supplies no new global termination claim or complete double-box
 endpoint certificate. The caller bounds depth and retained ancestry.
+
+## Resolved projective families and native publication (2026-10-12)
+
+The [resolved-family review](reviews/no-deformation-resolved-projective-family.md)
+records Symbolica selected number fields, native polynomial division, existing
+sector fans, and symGCAD closed-box certificate discovery and replay. The native
+owner preserves complex polynomial numerators and full regulator-dependent
+phases. It does not introduce a CAS, graph representation, endpoint AD, or
+independent evaluator codec.
+The [independent interface audit](reviews/no-deformation-projective-route-audit.md)
+also checks the separate native graph admission and serialization boundaries.
+Native exact constant-field evaluation and fresh-process restoration pass for
+degrees 3, 4, 7 and 16; these component probes do not certify entire high-degree
+cell families or moving-root endpoints.
+
+The shared compiler adds a distinct `ResolvedEndpointV1` map descriptor and
+stages its native vectors through existing caller-owned publication jobs.
+Original cells, half/fan paths, exact coordinate maps, signed orientation and
+common convergence-strip provenance survive selective loading. The complete
+preparation/recovery test group passes (23 tests, two child-entry tests ignored
+in the parent and invoked by their tests), including the new atlas's verified
+replay and selected-sector artifact restoration. Twelve metadata tests, three
+owner tests, three whole-source sign tests and the default native library check
+also pass.
+Strict feature-enabled core/CLI all-target Clippy and workspace formatting pass.
+The related [closed scalar-chart owner](reviews/no-deformation-closed-scalar-chart.md)
+has two passing source/phase/endpoint tests; it supplies a local certificate and
+does not claim a complete double-box cover or a global convergence strip.
+
+The actual CLI control starts with the unchanged native HEPKit graph input and
+parametrization, retaining its input provenance. It does not claim to invoke
+the separate strict pre-parametric `GraphPoint` owner. The saved triangle
+artifact integrates in a fresh process with complete 18-sector production
+coverage and agrees with the existing native OneLOop reference, including its
+vanishing pole. Moving algebraic bounds, higher-dimensional projective inputs,
+and the complete double-box atlas remain separate uncompleted work.

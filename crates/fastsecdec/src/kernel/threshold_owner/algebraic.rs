@@ -11,13 +11,16 @@ use symbolica::{
     atom::{AtomCore, AtomView, FunctionBuilder},
     id::{Pattern, Replacement},
 };
-fn digest(domain: &str, value: &impl serde::Serialize) -> Result<m::Digest, KernelError> {
+pub(super) fn digest(
+    domain: &str,
+    value: &impl serde::Serialize,
+) -> Result<m::Digest, KernelError> {
     let mut h = blake3::Hasher::new();
     h.update(domain.as_bytes());
     serde_json::to_writer(&mut h, value)?;
     Ok(m::Digest(h.finalize().to_hex().to_string()))
 }
-fn canonical(a: &Atom, renames: &BTreeMap<Symbol, Symbol>) -> String {
+pub(super) fn canonical(a: &Atom, renames: &BTreeMap<Symbol, Symbol>) -> String {
     a.replace_map_bottom_up(|node, _, out| match node {
         AtomView::Var(v) => {
             if let Some(s) = renames.get(&v.get_symbol()) {
@@ -37,7 +40,7 @@ fn canonical(a: &Atom, renames: &BTreeMap<Symbol, Symbol>) -> String {
     })
     .to_canonical_string()
 }
-fn push(atoms: &mut Vec<Atom>, a: Atom) -> m::NativeAtomId {
+pub(super) fn push(atoms: &mut Vec<Atom>, a: Atom) -> m::NativeAtomId {
     let i = atoms.len();
     atoms.push(a);
     m::NativeAtomId(i)
@@ -51,6 +54,7 @@ impl ThresholdMetadata {
         match source {
             ContinuedSource::Rational(b) => Self::from_bound(b, staged, orders),
             ContinuedSource::Algebraic(b) => Self::from_family(b, staged, orders),
+            ContinuedSource::Projective(b) => Self::from_projective_family(b, staged, orders),
         }
     }
     fn from_family(

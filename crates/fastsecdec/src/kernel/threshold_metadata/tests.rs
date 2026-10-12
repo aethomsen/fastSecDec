@@ -474,6 +474,75 @@ fn nonlinear_and_auxiliary_descriptors_are_inspectable_but_not_executable() {
 }
 
 #[test]
+fn resolved_endpoint_tables_preserve_roles_without_loosening_secant_contracts() {
+    let mut manifest = fixture();
+    let chart = &mut manifest.endpoint_charts[0];
+    chart.map = MapDescriptor::ResolvedEndpointV1 {
+        geometry: chart.map.geometry().clone(),
+        sections: vec![],
+        endpoint: NormalizedEndpointV1 {
+            regulator: NativeSymbolId(2),
+            terms: vec![NormalizedTermV1 {
+                source_term: 0,
+                prefactor: NativeAtomId(8),
+                regular: NativeAtomId(9),
+                powers: vec![NativeAtomId(10), NativeAtomId(11)],
+                factors: vec![NormalizedFactorV1 {
+                    source_term: 0,
+                    source_factor: 0,
+                    source: NativeAtomId(12),
+                    exponent: NativeAtomId(13),
+                    certificate: digest(24),
+                }],
+            }],
+            continuation_policy: digest(21),
+            common_domain: digest(22),
+            numerator_functions: digest(23),
+            root_helpers: vec![],
+        },
+    };
+    // Constant algebraic coefficients can be exact native expressions: they
+    // do not imply a moving-root callback. All power/factor records still bind.
+    checked(&manifest);
+    let wire = serde_json::to_vec(&manifest).unwrap();
+    let restored: LineageManifestV1 = serde_json::from_slice(&wire).unwrap();
+    assert_eq!(manifest, restored);
+    assert!(manifest.validate_initial_schema_kinds().is_err());
+
+    for path in [
+        "/endpoint_charts/0/map/endpoint/regulator",
+        "/endpoint_charts/0/map/endpoint/terms/0/factors/0/source_term",
+        "/endpoint_charts/0/map/endpoint/terms/0/powers/0",
+    ] {
+        let mut bad = serde_json::to_value(&manifest).unwrap();
+        *bad.pointer_mut(path).unwrap() = serde_json::json!(99);
+        let bad: LineageManifestV1 = serde_json::from_value(bad).unwrap();
+        assert!(
+            bad.validate_structure(&tables(), Limits::default())
+                .is_err()
+        );
+    }
+    let MapDescriptor::ResolvedEndpointV1 {
+        geometry,
+        sections,
+        endpoint,
+    } = manifest.endpoint_charts[0].map.clone()
+    else {
+        unreachable!()
+    };
+    manifest.endpoint_charts[0].map = MapDescriptor::RegularSecantV1 {
+        geometry,
+        sections,
+        endpoint,
+    };
+    assert!(
+        manifest
+            .validate_structure(&tables(), Limits::default())
+            .is_err()
+    );
+}
+
+#[test]
 fn structural_budgets_and_unknown_wire_fields_are_rejected() {
     let m = fixture();
     assert_eq!(

@@ -85,6 +85,20 @@ impl ProofBox {
     pub fn bounds(&self) -> &[[Rational; 2]] {
         &self.bounds
     }
+    pub(in super::super) fn whole_chart(chart: &IssuedEndpointChart, b: &Budget) -> Result<Self> {
+        let mut roles = chart.target_units().to_vec();
+        let mut bounds = vec![[Rational::zero(), Rational::one()]; roles.len()];
+        for r in chart.transport().root_relations() {
+            let section = r.section();
+            chart.section_parameter_images(section)?;
+            roles.push(section.root_symbol());
+            bounds.push([
+                section.bracket().lower.clone(),
+                section.bracket().upper.clone(),
+            ]);
+        }
+        Self::from_bounds(roles, bounds, b)
+    }
     pub(super) fn new(
         chart: &IssuedEndpointChart,
         face: &RelativeFace,
@@ -127,7 +141,7 @@ impl ProofBox {
             native,
         })
     }
-    pub(super) fn propose(
+    pub(in super::super) fn propose(
         &self,
         a: &Atom,
         fallback: &Rational,

@@ -19,6 +19,9 @@ mod regular_tests;
 #[path = "graph_tests.rs"]
 mod graph_tests;
 
+#[path = "projective_tests.rs"]
+mod projective_tests;
+
 fn analytic() -> (Arc<ParametricIntegrand>, PreparationOptions) {
     let (x, a, eps, t) = symbol!(
         "preparation_adapter::x",
@@ -69,7 +72,10 @@ fn publication(root: &Path, receipt: &PreparationReceipt) -> ThresholdPublicatio
     )
     .unwrap()
 }
-fn compile(root: &Path, receipt: &PreparationReceipt) -> KernelSet {
+fn compile_archive(
+    root: &Path,
+    receipt: &PreparationReceipt,
+) -> (Vec<u8>, crate::kernel::indexed::ProgramArchiveCatalogue) {
     let plan = publication(root, receipt);
     let mut archive = plan.archive_writer(Cursor::new(Vec::new())).unwrap();
     for index in (0..plan.job_count()).rev() {
@@ -86,11 +92,12 @@ fn compile(root: &Path, receipt: &PreparationReceipt) -> KernelSet {
             .unwrap();
     }
     let (bytes, catalogue) = archive.finish().unwrap();
-    let kernels = KernelSet::from_bytes_with_options(
-        &bytes.into_inner(),
-        KernelLoadOptions { validate: true },
-    )
-    .unwrap();
+    (bytes.into_inner(), catalogue)
+}
+fn compile(root: &Path, receipt: &PreparationReceipt) -> KernelSet {
+    let (bytes, catalogue) = compile_archive(root, receipt);
+    let kernels =
+        KernelSet::from_bytes_with_options(&bytes, KernelLoadOptions { validate: true }).unwrap();
     assert_eq!(
         kernels.content_id(),
         catalogue

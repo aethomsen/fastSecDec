@@ -333,3 +333,9 @@ gap, not evidence of solver infeasibility. Each case must produce a complete
 artifact, a checked full complex result, and working reload/integration before
 its overview row is accepted. General reusable sufficient-class improvements
 are appropriate; hard-coded physics answers or partial cell coverage are not.
+
+Keep separate scalar and double-box implementation agents alongside the report
+agent. The latest user clarification permits **30-minute double-box preparation
+and validation runs** when useful. Preserve prior bounded outcomes, checkpoint
+completed work where supported, and keep the monitored memory allowance. This
+does not change the roughly ten-minute timed-integration comparison contract.

@@ -46,6 +46,24 @@ impl KernelSet {
             settings,
         )
     }
+    /// Compile all charts of an issued, closed-face resolved projective family.
+    /// Uses the same native vector records and caller-owned jobs as other
+    /// threshold recipes; no solver or endpoint work is repeated on restoration.
+    pub fn compile_threshold_projective_family(
+        bound: &crate::threshold::regularization::projective_family::ContinuedProjectiveFamily<'_>,
+        staging: &Path,
+        maximum: i32,
+        precision: PrecisionPolicy,
+        settings: CompilationSettings,
+    ) -> Result<Self, KernelError> {
+        Self::compile_continued_source(
+            crate::threshold::continued::ContinuedSource::Projective(bound),
+            staging,
+            maximum,
+            precision,
+            settings,
+        )
+    }
     fn compile_continued_source(
         source: crate::threshold::continued::ContinuedSource<'_>,
         staging: &Path,

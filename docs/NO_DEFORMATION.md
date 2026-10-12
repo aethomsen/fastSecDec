@@ -19,6 +19,13 @@ above-threshold bubble comparison with OneLOop. The corresponding CLI path now
 supports fixed one-dimensional rational cells, indexed artifacts, ordinary and
 serial execution, and recovery. A bounded automatic route also supports regular
 algebraic families on the unit cube, as detailed below.
+Fixed two-dimensional affine-projective inputs now also have a
+[resolved-family route](reviews/no-deformation-resolved-projective-family.md):
+constant algebraic bounds on the first CAD axis, rational linear bounds on the
+second, and independently replayed residual margins on every closed chart.
+The original massive-triangle graph card generates 18 kernels and its saved
+artifact's full Laurent vector agrees with OneLOop in a native QMC control.
+This is a sufficient class, not the general algebraic endpoint resolver.
 The [runnable examples](../examples/no_deformation/README.md)
 and [CLI review](reviews/no-deformation-cli.md) describe that supported subset.
 These capabilities are separate from the exporter contract documented below.

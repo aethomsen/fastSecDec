@@ -121,6 +121,22 @@ impl ThresholdCompilationPlan {
             settings,
         )
     }
+    /// Stage a complete resolved projective family for caller-run workers.
+    pub fn prepare_projective_family(
+        bound: &crate::threshold::regularization::projective_family::ContinuedProjectiveFamily<'_>,
+        staging: &Path,
+        maximum: i32,
+        precision: PrecisionPolicy,
+        settings: CompilationSettings,
+    ) -> Result<Self, KernelError> {
+        Self::prepare_source(
+            crate::threshold::continued::ContinuedSource::Projective(bound),
+            staging,
+            maximum,
+            precision,
+            settings,
+        )
+    }
     fn prepare_source(
         source: crate::threshold::continued::ContinuedSource<'_>,
         staging: &Path,

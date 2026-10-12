@@ -255,7 +255,7 @@ fn classify(
         },
     )
 }
-fn active_factors(chart: &IssuedEndpointChart) -> Result<Vec<ActiveFactor>> {
+pub(super) fn active_factors(chart: &IssuedEndpointChart) -> Result<Vec<ActiveFactor>> {
     let source = chart.parent_prefix().source();
     let owner = source.decomposition();
     let terms = owner.preparation().terms();

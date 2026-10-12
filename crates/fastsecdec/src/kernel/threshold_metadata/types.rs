@@ -200,13 +200,41 @@ pub enum MapDescriptor {
         sections: Vec<RootSection>,
         endpoint: NormalizedEndpointV1,
     },
+    /// Complete cell maps followed by certified endpoint charts. Unlike a
+    /// last-axis secant, every image may depend on all chart coordinates.
+    /// Native issuers retain the coverage and closed-face proof authority;
+    /// this saved descriptor carries their arithmetic and inspection lineage.
+    ResolvedEndpointV1 {
+        geometry: MapGeometry,
+        sections: Vec<RootSection>,
+        endpoint: NormalizedEndpointV1,
+    },
 }
 impl MapDescriptor {
     pub fn geometry(&self) -> &MapGeometry {
         match self {
             Self::RationalV1 { geometry }
             | Self::AlgebraicSectionsV1 { geometry, .. }
-            | Self::RegularSecantV1 { geometry, .. } => geometry,
+            | Self::RegularSecantV1 { geometry, .. }
+            | Self::ResolvedEndpointV1 { geometry, .. } => geometry,
+        }
+    }
+
+    pub(crate) fn sections(&self) -> Option<&[RootSection]> {
+        match self {
+            Self::RationalV1 { .. } => None,
+            Self::AlgebraicSectionsV1 { sections, .. }
+            | Self::RegularSecantV1 { sections, .. }
+            | Self::ResolvedEndpointV1 { sections, .. } => Some(sections),
+        }
+    }
+
+    pub(crate) fn endpoint(&self) -> Option<&NormalizedEndpointV1> {
+        match self {
+            Self::RegularSecantV1 { endpoint, .. } | Self::ResolvedEndpointV1 { endpoint, .. } => {
+                Some(endpoint)
+            }
+            Self::RationalV1 { .. } | Self::AlgebraicSectionsV1 { .. } => None,
         }
     }
 }
