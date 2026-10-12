@@ -4938,3 +4938,28 @@ images. Arbitrarily shifted towers and the kite's final colliding section are
 not yet admitted. Complete cell coverage, physical endpoint regularity and
 subtraction remain separate obligations; arithmetic IR restoration alone cannot
 recreate source geometry authority.
+
+## Endpoint retry from retained native evidence (2026-10-12)
+
+The [retry review](reviews/no-deformation-endpoint-resource-retry.md) records
+an explicit new preparation attempt with a resource-only overlay. It reuses
+native configuration/request codecs, immutable record digests, source-owner
+restoration, fresh GCAD verification and the existing endpoint compiler. It
+does not solve GCAD again. Ordinary resume, original records and completed
+publication checks remain unchanged. No algebra, solver or proof format was
+added.
+
+Cold-process testing exposed that equivalent native symbol state need not
+re-encode to identical bytes. The new configuration relation compares decoded
+native metadata, exact atoms and ordered symbol roles, while authentication of
+every original record remains mandatory. Tests reject mutations of each
+component. Saved retry metadata is historical provenance; it is neither proof
+authority nor a promise that cleaned staging records still exist.
+
+Independent source and ecosystem review passed. Shared tests combining this
+change with affine prefixes passed all 74 map, 39 generation and five CLI retry
+controls, including both interrupted-retry recovery boundaries and a complete
+massive-triangle OneLOop comparison. Strict core/CLI checks, formatting and the
+release build passed. The separately tested ordinary CLI recovery, artifact
+persistence and flag controls remain unchanged. This adds native and CLI retry;
+a Python retry API and automatic evidence retention remain outside this slice.

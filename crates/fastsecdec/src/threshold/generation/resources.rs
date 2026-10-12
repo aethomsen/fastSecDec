@@ -87,6 +87,51 @@ macro_rules! overlay {
     };
 }
 impl EndpointPreparationResources {
+    pub(super) fn apply_restored(
+        &self,
+        options: &mut PreparationOptions,
+        route: regular::Route,
+    ) -> Result<()> {
+        if route != regular::Route::LegacyFiber {
+            return self.apply(options);
+        }
+        // Legacy recovery deliberately retained no regular-family capability.
+        // Refuse limits for absent operations instead of dropping an override.
+        let g = &self.geometry;
+        let d = &self.discovery;
+        let c = &g.certificates;
+        if options.regular_family.is_some()
+            || g.max_terms.is_some()
+            || g.max_rational_bits.is_some()
+            || g.max_refinements.is_some()
+            || g.wall_time_secs.is_some()
+            || d.max_dyadic_level.is_some()
+            || d.max_endpoint_queries.is_some()
+            || d.max_family_attempts.is_some()
+            || d.max_margin_halvings.is_some()
+            || d.wall_time_secs.is_some()
+            || c.max_terms.is_some()
+            || c.polya_order.is_some()
+            || c.bernstein_depth.is_some()
+            || c.bernstein_nodes.is_some()
+            || c.bernstein_coefficients.is_some()
+            || c.work_limit.is_some()
+            || c.univariate_sturm_degree.is_some()
+            || c.square_residual_candidates.is_some()
+            || c.weighted_square_candidates.is_some()
+            || c.quadratic_component_candidates.is_some()
+            || c.quadratic_no_real_roots_candidates.is_some()
+        {
+            return Err(Error::Unsupported(
+                "legacy endpoint retry supports only chart count, degree and prefactor limits",
+            ));
+        }
+        let (_, legacy) =
+            self.updated(&RegularFamilyPreparation::default(), options.regularization)?;
+        options.regularization = legacy;
+        Ok(())
+    }
+
     /// Validate scalar conversions/discovery bounds without performing native
     /// algebra. Certificate/prefactor resource admission also runs in the
     /// corresponding native operation when that operation is required.

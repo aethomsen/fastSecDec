@@ -11,6 +11,16 @@ mod program_recovery_tests;
 mod recovery_tests;
 mod runner;
 mod threshold;
+mod threshold_retry;
+
+pub(crate) fn retry_endpoint(
+    run: GenerationRun<'_>,
+    old_output: &Path,
+    overlay: &Path,
+    dashboard: &mut Dashboard,
+) -> CliResult<Artifact> {
+    threshold::generate_with_retry(run, dashboard, Some((old_output, overlay)))
+}
 #[cfg(test)]
 mod threshold_tests;
 

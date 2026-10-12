@@ -4,6 +4,13 @@ use super::*;
 use fastsecdec::kernel::ThresholdPublicationPlan;
 
 pub(super) fn generate(run: GenerationRun<'_>, dashboard: &mut Dashboard) -> CliResult<Artifact> {
+    generate_with_retry(run, dashboard, None)
+}
+pub(super) fn generate_with_retry(
+    run: GenerationRun<'_>,
+    dashboard: &mut Dashboard,
+    retry: Option<(&Path, &Path)>,
+) -> CliResult<Artifact> {
     crate::artifact::paths(run.output)?;
     if run.workers == 0 {
         return Err("generation workers must be positive".into());
@@ -25,6 +32,11 @@ pub(super) fn generate(run: GenerationRun<'_>, dashboard: &mut Dashboard) -> Cli
         std::process::id(),
         SystemTime::now().duration_since(UNIX_EPOCH)?.as_nanos()
     );
+    let retry_seed = retry
+        .map(|(old, overlay)| {
+            super::threshold_retry::open(&path, &output, old, overlay, run.overrides, run.resume)
+        })
+        .transpose()?;
     let mut journal = Journal::open_with_family(
         &path,
         &output,
@@ -33,6 +45,7 @@ pub(super) fn generate(run: GenerationRun<'_>, dashboard: &mut Dashboard) -> Cli
         run.overrides,
         RecipeFamily::single(ProgramRecipe::ThresholdV1),
     )?;
+    let retry = journal.endpoint_retry(retry_seed.as_ref().map(|seed| seed.attempt.clone()))?;
     if journal.completed() {
         let artifact = Artifact::load_metadata(&output)?;
         artifact.verify_input_sources(&path)?;
@@ -55,12 +68,23 @@ pub(super) fn generate(run: GenerationRun<'_>, dashboard: &mut Dashboard) -> Cli
             &mut journal,
             vec![(
                 prepare_key.clone(),
-                Request::PrepareThreshold {
-                    input: path.clone(),
-                    workers: run.workers,
-                    overrides: run.overrides,
-                    attempt: run_id,
-                    prior: prior.clone().map(Box::new),
+                if let Some(retry) = retry {
+                    Request::RetryThreshold {
+                        input: path.clone(),
+                        workers: run.workers,
+                        overrides: run.overrides,
+                        attempt: run_id,
+                        prior: prior.clone().map(Box::new),
+                        retry: Box::new(retry),
+                    }
+                } else {
+                    Request::PrepareThreshold {
+                        input: path.clone(),
+                        workers: run.workers,
+                        overrides: run.overrides,
+                        attempt: run_id,
+                        prior: prior.clone().map(Box::new),
+                    }
                 },
             )],
             GenerationStage::Geometry,

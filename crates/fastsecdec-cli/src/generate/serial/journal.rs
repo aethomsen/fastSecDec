@@ -40,6 +40,42 @@ struct State {
     entries: BTreeMap<String, Entry>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     threshold_preparation: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    endpoint_retry: Option<super::jobs::threshold::retry::RetryAttempt>,
+}
+impl State {
+    fn validate_resume(
+        &self,
+        input: &Path,
+        generation_overrides: crate::config::GenerationOverrides,
+        family: &RecipeFamily,
+    ) -> CliResult<()> {
+        let state = self;
+        let input_hash = SourceFingerprint::RunCardScientificInput.hash(&fs::read(input)?)?;
+        let dependencies = artifact::dependencies();
+        if state.version != JOURNAL_VERSION {
+            return Err(format!(
+                    "generation resume refused: staging format {} is incompatible with version {}; regenerate using a new output basename",
+                    state.version, JOURNAL_VERSION,
+                ).into());
+        }
+        if state.family.as_ref() != Some(family) {
+            return Err(
+                "generation resume refused: requested recipe family or default changed".into(),
+            );
+        }
+        if state.build_identity != crate::process::child::build_identity()
+            || state.input_hash != input_hash
+            || state.generation_overrides != generation_overrides
+            || state.dependencies != dependencies
+        {
+            return Err(
+                    "generation resume refused: input settings, FastSecDec build or native dependencies changed"
+                        .into(),
+                );
+        }
+        Ok(())
+    }
 }
 pub(super) struct Journal {
     _lock: File,
@@ -111,27 +147,7 @@ impl Journal {
         };
         let state = if resume {
             let state = previous.ok_or("no resumable generation journal exists")?;
-            if state.version != JOURNAL_VERSION {
-                return Err(format!(
-                    "generation resume refused: staging format {} is incompatible with version {}; regenerate using a new output basename",
-                    state.version, JOURNAL_VERSION,
-                ).into());
-            }
-            if state.family.as_ref() != Some(&family) {
-                return Err(
-                    "generation resume refused: requested recipe family or default changed".into(),
-                );
-            }
-            if state.build_identity != crate::process::child::build_identity()
-                || state.input_hash != input_hash
-                || state.generation_overrides != generation_overrides
-                || state.dependencies != dependencies
-            {
-                return Err(
-                    "generation resume refused: input settings, FastSecDec build or native dependencies changed"
-                        .into(),
-                );
-            }
+            state.validate_resume(input, generation_overrides, &family)?;
             state
         } else {
             if previous.as_ref().is_some_and(|old| !old.completed) {
@@ -148,6 +164,7 @@ impl Journal {
                 completed: false,
                 entries: BTreeMap::new(),
                 threshold_preparation: None,
+                endpoint_retry: None,
             }
         };
         if Path::new(&state.run_directory).components().count() != 1
@@ -170,6 +187,68 @@ impl Journal {
         };
         out.save()?;
         Ok(out)
+    }
+    /// Read and lock existing retained evidence without recreating a cleaned run
+    /// or rewriting any old journal/receipt. Validation is identical to resume.
+    pub fn retained_endpoint(
+        input: &Path,
+        output: &Path,
+        overrides: crate::config::GenerationOverrides,
+    ) -> CliResult<Self> {
+        let directory = super::threshold_retry::journal_directory(output)?;
+        if fs::symlink_metadata(&directory)?.file_type().is_symlink() {
+            return Err("retained staging directory cannot be a symlink".into());
+        }
+        let lock = OpenOptions::new()
+            .read(true)
+            .write(true)
+            .open(directory.join("lock"))?;
+        lock.try_lock()
+            .map_err(|e| format!("original preparation is still owned: {e}"))?;
+        let state: State = serde_json::from_reader(File::open(directory.join("journal.json"))?)?;
+        state.validate_resume(
+            input,
+            overrides,
+            &RecipeFamily::single(fastsecdec::kernel::ProgramRecipe::ThresholdV1),
+        )?;
+        if !matches!(
+            Path::new(&state.run_directory)
+                .components()
+                .collect::<Vec<_>>()
+                .as_slice(),
+            [std::path::Component::Normal(_)]
+        ) {
+            return Err("invalid retained generation run directory".into());
+        }
+        let root = directory.join(&state.run_directory);
+        if !root.is_dir() {
+            return Err("preparation evidence unavailable: the completed artifact's run directory was cleaned; retained raw/configuration records are required".into());
+        }
+        if fs::symlink_metadata(&root)?.file_type().is_symlink() {
+            return Err("retained generation run directory cannot be a symlink".into());
+        }
+        Ok(Self {
+            _lock: lock,
+            directory,
+            root,
+            state,
+        })
+    }
+    pub fn endpoint_retry(
+        &mut self,
+        issued: Option<super::jobs::threshold::retry::RetryAttempt>,
+    ) -> CliResult<Option<super::jobs::threshold::retry::RetryAttempt>> {
+        if let Some(issued) = issued {
+            if self.state.endpoint_retry.is_some()
+                || !self.state.entries.is_empty()
+                || self.state.completed
+            {
+                return Err("endpoint resource retry requires an unused new journal".into());
+            }
+            self.state.endpoint_retry = Some(issued);
+            self.save()?;
+        }
+        Ok(self.state.endpoint_retry.clone())
     }
     pub fn completed(&self) -> bool {
         self.state.completed

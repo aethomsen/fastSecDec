@@ -4,9 +4,15 @@ mod configuration;
 mod regular;
 pub use regular::{DiscoveryLimits, DiscoveryProgress, RegularFamilyPreparation};
 mod resources;
+mod retry;
 pub use resources::{
     CertificateResources, DiscoveryResources, EndpointPreparationResources, GeometryResources,
     PrefactorResources,
+};
+pub use retry::{
+    EndpointRetryCheckpoint, EndpointRetryLineage, EndpointRetryPrepared, EndpointRetryProgress,
+    resume_endpoint_retry, resume_family_endpoint_retry, resume_graph_endpoint_retry,
+    retry_endpoint_evidence, retry_family_endpoint_evidence, retry_graph_endpoint_evidence,
 };
 mod family;
 mod graph;
@@ -636,6 +642,48 @@ fn recover<F: FnMut(&Progress) -> ControlFlow<()>>(
             "resume work directory must be one relative component",
         ));
     }
+    let (options, _, staged) = restore_evidence_request(
+        root,
+        checkpoint,
+        expected_source,
+        maximum_bytes,
+        original,
+        &mut reporter,
+    )?;
+    let raw = &checkpoint.evidence;
+    let remaining = maximum_bytes
+        .checked_sub(checkpoint.configuration.bytes)
+        .ok_or(Error::Association("configuration transport limit"))?;
+    reporter.stage(Stage::Verify, 0, Some(raw.cells))?;
+    let verified = staged.verify_evidence(root, raw, remaining)?;
+    reporter.receipts.verification = Some(verified.observation);
+    reporter.poll(raw.cells, Some(raw.cells))?;
+    finish(
+        root,
+        work_directory,
+        checkpoint.configuration.clone(),
+        Arc::new(verified.result?),
+        options,
+        reporter,
+        expected_prepared.map(|p| (expected_source, p)),
+    )
+}
+
+// Shared request/route restoration for ordinary recovery and explicit new attempts.
+// This reconstructs source authority; native raw proof verification still follows.
+#[allow(clippy::too_many_arguments)]
+fn restore_evidence_request<F: FnMut(&Progress) -> ControlFlow<()>>(
+    root: &Path,
+    checkpoint: &PreparationCheckpoint,
+    expected_source: &str,
+    maximum_bytes: u64,
+    original: Option<(OriginalPoint, represented::Limits)>,
+    reporter: &mut Reporter<'_, F>,
+) -> Result<(
+    PreparationOptions,
+    regular::Route,
+    gcad::staging::StagedRequest,
+)> {
     let remaining = maximum_bytes
         .checked_sub(checkpoint.configuration.bytes)
         .ok_or(Error::Association("configuration transport limit"))?;
@@ -711,17 +759,5 @@ fn recover<F: FnMut(&Progress) -> ControlFlow<()>>(
         options.represented = Some(policy);
     }
     regular::restore(&mut options, staged.request(), route)?;
-    reporter.stage(Stage::Verify, 0, Some(raw.cells))?;
-    let verified = staged.verify_evidence(root, raw, remaining)?;
-    reporter.receipts.verification = Some(verified.observation);
-    reporter.poll(raw.cells, Some(raw.cells))?;
-    finish(
-        root,
-        work_directory,
-        checkpoint.configuration.clone(),
-        Arc::new(verified.result?),
-        options,
-        reporter,
-        expected_prepared.map(|p| (expected_source, p)),
-    )
+    Ok((options, route, staged))
 }

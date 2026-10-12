@@ -16,6 +16,13 @@ pub(in super::super) fn validate(
                 attempt,
                 prior,
                 ..
+            }
+            | Request::RetryThreshold {
+                input,
+                overrides,
+                attempt,
+                prior,
+                ..
             },
             Response::PreparedThreshold(prepared),
         ) => {
@@ -28,7 +35,26 @@ pub(in super::super) fn validate(
             {
                 return Err("threshold preparation differs from issued capability/attempt".into());
             }
+            if matches!(request, Request::RetryThreshold { .. }) != prepared.retry.is_some() {
+                return Err("threshold retry response capability mismatch".into());
+            }
             validate_provenance(input, &prepared.provenance)?;
+            if let Request::RetryThreshold { retry, .. } = request {
+                let lineage = retry.bind(
+                    &super::super::jobs::threshold::rooted(root, &prepared.directory)?,
+                    prepared
+                        .retry
+                        .as_ref()
+                        .ok_or("missing retry response lineage")?,
+                )?;
+                if serde_json::to_value(Some(&lineage))?
+                    != serde_json::to_value(&prepared.generation.endpoint_retry)?
+                {
+                    return Err("retry generation history differs from native lineage".into());
+                }
+            } else if prepared.generation.endpoint_retry.is_some() {
+                return Err("ordinary preparation claimed retry history".into());
+            }
             super::super::jobs::threshold::validate_prepared(root, prepared)?;
             if let Some(prior) = prior
                 && (prepared.native.publication.source_identity

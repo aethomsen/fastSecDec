@@ -30,6 +30,7 @@ pub(super) fn generate(
     let provenance = super::provenance(&loaded, &options)?;
     let evaluator = loaded.card.generation.evaluator;
     let record = GenerationRecord {
+        endpoint_retry: None,
         workers,
         mode: Some(options.mode),
         subtraction: Some(options.subtraction),

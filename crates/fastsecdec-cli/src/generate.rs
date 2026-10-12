@@ -444,6 +444,7 @@ pub(crate) fn generate_with_resident_recipe(
         output.parent().unwrap_or_else(|| Path::new(".")),
     )?;
     let generation_record = GenerationRecord {
+        endpoint_retry: None,
         workers,
         mode: Some(options.mode),
         subtraction: Some(options.subtraction),

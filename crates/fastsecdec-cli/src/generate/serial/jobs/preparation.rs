@@ -75,6 +75,7 @@ pub(super) fn context(
     options.decomposition.max_sectors = settings.max_sectors;
     options.decomposition.max_support_pairs = settings.max_support_pairs;
     let generation = GenerationRecord {
+        endpoint_retry: None,
         workers,
         mode: Some(options.mode),
         subtraction: Some(options.subtraction),

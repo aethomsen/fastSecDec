@@ -2,7 +2,8 @@ use super::*;
 use crate::kernel::threshold_metadata::MapDescriptor;
 use std::collections::BTreeSet;
 
-fn triangle() -> (Arc<ParametricIntegrand>, PreparationOptions) {
+pub(in crate::threshold::generation) fn triangle() -> (Arc<ParametricIntegrand>, PreparationOptions)
+{
     let (x, y, z, eps, unit) = symbol!(
         "projective_adapter::x",
         "projective_adapter::y",

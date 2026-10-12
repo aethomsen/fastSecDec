@@ -39,6 +39,14 @@ pub(crate) enum Request {
         attempt: String,
         prior: Option<Box<threshold::PreparedThreshold>>,
     },
+    RetryThreshold {
+        input: PathBuf,
+        workers: usize,
+        overrides: crate::config::GenerationOverrides,
+        attempt: String,
+        prior: Option<Box<threshold::PreparedThreshold>>,
+        retry: Box<threshold::retry::RetryAttempt>,
+    },
     CompileThreshold {
         directory: String,
         work: fastsecdec::kernel::ThresholdCompilationWork,
@@ -210,6 +218,23 @@ pub(crate) fn execute(
         }
     };
     let mut response = match job.request {
+        Request::RetryThreshold {
+            input,
+            workers,
+            overrides,
+            attempt,
+            prior,
+            retry,
+        } => threshold::prepare_with_retry(
+            &job.root,
+            &input,
+            workers,
+            overrides,
+            &attempt,
+            prior.as_deref(),
+            Some(&retry),
+            emit,
+        )?,
         Request::PrepareThreshold {
             input,
             workers,

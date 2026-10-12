@@ -20,9 +20,9 @@ mod regular_tests;
 mod graph_tests;
 
 #[path = "projective_tests.rs"]
-mod projective_tests;
+pub(super) mod projective_tests;
 
-fn analytic() -> (Arc<ParametricIntegrand>, PreparationOptions) {
+pub(super) fn analytic() -> (Arc<ParametricIntegrand>, PreparationOptions) {
     let (x, a, eps, t) = symbol!(
         "preparation_adapter::x",
         "preparation_adapter::a",
@@ -94,7 +94,7 @@ fn compile_archive(
     let (bytes, catalogue) = archive.finish().unwrap();
     (bytes.into_inner(), catalogue)
 }
-fn compile(root: &Path, receipt: &PreparationReceipt) -> KernelSet {
+pub(super) fn compile(root: &Path, receipt: &PreparationReceipt) -> KernelSet {
     let (bytes, catalogue) = compile_archive(root, receipt);
     let kernels =
         KernelSet::from_bytes_with_options(&bytes, KernelLoadOptions { validate: true }).unwrap();

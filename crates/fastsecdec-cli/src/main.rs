@@ -134,6 +134,16 @@ enum Action {
         /// Reuse verified, durable receipts from an interrupted serial generation.
         #[arg(long)]
         resume: bool,
+        /// Start a new endpoint preparation from retained raw/configuration evidence.
+        #[arg(
+            long,
+            requires = "endpoint_resource_overlay",
+            conflicts_with = "resume"
+        )]
+        retry_endpoint_from: Option<PathBuf>,
+        /// Separate native resource overlay; the original card remains unchanged.
+        #[arg(long, requires = "retry_endpoint_from", conflicts_with = "resume")]
+        endpoint_resource_overlay: Option<PathBuf>,
     },
     /// Generate and integrate a native TOML run card.
     Run {
@@ -568,11 +578,40 @@ fn run(cli: Cli) -> CliResult<()> {
             geometry_workers,
             serial,
             resume,
+            retry_endpoint_from,
+            endpoint_resource_overlay,
         } => {
             let reference = reference::from_card(&input, None)?;
             let output = output.unwrap_or_else(|| input::artifact_path(&input));
             let mut dashboard = make_dashboard()?;
             let card: config::RunCard = toml::from_str(&std::fs::read_to_string(&input)?)?;
+            if let (Some(old), Some(overlay)) = (retry_endpoint_from, endpoint_resource_overlay) {
+                let artifact = generate::serial::retry_endpoint(
+                    generate::serial::GenerationRun {
+                        path: &input,
+                        output: &output,
+                        reference: reference.as_ref(),
+                        workers: geometry_workers.get(),
+                        resume,
+                        overrides: config::GenerationOverrides {
+                            contour,
+                            threshold_decomposition,
+                            recipe,
+                            contour_jacobian,
+                        },
+                    },
+                    &old,
+                    &overlay,
+                    &mut dashboard,
+                )?;
+                drop(dashboard);
+                return generation_report::print_indexed(
+                    &output,
+                    &artifact,
+                    cli.plain,
+                    render_json,
+                );
+            }
             if serial || card.generation.serial || resume {
                 let artifact = generate::serial::generate_with_overrides(
                     &input,
@@ -1064,6 +1103,41 @@ fn parse_contour_jacobian(value: &str) -> Result<fastsecdec::contour::ContourJac
 mod jacobian_cli_tests {
     use super::*;
 
+    #[test]
+    fn endpoint_retry_flags_are_paired_and_distinct_from_resume() {
+        assert!(
+            Cli::try_parse_from([
+                "fastsecdec",
+                "generate",
+                "input.toml",
+                "--retry-endpoint-from",
+                "old.fsd",
+                "--endpoint-resource-overlay",
+                "limits.json"
+            ])
+            .is_ok()
+        );
+        for args in [
+            vec!["--retry-endpoint-from", "old.fsd"],
+            vec!["--endpoint-resource-overlay", "limits.json"],
+            vec![
+                "--retry-endpoint-from",
+                "old.fsd",
+                "--endpoint-resource-overlay",
+                "limits.json",
+                "--resume",
+            ],
+        ] {
+            assert!(
+                Cli::try_parse_from(
+                    ["fastsecdec", "generate", "input.toml"]
+                        .into_iter()
+                        .chain(args)
+                )
+                .is_err()
+            );
+        }
+    }
     #[test]
     fn threshold_switch_is_generation_only_and_forwards_from_run() {
         for action in ["generate", "run"] {

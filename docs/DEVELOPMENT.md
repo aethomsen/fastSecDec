@@ -356,6 +356,41 @@ the existing `--fastsecdec-only` / `--sector-decomposition-only` path. Native
 host validation here is separate from publication of a Community wheel or
 portable inventory.
 
+### Retry endpoint preparation from retained GCAD evidence
+
+When a preparation retains its configuration, request and raw GCAD records,
+start a new attempt with a separate resource overlay:
+
+```sh
+fastsecdec generate ORIGINAL.toml --serial --workers 25 \
+  --retry-endpoint-from OLD.fsd --endpoint-resource-overlay limits.json \
+  --output NEW.fsd
+```
+
+For example, `limits.json` can contain:
+
+```json
+{"geometry":{"wall_time_secs":17700},"discovery":{"wall_time_secs":17700}}
+```
+
+Keep the original card and generation overrides unchanged. The CLI checks the
+original source, settings, build and dependency identities, copies authenticated
+records into a distinct directory, and freshly verifies the proof. It does not
+repeat GCAD solving. The effective resource policy and retry checkpoint become
+durable before endpoint preparation starts. The original artifact and records
+remain unchanged.
+
+Resume the new attempt with ordinary `--resume` and the new output basename;
+its saved resource overlay is used even if `limits.json` has changed. The retry
+flags themselves cannot be combined with `--resume`. A cleaned completed
+artifact alone lacks the retained preparation records and cannot seed a retry.
+Native completed checkpoints are accepted when those records still exist.
+
+Native callers use `retry_endpoint_evidence` or its graph/family variants and
+the corresponding typed retry-resume methods. Unsupported legacy-route resource
+fields are rejected. This slice adds no Python retry method or automatic record
+retention. See the [retry review](reviews/no-deformation-endpoint-resource-retry.md).
+
 ## Reference comparison
 
 The frozen Pathfinder source revision is

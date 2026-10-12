@@ -166,6 +166,10 @@ pub struct Provenance {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct GenerationRecord {
     pub workers: usize,
+    /// Historical retry lineage/effective resources, outside mathematical identity.
+    /// These record identities do not promise retained/loadable proof files.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub endpoint_retry: Option<fastsecdec::threshold::generation::EndpointRetryLineage>,
     /// Requested native generation lane; absent on older artifacts.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub mode: Option<fastsecdec::generation::GenerationMode>,

@@ -371,6 +371,7 @@ fn generation_choices_roundtrip_without_inventing_historical_settings() {
     let mut artifact = Artifact::new(&current_kernels(), provenance()).unwrap();
     let id = artifact.content_id.clone();
     artifact.generation = Some(GenerationRecord {
+        endpoint_retry: None,
         mode: Some(GenerationMode::NumericalDual),
         subtraction: Some(SubtractionStrategy::IntegrateByParts),
         source_chart_modes: Some(

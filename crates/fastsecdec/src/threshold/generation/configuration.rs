@@ -42,7 +42,10 @@ struct RepresentedConfiguration {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     graph_payloads: Option<represented::graph::GraphPayloadPolicy>,
 }
-pub(super) fn write(root: &Path, options: &PreparationOptions, route: Route) -> Result<RecordRef> {
+fn representation(
+    options: &PreparationOptions,
+    route: Route,
+) -> Result<(Stored, Atoms, Vec<Symbol>)> {
     if options.regular_family.is_some() != (route != Route::LegacyFiber) {
         return Err(Error::Association(
             "regular configuration/route association",
@@ -70,11 +73,8 @@ pub(super) fn write(root: &Path, options: &PreparationOptions, route: Route) -> 
     }
     let l = options.regularization;
     let p = l.prefactors;
-    Ok(codec::write(
-        root,
-        "threshold-configuration",
-        KIND,
-        &Stored {
+    Ok((
+        Stored {
             generation: (&options.generation).into(),
             precision: options.precision.clone(),
             compilation: options.compilation,
@@ -103,7 +103,34 @@ pub(super) fn write(root: &Path, options: &PreparationOptions, route: Route) -> 
         },
         atoms,
         symbols,
+    ))
+}
+pub(super) fn write(root: &Path, options: &PreparationOptions, route: Route) -> Result<RecordRef> {
+    let (stored, atoms, symbols) = representation(options, route)?;
+    Ok(codec::write(
+        root,
+        "threshold-configuration",
+        KIND,
+        &stored,
+        atoms,
+        symbols,
     )?)
+}
+/// Compare the existing native representation after both records have imported
+/// into the same State. Re-encoded byte hashes are process-local symbol IDs and
+/// must not be used as a semantic equality test across a fresh process.
+pub(super) fn equivalent(
+    left: &PreparationOptions,
+    right: &PreparationOptions,
+    route: Route,
+) -> Result<bool> {
+    let (left, la, ls) = representation(left, route)?;
+    let (right, ra, rs) = representation(right, route)?;
+    let encode = |value: &Stored| {
+        serde_json::to_vec(value)
+            .map_err(|_| Error::Association("configuration metadata serialization"))
+    };
+    Ok(encode(&left)? == encode(&right)? && la.atoms == ra.atoms && ls == rs)
 }
 pub(super) fn read(
     root: &Path,

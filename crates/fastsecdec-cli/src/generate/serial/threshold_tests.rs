@@ -20,7 +20,7 @@ fn run(path: &Path, output: &Path, resume: bool) -> Artifact {
     )
     .unwrap()
 }
-fn check(output: &Path) {
+pub(super) fn check(output: &Path) {
     let expected = [
         1.,
         0.,

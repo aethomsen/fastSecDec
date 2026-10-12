@@ -1,4 +1,5 @@
 //! Synchronous native threshold calls, exclusively inside recyclable CLI children.
+pub(in super::super) mod retry;
 use super::*;
 use fastsecdec::{
     kernel::{ThresholdCompilationWork, ThresholdPublicationPlan, ThresholdWorkReceipt},
@@ -16,6 +17,8 @@ pub(crate) struct PreparedThreshold {
     pub provenance: Provenance,
     pub generation: GenerationRecord,
     pub timings: GenerationTimings,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub retry: Option<threshold::EndpointRetryCheckpoint>,
 }
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -27,6 +30,7 @@ pub(crate) struct CompiledThreshold {
 }
 #[derive(Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
+#[derive(Clone, Debug)]
 struct Checkpoint {
     directory: String,
     native: threshold::PreparationCheckpoint,
@@ -35,6 +39,8 @@ struct Checkpoint {
     // Bind raw evidence to the issued scientific card plus CLI overrides.
     // Source identity alone deliberately does not identify compiler policy.
     issued_settings: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    retry: Option<threshold::EndpointRetryCheckpoint>,
 }
 fn issued_settings(
     input: &Path,
@@ -79,6 +85,14 @@ pub(in super::super) fn validate_prepared(
 ) -> CliResult<()> {
     let directory = rooted(root, &prepared.directory)?;
     let checkpoint = prepared.native.checkpoint()?;
+    if let Some(retry) = &prepared.retry {
+        if retry.preparation.configuration != checkpoint.configuration
+            || retry.preparation.evidence != checkpoint.evidence
+        {
+            return Err("threshold retry/native response identity mismatch".into());
+        }
+        retry.lineage.verify(&directory)?;
+    }
     if prepared.native.strategy != fastsecdec::threshold::ThresholdStrategy::GcadFirst
         || checkpoint.evidence.request.source_identity
             != prepared.native.publication.source_identity
@@ -143,6 +157,19 @@ pub(super) fn prepare(
     prior: Option<&PreparedThreshold>,
     emit: &mut dyn FnMut(GenerationSnapshot) -> std::io::Result<()>,
 ) -> CliResult<Response> {
+    prepare_with_retry(root, input, workers, overrides, attempt, prior, None, emit)
+}
+#[allow(clippy::too_many_arguments)]
+pub(super) fn prepare_with_retry(
+    root: &Path,
+    input: &Path,
+    workers: usize,
+    overrides: crate::config::GenerationOverrides,
+    attempt: &str,
+    prior: Option<&PreparedThreshold>,
+    retry: Option<&retry::RetryAttempt>,
+    emit: &mut dyn FnMut(GenerationSnapshot) -> std::io::Result<()>,
+) -> CliResult<Response> {
     if attempt.is_empty()
         || !attempt
             .bytes()
@@ -159,11 +186,14 @@ pub(super) fn prepare(
             "threshold CLI runtime model masses are not supported; use fixed model masses".into(),
         );
     }
-    let (generation, generation_record, provenance, mut timings) =
+    let (generation, mut generation_record, provenance, mut timings) =
         preparation::context(&loaded, workers)?;
     let source_identity =
         generation::source_identity(&loaded.integrand, &loaded.runtime_parameters, &[])?;
     let issued_settings = issued_settings(input, overrides)?;
+    if let Some(retry) = retry {
+        retry.validate(input, &issued_settings, &source_identity)?;
+    }
     let checkpoint_path = root.join("threshold-checkpoint.json");
     let saved_checkpoint: Option<Checkpoint> = if prior.is_none() && checkpoint_path.exists() {
         Some(serde_json::from_reader(File::open(&checkpoint_path)?)?)
@@ -187,10 +217,22 @@ pub(super) fn prepare(
         }
         super::super::journal::validate_provenance(input, &prior.provenance)?;
     }
+    if saved_checkpoint.as_ref().is_some_and(|p| p.retry.is_some())
+        != (retry.is_some() && saved_checkpoint.is_some())
+        || prior.is_some_and(|p| p.retry.is_some()) != (retry.is_some() && prior.is_some())
+    {
+        return Err("endpoint retry/ordinary checkpoint capability changed".into());
+    }
     let directory = prior
         .map(|p| p.directory.clone())
         .or_else(|| saved_checkpoint.as_ref().map(|p| p.directory.clone()))
-        .unwrap_or_else(|| format!("threshold-{attempt}"));
+        .unwrap_or_else(|| {
+            if retry.is_some() {
+                "threshold-retry".into()
+            } else {
+                format!("threshold-{attempt}")
+            }
+        });
     let stage_root = rooted(root, &directory)?;
     let mut options = threshold::PreparationOptions::new(input::symbol(&format!(
         "fastsecdec_threshold::unit_{}",
@@ -211,8 +253,15 @@ pub(super) fn prepare(
     let mut error = None;
     let mut gate = ProgressGate::default();
     let mut last_checkpoint = None;
+    let active_retry = std::cell::RefCell::new(
+        prior
+            .and_then(|p| p.retry.clone())
+            .or_else(|| saved_checkpoint.as_ref().and_then(|p| p.retry.clone())),
+    );
     let mut observe = |p: &threshold::Progress| {
-        if let Some(checkpoint) = p.checkpoint() {
+        if let Some(checkpoint) = p.checkpoint()
+            && (retry.is_none() || active_retry.borrow().is_some())
+        {
             let saved = (|| -> CliResult<()> {
                 let bytes = serde_json::to_vec(&Checkpoint {
                     directory: directory.clone(),
@@ -220,6 +269,7 @@ pub(super) fn prepare(
                     provenance: provenance.clone(),
                     build: crate::process::child::build_identity(),
                     issued_settings: issued_settings.clone(),
+                    retry: active_retry.borrow().clone(),
                 })?;
                 if last_checkpoint.as_ref() != Some(&bytes) {
                     artifact::atomic_write(&checkpoint_path, &bytes)?;
@@ -272,7 +322,58 @@ pub(super) fn prepare(
             ControlFlow::Continue(())
         }
     };
-    let prepared = if let Some(prior) = prior {
+    let prepared = if let Some(retry) = retry {
+        let mut retry_observe = |p: &threshold::EndpointRetryProgress| {
+            *active_retry.borrow_mut() = p.checkpoint.clone();
+            observe(&p.preparation)
+        };
+        let restored = prior
+            .and_then(|p| p.retry.as_ref())
+            .or_else(|| saved_checkpoint.as_ref().and_then(|p| p.retry.as_ref()));
+        let result = if let Some(checkpoint) = restored {
+            retry.bind(&stage_root, checkpoint)?;
+            threshold::resume_endpoint_retry(
+                &stage_root,
+                checkpoint,
+                &format!("vectors-{attempt}"),
+                &source_identity,
+                prior.map(|p| p.native.publication.prepared_identity.as_str()),
+                TRANSPORT_BYTES,
+                &mut retry_observe,
+            )
+        } else {
+            // The native sidecar is durable before the frontend status checkpoint;
+            // recover it after a process loss in that narrow interval.
+            let sidecar = stage_root.join("endpoint-retry-checkpoint.json");
+            if sidecar.is_file() {
+                let checkpoint = serde_json::from_reader(File::open(sidecar)?)?;
+                retry.bind(&stage_root, &checkpoint)?;
+                threshold::resume_endpoint_retry(
+                    &stage_root,
+                    &checkpoint,
+                    &format!("vectors-{attempt}"),
+                    &source_identity,
+                    None,
+                    TRANSPORT_BYTES,
+                    &mut retry_observe,
+                )
+            } else {
+                threshold::retry_endpoint_evidence(
+                    &retry.evidence_root,
+                    &retry.checkpoint.native,
+                    &source_identity,
+                    &retry.resources,
+                    &stage_root,
+                    TRANSPORT_BYTES,
+                    &mut retry_observe,
+                )
+            }
+        };
+        result.map(|result| {
+            *active_retry.borrow_mut() = Some(result.checkpoint);
+            result.prepared
+        })
+    } else if let Some(prior) = prior {
         threshold::resume(
             &stage_root,
             &prior.native,
@@ -304,6 +405,13 @@ pub(super) fn prepare(
         return Err(error.into());
     }
     let prepared = prepared?;
+    if let Some(retry) = retry {
+        let active = active_retry.borrow();
+        generation_record.endpoint_retry = Some(retry.bind(
+            &stage_root,
+            active.as_ref().ok_or("missing completed retry lineage")?,
+        )?);
+    }
     if prepared.receipt.publication.source_identity != source_identity {
         return Err("native threshold result source changed".into());
     }
@@ -329,6 +437,7 @@ pub(super) fn prepare(
         provenance,
         generation: generation_record,
         timings,
+        retry: active_retry.into_inner(),
     })))
 }
 pub(super) fn compile(
