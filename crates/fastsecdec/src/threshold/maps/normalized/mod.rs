@@ -1,5 +1,6 @@
 //! Checked open prefix maps and normalized selected sections. These owners
 //! retain the original CAD cell; they do not certify any physical closed face.
+pub mod affine;
 pub(crate) mod algebra;
 mod certificate;
 pub mod program;

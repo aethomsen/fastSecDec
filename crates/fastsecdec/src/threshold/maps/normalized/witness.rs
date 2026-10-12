@@ -5,16 +5,40 @@ use super::{
 use symbolica::{atom::Atom, domains::rational::Rational};
 use symgcad::{
     algebra::{Algebra, Poly, rational},
-    output::{RootBound, RootIndexDomain},
+    output::{Axis, RootBound, RootIndexDomain, SolveResult},
     roots::{FiberRoot, isolate_union, refine_once},
 };
+
+/// Only a retained native geometry owner supplies original selector authority.
+#[derive(Clone, Copy)]
+pub(super) enum Source<'a> {
+    Positive(&'a PositiveProjectiveCellMap),
+    Affine(&'a super::super::CellMap),
+}
+impl<'a> Source<'a> {
+    pub fn raw(self) -> &'a SolveResult {
+        match self {
+            Self::Positive(s) => s.decomposition().native_result(),
+            Self::Affine(s) => s.decomposition().native_result(),
+        }
+    }
+    pub fn axes(self) -> &'a [Axis] {
+        match self {
+            Self::Positive(s) => s.native_axes(),
+            Self::Affine(s) => s.native_axes(),
+        }
+    }
+}
 
 pub(super) fn polynomial(
     source: &PositiveProjectiveCellMap,
     bound: &RootBound,
     b: &Budget,
 ) -> Result<Poly> {
-    let raw = source.decomposition().native_result();
+    polynomial_in(Source::Positive(source), bound, b)
+}
+pub(super) fn polynomial_in(source: Source<'_>, bound: &RootBound, b: &Budget) -> Result<Poly> {
+    let raw = source.raw();
     let a = Algebra::new(&raw.order).map_err(native)?;
     let p = a
         .parse(
@@ -32,9 +56,17 @@ pub(super) fn constant_bound(
     upper: bool,
     b: &Budget,
 ) -> Result<Rational> {
+    constant_bound_in(Source::Positive(source), axis, upper, b)
+}
+pub(super) fn constant_bound_in(
+    source: Source<'_>,
+    axis: usize,
+    upper: bool,
+    b: &Budget,
+) -> Result<Rational> {
     b.check()?;
     let axis_record = source
-        .native_axes()
+        .axes()
         .get(axis)
         .ok_or_else(|| Error::Invalid("source axis inventory".into()))?;
     let bound = if upper {
@@ -44,7 +76,7 @@ pub(super) fn constant_bound(
     }
     .as_ref()
     .ok_or_else(|| Error::Unsupported("constant finite interval bound required".into()))?;
-    let p = polynomial(source, bound, b)?;
+    let p = polynomial_in(source, bound, b)?;
     if (0..p.nvars()).any(|i| i != axis && p.degree(i) > 0) {
         return Err(Error::Unsupported("source bound is not constant".into()));
     }
@@ -58,8 +90,8 @@ pub(super) fn constant_bound(
     b.rational(&lo)?;
     Ok(lo)
 }
-fn selected(
-    source: &PositiveProjectiveCellMap,
+pub(super) fn selected(
+    source: Source<'_>,
     axis: usize,
     bound: &RootBound,
     prefix: &[Rational],
@@ -70,9 +102,9 @@ fn selected(
             "normalized witness currently requires distinct-real native selectors".into(),
         ));
     }
-    let raw = source.decomposition().native_result();
+    let raw = source.raw();
     let a = Algebra::new(&raw.order).map_err(native)?;
-    let p = polynomial(source, bound, b)?;
+    let p = polynomial_in(source, bound, b)?;
     let fiber = a.specialize_univariate(&p, axis, prefix).map_err(native)?;
     let roots = isolate_union(vec![(bound.polynomial, fiber)]).map_err(native)?;
     b.check()?;
@@ -81,7 +113,11 @@ fn selected(
         .cloned()
         .ok_or_else(|| Error::Invalid("original selected witness root absent".into()))
 }
-fn compare(root: &mut FiberRoot, value: &Rational, b: &Budget) -> Result<std::cmp::Ordering> {
+pub(super) fn compare(
+    root: &mut FiberRoot,
+    value: &Rational,
+    b: &Budget,
+) -> Result<std::cmp::Ordering> {
     for _ in 0..b.limits.max_refinements {
         b.check()?;
         if root.interval.1 < *value {
@@ -107,7 +143,30 @@ pub(super) fn associate(
     lower: &Rational,
     b: &Budget,
 ) -> Result<FiberRoot> {
+    let _ = original; // Retained by the caller; selection reuses its actual source table row.
+    associate_in(
+        Source::Positive(&prefix.source),
+        prefix.len(),
+        p,
+        bound,
+        lower,
+        b,
+    )
+}
+pub(super) fn associate_in(
+    source: Source<'_>,
+    axis: usize,
+    p: &SectionProposal,
+    bound: &RootBound,
+    lower: &Rational,
+    b: &Budget,
+) -> Result<FiberRoot> {
     let c = &p.chart;
+    if c.source_prefix.len() != axis || c.witness.len() != axis {
+        return Err(Error::Invalid(
+            "complete original prefix witness required".into(),
+        ));
+    }
     for (q, [lo, hi]) in c.witness.iter().zip(&c.bounds) {
         b.rational(q)?;
         if q <= lo || q >= hi {
@@ -131,11 +190,11 @@ pub(super) fn associate(
     // pulled coefficient branch, including h=v*Z for the two-level case.
     for axis in 0..point.len() {
         for (upper, which) in [
-            (false, &prefix.source.native_axes()[axis].lower),
-            (true, &prefix.source.native_axes()[axis].upper),
+            (false, &source.axes()[axis].lower),
+            (true, &source.axes()[axis].upper),
         ] {
             if let Some(bound) = which {
-                let mut root = selected(&prefix.source, axis, bound, &point[..axis], b)?;
+                let mut root = selected(source, axis, bound, &point[..axis], b)?;
                 let order = compare(&mut root, &point[axis], b)?;
                 if order
                     != if upper {
@@ -157,8 +216,7 @@ pub(super) fn associate(
     }
     let lo = lower + &(&scale * &p.bracket.lower);
     let hi = lower + &(&scale * &p.bracket.upper);
-    let mut anchor = selected(&prefix.source, prefix.len(), bound, &point, b)?;
-    let _ = original; // Original polynomial is retained by the caller; selected() reuses the same table row.
+    let mut anchor = selected(source, axis, bound, &point, b)?;
     for _ in 0..b.limits.max_refinements {
         b.check()?;
         if anchor.interval.0 >= lo && anchor.interval.1 <= hi {

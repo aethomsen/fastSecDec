@@ -3,6 +3,7 @@ use super::{
     algebra::{self, Ring},
     certificate::{CoefficientChart, SectionProposal},
     native,
+    witness::Source,
 };
 use symbolica::{
     atom::{Atom, AtomCore, Symbol},
@@ -17,7 +18,32 @@ pub(super) fn chart(
     c: &CoefficientChart,
     b: &Budget,
 ) -> Result<(Rational, Vec<Option<DomainCertificate>>)> {
-    let n = prefix.len();
+    chart_in(
+        Source::Positive(prefix.source()),
+        &prefix.images(),
+        &prefix.slots(),
+        c,
+        b,
+    )
+}
+pub(super) fn chart_in(
+    source: Source<'_>,
+    images: &[Atom],
+    slots: &[(Symbol, [Rational; 2])],
+    c: &CoefficientChart,
+    b: &Budget,
+) -> Result<(Rational, Vec<Option<DomainCertificate>>)> {
+    let n = images.len();
+    if n > source.axes().len()
+        || c.parameters.len() != n
+        || c.source_prefix.len() != n
+        || c.parameter_images.len() != n
+        || c.bounds.len() != n
+    {
+        return Err(Error::Invalid(
+            "complete accepted chart prefix required".into(),
+        ));
+    }
     let ring = Ring::new(c.parameters.clone())?;
     let mut matrix = Vec::with_capacity(n * n);
     for image in &c.source_prefix {
@@ -36,11 +62,10 @@ pub(super) fn chart(
             "singular positive monomial coefficient chart".into(),
         ));
     }
-    let slots = prefix.slots();
     let slot_symbols = slots.iter().map(|(s, _)| *s).collect::<Vec<_>>();
     let slot_ring = Ring::new(slot_symbols)?;
     let (constraints, domain) =
-        slot_ring.box_domain(&slots.into_iter().map(|(_, b)| b).collect::<Vec<_>>(), b)?;
+        slot_ring.box_domain(&slots.iter().map(|(_, b)| b.clone()).collect::<Vec<_>>(), b)?;
     let mut range = Vec::with_capacity(2 * n);
     for (image, [lo, hi]) in c.parameter_images.iter().zip(&c.bounds) {
         b.rational(lo)?;
@@ -64,9 +89,9 @@ pub(super) fn chart(
             });
         }
     }
-    for (source, current) in c.source_prefix.iter().zip(prefix.images()) {
+    for (source, current) in c.source_prefix.iter().zip(images) {
         let pulled = algebra::pull(source, &c.parameters, &c.parameter_images);
-        if slot_ring.polynomial(&pulled, b)? != slot_ring.polynomial(&current, b)? {
+        if slot_ring.polynomial(&pulled, b)? != slot_ring.polynomial(current, b)? {
             return Err(Error::Invalid(
                 "coefficient chart does not equal the accepted source prefix".into(),
             ));
@@ -82,7 +107,23 @@ pub(super) fn equation(
     lower: &Rational,
     b: &Budget,
 ) -> Result<(Ring, Poly, Poly, Poly)> {
-    let n = prefix.len();
+    equation_in(
+        Source::Positive(prefix.source()),
+        prefix.len(),
+        p,
+        original,
+        lower,
+        b,
+    )
+}
+pub(super) fn equation_in(
+    source: Source<'_>,
+    n: usize,
+    p: &SectionProposal,
+    original: &Poly,
+    lower: &Rational,
+    b: &Budget,
+) -> Result<(Ring, Poly, Poly, Poly)> {
     let mut roles = p.chart.parameters.clone();
     roles.push(p.root_symbol);
     let ring = Ring::new(roles)?;
@@ -91,7 +132,7 @@ pub(super) fn equation(
     if powers[n] != 0 {
         return Err(Error::Invalid("root scale depends on root".into()));
     }
-    let raw = prefix.source.decomposition().native_result();
+    let raw = source.raw();
     if original.degree(n) == 0 || (n + 1..raw.order.len()).any(|i| original.degree(i) > 0) {
         return Err(Error::Invalid("original bound is not triangular".into()));
     }

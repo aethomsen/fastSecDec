@@ -40,9 +40,13 @@ These capabilities are separate from the exporter contract documented below.
 Explicit single-chamber runtime templates now reach the CLI, including normal
 and serial generation/integration, point rebinding and checkpoint identity checks;
 see the [parameterized examples](../examples/no_deformation/parameter_templates/README.md).
-The general endpoint resolver, broader parametric chambers, complete HEPKit
-generation interface and broader physical suite remain under development. A
-verified GCAD result alone is not an executable integral. See the
+The [native HEPKit interface](reviews/no-deformation-endpoint-resources.md)
+uses the same endpoint-route policy and resource settings as the CLI. Diagram
+and integral-family triangle/box inputs pass native generation, archive
+restoration and OneLOop comparisons. Distributed Community delivery remains
+separate. The general endpoint resolver, broader parametric chambers and broader
+physical suite remain under development. A verified GCAD result alone is not an
+executable integral. See the
 [reuse and acceptance ledger](REUSE_AUDIT.md#no-contour-foundation-and-consolidation-2026-10-10).
 
 ## Algebraic boundaries beyond quadratics
@@ -69,6 +73,14 @@ Uniform branch selection, every subtraction face and the entire cell inventory
 remain proof obligations regardless of polynomial degree. See the
 [regular-section review](reviews/no-deformation-regular-sections.md) and
 [general resolver contract](NO_DEFORMATION_RESOLVER.md).
+
+The [affine-prefix implementation](reviews/no-deformation-affine-normalized-prefix.md)
+now retains verified source cells while composing independently selected
+constant endpoints and normalized moving roots. Its actual massive-kite control
+passes three of four coordinate stages at 128 and 256 bits. This is a partial
+map result: the last root-collision boundary, complete density, endpoint
+subtraction and integral remain unresolved. It does not add a completed kite
+benchmark.
 
 ## Native interface
 

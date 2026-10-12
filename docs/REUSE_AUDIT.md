@@ -4916,3 +4916,25 @@ and integral-family entrypoints, agreeing with OneLOop across the complete
 Laurent vectors. These are in-process archive restoration tests, separate from
 distributed Community publication and portable threshold support. The general
 algebraic resolver and complete double-box generation remain unfinished.
+
+## Source-bound affine algebraic prefixes (2026-10-12)
+
+The [affine-prefix review](reviews/no-deformation-affine-normalized-prefix.md)
+records reuse of the native selected-root programs, exact polynomial division,
+domain certificates and evaluator composition. Original CAD cells, selectors
+and ancestor maps remain owned throughout evaluation. Fixed root arguments use
+the native constant-function path at the requested precision, retaining error
+tracking. No new root solver, CAS, derivative system or serializer was added.
+
+Independent reviews were divided by source authorship. All 74 map tests and
+strict workspace/all-target checks pass. A retained, freshly verified massive
+kite proof supplies three of its four coordinate stages; independent 128/256-bit
+checks cover coordinates, the partial Jacobian and individual diagonals. These
+are diagnostic map measurements, not complete-integral benchmarks. The release
+build and a complete serial triangle generation also pass with this source.
+
+The initial coefficient-chart class requires positive monomial parameter
+images. Arbitrarily shifted towers and the kite's final colliding section are
+not yet admitted. Complete cell coverage, physical endpoint regularity and
+subtraction remain separate obligations; arithmetic IR restoration alone cannot
+recreate source geometry authority.
