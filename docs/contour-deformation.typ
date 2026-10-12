@@ -26,6 +26,8 @@
 #pagebreak()
 #include "landau-pinches.typ"
 #pagebreak()
+#include "gcad-critical-loci.typ"
+#pagebreak()
 #include "benchmark-compatibility.typ"
 #pagebreak()
 

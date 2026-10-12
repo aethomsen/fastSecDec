@@ -1,0 +1,409 @@
+{
+  "schema": 1,
+  "scope": "Scratch exact algebra and generic-CAD semantics only; no generation or integration benchmark and no production changes",
+  "symbolica": "ae0c82b7bda670fdb9f6229226bd47b13bb49a20",
+  "symgcad_api_probe": "3baffa7134334c62b45a6b8df9198004060be715",
+  "symgcad_crown_probe": "bef2a9e6a7441aee4c0ba69acb80e68959e78928",
+  "symgcad_source_audit": "36bfd9ebedf617a884518458d51cf1c2adcd30bd",
+  "original_gcad": "fb6ebe3aa0e3fdd073f410d01050a4ed7e235f4e",
+  "scalar_results": [
+    {
+      "case": "bubble",
+      "homogeneous_specialized_f": "3*x1^2-10*x0*x1+3*x0^2",
+      "homogeneous_u": "x1+x0",
+      "projective_gauge": "x1=1",
+      "unit_ideal": true,
+      "positive_witness": null,
+      "native_seconds": 0.008154166,
+      "gb_seconds": 0.001107474,
+      "result_receipt": {
+        "path": "target/no-deformation-critical-loci/scalars/bubble.json",
+        "sha256": "5937a318ea4cee19db564ed3d35da755fc30e155ad1e7eb142d00f1675151cdb"
+      }
+    },
+    {
+      "case": "triangle",
+      "homogeneous_specialized_f": "x2^2+2*x1*x2+x1^2-3*x0*x2+2*x0*x1+x0^2",
+      "homogeneous_u": "x2+x1+x0",
+      "projective_gauge": "x2=1",
+      "unit_ideal": true,
+      "positive_witness": null,
+      "native_seconds": 0.002100367,
+      "gb_seconds": 0.000159901,
+      "result_receipt": {
+        "path": "target/no-deformation-critical-loci/scalars/triangle.json",
+        "sha256": "4a588a5757d1057c44bdfa260cd123ad53af8591a8d3f6d835c2d8796f49f4b4"
+      }
+    },
+    {
+      "case": "box",
+      "homogeneous_specialized_f": "x3^2+2*x2*x3+x2^2-3*x1*x3+2*x1*x2+x1^2+2*x0*x3+3*x0*x2+2*x0*x1+x0^2",
+      "homogeneous_u": "x3+x2+x1+x0",
+      "projective_gauge": "x3=1",
+      "unit_ideal": true,
+      "positive_witness": null,
+      "native_seconds": 0.002493948,
+      "gb_seconds": 0.000263531,
+      "result_receipt": {
+        "path": "target/no-deformation-critical-loci/scalars/box.json",
+        "sha256": "3cf2c3a73a85af5fc8bf61747559284bfe086366839f3e867a69b6f372cbd9f1"
+      }
+    },
+    {
+      "case": "sunrise",
+      "homogeneous_specialized_f": "-x0*x1*x2",
+      "homogeneous_u": "x1*x2+x0*x2+x0*x1",
+      "projective_gauge": "x2=1",
+      "unit_ideal": true,
+      "positive_witness": null,
+      "native_seconds": 0.001928066,
+      "gb_seconds": 0.00010154,
+      "result_receipt": {
+        "path": "target/no-deformation-critical-loci/scalars/sunrise.json",
+        "sha256": "3e2286c3b7f6b6f28a489563e47fb5369afaab50b1b07bd3435147499fc520c1"
+      }
+    },
+    {
+      "case": "massive_sunrise",
+      "homogeneous_specialized_f": "x1*x2^2+x1^2*x2+x0*x2^2-13*x0*x1*x2+x0*x1^2+x0^2*x2+x0^2*x1",
+      "homogeneous_u": "x1*x2+x0*x2+x0*x1",
+      "projective_gauge": "x2=1",
+      "unit_ideal": true,
+      "positive_witness": null,
+      "native_seconds": 0.002360898,
+      "gb_seconds": 0.000387631,
+      "result_receipt": {
+        "path": "target/no-deformation-critical-loci/scalars/massive_sunrise.json",
+        "sha256": "d123545e8b7b15cfa0e4dda26c4ebd6878e30b4acf43b3619117f66917432f42"
+      }
+    },
+    {
+      "case": "kite-grev",
+      "homogeneous_specialized_f": "x3*x4^2+x3^2*x4+x2*x4^2+3*x2*x3*x4+x2*x3^2+x2^2*x4+x2^2*x3+x1*x4^2-14*x1*x3*x4-13*x1*x2*x4-14*x1*x2*x3+x1*x2^2+x1^2*x4+x1^2*x2+x0*x4^2-13*x0*x3*x4+x0*x3^2-14*x0*x2*x4-14*x0*x2*x3+3*x0*x1*x4-14*x0*x1*x3-14*x0*x1*x2+x0*x1^2+x0^2*x4+x0^2*x3+x0^2*x1",
+      "homogeneous_u": "x3*x4+x2*x4+x2*x3+x1*x4+x1*x2+x0*x4+x0*x3+x0*x1",
+      "projective_gauge": "x4=1",
+      "unit_ideal": false,
+      "positive_witness": null,
+      "native_seconds": 0.022937042,
+      "gb_seconds": 0.004223993,
+      "result_receipt": {
+        "path": "target/no-deformation-critical-loci/scalars/kite-grev.json",
+        "sha256": "e4f3d9ab0c5a3f5e3159aede942fdd5192c5c2c134dcce054402eeb2f0069ad7"
+      }
+    },
+    {
+      "case": "bubble-threshold-control",
+      "homogeneous_specialized_f": "3*x1^2-6*x0*x1+3*x0^2",
+      "homogeneous_u": "x1+x0",
+      "projective_gauge": "x1=1",
+      "unit_ideal": false,
+      "positive_witness": {
+        "all_homogeneous_derivatives_zero": true,
+        "coordinates": {
+          "sat": "1",
+          "x0": "1"
+        },
+        "original_f_zero": true,
+        "u_value": "2"
+      },
+      "native_seconds": 0.002383518,
+      "gb_seconds": 0.000149681,
+      "result_receipt": {
+        "path": "target/no-deformation-critical-loci/scalars/bubble-threshold-control.json",
+        "sha256": "8a71aeae2932a37c2fe196bc649767674c30d4ce11c04ec274dc919484e97abd"
+      }
+    },
+    {
+      "case": "massive_sunrise-threshold-control",
+      "homogeneous_specialized_f": "x1*x2^2+x1^2*x2+x0*x2^2-6*x0*x1*x2+x0*x1^2+x0^2*x2+x0^2*x1",
+      "homogeneous_u": "x1*x2+x0*x2+x0*x1",
+      "projective_gauge": "x2=1",
+      "unit_ideal": false,
+      "positive_witness": {
+        "all_homogeneous_derivatives_zero": true,
+        "coordinates": {
+          "sat": "1",
+          "x0": "1",
+          "x1": "1"
+        },
+        "original_f_zero": true,
+        "u_value": "3"
+      },
+      "native_seconds": 0.00285306,
+      "gb_seconds": 0.000373271,
+      "result_receipt": {
+        "path": "target/no-deformation-critical-loci/scalars/massive_sunrise-threshold-control.json",
+        "sha256": "e0858c1209c65306f7841e6c28f06f705a382e66c5a84d89b6ac1702bc46470e"
+      }
+    }
+  ],
+  "kite_explicit_identity": {
+    "gradients": [
+      "1-13*x3+x3^2-14*x2-14*x2*x3+3*x1-14*x1*x3-14*x1*x2+x1^2+2*x0+2*x0*x3+2*x0*x1",
+      "1-14*x3-13*x2-14*x2*x3+x2^2+2*x1+2*x1*x2+3*x0-14*x0*x3-14*x0*x2+2*x0*x1+x0^2",
+      "1+3*x3+x3^2+2*x2+2*x2*x3-13*x1-14*x1*x3+2*x1*x2+x1^2-14*x0-14*x0*x3-14*x0*x1",
+      "1+2*x3+3*x2+2*x2*x3+x2^2-14*x1-14*x1*x2-13*x0+2*x0*x3-14*x0*x2-14*x0*x1+x0^2",
+      "2*x3+x3^2+2*x2+3*x2*x3+x2^2+2*x1-14*x1*x3-13*x1*x2+x1^2+2*x0-13*x0*x3-14*x0*x2+3*x0*x1+x0^2"
+    ],
+    "identity": "target=sum_i multiplier_i*dF/dx_i evaluated at x4=1",
+    "multiplier_degree": 1,
+    "multipliers": [
+      "-7/16-45/104*x3-45/52*x2-45/104*x1+175/52*x0",
+      "105/208+15/208*x3+1015/208*x1",
+      "75/208-675/104*x3-35/4*x2+45/104*x1+45/52*x0",
+      "119/208-335/208*x3+105/208*x1",
+      "56/13+90/13*x3"
+    ],
+    "native_seconds": 0.008226606,
+    "status": "exact_identity",
+    "target": "1+x3+x2+x1+x0+16*x0*x3",
+    "trials": [
+      {
+        "degree": 0,
+        "error": "The system is inconsistent"
+      }
+    ]
+  },
+  "crown": {
+    "F": "(-1)*x1*x3*x4*x6*s+(-1)*x1*x2*x5*x6*t+(1)*x1*x2*x4*x7*t+(1)*x1*x2*x4*x7*s+(1)*x0*x3*x5*x6*t+(1)*x0*x3*x5*x6*s+(-1)*x0*x3*x4*x7*t+(-1)*x0*x2*x5*x7*s",
+    "F_chart": "(1)*x7*t*u*v+(1)*x7*s*u*v+(-1)*x5*t*u*w+(-1)*x3*s*v*w",
+    "U": "(1)*x3*x5*x7+(1)*x3*x5*x6+(1)*x3*x4*x7+(1)*x3*x4*x6+(1)*x2*x5*x7+(1)*x2*x5*x6+(1)*x2*x4*x7+(1)*x2*x4*x6+(1)*x1*x5*x7+(1)*x1*x5*x6+(1)*x1*x4*x7+(1)*x1*x4*x6+(1)*x1*x3*x7+(1)*x1*x3*x6+(1)*x1*x3*x5+(1)*x1*x3*x4+(1)*x1*x2*x7+(1)*x1*x2*x6+(1)*x1*x2*x5+(1)*x1*x2*x4+(1)*x0*x5*x7+(1)*x0*x5*x6+(1)*x0*x4*x7+(1)*x0*x4*x6+(1)*x0*x3*x7+(1)*x0*x3*x6+(1)*x0*x3*x5+(1)*x0*x3*x4+(1)*x0*x2*x7+(1)*x0*x2*x6+(1)*x0*x2*x5+(1)*x0*x2*x4",
+    "U_on_locus": "(1)*x5*x7+(1)*x3*x7+(1)*x3*x5+(1)*x3*x5*x7+(3)*x0*x5*x7+(3)*x0*x3*x7+(3)*x0*x3*x5+(3)*x0*x3*x5*x7+(3)*x0^2*x5*x7+(3)*x0^2*x3*x7+(3)*x0^2*x3*x5+(3)*x0^2*x3*x5*x7+(1)*x0^3*x5*x7+(1)*x0^3*x3*x7+(1)*x0^3*x3*x5+(1)*x0^3*x3*x5*x7",
+    "chart": "x2=x0*x3+u; x4=x0*x5+v; x6=x0*x7+w; free a=x0,b=x3,c=x5,d=x7",
+    "conditional_completeness": "For s*t*(s+t) != 0 and x3,x5,x7>0, the normal gradient linear system is invertible, so every projective interior critical point is u=v=w=0. Exact polynomial chart identity, linear-gradient reconstruction and determinant identity verified with Symbolica. No equality-solving claim for generic-open GCAD.",
+    "elapsed_seconds": 0.024684658,
+    "equality_request_error": "only strict inequalities are supported: x=0",
+    "equation": "41",
+    "exact_F_locus_zero": true,
+    "exact_eight_gradient_locus_zero": [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    "fixture_kind": "paper-transcription; no crown-named symGCAD benchmark fixture located",
+    "gcad": {
+      "cells": 1,
+      "scope": "reduced free-parameter positive domain and U positivity; not original equality solver",
+      "signs": [
+        1
+      ],
+      "solve_seconds": 0.007364904,
+      "status": "complete_generic",
+      "tampered_sign_rejected": true,
+      "verified": true,
+      "verify_seconds": 0.002305188
+    },
+    "global_full_F_CAD_attempted": false,
+    "integration_attempted": false,
+    "locus_affine_dimension": 5,
+    "locus_projective_dimension": 4,
+    "loops": 3,
+    "normal_codimension": 3,
+    "normal_hessian_determinant": "(2)*x3*x5*x7*s*t^2+(2)*x3*x5*x7*s^2*t",
+    "normal_hessian_entries": [
+      "0",
+      "(1)*x7*t+(1)*x7*s",
+      "(-1)*x5*t",
+      "(1)*x7*t+(1)*x7*s",
+      "0",
+      "(-1)*x3*s",
+      "(-1)*x5*t",
+      "(-1)*x3*s",
+      "0"
+    ],
+    "production_changes": false,
+    "projective_gauge": "x1=1; all remaining x_i>0",
+    "propagators": 8,
+    "sample": {
+      "F": "0",
+      "U": "32",
+      "exact_hessian_rank": 3,
+      "gradient": [
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0"
+      ],
+      "normal_hessian_det": "-8/25",
+      "s": "1",
+      "simplex_normalized_x": "1/8 each",
+      "t": "-1/5",
+      "u_mandelstam": "-4/5",
+      "x": [
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1"
+      ]
+    },
+    "schema": 1,
+    "source": "https://arxiv.org/html/2407.13738#S3.SS3"
+  },
+  "crown_process": {
+    "status": "completed",
+    "wall_time_secs": 0.043224757,
+    "user_cpu_secs": 0.009115,
+    "system_cpu_secs": 0.019198,
+    "peak_rss_kib": 13036,
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": "",
+    "output_truncated": false
+  },
+  "semantic_control": {
+    "exact_critical_point": {
+      "F": "0",
+      "dF": "0",
+      "x": "1/2"
+    },
+    "equality_error": "only strict inequalities are supported: (2*x-1)^2=0",
+    "claim": "Verified complete_generic has two nonzero-sign open cells while omitting a real interior stationary zero; zero-sign cell absence is not critical-locus absence.",
+    "cells": [
+      {
+        "axes": [
+          {
+            "lower": {
+              "index": 0,
+              "lower": "0",
+              "polynomial": 2,
+              "upper": "0"
+            },
+            "sample": "1/3",
+            "upper": {
+              "index": 0,
+              "lower": "1/2",
+              "polynomial": 1,
+              "upper": "1/2"
+            },
+            "variable": "x"
+          }
+        ],
+        "signs": [
+          1,
+          -1
+        ]
+      },
+      {
+        "axes": [
+          {
+            "lower": {
+              "index": 0,
+              "lower": "1/2",
+              "polynomial": 1,
+              "upper": "1/2"
+            },
+            "sample": "2/3",
+            "upper": {
+              "index": 0,
+              "lower": "1",
+              "polynomial": 0,
+              "upper": "1"
+            },
+            "variable": "x"
+          }
+        ],
+        "signs": [
+          1,
+          1
+        ]
+      }
+    ],
+    "elapsed_seconds": 0.016845794
+  },
+  "original_control": {
+    "revision": "fb6ebe3aa0e3fdd073f410d01050a4ed7e235f4e",
+    "raw": [
+      {
+        "bounds": "Root[#, 0] < x < Root[2*#-1, 0]",
+        "sample": "1/3"
+      },
+      {
+        "bounds": "Root[2*#-1, 0] < x < Root[#-1, 0]",
+        "sample": "2/3"
+      }
+    ],
+    "raw_cells": 2,
+    "merged_cells": 1,
+    "merged": [
+      {
+        "bounds": "Root[#, 0] < x < Root[#-1, 0]",
+        "sample": "2/3"
+      }
+    ],
+    "equality_error": "Not a supported relation: Eq((2*x - 1)**2, 0)",
+    "critical_point": "x=1/2, F=0 and dF=0",
+    "elapsed_seconds": 0.007784803863614798,
+    "note": "merge explicitly allows inequalities to fail on the absorbed boundary; not a singular-integrand endpoint certificate"
+  },
+  "private_evidence": [
+    {
+      "path": "target/no-deformation-critical-loci/audit/probe.rs",
+      "sha256": "54fed45a0b4f7afda045a33df768991027851035988b7d5a5eaf00077bcbc5b6"
+    },
+    {
+      "path": "target/no-deformation-critical-loci/audit/build-command.json",
+      "sha256": "afda512b8154b594f75408e1030aaaa47f5d12c9455ea3ff9094ce1af6c65862"
+    },
+    {
+      "path": "target/no-deformation-critical-loci/audit/result.json",
+      "sha256": "62c700e66b404684395eb459dd7f0e9a82caef4d31a11fea2d78e78f4f6b9792"
+    },
+    {
+      "path": "target/no-deformation-critical-loci/audit/original_probe.py",
+      "sha256": "73db58858b155ba6e74ad495409afb75146ab180c4958623e2402a183dfff165"
+    },
+    {
+      "path": "target/no-deformation-critical-loci/audit/original-result.json",
+      "sha256": "d05247b47656470c2a70014670d2582aceb0f5b0581c837bd82046e9bc7639df"
+    },
+    {
+      "path": "target/no-deformation-critical-loci/audit/crown-review.json",
+      "sha256": "08eacd3d8396f0e870d8882a781961005367911218077953d711810a7da79af8"
+    },
+    {
+      "path": "target/no-deformation-critical-loci/audit/scalar-report-review.json",
+      "sha256": "0c9ff624e5dc570f870c75c4bf2be0bdd19ecfcf9d46e2281f25d71de5e741b9"
+    },
+    {
+      "path": "target/no-deformation-critical-loci/crown/probe.rs",
+      "sha256": "aaf2ecfe58181b26bff9ea968dd535047699dabc25b4c3f863d7115a36dd45e8"
+    },
+    {
+      "path": "target/no-deformation-critical-loci/crown/build-r1/command.json",
+      "sha256": "eb694405b340459689595ac1808d67e704482ea5c9df4229333445d84a7bd299"
+    },
+    {
+      "path": "target/no-deformation-critical-loci/crown/handoff.json",
+      "sha256": "f8d88929fbb52aa643fb975e835d1d109d1ac97d6f11537cbd89dda442c7bcc5"
+    },
+    {
+      "path": "target/no-deformation-critical-loci/scalars/handoff.json",
+      "sha256": "a9f3e22698da0a4ad62094d07dedeb270f56b7fc076c13294c92ebc4feb6a7b5"
+    },
+    {
+      "path": "target/no-deformation-critical-loci/scalars/certificate-handoff.json",
+      "sha256": "8dc1cde2bf99a9f6c39a440b44da8ffea2382c896ef17c72ffe030f77d737844"
+    },
+    {
+      "path": "target/no-deformation-critical-loci/scalars/reproduction.json",
+      "sha256": "b08e9225048126ee02e699a0c1d031af1de6d59629d5f040cfa1105eb80256e8"
+    },
+    {
+      "path": "target/no-deformation-critical-loci/audit/kite-certificate-review.json",
+      "sha256": "008a2406f771484845dd337626e6c8eac071059bea22f47b40abec151d746dfb"
+    }
+  ]
+}

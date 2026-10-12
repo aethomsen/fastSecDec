@@ -25,6 +25,13 @@ certified critical-locus search, and assess local contour-plus-blow-up charts
 as a way to avoid a global GCAD sign decomposition. Keep this separate from
 implemented support and retain the completed benchmark data unchanged.
 
+The next follow-up adds scratch-only critical-locus experiments and a PDF
+discussion of the role and limitations of generic CAD. Compare Vitaly's
+original implementation, retain lower-dimensional exceptional strata in the
+reasoning, and test the crown and existing scalar points using native exact
+algebra. This authorizes documentation and private probes, not changes to
+FastSecDec's implementation or renewed integration campaigns.
+
 ## Threshold benchmark campaign completion (2026-10-12)
 
 The user assigned the following active goal. It prioritizes complete physical

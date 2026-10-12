@@ -5178,3 +5178,14 @@ HEPKit execution retains the native partial qualification; a missing direct
 read-only Python scope/lineage view is assigned as a separate binding follow-up.
 Nineteen metadata tests, strict core/CLI Clippy and the portable-feature build
 pass. Actual producer/cold-archive acceptance remains part of the compiler bridge.
+
+## Scratch critical-locus research (2026-10-12)
+
+The [critical-locus review](reviews/gcad-critical-loci.md) records native exact
+scalar/crown probes, independent fresh-process replay and an actual comparison
+with Vitaly's original GCAD. Both generic APIs omit equality sections as
+returned cells; this is not a Rust port defect. Symbolica supplies the critical
+ideal reduction and crown identities, Numerica the matrix operations, and
+symGCAD reduced-domain/nonvanishing certificates. No parallel CAS, graph,
+root solver or AD implementation was added. General equality-stratum discovery
+remains a documented gap. This milestone changes documentation only.
