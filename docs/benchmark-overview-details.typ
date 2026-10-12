@@ -209,6 +209,21 @@ GCAD-only timings are not used as complete generation measurements. The studies
 below retain their original scope and measurements.
 
 #set text(size: 8pt)
+*Campaign completion update.* The massive sunrise now lists all four intended
+prescriptions. Its missing contour measurements are marked pending. Both
+double boxes likewise list the missing sign-aware arm explicitly. Previously
+measured entries retain their original values and run identities.
+
+The massive-kite no-contour gap lies in endpoint treatment of the next moving
+algebraic root: rational composition needs a bounded native resultant, and its
+discriminant quotient must be reduced using the retained algebraic tower.
+Small exact native probes pass; this is not yet complete chart or density
+admission. For the double boxes, the full 644,699-cell geometry is verified,
+but the current complete-density endpoint cover reaches a native support-pair
+resource allowance before certificate replay. These preparation results do not
+provide full-integral integration times. The physical prefactor extension and
+full-atlas endpoint continuation remain required.
+
 *Massive-sunrise extension (12 October).* The new opening block is a distinct
 complete source with all three masses one and $s=16$, native measure one and
 $D=4-2epsilon$. Release `6647950` generated all 62 charts in 6.70 seconds,
@@ -226,7 +241,7 @@ same timed runs, not an additional matched-work experiment. The final column
 uses native radial norm uncertainty and the small square-root correction to
 600 seconds. Complete covariance, accepted counts, total calls, diagnostic
 timings and settings are in `docs/no-contour-massive-sunrise-overview.json`.
-Fresh matching ten-minute contour arms remain pending; earlier one-worker
+Fresh matching ten-minute contour arms remain pending; earlier short
 contour controls are not inserted into this opening block.
 The portable reproduction card is
 `examples/no_deformation/benchmarks/controls/massive_sunrise_no_contour.toml`;

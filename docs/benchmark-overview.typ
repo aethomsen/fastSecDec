@@ -37,11 +37,16 @@
         if index == 0 {
           for key in ("generation_seconds", "generation_peak_gb", "artifact_mb", "stochastic_sectors") {
             let value = method.generation.at(key)
+            if key == "generation_seconds" and method.generation_status == "pending" {
+              value = "Pending"
+            }
             if key == "generation_seconds" and method.id == "no-contour" {
               if method.generation_status == "refused" and method.status_detail.contains("unsupported threshold generation") {
                 value = "Unsupported"
               } else if method.generation_status == "not_available" {
                 value = "In preparation"
+              } else if method.generation_status == "refused" {
+                value = "In development"
               }
             }
             cells.push(cell(value, rowspan: 2))
@@ -77,7 +82,7 @@
       )
     ]
   }
-  let groups = ((0, 1, 2), (3, 4, 7), (5, 6))
+  let groups = ((0, 1, 2), (3, 7), (4,), (5, 6))
   for (page-index, group) in groups.enumerate() {
     if page-index > 0 { pagebreak() }
     text(size: 19pt, weight: "bold", fill: ink)[Overview]

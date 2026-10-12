@@ -1925,7 +1925,7 @@
           "id": "no-contour",
           "label": "No contour",
           "generation_status": "refused",
-          "status_detail": "fastsecdec: unsupported threshold generation: fixed regular preparation requires a native cube",
+          "status_detail": "Endpoint implementation incomplete at the next moving root: conservative rational-composition preflight and discriminant division modulo the retained algebraic tower. Native reduced/resultant probes pass; complete density not yet admitted.",
           "generation": {
             "generation_seconds": "Refused",
             "generation_peak_gb": null,
@@ -2228,10 +2228,52 @@
           }
         },
         {
+          "id": "dynamic-sign-aware",
+          "label": "Sign-aware",
+          "generation_status": "pending",
+          "status_detail": "Missing campaign arm: sign-aware recipe generation and independent QMC/MC confirmations requested; no completed double-box sign-aware measurement yet.",
+          "generation": {
+            "generation_seconds": null,
+            "generation_peak_gb": null,
+            "artifact_mb": null,
+            "stochastic_sectors": null
+          },
+          "kernel_cost": {
+            "f64_max_avg_us": null,
+            "sum_f64_checked_us": null
+          },
+          "samplers": [
+            {
+              "id": "qmc",
+              "label": "QMC",
+              "state": "pending",
+              "metrics": {
+                "integration_peak_gb": null,
+                "work_relative_se": null,
+                "work_joint_se": null,
+                "time_relative_se": null
+              },
+              "receipts": []
+            },
+            {
+              "id": "discrete_mc",
+              "label": "MC",
+              "state": "pending",
+              "metrics": {
+                "integration_peak_gb": null,
+                "work_relative_se": null,
+                "work_joint_se": null,
+                "time_relative_se": null
+              },
+              "receipts": []
+            }
+          ]
+        },
+        {
           "id": "no-contour",
           "label": "No contour",
           "generation_status": "not_available",
-          "status_detail": "Verified geometry/open maps exist; complete endpoints and integral unavailable",
+          "status_detail": "Complete 644699-cell GCAD verified; endpoint cover currently stops at native support-pair resource allowance before retained certificate replay. No full integral artifact or integration timing yet.",
           "generation": {
             "generation_seconds": null,
             "generation_peak_gb": null,
@@ -2502,10 +2544,52 @@
           }
         },
         {
+          "id": "dynamic-sign-aware",
+          "label": "Sign-aware",
+          "generation_status": "pending",
+          "status_detail": "Missing campaign arm: sign-aware recipe generation and independent QMC/MC confirmations requested; no completed double-box sign-aware measurement yet.",
+          "generation": {
+            "generation_seconds": null,
+            "generation_peak_gb": null,
+            "artifact_mb": null,
+            "stochastic_sectors": null
+          },
+          "kernel_cost": {
+            "f64_max_avg_us": null,
+            "sum_f64_checked_us": null
+          },
+          "samplers": [
+            {
+              "id": "qmc",
+              "label": "QMC",
+              "state": "pending",
+              "metrics": {
+                "integration_peak_gb": null,
+                "work_relative_se": null,
+                "work_joint_se": null,
+                "time_relative_se": null
+              },
+              "receipts": []
+            },
+            {
+              "id": "discrete_mc",
+              "label": "MC",
+              "state": "pending",
+              "metrics": {
+                "integration_peak_gb": null,
+                "work_relative_se": null,
+                "work_joint_se": null,
+                "time_relative_se": null
+              },
+              "receipts": []
+            }
+          ]
+        },
+        {
           "id": "no-contour",
           "label": "No contour",
           "generation_status": "not_available",
-          "status_detail": "Verified geometry/open maps exist; complete endpoints and integral unavailable",
+          "status_detail": "Complete 644699-cell GCAD verified; endpoint cover currently stops at native support-pair resource allowance before retained certificate replay. No full integral artifact or integration timing yet.",
           "generation": {
             "generation_seconds": null,
             "generation_peak_gb": null,
@@ -2570,10 +2654,136 @@
     },
     {
       "id": "massive-sunrise",
-      "label": "Massive sunrise \u2014 new no-contour campaign",
-      "point": "m1=m2=m3=1, s=16; contour timing pending",
+      "label": "Massive sunrise",
+      "point": "m1=m2=m3=1, s=16",
       "display_work_target_average_per_sector": 322580.6451612903,
       "methods": [
+        {
+          "id": "fixed",
+          "label": "Fixed",
+          "generation_status": "pending",
+          "status_detail": "Fresh matched-source generation and 600-second confirmations requested; earlier short controls remain separate.",
+          "generation": {
+            "generation_seconds": null,
+            "generation_peak_gb": null,
+            "artifact_mb": null,
+            "stochastic_sectors": null
+          },
+          "kernel_cost": {
+            "f64_max_avg_us": null,
+            "sum_f64_checked_us": null
+          },
+          "samplers": [
+            {
+              "id": "qmc",
+              "label": "QMC",
+              "state": "pending",
+              "metrics": {
+                "integration_peak_gb": null,
+                "work_relative_se": null,
+                "work_joint_se": null,
+                "time_relative_se": null
+              },
+              "receipts": []
+            },
+            {
+              "id": "discrete_mc",
+              "label": "MC",
+              "state": "pending",
+              "metrics": {
+                "integration_peak_gb": null,
+                "work_relative_se": null,
+                "work_joint_se": null,
+                "time_relative_se": null
+              },
+              "receipts": []
+            }
+          ]
+        },
+        {
+          "id": "dynamic-polynomial",
+          "label": "Dynamical",
+          "generation_status": "pending",
+          "status_detail": "Fresh matched-source generation and 600-second confirmations requested; earlier short controls remain separate.",
+          "generation": {
+            "generation_seconds": null,
+            "generation_peak_gb": null,
+            "artifact_mb": null,
+            "stochastic_sectors": null
+          },
+          "kernel_cost": {
+            "f64_max_avg_us": null,
+            "sum_f64_checked_us": null
+          },
+          "samplers": [
+            {
+              "id": "qmc",
+              "label": "QMC",
+              "state": "pending",
+              "metrics": {
+                "integration_peak_gb": null,
+                "work_relative_se": null,
+                "work_joint_se": null,
+                "time_relative_se": null
+              },
+              "receipts": []
+            },
+            {
+              "id": "discrete_mc",
+              "label": "MC",
+              "state": "pending",
+              "metrics": {
+                "integration_peak_gb": null,
+                "work_relative_se": null,
+                "work_joint_se": null,
+                "time_relative_se": null
+              },
+              "receipts": []
+            }
+          ]
+        },
+        {
+          "id": "dynamic-sign-aware",
+          "label": "Sign-aware",
+          "generation_status": "pending",
+          "status_detail": "Fresh matched-source generation and 600-second confirmations requested; earlier short controls remain separate.",
+          "generation": {
+            "generation_seconds": null,
+            "generation_peak_gb": null,
+            "artifact_mb": null,
+            "stochastic_sectors": null
+          },
+          "kernel_cost": {
+            "f64_max_avg_us": null,
+            "sum_f64_checked_us": null
+          },
+          "samplers": [
+            {
+              "id": "qmc",
+              "label": "QMC",
+              "state": "pending",
+              "metrics": {
+                "integration_peak_gb": null,
+                "work_relative_se": null,
+                "work_joint_se": null,
+                "time_relative_se": null
+              },
+              "receipts": []
+            },
+            {
+              "id": "discrete_mc",
+              "label": "MC",
+              "state": "pending",
+              "metrics": {
+                "integration_peak_gb": null,
+                "work_relative_se": null,
+                "work_joint_se": null,
+                "time_relative_se": null
+              },
+              "receipts": []
+            }
+          ]
+        },
         {
           "id": "no-contour",
           "label": "No contour",
