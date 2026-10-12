@@ -19,6 +19,12 @@ Publish validated code, measurements, Typst and PDF, then stop. Completion of
 this explicitly narrowed campaign does not claim completion of the broader
 general algebraic resolver in `NO_DEFORMATION_PLAN.md`.
 
+The subsequent user follow-up extends the theoretical discussion only: precisely
+distinguish current encounter-dependent stationary-zero diagnostics from a
+certified critical-locus search, and assess local contour-plus-blow-up charts
+as a way to avoid a global GCAD sign decomposition. Keep this separate from
+implemented support and retain the completed benchmark data unchanged.
+
 ## Threshold benchmark campaign completion (2026-10-12)
 
 The user assigned the following active goal. It prioritizes complete physical
