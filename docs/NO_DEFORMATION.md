@@ -82,6 +82,12 @@ map result: the last root-collision boundary, complete density, endpoint
 subtraction and integral remain unresolved. It does not add a completed kite
 benchmark.
 
+The separate [massive-sunrise reference controls](reviews/no-deformation-massive-sunrise-controls.md)
+at mass one and external square sixteen agree across fixed and dynamic contours
+and independent pySecDec for the complete Laurent vector. Its seven-cell
+no-contour endpoint construction remains in development; these short reference
+runs do not add a no-contour benchmark entry.
+
 ## Native interface
 
 `fastsecdec::input::GraphSymanzik::from_graph(&graph, parameters)` delegates to

@@ -1,0 +1,52 @@
+# Scientific reference control, separate from the massless Overview benchmark.
+# Select a contour recipe explicitly at generation; see the linked review.
+[input]
+graph = "../overview/sunrise.dot"
+model = "../../../models/scalar.json"
+model_parameters = "fixed"
+
+[parameters]
+"UFO::mt" = "1"
+
+[integral]
+dimension = "4-2*eps"
+regulator = "eps"
+measure_multiplier = "1"
+
+[[kinematics.products]]
+left = 0
+right = 0
+value = "16"
+
+[generation]
+order = 0
+mode = "symbolic"
+subtraction = "integrate_by_parts"
+contour_jacobian = "symbolic"
+
+[generation.coefficient_expansion]
+method = "coefficient_series"
+initial_relative_width = 2
+
+[generation.evaluator]
+backend = "symjit"
+cpe_rounds = 1000
+cores = 1
+
+[integration]
+method = "qmc"
+workers = 25
+points = 4096
+shifts = 8
+package_points = 1024
+evaluation_batch_size = 256
+lattice = "kuo33002"
+periodization = "korobov3"
+accuracy_target = { target = "laurent_order", order = 0 }
+relative_tolerance = 1e-30
+absolute_tolerance = 1e-30
+double_points = false
+contour_diagnostics = "disabled"
+
+[integration.stability]
+mode = "validated"
