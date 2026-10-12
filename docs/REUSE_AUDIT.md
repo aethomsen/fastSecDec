@@ -1,5 +1,17 @@
 # Ecosystem reuse evidence
 
+## Source-owned prefix covers and next boundaries (2026-10-12)
+
+The [prefix-cover review](reviews/no-deformation-prefix-cover.md) records native
+source/branch ownership, complete prefix partitions and composed evaluation of
+one additional selected boundary. Symbolica and symGCAD retain algebra,
+certification, root programs and evaluator ownership. No new CAS, AD, graph
+type, scheduler or Python implementation is introduced. The 32 normalized-map
+and 15 algebraic-evaluator controls, strict core Clippy and formatting pass.
+An independent actual-kite outcome audit verifies all ten selected-boundary
+charts and 40 strict precision checks. Complete interval densities and the
+full 9,840-cell integral remain unsupported; these are not benchmark results.
+
 ## Canonical complete endpoint measure (2026-10-12)
 
 The double-box endpoint probe exposed different unreduced numerator/denominator

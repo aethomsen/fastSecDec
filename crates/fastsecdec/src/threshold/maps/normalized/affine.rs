@@ -2,6 +2,7 @@
 //! No complete-cell, physical face, density or integration authority is issued.
 mod admission;
 mod constant;
+pub mod cover;
 pub mod program;
 #[cfg(test)]
 mod tests;

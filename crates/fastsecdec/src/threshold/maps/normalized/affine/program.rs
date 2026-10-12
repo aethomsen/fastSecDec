@@ -217,6 +217,132 @@ fn fresh_tag(used: &mut BTreeSet<Symbol>, index: usize) -> Result<Symbol> {
     ))
 }
 
+/// Compose the admitted root tower once, optionally retaining additional
+/// expressions in its owned slot frame. Standard prefix outputs remain first:
+/// CAD coordinates, partial J and individual diagonals, followed by `extra`.
+/// The caller must retain the original geometric owner alongside this IR.
+pub(super) fn prepare_outputs(
+    owner: &AffineNormalizedPrefix,
+    settings: OptimizationSettings,
+    budget: &Budget,
+    extra: &[Atom],
+) -> Result<(Scope, ExpressionEvaluator<Complex<Rational>>)> {
+    budget.check()?;
+    if owner.is_empty() {
+        return Err(Error::Unsupported(
+            "nonempty admitted affine prefix required for execution".into(),
+        ));
+    }
+    let source = owner.source();
+    let inputs = &source.unit_coordinates()[..owner.len()];
+    let mut compose = EvaluatorComposer::new(inputs.len());
+    let mut scope = Scope::default();
+    let (mut atoms, mut slots) = (Vec::new(), Vec::new());
+    let (mut outputs, mut diagonals) = (Vec::new(), Vec::new());
+    let mut used = owner.occupied();
+    let mut tags = 0;
+    let intermediate = settings.clone().cpe_iterations(Some(0));
+    let build = |outputs: &[Atom], inputs: &[Atom]| {
+        Atom::evaluator_multiple(outputs, inputs)
+            .optimization_settings(intermediate.clone())
+            .build()
+            .map_err(native)
+    };
+    // The source is streamed once, then only small accepted steps are added.
+    let mut digest = source_digest(owner)?;
+    for (axis, step) in owner.steps().into_iter().enumerate() {
+        budget.check()?;
+        match step {
+            AffinePrefixStep::ConstantInterval { lower, upper, .. } => {
+                for endpoint in [lower, upper] {
+                    if let Some(section) = endpoint.section() {
+                        if !Arc::ptr_eq(section.source(), source) || section.axis() != axis {
+                            return Err(Error::Invalid(
+                                "affine constant source/axis association".into(),
+                            ));
+                        }
+                        let program =
+                            RootProgram::prepare_affine_shifted(section, intermediate.clone())?;
+                        if used.contains(&program.transport_symbol()) {
+                            return Err(Error::Invalid(
+                                "affine root transport role collision".into(),
+                            ));
+                        }
+                        let tag = fresh_tag(&mut used, tags)?;
+                        tags += 1;
+                        let call = program.call(tag, section.coefficients())?;
+                        scope.insert(tag, program)?;
+                        let slot = compose.append(&build(&[call], &[])?, &[]).map_err(native)?[0];
+                        atoms.push(Atom::var(endpoint.symbol().ok_or_else(|| {
+                            Error::Invalid("owned constant root slot".into())
+                        })?));
+                        slots.push(slot);
+                    }
+                }
+            }
+            AffinePrefixStep::NormalizedUpper { section, .. } => {
+                if !Arc::ptr_eq(section.prefix().source(), source) || section.prefix().len() != axis
+                {
+                    return Err(Error::Invalid(
+                        "affine normalized source/prefix association".into(),
+                    ));
+                }
+                let parameters = section
+                    .chart()
+                    .parameters
+                    .iter()
+                    .copied()
+                    .map(Atom::var)
+                    .collect::<Vec<_>>();
+                let chart = build(&section.chart().parameter_images, &atoms)?;
+                let parameter_slots = compose.append(&chart, &slots).map_err(native)?;
+                let program = section.root_program_in(&digest, intermediate.clone())?;
+                if used.contains(&program.transport_symbol()) {
+                    return Err(Error::Invalid(
+                        "affine root transport role collision".into(),
+                    ));
+                }
+                let tag = fresh_tag(&mut used, tags)?;
+                tags += 1;
+                let call = program.call(tag, section.coefficients())?;
+                scope.insert(tag, program)?;
+                let root = compose
+                    .append(&build(&[call], &parameters)?, &parameter_slots)
+                    .map_err(native)?[0];
+                atoms.push(Atom::var(section.root_symbol()));
+                slots.push(root);
+            }
+        }
+        atoms.push(Atom::var(inputs[axis]));
+        slots.push(Slot::Param(axis));
+        let body = build(&[step.image().clone(), step.diagonal().clone()], &atoms)?;
+        let values = compose.append(&body, &slots).map_err(native)?;
+        outputs.push(values[0]);
+        diagonals.push(values[1]);
+        step_digest(&mut digest, step)?;
+    }
+    let factors = inputs.iter().copied().map(Atom::var).collect::<Vec<_>>();
+    let product: Atom = factors.iter().cloned().product();
+    let jacobian = compose
+        .append(&build(&[product], &factors)?, &diagonals)
+        .map_err(native)?[0];
+    outputs.push(jacobian);
+    outputs.extend(diagonals);
+    // Extra outputs refer to the same already-owned root/unit slots. They
+    // neither introduce callback inputs nor reconstruct the root tower.
+    if !extra.is_empty() {
+        budget.check()?;
+        outputs.extend(
+            compose
+                .append(&build(extra, &atoms)?, &slots)
+                .map_err(native)?,
+        );
+    }
+    let exact = compose.finish(&outputs, settings).map_err(native)?;
+    budget.check()?;
+    Ok((scope, exact))
+}
+
 /// Only admitted CAD-order coordinates, followed by their partial Jacobian.
 /// Constant endpoint values are owned callback outputs, never caller inputs.
 pub struct CompiledAffinePrefix {
@@ -244,103 +370,7 @@ impl CompiledAffinePrefix {
             .iter()
             .map(|a| a.symbol())
             .collect();
-        let mut compose = EvaluatorComposer::new(inputs.len());
-        let mut scope = Scope::default();
-        let (mut atoms, mut slots) = (Vec::new(), Vec::new());
-        let (mut outputs, mut diagonals) = (Vec::new(), Vec::new());
-        let mut used = owner.occupied();
-        let mut tags = 0;
-        let intermediate = settings.clone().cpe_iterations(Some(0));
-        let build = |outputs: &[Atom], inputs: &[Atom]| {
-            Atom::evaluator_multiple(outputs, inputs)
-                .optimization_settings(intermediate.clone())
-                .build()
-                .map_err(native)
-        };
-        // The source is streamed once, then only small accepted steps are added.
-        let mut digest = source_digest(&owner)?;
-        for (axis, step) in owner.steps().into_iter().enumerate() {
-            budget.check()?;
-            match step {
-                AffinePrefixStep::ConstantInterval { lower, upper, .. } => {
-                    for endpoint in [lower, upper] {
-                        if let Some(section) = endpoint.section() {
-                            if !Arc::ptr_eq(section.source(), source) || section.axis() != axis {
-                                return Err(Error::Invalid(
-                                    "affine constant source/axis association".into(),
-                                ));
-                            }
-                            let program =
-                                RootProgram::prepare_affine_shifted(section, intermediate.clone())?;
-                            if used.contains(&program.transport_symbol()) {
-                                return Err(Error::Invalid(
-                                    "affine root transport role collision".into(),
-                                ));
-                            }
-                            let tag = fresh_tag(&mut used, tags)?;
-                            tags += 1;
-                            let call = program.call(tag, section.coefficients())?;
-                            scope.insert(tag, program)?;
-                            let slot =
-                                compose.append(&build(&[call], &[])?, &[]).map_err(native)?[0];
-                            atoms.push(Atom::var(endpoint.symbol().ok_or_else(|| {
-                                Error::Invalid("owned constant root slot".into())
-                            })?));
-                            slots.push(slot);
-                        }
-                    }
-                }
-                AffinePrefixStep::NormalizedUpper { section, .. } => {
-                    if !Arc::ptr_eq(section.prefix().source(), source)
-                        || section.prefix().len() != axis
-                    {
-                        return Err(Error::Invalid(
-                            "affine normalized source/prefix association".into(),
-                        ));
-                    }
-                    let parameters = section
-                        .chart()
-                        .parameters
-                        .iter()
-                        .copied()
-                        .map(Atom::var)
-                        .collect::<Vec<_>>();
-                    let chart = build(&section.chart().parameter_images, &atoms)?;
-                    let parameter_slots = compose.append(&chart, &slots).map_err(native)?;
-                    let program = section.root_program_in(&digest, intermediate.clone())?;
-                    if used.contains(&program.transport_symbol()) {
-                        return Err(Error::Invalid(
-                            "affine root transport role collision".into(),
-                        ));
-                    }
-                    let tag = fresh_tag(&mut used, tags)?;
-                    tags += 1;
-                    let call = program.call(tag, section.coefficients())?;
-                    scope.insert(tag, program)?;
-                    let root = compose
-                        .append(&build(&[call], &parameters)?, &parameter_slots)
-                        .map_err(native)?[0];
-                    atoms.push(Atom::var(section.root_symbol()));
-                    slots.push(root);
-                }
-            }
-            atoms.push(Atom::var(inputs[axis]));
-            slots.push(Slot::Param(axis));
-            let body = build(&[step.image().clone(), step.diagonal().clone()], &atoms)?;
-            let values = compose.append(&body, &slots).map_err(native)?;
-            outputs.push(values[0]);
-            diagonals.push(values[1]);
-            step_digest(&mut digest, step)?;
-        }
-        let factors = inputs.iter().copied().map(Atom::var).collect::<Vec<_>>();
-        let product: Atom = factors.iter().cloned().product();
-        let jacobian = compose
-            .append(&build(&[product], &factors)?, &diagonals)
-            .map_err(native)?[0];
-        outputs.push(jacobian);
-        outputs.extend(diagonals);
-        let exact = compose.finish(&outputs, settings).map_err(native)?;
-        budget.check()?;
+        let (scope, exact) = prepare_outputs(&owner, settings, budget, &[])?;
         Ok(Self {
             owner,
             scope,
