@@ -6,7 +6,7 @@ use symbolica::{
     domains::{
         integer::Z,
         rational::{Q, Rational},
-        rational_polynomial::RationalPolynomial,
+        rational_polynomial::{FromNumeratorAndDenominator, RationalPolynomial},
     },
     id::{Pattern, Replacement},
     poly::PolyVariable,
@@ -381,6 +381,91 @@ impl ExtractedFactor {
     }
 }
 impl Ring {
+    /// Canonicalize only the complete positive measure, after the once-only
+    /// chart Jacobian. Original clearing/divisor records remain in the parent.
+    /// Source factors with independent noninteger powers use `extract` unchanged.
+    pub fn extract_measure(
+        &self,
+        n: &Atom,
+        d: &Atom,
+        units: &[Symbol],
+        work: &mut Work<'_>,
+    ) -> Result<ExtractedFactor> {
+        let numerator = self.polynomial(n, work)?;
+        let denominator = self.polynomial(d, work)?;
+        if numerator.is_zero() || denominator.is_zero() {
+            return Err(Error::Invalid(
+                "zero full measure numerator/denominator".into(),
+            ));
+        }
+        let before = self.extract(n, d, units, work)?.0;
+        work.check()?;
+        let reduced =
+            RationalPolynomial::from_num_den(numerator.clone(), denominator.clone(), &Z, true);
+        let mut rn = reduced
+            .numerator
+            .map_coeff(|c| Rational::from(c.clone()), Q);
+        let mut rd = reduced
+            .denominator
+            .map_coeff(|c| Rational::from(c.clone()), Q);
+        self.bounded(&rn, work)?;
+        self.bounded(&rd, work)?;
+        // Reuse the existing native preconversion product/degree bound before
+        // collecting either cross-product; bounded inputs alone do not bound
+        // multiplication workspace by the caller's term allowance.
+        let left = self.polynomial(&(rn.to_expression() * denominator.to_expression()), work)?;
+        let right = self.polynomial(&(rd.to_expression() * numerator.to_expression()), work)?;
+        if left != right {
+            return Err(Error::Invalid(
+                "canonical full measure cross-product identity".into(),
+            ));
+        }
+        // Native rational normalization may reverse both signs. This exact
+        // interior value chooses a presentation only; closed positivity still
+        // requires the downstream native margin certificates. Original measure
+        // denominator ancestry already proves nonvanishing in the open cube.
+        let point = self
+            .symbols
+            .iter()
+            .map(|s| {
+                if units.contains(s) {
+                    Rational::from((1, 2))
+                } else {
+                    Rational::zero()
+                }
+            })
+            .collect::<Vec<_>>();
+        if self
+            .symbols
+            .iter()
+            .enumerate()
+            .any(|(i, s)| !units.contains(s) && rd.degree(i) != 0)
+        {
+            return Err(Error::Invalid(
+                "measure denominator gained a root role".into(),
+            ));
+        }
+        let orientation = rd.evaluate(Clone::clone, &point);
+        if orientation.is_zero() {
+            return Err(Error::Invalid(
+                "canonical measure denominator vanishes at open centre".into(),
+            ));
+        }
+        if orientation < 0 {
+            rn = -rn;
+            rd = -rd;
+        }
+        let after = self
+            .extract(&rn.to_expression(), &rd.to_expression(), units, work)?
+            .0;
+        if before.orders != after.orders {
+            return Err(Error::Invalid(
+                "canonical full measure changed net endpoint orders".into(),
+            ));
+        }
+        work.check()?;
+        Ok(after)
+    }
     pub fn extract(
         &self,
         n: &Atom,
@@ -438,3 +523,6 @@ impl Ring {
         ))
     }
 }
+
+#[cfg(test)]
+mod tests;

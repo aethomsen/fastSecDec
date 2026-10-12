@@ -23,7 +23,7 @@ use crate::{
     },
 };
 pub use program::RootBindings;
-use std::{ops::ControlFlow, sync::Arc};
+use std::{collections::BTreeSet, ops::ControlFlow, sync::Arc};
 use symbolica::{
     atom::{Atom, AtomCore, Symbol},
     evaluate::OptimizationSettings,
@@ -205,9 +205,19 @@ impl ClosedScalarChart {
             }
             domain.propose(p,&limits.factors.fallback_margin,&budget)?.ok_or_else(||Error::Unsupported("closed scalar residual lacks a positive whole-box margin; refinement remains required".into()))
         };
-        let mut units = Vec::new();
-        for (identity, (factor, &sign)) in chart.chart().factors().iter().zip(&signs).enumerate() {
+        // All source-linked coordinates and factors are obligations. The
+        // separately inserted pre-chart measure is only bookkeeping unless an
+        // actual source link aliases it; the full final measure is proved below.
+        let required = source_identities(chart.transport().term_links());
+        let mut units = Vec::with_capacity(required.len());
+        for identity in required {
             check()?;
+            let factor = chart
+                .chart()
+                .factors()
+                .get(identity)
+                .ok_or_else(|| Error::Invalid("source factor identity outside chart".into()))?;
+            let sign = signs[identity];
             units.push(ResidualUnit {
                 identity,
                 sign,
@@ -344,4 +354,17 @@ fn prefactor_error(e: meromorphic::Error) -> Error {
         meromorphic::Error::Cancelled => Error::Cancelled,
         meromorphic::Error::Native(s) => Error::Native(s),
     }
+}
+
+fn source_identities(links: &[super::TermLinks]) -> BTreeSet<usize> {
+    links
+        .iter()
+        .flat_map(|term| {
+            term.coordinates()
+                .iter()
+                .copied()
+                .flatten()
+                .chain(term.factors().iter().filter_map(|link| link.identity()))
+        })
+        .collect()
 }

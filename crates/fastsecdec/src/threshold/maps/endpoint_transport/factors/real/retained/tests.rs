@@ -382,7 +382,25 @@ fn genuine_closed_chart_consumes_scaled_evidence_without_losing_measure_or_phase
     )
     .unwrap();
     assert!(calls > 0);
-    assert_eq!(closed.units().len(), 3);
+    let linked = transport
+        .term_links()
+        .iter()
+        .flat_map(|term| {
+            term.coordinates()
+                .iter()
+                .copied()
+                .flatten()
+                .chain(term.factors().iter().filter_map(|link| link.identity()))
+        })
+        .collect::<std::collections::BTreeSet<_>>();
+    assert_eq!(
+        closed
+            .units()
+            .iter()
+            .map(|unit| unit.identity())
+            .collect::<std::collections::BTreeSet<_>>(),
+        linked
+    );
     assert_eq!(closed.terms().len(), 1);
     assert_eq!(closed.terms()[0].source_index(), 0);
     assert!(Arc::ptr_eq(closed.chart().transport(), &transport));

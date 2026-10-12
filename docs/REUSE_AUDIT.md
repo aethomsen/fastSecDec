@@ -1,5 +1,25 @@
 # Ecosystem reuse evidence
 
+## Canonical complete endpoint measure (2026-10-12)
+
+The double-box endpoint probe exposed different unreduced numerator/denominator
+presentations of the same exact full measure. Reuse checks confirmed Symbolica's
+public `RationalPolynomial::from_num_den` API and native QQ-to-Z/GCD source;
+focused controls and the saved 307-chart executable probe exercise that same
+operation. FastSecDec now requests native canonicalization only for the complete
+measure after its child Jacobian. Independently exponentiated source factors
+remain separate. Native cross-products and unchanged endpoint orders verify the
+identity; existing syntax/term/degree bounds guard conversion and product work.
+
+Closed-chart admission requires every actual coordinate/source-factor link plus
+both final-measure residuals. Unlinked intermediate measure bookkeeping remains
+in the retained ancestry; an aliased source factor cannot escape its proof.
+Original roots, causal phases, closed positivity checks and caller-owned limits
+are preserved. No graph, polynomial GCD, root solver, arithmetic or AD is
+duplicated. See [the scoped review](reviews/no-deformation-canonical-measure.md)
+for native reuse evidence and the distinction between saved-map diagnostics,
+genuine certificate replay and full-atlas completion.
+
 ## Exact physical prefactor constants (2026-10-12)
 
 The [constant-prefactor review](reviews/no-deformation-constant-prefactors.md)

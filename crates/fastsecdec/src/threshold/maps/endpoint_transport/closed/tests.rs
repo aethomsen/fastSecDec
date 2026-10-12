@@ -119,6 +119,16 @@ fn closed_scalar_retains_full_regulator_phase_and_source_identity() {
     )
     .unwrap();
     assert!(Arc::ptr_eq(chart.chart().transport(), &transport));
+    let linked = source_identities(transport.term_links());
+    assert_eq!(
+        chart
+            .units()
+            .iter()
+            .map(|u| u.identity())
+            .collect::<BTreeSet<_>>(),
+        linked
+    );
+    assert!(!linked.contains(&transport.measure_index()));
     assert_eq!(chart.terms().len(), 1);
     let eps = chart.regulator();
     let c = chart.chart().target_units()[0];
@@ -173,6 +183,21 @@ fn closed_scalar_retains_full_regulator_phase_and_source_identity() {
         &pull(&issued, &[c, eps], &values),
         &pull(&exact, &[c, eps], &values),
     );
+}
+
+#[test]
+fn source_unit_inventory_keeps_measure_alias_and_all_coordinate_links() {
+    // This tests link bookkeeping only; no geometric owner is fabricated.
+    let links = [super::super::TermLinks {
+        coordinates: vec![None, Some(0), Some(3)],
+        factors: vec![
+            FactorLink::Cleared(0),
+            FactorLink::Cleared(2),
+            FactorLink::Inactive,
+            FactorLink::LazyPolynomial,
+        ],
+    }];
+    assert_eq!(source_identities(&links), BTreeSet::from([0, 2, 3]));
 }
 #[test]
 fn closed_scalar_refuses_unresolved_zero_and_transactional_limits() {

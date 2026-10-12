@@ -207,7 +207,7 @@ pub(super) fn prepare_images(
     let identity = &owner.identities[owner.measure];
     let n = pull(identity.numerator(), parent_units, &unit_images) * &extra_jacobian;
     let d = pull(identity.denominator(), parent_units, &unit_images);
-    let (measure, _) = ring.extract(&n, &d, target_units, work)?;
+    let measure = ring.extract_measure(&n, &d, target_units, work)?;
     let preparation = owner.parent.source().decomposition().preparation();
     let mut terms = Vec::with_capacity(owner.links.len());
     for (source_index, (term, links)) in preparation.terms().iter().zip(&owner.links).enumerate() {
