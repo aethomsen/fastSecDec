@@ -60,3 +60,18 @@ the maintained native reference fixtures. The reference ledger distinguishes
 these checks from independent integrated values: no applicable maintained
 reference is available for the new all-massive kite or either exact-point
 double-box integral.
+
+
+The complete no-contour box route is reproduced by `box_no_contour.toml`.
+It retains `box.toml`'s exact graph, point, masses, powers and measure; the only
+settings changes enable threshold decomposition and select the existing native
+solver order `[v1, v2, v0]`. Generation and integration remain separate actions:
+
+```sh
+target/release/fastsecdec generate examples/no_deformation/benchmarks/overview/box_no_contour.toml --serial --workers 25 -o target/box-no-contour
+target/release/fastsecdec integrate target/box-no-contour --method qmc --serial 0.01 --workers 25 --points 4096 --shifts 8 --seed 19291 --max-rounds 1 --max-seconds 60 --full-integral
+```
+
+This fixed-allocation acceptance run covers all 54 charts and agrees with the
+maintained OneLOop reference. It is separate from the ten-minute benchmark rows;
+see the [scientific review](../../../../docs/reviews/no-deformation-scalar-box.md).

@@ -78,7 +78,7 @@ pub(super) fn build_cell(
     cell: usize,
     coordinates: &[Symbol],
     primitive: Symbol,
-    inputs: &[(FactorOrigin, Atom)],
+    inputs: &[(FactorOrigin, Atom, Atom)],
     w: &mut Work<'_>,
 ) -> Result<Vec<ResolvedChart>> {
     w.emit(Progress::Cell(cell))?;
@@ -160,7 +160,7 @@ pub(super) fn build_cell(
         .collect::<Vec<_>>();
     let mut base_inputs = inputs
         .iter()
-        .map(|(o, a)| (*o, a.clone(), pull(a, prepared, &images)))
+        .map(|(o, original, canonical)| (*o, original.clone(), pull(canonical, prepared, &images)))
         .collect::<Vec<_>>();
     // Preserve original leading coefficients even if native rational arithmetic
     // canceled them in the extracted root expression.
@@ -389,7 +389,9 @@ pub(super) fn build_cell(
         .collect())
 }
 
-pub(super) fn rational_source(a: &Atom, coordinates: &[Symbol]) -> Result<()> {
+pub(super) fn rational_source(a: &Atom, coordinates: &[Symbol], w: &Work<'_>) -> Result<Atom> {
+    w.check()?;
+    meromorphic::preflight_expression(a, w.limits.prefactors).map_err(prefactor_error)?;
     let variables = Arc::new(
         coordinates
             .iter()
@@ -401,5 +403,21 @@ pub(super) fn rational_source(a: &Atom, coordinates: &[Symbol]) -> Result<()> {
     if p.variables() != &variables {
         return Err(unsupported("fixed rational singular geometry required"));
     }
-    Ok(())
+    w.check()?;
+    if p.nterms() > w.limits.algebra.max_terms
+        || (0..p.nvars()).any(|i| p.degree(i) as usize > w.limits.algebra.max_degree)
+    {
+        return Err(Error::ResourceIncomplete(
+            "source geometry polynomial degree/terms".into(),
+        ));
+    }
+    for coefficient in &p.coefficients {
+        w.budget.rational(coefficient)?;
+    }
+    // Canonicalize only the admitted singular geometry before repeated chart
+    // substitution. Receipts retain the original source expression separately.
+    // Numerator bodies never pass through this conversion.
+    let canonical = p.to_expression();
+    w.atom(&canonical)?;
+    Ok(canonical)
 }

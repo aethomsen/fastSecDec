@@ -1,0 +1,101 @@
+# Complete no-contour box at the original exact benchmark point.
+[input]
+graph = "../../../graphs/box.dot"
+model = "../../../models/scalar.json"
+model_parameters = "fixed"
+
+[parameters]
+"UFO::mt" = "1"
+
+[integral]
+dimension = "4-2*eps"
+regulator = "eps"
+measure_multiplier = "gamma(1-2*eps)/(gamma(1+eps)*gamma(1-eps)^2)"
+
+[[kinematics.products]]
+left = 0
+right = 0
+value = "0/2"
+
+[[kinematics.products]]
+left = 0
+right = 1
+value = "5/2"
+
+[[kinematics.products]]
+left = 0
+right = 2
+value = "-4/2"
+
+[[kinematics.products]]
+left = 0
+right = 3
+value = "-1/2"
+
+[[kinematics.products]]
+left = 1
+right = 1
+value = "0/2"
+
+[[kinematics.products]]
+left = 1
+right = 2
+value = "-1/2"
+
+[[kinematics.products]]
+left = 1
+right = 3
+value = "-4/2"
+
+[[kinematics.products]]
+left = 2
+right = 2
+value = "0/2"
+
+[[kinematics.products]]
+left = 2
+right = 3
+value = "5/2"
+
+[[kinematics.products]]
+left = 3
+right = 3
+value = "0/2"
+
+[generation]
+threshold_decomposition = true
+order = 0
+mode = "symbolic"
+subtraction = "integrate_by_parts"
+contour_jacobian = "symbolic"
+
+[generation.coefficient_expansion]
+method = "coefficient_series"
+initial_relative_width = 2
+
+[generation.evaluator]
+backend = "symjit"
+cpe_rounds = 1000
+cores = 1
+
+[integration]
+method = "qmc"
+workers = 25
+points = 4096
+shifts = 8
+package_points = 1024
+evaluation_batch_size = 256
+lattice = "kuo33002"
+periodization = "korobov3"
+accuracy_target = { target = "laurent_order", order = 0 }
+relative_tolerance = 1e-30
+absolute_tolerance = 1e-30
+double_points = false
+contour_diagnostics = "disabled"
+
+[integration.stability]
+mode = "validated"
+
+# Existing solver ordering: constant algebraic prefix, rational-linear later axes.
+[threshold_decomposition.solver]
+order = ["v1", "v2", "v0"]

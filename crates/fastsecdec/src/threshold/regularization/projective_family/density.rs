@@ -99,7 +99,7 @@ pub(super) fn admit(
             .iter()
             .any(|t| !t.monomial_powers()[i].is_zero())
         {
-            inputs.push((FactorOrigin::Coordinate(i), Atom::var(*s)));
+            inputs.push((FactorOrigin::Coordinate(i), Atom::var(*s), Atom::var(*s)));
         }
     }
     for (ti, term) in request.prepared_terms().iter().enumerate() {
@@ -138,13 +138,14 @@ pub(super) fn admit(
             } else {
                 crate::generation::endpoint_power_with_regulators(&exponent, &regulators)
                     .map_err(native)?;
-                geometry::rational_source(&polynomial, prepared.coordinates())?;
+                let canonical = geometry::rational_source(&polynomial, prepared.coordinates(), &w)?;
                 inputs.push((
                     FactorOrigin::Factor {
                         term: ti,
                         factor: fi,
                     },
                     polynomial,
+                    canonical,
                 ));
             }
         }

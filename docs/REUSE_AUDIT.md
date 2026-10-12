@@ -4851,3 +4851,30 @@ artifact restoration. Strict feature-enabled core/CLI all-target Clippy, the
 default native library check and formatting also pass. Actual CLI box generation
 and its numerical comparison remain separate gates; moving nonlinear sections,
 the general endpoint resolver and the complete double-box atlas remain open.
+
+## Compact source geometry and native box acceptance (2026-10-12)
+
+The [box review](reviews/no-deformation-scalar-box.md) records an avoidable
+expression-size refusal after native graph parametrization. The existing
+Symbolica rational-polynomial admission now supplies one canonical expression
+for each singular-geometry factor before repeated coordinate substitution.
+Original source expressions and factor roles remain in the receipts. Numerator
+bodies do not enter this conversion; the complete density is not expanded.
+Preflight, coefficient, degree, term and node bounds remain active. No allowance
+was raised and no algebra implementation was introduced.
+
+Independent source/reuse review, all five projective owner tests and 24
+generation/recovery/publication tests pass. The native graph's monomial spelling
+now exercises the previously failing affine substitution while checking original
+factor receipt identity and full complex density. Strict core/CLI all-target
+Clippy, default native checking, formatting and the locked native HEPKit binding
+build pass. The latter checks the separate Python dependency graph; it is not
+claimed as a Python runtime integration test.
+
+Actual CLI generation produces all 54 box kernels under the original node
+allowance. A fresh-process, complete-allocation QMC run agrees with OneLOop for
+all real/imaginary Laurent components under the predeclared comparison, retaining
+full covariance and numerical rescues. The source physics is unchanged; the new
+example card exposes an existing solver variable-order choice. This acceptance
+is separate from the ten-minute benchmark and from the still-open moving-root
+endpoint and double-box gates.

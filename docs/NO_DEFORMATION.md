@@ -29,8 +29,10 @@ The original massive-triangle graph card generates 18 kernels and its saved
 artifact's full Laurent vector agrees with OneLOop in a native QMC control.
 The [massless sunrise](reviews/no-deformation-scalar-sunrise.md) generates six
 kernels and agrees with its analytic Laurent vector, including its imaginary
-finite part. Three-dimensional box geometry and native artifact publication
-tests pass; the actual graph-card box benchmark remains a separate gate.
+finite part. The [massive box](reviews/no-deformation-scalar-box.md) now generates
+54 kernels from its native graph card and agrees with OneLOop after fresh-process
+restoration. Its explicit native solver order is recorded in the runnable
+[`box_no_contour.toml`](../examples/no_deformation/benchmarks/overview/box_no_contour.toml).
 This is a sufficient class, not the general algebraic endpoint resolver.
 The [runnable examples](../examples/no_deformation/README.md)
 and [CLI review](reviews/no-deformation-cli.md) describe that supported subset.

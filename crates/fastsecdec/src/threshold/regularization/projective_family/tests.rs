@@ -413,7 +413,10 @@ fn complete_three_dimensional_box_keeps_signed_measure_and_complex_density() {
         "projective_box_test::c"
     );
     let u = Atom::var(x) + Atom::var(y) + Atom::var(z) + Atom::var(w);
-    let f = &u * &u - Atom::num(5) * Atom::var(y) * Atom::var(w) + Atom::var(x) * Atom::var(z);
+    // Native graph export stores the original homogeneous monomials. Affine
+    // elimination then repeats (1 - x - y - z), unlike a compact U^2 spelling.
+    let f = (&u * &u - Atom::num(5) * Atom::var(y) * Atom::var(w) + Atom::var(x) * Atom::var(z))
+        .expand();
     let e = Atom::var(eps);
     let input = ParametricIntegrand::new(
         vec![x, y, z, w],
@@ -482,6 +485,15 @@ fn complete_three_dimensional_box_keeps_signed_measure_and_complex_density() {
     }
     for chart in family.charts() {
         check_signed_measure(&family, chart);
+        let receipt = chart
+            .factors()
+            .iter()
+            .find(|r| r.origin() == (FactorOrigin::Factor { term: 0, factor: 1 }))
+            .unwrap();
+        assert_eq!(
+            receipt.source(),
+            owner.request().prepared_terms()[0].factors()[1].polynomial()
+        );
     }
     let epsilon = Rational::from((-4, 3));
     assert!(
