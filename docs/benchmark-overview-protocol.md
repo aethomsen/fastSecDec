@@ -1,6 +1,6 @@
 # Twenty-five-core finite-coefficient benchmark protocol
 
-Status: all 42 admitted instrumented timed arms are complete, with frozen
+Status: all 44 admitted instrumented timed arms are complete, with frozen
 dependency, executable and recorded run plans. Generation, explicit-Off costs
 and confirmation estimates are recorded; unsupported no-contour routes remain
 unfinished. No earlier historical number is relabelled as a measurement of this
@@ -273,3 +273,20 @@ display correction to the existing round work target remains a square-root
 heuristic, not a new allocation or measured QMC convergence law. All four seeds
 are disjoint from the pilots and prior source-acceptance check. The analytic
 reference and every original benchmark estimate remain unchanged.
+
+## Subsequently admitted massive box route
+
+The unchanged physical graph/point now has six verified source cells and 54
+endpoint charts with explicit native CAD order `[v1,v2,v0]`. The maintained
+`box_no_contour.toml` card changes only route selection/order; the original box
+card and OneLOop reference remain unchanged. Executable `d94dd90d` supplies the
+new generation, profile and four separate confirmations; it is distinct from
+every earlier benchmark binary. Both 600-second arms have complete native
+drain/call/weight accounting. QMC completed all 161,243,136 pilot-selected
+secondary evaluations in 319.459 s. MC saved 19,148,800 in
+908.258 s at its 900-second native cap; its planned allocation remains
+incomplete and only the reviewed actual-work square-root heuristic is used.
+All seeds are disjoint from the short acceptance check and pilots. Precision
+rescue stays inside the sampling clocks; causal validation stays off. No new
+reference value, covariance inflation, confirmation-driven tuning or pooling
+is introduced. The original 129 raw records remain unchanged.

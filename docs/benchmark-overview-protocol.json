@@ -128,5 +128,32 @@
       "discrete_mc": 122.960373064
     },
     "secondary_policy": "Complete pilot-selected native allocations; display rescaling to existing round target remains a square-root heuristic"
+  },
+  "supported_box_extension": {
+    "timed_arms": 2,
+    "executable_sha256": "d94dd90d92c1165bcc7ff345781d11c191dd3080cd9f6cb23faaf83f0c6a5253",
+    "previous_instrumented_arms": 42,
+    "new_total_instrumented_arms": 44,
+    "source_cells": 6,
+    "endpoint_charts": 54,
+    "order": [
+      "v1",
+      "v2",
+      "v0"
+    ],
+    "secondary_requested_evaluations": 161243136,
+    "secondary_actual_evaluations": {
+      "qmc": 161243136,
+      "discrete_mc": 19148800
+    },
+    "secondary_native_seconds": {
+      "qmc": 319.459091374,
+      "discrete_mc": 908.257921826
+    },
+    "secondary_status": {
+      "qmc": "native_complete_record_estimate",
+      "discrete_mc": "incomplete_requested_work"
+    },
+    "secondary_policy": "Clean native deadline with fixed design and full coverage may retain an incomplete planned MC allocation for labelled actual-N square-root display only"
   }
 }

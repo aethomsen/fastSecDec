@@ -3,7 +3,7 @@
 
 #let overview-data = json("benchmark-overview-results.json")
 #block(width: 100%, inset: 8pt, fill: rgb("edf4f7"), radius: 3pt)[
-  *All 42 admitted timed arms complete.* The no-contour routes marked unsupported
+  *All 44 admitted timed arms complete.* The no-contour routes marked unsupported
   or in preparation remain unfinished. A dash is an unavailable measurement,
   never a zero. The opening tables use the new finite-coefficient campaign only.
   Historical studies below retain their original points, settings and resources;
@@ -94,6 +94,12 @@ The new sunrise no-contour secondary arms both completed their pilot-selected
 Their correction to the same round work target is explicitly heuristic; the
 separate timed confirmations still run for approximately 600 seconds.
 
+The new box no-contour QMC secondary arm completed 161,243,136 planned
+evaluations in 319.459 seconds. MC saved 19,148,800 at its clean
+900-second deadline (908.258 seconds including drain); that planned
+allocation remains incomplete. Its actual-work display correction is only the
+same square-root heuristic. The two independent timed arms remain near 600 seconds.
+
 The timed-call column counts observed logical sector-integrand evaluations,
 including reported pilot and discarded work. Precision-rescue backend calls
 are retained separately and do not become new sampling points. A leading
@@ -152,6 +158,7 @@ symGCAD revision `644a560e69a064f811fa93aff33a247ea7fcdfca`. The original 38
 instrumented timed arms use executable `cf9eb450`; the subsequently admitted
 triangle no-contour arms use `35c92289`, with their distinct source/build receipt.
 The subsequently admitted sunrise no-contour arms use `3cf81e4b`.
+The subsequently admitted box no-contour arms use `d94dd90d`.
 The triangle executable retains normal stability checks and precision rescue in checked
 costs and integration, even when the raw f64 evaluation is much cheaper.
 Its timed QMC run rescued 115,307,844 of 340,410,368 logical calls (33.9%);
@@ -164,8 +171,13 @@ The new sunrise timed QMC run rescued 103,781,710 of 306,384,896 calls (33.9%);
 MC rescued all 106,426,368 calls. Both reached 256 bits with zero failures.
 Their weighted-check / additional-replay counts were 8 / 6 and 48 / 0.
 
+The new box timed QMC run rescued 98,390,993 of 305,291,264 calls
+(32.2%); MC rescued all 29,368,320 calls. Both
+returned zero failures; maximum precision was 384 and 256 bits, respectively.
+The checked clocks retain this overhead, independently of the raw f64 profile.
+
 == Current admission limits
-The bubble, triangle and massless sunrise now have complete no-contour integration rows. The
+The bubble, triangle, massless sunrise and massive box now have complete no-contour integration rows. The
 triangle uses its unchanged native HEPKit graph input, four freshly verified
 source cells, and 18 endpoint charts; its quoted generation time includes the
 complete publication step. Fresh-process loading and separate QMC/MC
@@ -175,12 +187,19 @@ The sunrise uses its unchanged native graph, one verified source cell and six
 endpoint charts. Its separately seeded confirmations agree with the retained
 analytic identity under the reported full-covariance diagnostics.
 
+The box now uses six verified source cells and 54 endpoint charts, with the
+original physical graph, point and OneLOop normalization. Its explicit native
+order changes the CAD presentation only. Full publication, fresh-process
+loading and separate 600-second QMC/MC confirmations are measured.
+
 The original frozen benchmark CLI reported “Unsupported” for box and kite
-before invoking GCAD; their table rows still await completed new artifacts and
-numerical checks. These are implementation gaps, not rejected physical
-integrals or evidence of GCAD infeasibility. Separate native geometry probes
-have already solved triangle and box; ongoing generic route work is not
-substituted for a completed artifact or a numerical row. The existing native
+before invoking GCAD. Those original refusal receipts remain historical. The
+kite still lacks a complete endpoint artifact and no-contour numerical row;
+a later native solve and fresh verification produced 9,840 cells, exposing
+moving nonlinear sections and boundary root collisions that remain unresolved.
+These are implementation gaps, not rejected physical integrals or evidence of
+GCAD infeasibility. Geometry-only work is not counted as complete generation.
+The existing native
 HEPKit CLI graph-parametrization route binds the prepared source and input
 fingerprint; it is distinct from the stricter pre-parametrization GraphPoint
 owner API. Surviving inexact geometric coefficients are refused, not rounded.

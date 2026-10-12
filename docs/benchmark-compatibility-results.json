@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "status": "Instrumented campaign checkpoint; 122 accepted native estimates",
-  "campaign_preview_sha256": "6e67b05088b12058bbe5741e821d098757b5e04dcc91760cf3045552c0cea1e9",
-  "complete_private_audit_sha256": "48b8b27433c526e2bad757a5e37c3392b4087f850aea6aad782254292af502b5",
+  "status": "Instrumented campaign checkpoint; 126 accepted native estimates",
+  "campaign_preview_sha256": "0164fef408bffb6853cd7111ca1f2a854662abcfeccc4187f7ad81112232362d",
+  "complete_private_audit_sha256": "14a1a94d409a2eb579f60f305a0bf7fb41c1bca309d3d878c87bc163d0e836b1",
   "native_helper": "crates/fastsecdec/examples/benchmark_compatibility.rs",
   "reference_inventory_sha256": "0a45bf54b72d9300462db9dc2f7903d9febe8537ed4ec22f1248c48941c26c6c",
   "semantics": {
@@ -14,7 +14,7 @@
     "maximum_all_order_reference_distance": 3.077433343072288,
     "secondary_work": "Separately reviewed clean-cap partial allocations may enter with native full-vector covariance; an overlapping prefix is excluded when a completed continuation is used."
   },
-  "accepted_runs": 122,
+  "accepted_runs": 126,
   "topologies": [
     {
       "topology": "bubble",
@@ -253,9 +253,9 @@
     {
       "topology": "box",
       "label": "Massive box",
-      "runs": 18,
+      "runs": 22,
       "comparisons": {
-        "count": 153,
+        "count": 231,
         "rounding_sensitive_or_singular": 0,
         "maximum_covariance_distance": 2.4593378747738868,
         "largest_diagnostic": {
@@ -306,7 +306,7 @@
         }
       },
       "reference_comparisons": {
-        "count": 18,
+        "count": 22,
         "rounding_sensitive_or_singular": 0,
         "maximum_covariance_distance": 2.171232441997163,
         "largest_diagnostic": {
