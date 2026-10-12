@@ -5132,3 +5132,26 @@ original proof bytes remain mandatory. No parallel algebra or proof format was
 introduced. Independent reviews, 47 shared endpoint-transport tests, strict
 all-target core Clippy and formatting pass. Complete double-box admission and
 continuation remain separate outstanding work.
+
+## Positive-projective constant boundaries (2026-10-12)
+
+The [constant-boundary review](reviews/no-deformation-positive-constant-endpoints.md)
+records first-axis interval admission using actual retained projective owners,
+native selected-root isolation and domain certificates. Shared private section
+payloads retain the existing affine API; detached callbacks use Symbolica's
+constant-function evaluator and codec. There is no new graph, CAS, root solver,
+AD implementation, worker pool or Python layer. HEPKit graph/family provenance
+and caller-owned preparation remain intact.
+
+The public API, source and executable probe identified the exact native
+`AtomField { statistical_zero_test: false, ..Default::default() }` polynomial
+conversion needed for affine root coefficients. The former convenience
+coefficient collector discarded tiny nonzero coefficients; the existing exact
+recombination guard refused those programs. Native dense univariate conversion
+with the exact field preserves all 33 degree-32 coefficients without weakening
+that guard. Independent source/ecosystem reviews and 39 private executable
+controls pass. Shared consuming gates are recorded in the linked review.
+
+This milestone admits constant first boundaries of arbitrary supported degree.
+Later algebraic prefixes, complete closed-face resolution and full double-box
+integration are separate gates; unsupported endpoint transport remains explicit.

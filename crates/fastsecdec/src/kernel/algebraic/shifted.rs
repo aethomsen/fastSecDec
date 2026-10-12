@@ -60,15 +60,20 @@ pub(super) fn prepare(
         .replace(coordinate.clone())
         .with(image.clone())
         .expand();
-    let coefficients = normalized.coefficient_list::<u32>(std::slice::from_ref(&coordinate));
-    let shifted = (0..=degree)
-        .map(|i| {
-            coefficients
-                .iter()
-                .find(|(power, _)| *power == coordinate.pow(i as i64))
-                .map_or_else(Atom::zero, |(_, coefficient)| coefficient.clone())
-        })
-        .collect::<Vec<_>>();
+    // This is an exact coordinate change. The default expression field enables
+    // statistical zero testing and can discard small but nonzero coefficients.
+    let field = symbolica::domains::atom::AtomField {
+        statistical_zero_test: false,
+        ..Default::default()
+    };
+    let coefficients = normalized.to_polynomial_in_vars_with_field::<u32>(variable, &field);
+    let shifted = coefficients
+        .to_univariate_from_univariate(0)
+        .coefficients()
+        .to_vec();
+    if shifted.len() != degree + 1 {
+        return Err(Error::Invalid("native affine coefficient inventory".into()));
+    }
     let recombined: Atom = shifted
         .iter()
         .enumerate()

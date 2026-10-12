@@ -3,6 +3,8 @@
 pub mod affine;
 pub(crate) mod algebra;
 mod certificate;
+pub mod constant;
+mod constant_pair;
 pub mod program;
 #[cfg(test)]
 pub(crate) mod tests;
@@ -20,6 +22,13 @@ use symbolica::{
 
 #[derive(Debug)]
 pub enum PrefixStep {
+    ConstantInterval {
+        lower: Box<constant::ConstantEndpoint>,
+        upper: Box<constant::ConstantEndpoint>,
+        power: u32,
+        image: Atom,
+        diagonal: Atom,
+    },
     Power {
         lower: Rational,
         upper: Rational,
@@ -41,14 +50,16 @@ pub enum PrefixStep {
 impl PrefixStep {
     pub fn image(&self) -> &Atom {
         match self {
-            Self::Power { image, .. } | Self::Section { image, .. } | Self::Open { image, .. } => {
-                image
-            }
+            Self::ConstantInterval { image, .. }
+            | Self::Power { image, .. }
+            | Self::Section { image, .. }
+            | Self::Open { image, .. } => image,
         }
     }
     pub fn diagonal(&self) -> &Atom {
         match self {
-            Self::Power { diagonal, .. }
+            Self::ConstantInterval { diagonal, .. }
+            | Self::Power { diagonal, .. }
             | Self::Section { diagonal, .. }
             | Self::Open { diagonal, .. } => diagonal,
         }
@@ -129,6 +140,13 @@ impl NormalizedPrefix {
             .map(|s| (*s, [Rational::zero(), Rational::one()]))
             .collect::<Vec<_>>();
         for step in self.steps() {
+            if let PrefixStep::ConstantInterval { lower, upper, .. } = step {
+                for endpoint in [lower, upper] {
+                    if let Some(symbol) = endpoint.symbol() {
+                        v.push((symbol, endpoint.enclosure()));
+                    }
+                }
+            }
             if let PrefixStep::Section { section, .. } = step {
                 v.push((
                     section.root_symbol,
@@ -149,6 +167,35 @@ impl NormalizedPrefix {
             step: Some(step),
             len: self.len + 1,
         }))
+    }
+    /// Map the complete original first interval, including arbitrary-degree
+    /// certified constant endpoints. No endpoint is a caller-owned parameter.
+    pub fn constant_interval(self: &Arc<Self>, power: u32, b: &mut Budget) -> Result<Arc<Self>> {
+        if !self.is_empty() {
+            return Err(Error::Unsupported(
+                "constant interval starts the original positive prefix".into(),
+            ));
+        }
+        if power == 0 || power as usize > b.limits.max_degree {
+            return Err(Error::ResourceIncomplete(
+                "positive constant-interval power allowance".into(),
+            ));
+        }
+        let (lower, upper) = constant::prepare_pair(&self.source, b)?;
+        let u = Atom::var(self.source.unit_coordinates()[0]);
+        let width = upper.expression() - lower.expression();
+        let image = lower.expression() + &width * u.pow(power);
+        let diagonal = Atom::num(power) * width * u.pow(power - 1);
+        self.next(
+            PrefixStep::ConstantInterval {
+                lower: Box::new(lower),
+                upper: Box::new(upper),
+                power,
+                image,
+                diagonal,
+            },
+            b,
+        )
     }
     /// A genuine constant source interval, with its actual bounds retained in
     /// the cell owner. Positive integer powers preserve its full open coverage.

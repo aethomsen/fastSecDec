@@ -281,6 +281,15 @@ impl EndpointTransport {
                 "complete preparation coordinate inventory differs".into(),
             ));
         }
+        if parent
+            .steps()
+            .iter()
+            .any(|step| matches!(step, PrefixStep::ConstantInterval { .. }))
+        {
+            return Err(Error::Unsupported(
+                "constant endpoint root inventory is not yet admitted by endpoint transport".into(),
+            ));
+        }
         let roots = parent
             .steps()
             .into_iter()

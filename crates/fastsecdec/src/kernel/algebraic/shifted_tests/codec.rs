@@ -101,3 +101,49 @@ fn bounded_shift_preparation_and_native_pair_codec_association() {
         );
     }
 }
+
+#[test]
+fn exact_small_dyadic_shift_coefficients_survive_degree32() {
+    for lower in [Rational::from((65, 64)), Rational::from((33, 32))] {
+        let width = Rational::from((1, 128));
+        let root = RootProgram::prepare_shifted_from_certificate(
+            32,
+            lower.clone(),
+            &lower + &width,
+            b"exact dyadic shift degree32".to_vec(),
+            OptimizationSettings::default().cores(1),
+        )
+        .unwrap();
+        let restored = RootProgram::from_bytes(root.bytes()).unwrap();
+        let mut shift = restored.shift.clone().unwrap().map_coeff_with_prec(
+            &|q| {
+                Complex::new(
+                    Float::rational_at(&q.re, 256),
+                    Float::rational_at(&q.im, 256),
+                )
+            },
+            256,
+        );
+        let zero = Complex::new(Float::exact_zero_at(256), Float::exact_zero_at(256));
+        let mut inputs = vec![zero.clone(); 33];
+        inputs[32] = Complex::new(Float::one_at(256), Float::exact_zero_at(256));
+        let mut values = vec![zero; 33];
+        shift.evaluate(&inputs, &mut values);
+        assert_eq!(values[0].re.to_rational(), lower.pow(32));
+        assert_eq!(values[32].re.to_rational(), width.pow(32));
+        assert!(
+            values
+                .iter()
+                .all(|c| c.im == Float::exact_zero_at(256) && c.re > Float::exact_zero_at(256))
+        );
+        // Test the retained shift against the original monomial at an exact
+        // rational interior point, including every small positive coefficient.
+        // All dyadic coefficients in this fixture fit exactly within 256 bits.
+        let at = Rational::from((1, 3));
+        let value = values
+            .iter()
+            .rev()
+            .fold(Rational::zero(), |v, c| v * &at + c.re.to_rational());
+        assert_eq!(value, (&lower + &(&width * &at)).pow(32));
+    }
+}

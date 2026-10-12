@@ -18,7 +18,9 @@ use symbolica::{
 fn digest_part<T: Serialize>(digest: &mut blake3::Hasher, value: &T) -> Result<()> {
     serde_json::to_writer(digest, value).map_err(native)
 }
-fn source_digest(source: &PositiveProjectiveCellMap) -> Result<String> {
+pub(in crate::threshold::maps) fn source_digest(
+    source: &PositiveProjectiveCellMap,
+) -> Result<String> {
     let owner = source.decomposition();
     let identity =
         match owner.provenance() {
@@ -148,6 +150,22 @@ impl NormalizedSection {
                 &(CanonicalAtom(step.image()), CanonicalAtom(step.diagonal())),
             )?;
             match step {
+                PrefixStep::ConstantInterval {
+                    lower,
+                    upper,
+                    power,
+                    ..
+                } => digest_part(
+                    &mut digest,
+                    &(
+                        "constant-interval",
+                        power,
+                        lower.original_bound(),
+                        upper.original_bound(),
+                        CanonicalAtom(&lower.expression()),
+                        CanonicalAtom(&upper.expression()),
+                    ),
+                )?,
                 PrefixStep::Power {
                     lower,
                     upper,
@@ -227,6 +245,63 @@ impl CompiledOpenMap {
         let identity = source_digest(source)?;
         for (axis, step) in owner.steps().into_iter().enumerate() {
             budget.check()?;
+            if let PrefixStep::ConstantInterval { lower, upper, .. } = step {
+                if axis != 0 {
+                    return Err(Error::Invalid(
+                        "constant endpoint outside original first axis".into(),
+                    ));
+                }
+                for (endpoint_index, endpoint) in [lower, upper].into_iter().enumerate() {
+                    if let Some(section) = endpoint.section() {
+                        if !Arc::ptr_eq(section.source(), source) || section.axis() != axis {
+                            return Err(Error::Invalid(
+                                "positive constant source/axis association".into(),
+                            ));
+                        }
+                        let program =
+                            RootProgram::prepare_positive_constant(section, intermediate.clone())?;
+                        let mut chosen = None;
+                        for trial in 0..budget.limits.max_refinements {
+                            budget.check()?;
+                            let tag = symbol!(&format!(
+                                "fastsecdec::positive_constant_call_{endpoint_index}_{trial}"
+                            ));
+                            if !source.decomposition().occupied_symbols().contains(&tag)
+                                && !inputs.contains(&tag)
+                                && owner.slots().iter().all(|(s, _)| s != &tag)
+                                && tag.is_exportable()
+                            {
+                                chosen = Some(tag);
+                                break;
+                            }
+                        }
+                        let tag = chosen.ok_or_else(|| {
+                            Error::ResourceIncomplete("constant callback tag freshness".into())
+                        })?;
+                        if source
+                            .decomposition()
+                            .occupied_symbols()
+                            .contains(&program.transport_symbol())
+                            || inputs.contains(&program.transport_symbol())
+                            || owner
+                                .slots()
+                                .iter()
+                                .any(|(s, _)| *s == program.transport_symbol())
+                        {
+                            return Err(Error::Invalid("constant transport role collision".into()));
+                        }
+                        let call = program.call(tag, section.coefficients())?;
+                        scope.insert(tag, program)?;
+                        let slot = compose.append(&build(&[call], &[])?, &[]).map_err(native)?[0];
+                        atoms.push(Atom::var(
+                            endpoint
+                                .symbol()
+                                .ok_or_else(|| Error::Invalid("constant root role".into()))?,
+                        ));
+                        slots.push(slot);
+                    }
+                }
+            }
             if let PrefixStep::Section { section, .. } = step {
                 if !Arc::ptr_eq(section.prefix.source(), source) || section.prefix.len() != axis {
                     return Err(Error::Invalid(
@@ -321,7 +396,7 @@ impl CompiledOpenMap {
         }
     }
     #[cfg(test)]
-    fn native_roundtrip(&self) -> Result<Self> {
+    pub(super) fn native_roundtrip(&self) -> Result<Self> {
         let bytes = bincode::serde::encode_to_vec(&self.exact, bincode::config::standard())
             .map_err(native)?;
         let (exact, used) = bincode::serde::decode_from_slice(&bytes, bincode::config::standard())

@@ -32,18 +32,51 @@ impl RootProgram {
     ) -> Result<Arc<Self>> {
         let source = section.source();
         let raw = source.decomposition().native_result();
+        Self::prepare_payload(
+            section.certificate(),
+            &source
+                .decomposition()
+                .request()
+                .source_identity()
+                .map_err(native)?,
+            raw,
+            "fastsecdec-regular-section-branch-v1",
+            settings,
+            version,
+        )
+    }
+    /// A genuine positive-projective first-axis constant section. This does not
+    /// convert its geometric authority to an affine CellMap.
+    pub fn prepare_positive_constant(
+        section: &crate::threshold::maps::normalized::constant::PositiveConstantSection,
+        settings: OptimizationSettings,
+    ) -> Result<Arc<Self>> {
+        let source = section.source();
+        Self::prepare_payload(
+            section.certificate(),
+            &crate::threshold::maps::normalized::program::source_digest(source)?,
+            source.decomposition().native_result(),
+            "fastsecdec-positive-constant-section-v1",
+            settings,
+            3,
+        )
+    }
+    fn prepare_payload(
+        section: &super::certificate::SectionCertificate,
+        source_identity: &str,
+        raw: &symgcad::output::SolveResult,
+        label: &str,
+        settings: OptimizationSettings,
+        version: u32,
+    ) -> Result<Arc<Self>> {
         let selector_domain = match section.bound().index_domain {
             symgcad::output::RootIndexDomain::Real => 0u8,
             symgcad::output::RootIndexDomain::Positive => 1,
             symgcad::output::RootIndexDomain::RealDescending => 2,
         };
         let contract = serde_json::to_vec(&(
-            "fastsecdec-regular-section-branch-v1",
-            source
-                .decomposition()
-                .request()
-                .source_identity()
-                .map_err(native)?,
+            label,
+            source_identity,
             CanonicalAtom(section.equation()),
             section
                 .coefficients()

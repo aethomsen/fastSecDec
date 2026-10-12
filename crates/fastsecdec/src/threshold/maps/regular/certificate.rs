@@ -1,5 +1,7 @@
+mod geometry;
 use super::{Budget, Error, Result, native};
 use crate::threshold::maps::CellMap;
+pub(in crate::threshold::maps) use geometry::Geometry;
 use std::sync::Arc;
 use symbolica::{
     atom::{Atom, AtomCore, Symbol},
@@ -51,21 +53,7 @@ pub struct BracketProposal {
 #[derive(Debug)]
 pub struct RegularSection {
     source: Arc<CellMap>,
-    axis: usize,
-    side: SectionSide,
-    bound: RootBound,
-    polynomial: Poly,
-    equation: Atom,
-    coefficients: Vec<Atom>,
-    original_constraints: Vec<Poly>,
-    original_domain: Domain,
-    cylinder_constraints: Vec<Poly>,
-    cylinder: Domain,
-    bracket: BracketProposal,
-    orientation: i8,
-    derivative: DomainCertificate,
-    endpoints: [Option<DomainCertificate>; 2],
-    anchor: FiberRoot,
+    certificate: Arc<SectionCertificate>,
 }
 impl RegularSection {
     pub fn prepare(
@@ -85,6 +73,96 @@ impl RegularSection {
         bracket: BracketProposal,
         b: &mut Budget,
     ) -> std::result::Result<Arc<Self>, ProposalError<Error>> {
+        let certificate = SectionCertificate::prepare_proposal(
+            Geometry::affine(&source),
+            axis,
+            side,
+            bracket,
+            b,
+        )?;
+        Ok(Arc::new(Self {
+            source,
+            certificate,
+        }))
+    }
+    pub fn source(&self) -> &Arc<CellMap> {
+        &self.source
+    }
+    pub fn axis(&self) -> usize {
+        self.certificate.axis()
+    }
+    pub fn side(&self) -> SectionSide {
+        self.certificate.side()
+    }
+    pub fn bound(&self) -> &RootBound {
+        self.certificate.bound()
+    }
+    pub fn polynomial(&self) -> &Poly {
+        self.certificate.polynomial()
+    }
+    pub fn equation(&self) -> &Atom {
+        self.certificate.equation()
+    }
+    pub fn coefficients(&self) -> &[Atom] {
+        self.certificate.coefficients()
+    }
+    pub fn original_constraints(&self) -> &[Poly] {
+        self.certificate.original_constraints()
+    }
+    pub fn original_domain(&self) -> &Domain {
+        self.certificate.original_domain()
+    }
+    pub fn cylinder_constraints(&self) -> &[Poly] {
+        self.certificate.cylinder_constraints()
+    }
+    pub fn cylinder(&self) -> &Domain {
+        self.certificate.cylinder()
+    }
+    pub fn bracket(&self) -> &BracketProposal {
+        self.certificate.bracket()
+    }
+    pub fn orientation(&self) -> i8 {
+        self.certificate.orientation()
+    }
+    pub fn derivative_certificate(&self) -> &DomainCertificate {
+        self.certificate.derivative_certificate()
+    }
+    pub fn endpoint_certificates(&self) -> &[Option<DomainCertificate>; 2] {
+        self.certificate.endpoint_certificates()
+    }
+    pub fn anchor(&self) -> &FiberRoot {
+        self.certificate.anchor()
+    }
+    pub(in crate::threshold::maps) fn certificate(&self) -> &SectionCertificate {
+        &self.certificate
+    }
+}
+#[derive(Debug)]
+pub(in crate::threshold::maps) struct SectionCertificate {
+    axis: usize,
+    side: SectionSide,
+    bound: RootBound,
+    polynomial: Poly,
+    equation: Atom,
+    coefficients: Vec<Atom>,
+    original_constraints: Vec<Poly>,
+    original_domain: Domain,
+    cylinder_constraints: Vec<Poly>,
+    cylinder: Domain,
+    bracket: BracketProposal,
+    orientation: i8,
+    derivative: DomainCertificate,
+    endpoints: [Option<DomainCertificate>; 2],
+    anchor: FiberRoot,
+}
+impl SectionCertificate {
+    pub(in crate::threshold::maps) fn prepare_proposal(
+        geometry: Geometry<'_>,
+        axis: usize,
+        side: SectionSide,
+        bracket: BracketProposal,
+        b: &mut Budget,
+    ) -> std::result::Result<Arc<Self>, ProposalError<Error>> {
         b.check()?;
         for value in [&bracket.lower, &bracket.upper, &bracket.derivative_margin] {
             b.rational(value)?;
@@ -95,9 +173,9 @@ impl RegularSection {
             )
             .into());
         }
-        let raw = source.decomposition().native_result();
-        let axis_record = source
-            .native_axes()
+        let raw = geometry.raw;
+        let axis_record = geometry
+            .axes
             .get(axis)
             .ok_or_else(|| Error::Invalid("section axis".into()))?;
         let bound = match side {
@@ -231,7 +309,7 @@ impl RegularSection {
                 )?,
             );
         }
-        let prefix = source.native_axes()[..axis]
+        let prefix = geometry.axes[..axis]
             .iter()
             .map(|a| rational(&a.sample).map_err(native))
             .collect::<Result<Vec<_>>>()?;
@@ -301,7 +379,7 @@ impl RegularSection {
             refine_once(&mut anchor);
         }
         let replace = |a: Atom| {
-            a.replace_multiple(raw.order.iter().zip(source.axes()).map(|(name, axis)| {
+            a.replace_multiple(raw.order.iter().zip(geometry.roles).map(|(name, axis)| {
                 Replacement::new(
                     Pattern::Literal(Atom::var(Symbol::parse(name, "symgcad").unwrap())),
                     Pattern::Literal(Atom::var(axis.symbol())),
@@ -315,7 +393,6 @@ impl RegularSection {
         }
         b.check()?;
         Ok(Arc::new(Self {
-            source,
             axis,
             side,
             bound,
@@ -332,9 +409,6 @@ impl RegularSection {
             endpoints,
             anchor,
         }))
-    }
-    pub fn source(&self) -> &Arc<CellMap> {
-        &self.source
     }
     pub fn axis(&self) -> usize {
         self.axis
