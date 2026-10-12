@@ -32,6 +32,12 @@ reasoning, and test the crown and existing scalar points using native exact
 algebra. This authorizes documentation and private probes, not changes to
 FastSecDec's implementation or renewed integration campaigns.
 
+The following documentation request adds a prospective expansion-by-regions
+section to the benchmark PDF. Discuss existing literature, possible gains from
+native exact reduction and symGCAD certificates, and the additional proof
+obligations for completeness. Distinguish current capabilities and measured
+scratch evidence from proposed equality-aware CAD and family resolution.
+
 ## Threshold benchmark campaign completion (2026-10-12)
 
 The user assigned the following active goal. It prioritizes complete physical

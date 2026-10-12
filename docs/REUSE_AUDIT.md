@@ -5189,3 +5189,14 @@ ideal reduction and crown identities, Numerica the matrix operations, and
 symGCAD reduced-domain/nonvanishing certificates. No parallel CAS, graph,
 root solver or AD implementation was added. General equality-stratum discovery
 remains a documented gap. This milestone changes documentation only.
+
+## Prospective region analysis (2026-10-12)
+
+The [region-analysis review](reviews/region-analysis-prospects.md) connects the
+existing native critical-system probes and certified symGCAD reductions to a
+possible expansion-by-regions workflow. It credits prior geometric, asy2,
+HRF, SOFIA and equality-aware CAD work, while recording missing general
+equality strata, family resolution and remainder proofs. No new CAS or
+implementation was added; the proposal retains Symbolica algebra and native
+graph/density objects. Existing GCAD speed measurements are explicitly not
+claimed as region-analysis improvements.

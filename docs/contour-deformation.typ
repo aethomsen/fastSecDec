@@ -28,6 +28,8 @@
 #pagebreak()
 #include "gcad-critical-loci.typ"
 #pagebreak()
+#include "region-analysis-prospects.typ"
+#pagebreak()
 #include "benchmark-compatibility.typ"
 #pagebreak()
 
