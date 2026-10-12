@@ -12,6 +12,12 @@ use symgcad::{
     algebra::Poly,
     domain::{Domain, DomainCertificate, verify_certificate},
 };
+#[cfg(test)]
+mod tests;
+
+// These are candidate searches, not a claimed lower bound. Keep the native
+// certificate work bounded independently of the caller's wall/bit allowance.
+const SMALLER_MARGIN_TRIALS: usize = 12;
 
 /// Exact native evidence for positive margin. A constant/zero-role face uses
 /// native Rational comparison, never a dummy polynomial coordinate.
@@ -148,6 +154,9 @@ impl ProofBox {
         b: &Budget,
     ) -> Result<Option<MarginProof>> {
         b.check()?;
+        if fallback <= &Rational::zero() {
+            return Err(Error::Invalid("positive candidate margin required".into()));
+        }
         if let Ok(v) = Rational::try_from(a.as_view()) {
             if v <= 0 {
                 return Ok(None);
@@ -169,25 +178,35 @@ impl ProofBox {
             .ok_or_else(|| Error::Invalid("unbound symbol on zero-role face".into()))?;
         let p = ring.polynomial(a, b)?;
         let constant = p.get_constant();
-        let margin = if constant > 0 {
+        let mut margin = if constant > 0 {
             constant / Rational::from(2)
         } else {
             fallback.clone()
         };
-        b.rational(&margin)?;
-        let mut candidates = vec![margin];
-        if candidates[0] > *fallback {
-            candidates.push(fallback.clone());
-        }
-        for margin in candidates {
+        let mut use_fallback = margin > *fallback;
+        let attempts = 1 + usize::from(use_fallback) + SMALLER_MARGIN_TRIALS;
+        for attempt in 0..attempts {
+            b.rational(&margin)?;
             let target = &p - &p.constant(margin.clone());
-            if let Some(c) = positive(&ring.native, &target, constraints, domain, b)? {
+            let certificate = positive(&ring.native, &target, constraints, domain, b)?;
+            // A native miss may have exhausted the caller's wall allowance.
+            // Preserve that error instead of turning it into an unknown row.
+            b.check()?;
+            if let Some(c) = certificate {
                 // positive() already replays exactly; no second native search.
                 return Ok(Some(MarginProof {
                     polynomial: a.clone(),
                     margin,
                     evidence: MarginEvidence::Native(Box::new(c)),
                 }));
+            }
+            if attempt + 1 < attempts {
+                margin = if use_fallback {
+                    use_fallback = false;
+                    fallback.clone()
+                } else {
+                    &margin / &Rational::from(16)
+                };
             }
         }
         // A finite candidate miss is not a proof that no positive margin exists.

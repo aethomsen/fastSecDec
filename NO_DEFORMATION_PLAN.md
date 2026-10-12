@@ -339,3 +339,11 @@ agent. The latest user clarification permits **30-minute double-box preparation
 and validation runs** when useful. Preserve prior bounded outcomes, checkpoint
 completed work where supported, and keep the monitored memory allowance. This
 does not change the roughly ten-minute timed-integration comparison contract.
+
+The subsequent clarification extends the **double-box generation cutoff to five
+hours**. Apply this allowance to both cooperative preparation/certification limits
+and outer supervision, retaining shutdown headroom and the monitored 100 GB memory
+allowance. Resume durable preparation and certificates rather than repeating
+accepted work. This supersedes the shorter diagnostic time limits above; it does
+not extend the roughly ten-minute timed-integration comparison or turn incomplete
+generation into an accepted benchmark result.

@@ -4790,3 +4790,13 @@ artifact integrates in a fresh process with complete 18-sector production
 coverage and agrees with the existing native OneLOop reference, including its
 vanishing pole. Moving algebraic bounds, higher-dimensional projective inputs,
 and the complete double-box atlas remain separate uncompleted work.
+
+## Closed residual-factor margin discovery (2026-10-12)
+
+The [positive-margin review](reviews/no-deformation-factor-margin-discovery.md)
+records the native API/source/probe audit and bounded candidate search for small
+positive residuals. Symbolica rational arithmetic and symGCAD's public
+closed-domain sign certificate and replay remain the only algebra/proof engines.
+Six factor and two closed-chart tests pass, with an independent scientific and
+ecosystem-reuse review. Actual double-box residuals establish why the earlier
+fixed trial could miss valid factors; this does not certify the full atlas.
