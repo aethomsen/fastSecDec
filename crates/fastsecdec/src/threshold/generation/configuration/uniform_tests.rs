@@ -2,7 +2,7 @@ use super::*;
 use crate::parametric::*;
 use symbolica::symbol;
 
-fn fixture(runtime: bool) -> (PreparationOptions, gcad::GcadRequest) {
+fn fixture(runtime: bool) -> (PreparationOptions, Request) {
     let (p, x, y, e, s, t) = symbol!(
         "uniform_config::p",
         "uniform_config::x",
@@ -50,7 +50,7 @@ fn fixture(runtime: bool) -> (PreparationOptions, gcad::GcadRequest) {
         coordinates: Some(vec![s, t]),
         ..Default::default()
     });
-    (options, request)
+    (options, Request::Affine(Arc::new(request)))
 }
 
 #[test]

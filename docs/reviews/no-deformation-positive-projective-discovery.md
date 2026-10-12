@@ -41,6 +41,9 @@ these counts are observed output, not algorithm assumptions.
 
 This automatic class is narrower than the arbitrary-degree root evaluator and
 certificate issuer. Nested algebraic towers, general collision resolution and
-auxiliary-regulator continuation remain incomplete. Normal CLI/recovery routing
-is the next integration milestone, and this probe is not an end-to-end
-generation or performance benchmark.
+auxiliary-regulator continuation remain incomplete.
+The [generation dispatcher](no-deformation-positive-generation-dispatch.md)
+now connects this discovery to native preparation, recovery and the CLI.
+Ordinary and serial generation of the actual graph card pass with identical
+artifact identity. The discovery-only probe above remains separate from those
+end-to-end generation checks and from performance benchmarks.

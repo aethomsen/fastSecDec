@@ -3,6 +3,11 @@ use super::*;
 use represented::family::{ExactRepresentedFamilyInput, FamilyPoint};
 
 pub(super) fn admission(options: &PreparationOptions) -> Result<()> {
+    if positive::selected(options) {
+        return Err(Error::Unsupported(
+            "positive-projective family provenance is not implemented",
+        ));
+    }
     if options.graph_payloads.is_some() {
         return Err(Error::Unsupported(
             "graph payload policy requires an original graph input",
@@ -73,14 +78,14 @@ pub fn prepare_family(
                 .ok_or(Error::Unsupported(
                     "family preparation has no projective coordinate",
                 ))?;
-        Ok(Arc::new(
+        Ok(Request::Affine(Arc::new(
             gcad::GcadRequest::preparametric_family_projective(
                 Arc::new(owner),
                 eliminated,
                 options.threshold.solver.clone(),
                 options.threshold.gcad_limits.clone(),
             )?,
-        ))
+        )))
     })
 }
 

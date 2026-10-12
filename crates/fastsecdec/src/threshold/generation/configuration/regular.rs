@@ -32,6 +32,7 @@ impl StoredRegular {
         let d = settings.limits.density;
         Ok(Self {
             version: match route {
+                Route::PositiveProjective => 5,
                 Route::FixedCube => 1,
                 Route::Uniform => 2,
                 Route::ResolvedProjective if coordinates.len() == 2 => 3,
@@ -62,6 +63,7 @@ impl StoredRegular {
             2 => self.coordinates >= 1,
             3 => self.coordinates == 2,
             4 => self.coordinates >= 3,
+            5 => self.coordinates == 2,
             _ => false,
         };
         if !valid {
@@ -77,6 +79,7 @@ impl StoredRegular {
             1 => Route::FixedCube,
             2 => Route::Uniform,
             3 | 4 => Route::ResolvedProjective,
+            5 => Route::PositiveProjective,
             _ => unreachable!("validated configuration version above"),
         })
     }

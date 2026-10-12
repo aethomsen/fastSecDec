@@ -7,9 +7,23 @@ pub(crate) enum Route {
     FixedCube,
     Uniform,
     ResolvedProjective,
+    PositiveProjective,
 }
 
-fn classify(options: &PreparationOptions, request: &gcad::GcadRequest) -> Result<Route> {
+fn classify(options: &PreparationOptions, request: &Request) -> Result<Route> {
+    let Request::Affine(request) = request else {
+        // The typed request already binds a complete original order/anchor.
+        // Recovery configuration intentionally has default solver fields.
+        if request.dimensions() != 2
+            || options.threshold.kinematics != gcad::GcadKinematics::default()
+            || !options.fixed_fiber.is_empty()
+        {
+            return Err(Error::Unsupported(
+                "positive automatic discovery requires two fixed projective axes",
+            ));
+        }
+        return Ok(Route::PositiveProjective);
+    };
     let n = request.domain().coordinates().len();
     let parameters = &request.kinematics().runtime_parameters;
     // Preserve the original explicit fixed-fiber path, including its later
@@ -40,21 +54,18 @@ fn classify(options: &PreparationOptions, request: &gcad::GcadRequest) -> Result
     }
 }
 
-pub(crate) fn resolve(
-    options: &mut PreparationOptions,
-    request: &gcad::GcadRequest,
-) -> Result<Route> {
+pub(crate) fn resolve(options: &mut PreparationOptions, request: &Request) -> Result<Route> {
     let route = classify(options, request)?;
     if route == Route::LegacyFiber {
         options.regular_family = None;
         return Ok(route);
     }
-    let n = request.domain().coordinates().len();
+    let n = request.dimensions();
     let settings = options.regular_family.as_mut().ok_or(Error::Unsupported(
         "automatic regular preparation requires the regular-family capability",
     ))?;
     check_settings(settings)?;
-    let original = maps::coordinate_symbols(request);
+    let original = request.occupied();
     let mut occupied = original.clone();
     if occupied.contains(&options.unit) || !options.unit.is_exportable() {
         return Err(invalid(
@@ -102,7 +113,7 @@ pub(crate) fn resolve(
 
 pub(crate) fn restore(
     options: &mut PreparationOptions,
-    request: &gcad::GcadRequest,
+    request: &Request,
     stored: Route,
 ) -> Result<()> {
     if classify(options, request)? != stored

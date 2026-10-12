@@ -96,8 +96,12 @@ now finds and certifies this family from native source polynomials. Its current
 automatic class is two-dimensional, constant-first CAD with quadratic moving
 pairs and positive rays. The underlying root evaluator and explicit certificate
 issuer support higher degrees; automatic general collision resolution does not
-follow from that support. Connecting the new discovery to ordinary generation
-and recovery is the next integration gate.
+follow from that support. The [generation dispatcher](reviews/no-deformation-positive-generation-dispatch.md)
+now connects this discovery to fresh generation, recovery and resource-only
+retry. The native massive-sunrise [graph card](../examples/no_deformation/massive_sunrise.toml)
+passes ordinary and serial generation with identical mathematical artifact
+identity, followed by fresh-process selected-sector restoration. This Eager
+card is a diagnostic example; it is separate from the optimized benchmark.
 
 The complete no-contour sunrise measurement and an optimized, identical-point
 repeat appear in [the benchmark report](benchmark.pdf). They are scientific

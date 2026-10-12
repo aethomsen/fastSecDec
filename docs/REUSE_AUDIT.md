@@ -5025,3 +5025,25 @@ geometry owner was duplicated. Independent reviews passed; the combined
 consuming build passes 44 endpoint-transport and nine family/discovery tests,
 strict all-target core Clippy and formatting. Complete double-box endpoint
 closure and automatic CLI routing remain outstanding.
+
+## Positive-projective native generation dispatch (2026-10-12)
+
+The [dispatcher review](reviews/no-deformation-positive-generation-dispatch.md)
+records typed original request/staging/verified owners through fresh generation,
+completed recovery and explicit resource-only retry. Native graph ownership,
+exact conversion caps, existing codecs, symGCAD verification, automatic complete
+family admission, symbolic continuation and universal publication are reused.
+No synthetic affine request, proof assembly, CAS or runtime pool was added.
+
+Private source/API/ecosystem review and 43 generation tests pass, with three
+invoked child harnesses ignored at top level; strict feature/default metadata
+checks pass. The shared Cargo generation suite also passes 43 tests, as do strict
+core/CLI Clippy across all targets and formatting. The public diagnostic
+massive-sunrise card passes ordinary and serial CLI generation with the same
+62-sector mathematical identity; a separate process validates one selected
+sector and its binary. These are generation/restoration controls, separate from
+full-vector scientific sampling and the requested optimized benchmark.
+Automatic discovery is initially a fixed two-dimensional quadratic class;
+generic high-degree root evaluation does not imply a complete algebraic-tower
+or collision resolver. Existing affine/cube bytes and typed failure boundaries
+remain unchanged.

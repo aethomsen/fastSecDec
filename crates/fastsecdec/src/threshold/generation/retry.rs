@@ -244,7 +244,7 @@ fn retry<F: FnMut(&EndpointRetryProgress) -> ControlFlow<()>>(
         &target,
         "vectors",
         configuration,
-        Arc::new(verified.result?),
+        verified.result?,
         options,
         reporter,
         None,

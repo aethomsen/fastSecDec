@@ -1,8 +1,11 @@
 //! Caller-run admitted threshold preparation. The expensive native owners live
 //! only in this call; the returned descriptors contain no global CAD proof.
 mod configuration;
+mod positive;
 mod regular;
+mod request;
 pub use regular::{DiscoveryLimits, DiscoveryProgress, RegularFamilyPreparation};
+use request::{Request, Staged, VerifiedSource};
 mod resources;
 mod retry;
 pub use resources::{
@@ -18,6 +21,8 @@ mod family;
 mod graph;
 pub use family::{prepare_family, resume_family, resume_family_evidence};
 pub use graph::{prepare_graph, resume_graph, resume_graph_evidence};
+#[cfg(test)]
+mod positive_tests;
 #[cfg(test)]
 mod tests;
 use super::{
@@ -309,7 +314,23 @@ pub fn prepare(
         ));
     }
     prepare_with(options, root, &mut observer, |options, reporter| {
-        Ok(Arc::new(
+        if positive::selected(options) {
+            if options.represented.is_some() {
+                return Err(Error::Unsupported(
+                    "positive represented parametric provenance is not implemented",
+                ));
+            }
+            let anchor = positive::anchor(options, &input)?;
+            return Ok(Request::Positive(Arc::new(
+                gcad::PositiveProjectiveRequest::exact(
+                    input,
+                    anchor,
+                    options.threshold.solver.clone(),
+                    options.threshold.gcad_limits.clone(),
+                )?,
+            )));
+        }
+        Ok(Request::Affine(Arc::new(
             if let Some((meaning, limits)) = options.represented {
                 options.threshold.gcad_first_represented_request(
                     input,
@@ -329,14 +350,14 @@ pub fn prepare(
                     .threshold
                     .gcad_first_request(&input, &options.generation)?
             },
-        ))
+        )))
     })
 }
 fn prepare_with<F: FnMut(&Progress) -> ControlFlow<()>>(
     mut options: PreparationOptions,
     root: &Path,
     observer: &mut F,
-    request: impl FnOnce(&PreparationOptions, &mut Reporter<'_, F>) -> Result<Arc<gcad::GcadRequest>>,
+    request: impl FnOnce(&PreparationOptions, &mut Reporter<'_, F>) -> Result<Request>,
 ) -> Result<PreparedThreshold> {
     admission(&options)?;
     if root.read_dir()?.next().is_some() {
@@ -360,10 +381,10 @@ fn prepare_with<F: FnMut(&Progress) -> ControlFlow<()>>(
     let route = regular::resolve(&mut options, &request)?;
     let configuration = configuration::write(root, &options, route)?;
     reporter.configuration = Some(configuration.clone());
-    let staged = gcad::staging::StagedRequest::write(root, request)?;
+    let staged = Staged::write(root, request)?;
     reporter.receipts.request = Some(staged.receipt().clone());
     reporter.stage(Stage::Solve, 0, None)?;
-    let raw = staged.request().solve()?;
+    let raw = staged.solve()?;
     let evidence = staged.write_evidence(root, &raw)?;
     drop(raw);
     reporter.receipts.raw = Some(evidence.clone());
@@ -372,7 +393,7 @@ fn prepare_with<F: FnMut(&Progress) -> ControlFlow<()>>(
     let verified = staged.verify_evidence(root, &evidence, u64::MAX)?;
     reporter.receipts.verification = Some(verified.observation);
     reporter.poll(evidence.cells, Some(evidence.cells))?;
-    let owner = Arc::new(verified.result?);
+    let owner = verified.result?;
     finish(
         root,
         "vectors",
@@ -387,134 +408,142 @@ fn finish<F: FnMut(&Progress) -> ControlFlow<()>>(
     root: &Path,
     work_directory: &str,
     configuration: crate::generation::streaming::RecordRef,
-    owner: Arc<gcad::VerifiedDecomposition>,
+    owner: VerifiedSource,
     options: PreparationOptions,
     mut reporter: Reporter<'_, F>,
     expected: Option<(&str, &str)>,
 ) -> Result<PreparedThreshold> {
-    let dimensions = owner.request().input().parameters().len();
-    let cells = owner.cells().len();
+    let (dimensions, integration_dimensions, cells) = owner.dimensions();
     reporter.stage(Stage::Regularize, 0, Some(cells))?;
-    let integration_dimensions = owner.request().domain().coordinates().len();
     let vectors = root.join(work_directory);
     std::fs::create_dir(&vectors)?;
-    let (plan, charts) = if let Some(settings) = options.regular_family.as_ref()
-        && matches!(
-            owner.request().domain().origin(),
-            gcad::DomainOrigin::AffineProjective { .. }
-        )
-        && integration_dimensions >= 2
-        && owner.request().kinematics().runtime_parameters.is_empty()
-    {
-        let mut limits = regularization::projective_family::Limits {
-            algebra: settings.limits.geometry.clone(),
-            sectors: options.generation.decomposition.clone(),
-            prefactors: settings.limits.density,
-            max_charts: options.regularization.max_charts,
-            max_field_degree: settings.limits.geometry.max_degree,
-        };
-        limits.algebra.wall_time = limits.algebra.wall_time.min(settings.discovery.wall_time);
-        let coordinates = settings
-            .coordinates
-            .as_ref()
-            .ok_or(Error::Association(
-                "unresolved projective chart coordinates",
-            ))?
-            .clone();
-        let family = regularization::projective_family::ResolvedProjectiveFamily::admit(
-            owner,
-            coordinates,
-            limits,
-            |p| {
-                use regularization::projective_family::Progress as P;
-                let completed = match p {
-                    P::Cell(n) | P::Chart(n) | P::Continue(n) => n,
-                    P::Half { cell, .. } => cell,
+    let (plan, charts) = match owner {
+        VerifiedSource::Positive(owner) => {
+            positive::plan(owner, &options, &vectors, &mut reporter)?
+        }
+        VerifiedSource::Affine(owner) => {
+            let (plan, charts) = if let Some(settings) = options.regular_family.as_ref()
+                && matches!(
+                    owner.request().domain().origin(),
+                    gcad::DomainOrigin::AffineProjective { .. }
+                )
+                && integration_dimensions >= 2
+                && owner.request().kinematics().runtime_parameters.is_empty()
+            {
+                let mut limits = regularization::projective_family::Limits {
+                    algebra: settings.limits.geometry.clone(),
+                    sectors: options.generation.decomposition.clone(),
+                    prefactors: settings.limits.density,
+                    max_charts: options.regularization.max_charts,
+                    max_field_degree: settings.limits.geometry.max_degree,
                 };
-                if settings
-                    .limits
-                    .cancellation
+                limits.algebra.wall_time =
+                    limits.algebra.wall_time.min(settings.discovery.wall_time);
+                let coordinates = settings
+                    .coordinates
                     .as_ref()
-                    .is_some_and(|c| c.load(std::sync::atomic::Ordering::Relaxed))
-                    || reporter.poll(completed, None).is_err()
-                {
-                    ControlFlow::Break(())
-                } else {
-                    ControlFlow::Continue(())
-                }
-            },
-        )?;
-        let charts = family.charts().len();
-        reporter.stage(Stage::Continue, 0, Some(charts))?;
-        let continued = family.continue_symbolically(&options.generation, |p| {
-            let completed = match p {
-                regularization::projective_family::Progress::Continue(n) => n,
-                _ => 0,
+                    .ok_or(Error::Association(
+                        "unresolved projective chart coordinates",
+                    ))?
+                    .clone();
+                let family = regularization::projective_family::ResolvedProjectiveFamily::admit(
+                    owner,
+                    coordinates,
+                    limits,
+                    |p| {
+                        use regularization::projective_family::Progress as P;
+                        let completed = match p {
+                            P::Cell(n) | P::Chart(n) | P::Continue(n) => n,
+                            P::Half { cell, .. } => cell,
+                        };
+                        if settings
+                            .limits
+                            .cancellation
+                            .as_ref()
+                            .is_some_and(|c| c.load(std::sync::atomic::Ordering::Relaxed))
+                            || reporter.poll(completed, None).is_err()
+                        {
+                            ControlFlow::Break(())
+                        } else {
+                            ControlFlow::Continue(())
+                        }
+                    },
+                )?;
+                let charts = family.charts().len();
+                reporter.stage(Stage::Continue, 0, Some(charts))?;
+                let continued = family.continue_symbolically(&options.generation, |p| {
+                    let completed = match p {
+                        regularization::projective_family::Progress::Continue(n) => n,
+                        _ => 0,
+                    };
+                    if reporter.poll(completed, Some(charts)).is_err() {
+                        ControlFlow::Break(())
+                    } else {
+                        ControlFlow::Continue(())
+                    }
+                })?;
+                reporter.stage(Stage::StageVectors, 0, Some(charts))?;
+                let plan = ThresholdCompilationPlan::prepare_projective_family(
+                    &continued,
+                    &vectors,
+                    options.generation.max_order,
+                    options.precision,
+                    options.compilation,
+                )?;
+                (plan, charts)
+            } else if let Some(settings) = &options.regular_family {
+                let family = regular::discover(owner, settings, |p| {
+                    reporter.regular_family = Some(p);
+                    if reporter.poll(p.family_attempts, None).is_ok() {
+                        ControlFlow::Continue(())
+                    } else {
+                        ControlFlow::Break(())
+                    }
+                })?;
+                let charts = family.charts().len();
+                reporter.stage(Stage::Continue, 0, Some(charts))?;
+                let continued = family.continue_symbolically(&options.generation)?;
+                reporter.stage(Stage::Bind, charts, Some(charts))?;
+                reporter.stage(Stage::StageVectors, 0, Some(charts))?;
+                let plan = ThresholdCompilationPlan::prepare_family(
+                    &continued,
+                    &vectors,
+                    options.generation.max_order,
+                    options.precision,
+                    options.compilation,
+                )?;
+                drop(continued);
+                drop(family);
+                (plan, charts)
+            } else {
+                let fiber = regularization::RegularizedFiber::admit(
+                    owner,
+                    options.fixed_fiber,
+                    options.unit,
+                    options.regularization,
+                    |p| reporter.bridge(p),
+                )?;
+                let charts = fiber.charts().len();
+                reporter.stage(Stage::Continue, 0, Some(charts))?;
+                let continued =
+                    fiber.continue_symbolically(&options.generation, |p| reporter.bridge(p))?;
+                reporter.stage(Stage::Bind, 0, Some(charts))?;
+                let bound = continued.bind_fiber(|p| reporter.bridge(p))?;
+                reporter.stage(Stage::StageVectors, 0, Some(charts))?;
+                let plan = ThresholdCompilationPlan::prepare(
+                    &bound,
+                    &vectors,
+                    options.generation.max_order,
+                    options.precision,
+                    options.compilation,
+                )?;
+                drop(bound);
+                drop(continued);
+                drop(fiber);
+                (plan, charts)
             };
-            if reporter.poll(completed, Some(charts)).is_err() {
-                ControlFlow::Break(())
-            } else {
-                ControlFlow::Continue(())
-            }
-        })?;
-        reporter.stage(Stage::StageVectors, 0, Some(charts))?;
-        let plan = ThresholdCompilationPlan::prepare_projective_family(
-            &continued,
-            &vectors,
-            options.generation.max_order,
-            options.precision,
-            options.compilation,
-        )?;
-        (plan, charts)
-    } else if let Some(settings) = &options.regular_family {
-        let family = regular::discover(owner, settings, |p| {
-            reporter.regular_family = Some(p);
-            if reporter.poll(p.family_attempts, None).is_ok() {
-                ControlFlow::Continue(())
-            } else {
-                ControlFlow::Break(())
-            }
-        })?;
-        let charts = family.charts().len();
-        reporter.stage(Stage::Continue, 0, Some(charts))?;
-        let continued = family.continue_symbolically(&options.generation)?;
-        reporter.stage(Stage::Bind, charts, Some(charts))?;
-        reporter.stage(Stage::StageVectors, 0, Some(charts))?;
-        let plan = ThresholdCompilationPlan::prepare_family(
-            &continued,
-            &vectors,
-            options.generation.max_order,
-            options.precision,
-            options.compilation,
-        )?;
-        drop(continued);
-        drop(family);
-        (plan, charts)
-    } else {
-        let fiber = regularization::RegularizedFiber::admit(
-            owner,
-            options.fixed_fiber,
-            options.unit,
-            options.regularization,
-            |p| reporter.bridge(p),
-        )?;
-        let charts = fiber.charts().len();
-        reporter.stage(Stage::Continue, 0, Some(charts))?;
-        let continued = fiber.continue_symbolically(&options.generation, |p| reporter.bridge(p))?;
-        reporter.stage(Stage::Bind, 0, Some(charts))?;
-        let bound = continued.bind_fiber(|p| reporter.bridge(p))?;
-        reporter.stage(Stage::StageVectors, 0, Some(charts))?;
-        let plan = ThresholdCompilationPlan::prepare(
-            &bound,
-            &vectors,
-            options.generation.max_order,
-            options.precision,
-            options.compilation,
-        )?;
-        drop(bound);
-        drop(continued);
-        drop(fiber);
-        (plan, charts)
+            (plan, charts)
+        }
     };
     let publication = plan.publication_descriptor()?;
     let jobs = plan.job_count();
@@ -662,7 +691,7 @@ fn recover<F: FnMut(&Progress) -> ControlFlow<()>>(
         root,
         work_directory,
         checkpoint.configuration.clone(),
-        Arc::new(verified.result?),
+        verified.result?,
         options,
         reporter,
         expected_prepared.map(|p| (expected_source, p)),
@@ -679,11 +708,7 @@ fn restore_evidence_request<F: FnMut(&Progress) -> ControlFlow<()>>(
     maximum_bytes: u64,
     original: Option<(OriginalPoint, represented::Limits)>,
     reporter: &mut Reporter<'_, F>,
-) -> Result<(
-    PreparationOptions,
-    regular::Route,
-    gcad::staging::StagedRequest,
-)> {
+) -> Result<(PreparationOptions, regular::Route, Staged)> {
     let remaining = maximum_bytes
         .checked_sub(checkpoint.configuration.bytes)
         .ok_or(Error::Association("configuration transport limit"))?;
@@ -694,70 +719,8 @@ fn restore_evidence_request<F: FnMut(&Progress) -> ControlFlow<()>>(
     if request.source_identity != expected_source {
         return Err(Error::Association("resume original source"));
     }
-    let staged = match original {
-        Some((OriginalPoint::Graph(original), conversion_cap)) => {
-            graph::admission(&options)?;
-            gcad::staging::StagedRequest::read_with_original_graph(
-                root,
-                request,
-                remaining,
-                original,
-                conversion_cap,
-                |p| {
-                    reporter.graph_input = Some(p);
-                    if reporter.poll(p.converted_literals, None).is_ok() {
-                        ControlFlow::Continue(())
-                    } else {
-                        ControlFlow::Break(())
-                    }
-                },
-            )
-        }
-        Some((OriginalPoint::Family(original), conversion_cap)) => {
-            family::admission(&options)?;
-            gcad::staging::StagedRequest::read_with_original_family(
-                root,
-                request,
-                remaining,
-                original,
-                conversion_cap,
-                |p| {
-                    reporter.family_input = Some(p);
-                    if reporter.poll(p.converted_literals, None).is_ok() {
-                        ControlFlow::Continue(())
-                    } else {
-                        ControlFlow::Break(())
-                    }
-                },
-            )
-        }
-        None => gcad::staging::StagedRequest::read(root, request, remaining),
-    }
-    .map_err(|error| match error {
-        gcad::staging::Error::Gcad(gcad::GcadError::Represented(represented::Error::Cancelled)) => {
-            Error::Cancelled
-        }
-        error => Error::Evidence(error),
-    })?;
-    if options.graph_payloads.is_some() && staged.request().preparametric_graph_input().is_none() {
-        return Err(Error::Association(
-            "graph payload configuration on a non-graph request",
-        ));
-    }
-    if staged.request().preparametric_graph_input().is_some() {
-        graph::request_options(&options, staged.request())?;
-    } else if staged.request().preparametric_family_input().is_some() {
-        family::request_options(&options, staged.request())?;
-    } else if let Some(owner) = staged.request().represented_input() {
-        // Legacy v1 configurations did not repeat the parametric represented
-        // policy. Recover it only from the reconstructed native request owner;
-        // never from a new caller or by treating that request as exact-only.
-        let policy = (owner.meaning(), owner.limits());
-        if options.represented.is_some_and(|stored| stored != policy) {
-            return Err(Error::Association("represented policy/configuration"));
-        }
-        options.represented = Some(policy);
-    }
-    regular::restore(&mut options, staged.request(), route)?;
+    let staged = Staged::read(root, request, remaining, route, original, reporter)?;
+    staged.restore_options(&mut options)?;
+    regular::restore(&mut options, &staged.request(), route)?;
     Ok((options, route, staged))
 }

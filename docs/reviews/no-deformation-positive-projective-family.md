@@ -2,7 +2,9 @@
 
 This milestone adds a native two-dimensional endpoint-family constructor and
 compact artifact restoration. It does **not** complete the general algebraic
-resolver, automatic CLI routing, or either physical double-box calculation.
+resolver or either physical double-box calculation. The subsequent
+[dispatch milestone](no-deformation-positive-generation-dispatch.md) connects
+the supported automatic class to native and CLI generation.
 
 ## Source and mathematical authority
 
@@ -25,9 +27,11 @@ complex polynomial numerator, regulator-dependent causal phase and meromorphic
 Gamma prefactor. Source-factor rewrites must agree exactly in the admitted
 algebraic relation. Numerator denominator clearing records its negative endpoint
 powers; it cannot turn a singular factor into an unexplained smooth numerator.
-Every accepted chart has closed-face unit evidence and a common initial
-analytic strip. Endpoint continuation uses the existing Symbolica-based
-symbolic Taylor/IBP subtraction. No numerical-dual endpoint reduction was added.
+Every accepted chart has closed-face unit evidence and a common endpoint
+convergence strip. The original prefactor remains meromorphic; its poles are
+excluded rather than certified analytic throughout that strip. Endpoint
+continuation uses the existing Symbolica-based symbolic Taylor/IBP subtraction.
+No numerical-dual endpoint reduction was added.
 
 The initial denominator clearing uses conservative coordinate multidegrees.
 Shared infinity factors can therefore be over-cleared and cause an honest
@@ -68,6 +72,10 @@ checks the original-coordinate numerator and selected branch equations.
 
 The actual massive sunrise uses the full native density
 `-Gamma(2*eps-1) * U^(-3+3*eps) * (F-i0)^(1-2*eps)`, equal masses one and `s=16`.
+Its endpoint convergence strip is `0 < Re(eps) < 1`; the Gamma pole at
+`eps=1/2` remains excluded. The original Schwinger integral and the chart
+partition share the nonempty domain `1/2 < Re(eps) < 1`, and the full-density
+witness uses `eps=3/4`. Subsequent equality is meromorphic continuation.
 From its saved original proof, fresh verification, all seven cells, 62 closed
 charts, symbolic continuation and local publication took 12.38 seconds with a
 60 MiB observed process peak in an unoptimized diagnostic build. All 496
@@ -114,9 +122,10 @@ native compilation plan and archive.
 
 Shared projective, threshold-owner and threshold-compilation regression filters
 pass, including the new reversed native-order test. Strict threshold-enabled
-core Clippy across all targets and formatting also pass. Automatic generation
-routing and the full optimized performance campaign remain separate integration
-steps.
+core Clippy across all targets and formatting also pass. The subsequent
+[dispatch milestone](no-deformation-positive-generation-dispatch.md) passes
+automatic ordinary/serial CLI generation and fresh-process selected loading.
+The full optimized performance campaign remains a separate step.
 
 Production performance rows must come from the requested optimized complete
 campaign, with the binary, settings, full epsilon-zero covariance and actual

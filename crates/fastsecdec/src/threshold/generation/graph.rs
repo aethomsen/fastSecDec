@@ -67,6 +67,17 @@ pub fn prepare_graph(
             represented::Error::Cancelled => Error::Cancelled,
             error => Error::Geometry(gcad::GcadError::Represented(error)),
         })?;
+        if positive::selected(options) {
+            let anchor = positive::anchor(options, owner.exact())?;
+            return Ok(Request::Positive(Arc::new(
+                gcad::PositiveProjectiveRequest::graph(
+                    Arc::new(owner),
+                    anchor,
+                    options.threshold.solver.clone(),
+                    options.threshold.gcad_limits.clone(),
+                )?,
+            )));
+        }
         let eliminated =
             owner
                 .exact()
@@ -76,12 +87,14 @@ pub fn prepare_graph(
                 .ok_or(Error::Unsupported(
                     "graph preparation has no projective coordinate",
                 ))?;
-        Ok(Arc::new(gcad::GcadRequest::preparametric_projective(
-            Arc::new(owner),
-            eliminated,
-            options.threshold.solver.clone(),
-            options.threshold.gcad_limits.clone(),
-        )?))
+        Ok(Request::Affine(Arc::new(
+            gcad::GcadRequest::preparametric_projective(
+                Arc::new(owner),
+                eliminated,
+                options.threshold.solver.clone(),
+                options.threshold.gcad_limits.clone(),
+            )?,
+        )))
     })
 }
 
