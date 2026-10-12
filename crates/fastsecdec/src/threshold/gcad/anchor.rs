@@ -247,7 +247,11 @@ impl PositiveProjectiveQuotient {
 fn native(e: impl std::fmt::Display) -> GcadError {
     GcadError::Invalid(e.to_string())
 }
-fn source_poly(atom: &Atom, aliases: &[(Symbol, String)], algebra: &Algebra) -> Result<Poly> {
+pub(super) fn source_poly(
+    atom: &Atom,
+    aliases: &[(Symbol, String)],
+    algebra: &Algebra,
+) -> Result<Poly> {
     // A foreign coefficient named symgcad::xN must not become a coordinate
     // through alias substitution. This constructor admits fixed QQ geometry.
     if atom

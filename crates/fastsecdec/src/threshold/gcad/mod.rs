@@ -5,7 +5,9 @@
 //! or authorization to publish a complete integral.
 
 mod anchor;
+mod positive_request;
 mod request;
+pub use positive_request::PositiveProjectiveRequest;
 mod source_identity;
 pub mod staging;
 mod verified;

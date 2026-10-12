@@ -4963,3 +4963,19 @@ massive-triangle OneLOop comparison. Strict core/CLI checks, formatting and the
 release build passed. The separately tested ordinary CLI recovery, artifact
 persistence and flag controls remain unchanged. This adds native and CLI retry;
 a Python retry API and automatic evidence retention remain outside this slice.
+
+## Native positive-projective requests (2026-10-12)
+
+The [request review](reviews/no-deformation-positive-projective-request.md)
+records a native original-source constructor using the existing positive anchor
+preparation, exact polynomial conversion and symGCAD homogeneous solver and
+verifier. The HEPKit graph path retains its actual represented-value source and
+exact density. Positive factors are verified on the complete domain rather than
+added as restrictive assumptions. No algebra, graph, root or serialization
+implementation was duplicated.
+
+Independent source/ecosystem review and five focused native controls passed,
+including complete massive-sunrise geometry, actual HEPKit graph ownership and
+rejection of incomplete or mismatched evidence. This is a geometry request API;
+it does not complete endpoint continuation or automatic artifact generation for
+the positive-projective route.
