@@ -18,6 +18,9 @@ pub(crate) struct Input {
     #[serde(deserialize_with = "deserialize_gcad_limits")]
     pub gcad_limits: Limits,
     pub resolution_limits: resolution::Limits,
+    /// Fresh endpoint preparation resources; independent of GCAD solve limits.
+    /// Ordinary checkpoint recovery retains its original effective policy.
+    pub endpoint_resources: Option<fastsecdec::threshold::generation::EndpointPreparationResources>,
 }
 
 // Native solver defaults target its own CLI. Start nested overrides from this
@@ -47,6 +50,7 @@ impl Default for Input {
             solver: native.solver,
             gcad_limits: native.gcad_limits,
             resolution_limits: native.resolution_limits,
+            endpoint_resources: None,
         }
     }
 }
@@ -79,6 +83,48 @@ impl Input {
 mod tests {
     use super::*;
     use fastsecdec::{Atom, kernel::ProgramRecipe};
+
+    #[test]
+    fn endpoint_resources_use_native_partial_policy_independently_of_gcad() {
+        let source = "[threshold_decomposition.endpoint_resources.geometry]\nwall_time_secs=17700\n[threshold_decomposition.endpoint_resources.discovery]\nwall_time_secs=17700\n";
+        let card: crate::config::RunCard = toml::from_str(source).unwrap();
+        let mut options = fastsecdec::threshold::generation::PreparationOptions::new(
+            crate::input::symbol("endpoint_resource_card::t").unwrap(),
+        );
+        options.enable_automatic_endpoint_routes();
+        options
+            .apply_endpoint_resources(
+                card.threshold_decomposition
+                    .endpoint_resources
+                    .as_ref()
+                    .unwrap(),
+            )
+            .unwrap();
+        assert_eq!(
+            options
+                .regular_family
+                .unwrap()
+                .limits
+                .geometry
+                .wall_time
+                .as_secs(),
+            17700
+        );
+        assert_eq!(
+            options.threshold.gcad_limits.wall_time_secs,
+            ThresholdDecompositionOptions::default()
+                .gcad_limits
+                .wall_time_secs
+        );
+        let default: crate::config::RunCard = toml::from_str("").unwrap();
+        assert!(default.threshold_decomposition.endpoint_resources.is_none());
+        assert!(
+            toml::from_str::<crate::config::RunCard>(
+                "[threshold_decomposition.endpoint_resources]\nunknown=1"
+            )
+            .is_err()
+        );
+    }
 
     #[test]
     fn native_options_remain_opt_in_and_preserve_input_symbols_and_defaults() {

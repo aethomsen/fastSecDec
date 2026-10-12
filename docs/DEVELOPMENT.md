@@ -308,6 +308,54 @@ Symbolica and graph owners. They introduce no Python or Fortran runtime and do
 not restrict production Gaussian parameterization to their reduction limits.
 See the [numerator reference review](reviews/hepkit-numerator-reduction.md).
 
+## Endpoint preparation resources
+
+Fresh no-contour preparation uses the same native endpoint-route policy from
+the CLI and HEPKit. Explicit native `regular_family` settings remain intact;
+the native mathematical admission checks still determine which cells are
+supported. Enabling the policy does not supply the unfinished general resolver.
+
+GCAD and post-GCAD endpoint preparation have independent resource allowances:
+
+```toml
+[threshold_decomposition.gcad_limits]
+wall_time_secs = 17700
+
+[threshold_decomposition.endpoint_resources.geometry]
+wall_time_secs = 17700
+
+[threshold_decomposition.endpoint_resources.discovery]
+wall_time_secs = 17700
+```
+
+Native callers use `EndpointPreparationResources`. HEPKit forwards the same
+partial settings, for example:
+
+```python
+settings = sd.ThresholdSettings(
+    endpoint_resources_json='{"geometry":{"wall_time_secs":17700},'
+                            '"discovery":{"wall_time_secs":17700}}'
+)
+session = integral.generation_session(
+    threshold_decomposition=True, threshold_settings=settings
+)
+```
+
+Omitted fields preserve defaults or the caller's explicit native policy. These
+are cooperative limits on geometry and discovery, not an aggregate deadline
+for continuation, staging or compilation. Hard process and RSS supervision
+remains caller-owned. The effective policy is persisted with preparation.
+Ordinary resume restores its original policy and checks the original input and
+issued settings; this interface does not authorize changing an old checkpoint's
+resource limits. See the [endpoint interface review](reviews/no-deformation-endpoint-resources.md).
+
+The native Python stub adds the keyword `endpoint_resources_json: str | None`.
+A Community inventory build must copy its generated sector-decomposition stub
+to `python/symbolica/community/hepkit/sector_decomposition/__init__.pyi` using
+the existing `--fastsecdec-only` / `--sector-decomposition-only` path. Native
+host validation here is separate from publication of a Community wheel or
+portable inventory.
+
 ## Reference comparison
 
 The frozen Pathfinder source revision is

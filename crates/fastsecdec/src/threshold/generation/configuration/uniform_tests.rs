@@ -72,7 +72,7 @@ fn uniform_configuration_versions_cannot_transplant_fixed_or_missing_roles() {
         super::super::regular::restore(&mut restored, &fixed, route),
         Err(Error::Association(_))
     ));
-    for version in [1, 3] {
+    for version in [1, 3, u32::MAX] {
         let mut metadata = serde_json::to_value(&stored).unwrap();
         metadata["regular_family"]["version"] = serde_json::json!(version);
         let modified: Stored = serde_json::from_value(metadata).unwrap();
@@ -87,9 +87,16 @@ fn uniform_configuration_versions_cannot_transplant_fixed_or_missing_roles() {
             symbols.clone(),
         )
         .unwrap();
-        if version == 1 {
+        if version == 1 || version == 3 {
             let (mut options, route) = read(root.path(), &forged, u64::MAX).unwrap();
-            assert_eq!(route, Route::FixedCube);
+            assert_eq!(
+                route,
+                if version == 1 {
+                    Route::FixedCube
+                } else {
+                    Route::ResolvedProjective
+                }
+            );
             assert!(matches!(
                 super::super::regular::restore(&mut options, &uniform, route),
                 Err(Error::Association(_))

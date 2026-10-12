@@ -33,7 +33,7 @@ fn triangle() -> (Arc<ParametricIntegrand>, PreparationOptions) {
     )
     .unwrap();
     let mut options = PreparationOptions::new(unit);
-    options.regular_family = Some(RegularFamilyPreparation::default());
+    options.enable_automatic_endpoint_routes();
     options.threshold.solver.order = vec!["v1".into(), "v0".into()];
     options.threshold.gcad_limits.wall_time_secs = 30.;
     options.threshold.gcad_limits.memory_mib = 1024;

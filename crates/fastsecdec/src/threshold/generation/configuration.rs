@@ -519,7 +519,7 @@ mod tests {
         let (stored, atoms, symbols): (Stored, _, _) =
             codec::read(root.path(), &reference, KIND).unwrap();
         for (key, value) in [
-            ("version", serde_json::json!(3)),
+            ("version", serde_json::json!(u32::MAX)),
             ("coordinates", serde_json::json!(usize::MAX)),
         ] {
             let mut metadata = serde_json::to_value(&stored).unwrap();

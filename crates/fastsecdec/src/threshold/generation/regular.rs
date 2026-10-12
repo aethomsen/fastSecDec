@@ -55,7 +55,7 @@ fn native(error: impl std::fmt::Display) -> Error {
 fn invalid(message: &str) -> Error {
     Error::RegularFamily(secant::Error::Invalid(message.into()))
 }
-fn check_settings(settings: &RegularFamilyPreparation) -> Result<()> {
+pub(super) fn check_settings(settings: &RegularFamilyPreparation) -> Result<()> {
     let d = &settings.discovery;
     if d.max_dyadic_level == 0
         || d.max_dyadic_level > 30

@@ -3,6 +3,11 @@
 mod configuration;
 mod regular;
 pub use regular::{DiscoveryLimits, DiscoveryProgress, RegularFamilyPreparation};
+mod resources;
+pub use resources::{
+    CertificateResources, DiscoveryResources, EndpointPreparationResources, GeometryResources,
+    PrefactorResources,
+};
 mod family;
 mod graph;
 pub use family::{prepare_family, resume_family, resume_family_evidence};
@@ -86,6 +91,23 @@ impl PreparationOptions {
             represented: None,
             graph_payloads: None,
         }
+    }
+    /// Enable the existing admitted endpoint routes. Native request admission
+    /// chooses the route and resolves coordinate roles; explicit caller settings
+    /// are retained. The legacy fixed one-axis route remains unchanged.
+    pub fn enable_automatic_endpoint_routes(&mut self) {
+        self.regular_family.get_or_insert_with(Default::default);
+    }
+
+    /// Apply explicit resource overrides for fresh preparation, atomically.
+    /// This neither enables a mathematical route nor changes GCAD settings.
+    /// Existing evidence recovery always restores its retained configuration;
+    /// this method does not authorize changing a checkpoint's resource policy.
+    pub fn apply_endpoint_resources(
+        &mut self,
+        resources: &EndpointPreparationResources,
+    ) -> Result<()> {
+        resources.apply(self)
     }
 }
 #[derive(Clone, Copy, Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]

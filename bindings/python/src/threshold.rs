@@ -4,7 +4,11 @@ mod prepared;
 mod session;
 mod work;
 use crate::{error, input::PyIntegral, settings::PyCompilationSettings};
-use fastsecdec::threshold::{gcad, generation::PreparationOptions, represented};
+use fastsecdec::threshold::{
+    gcad,
+    generation::{EndpointPreparationResources, PreparationOptions},
+    represented,
+};
 use pyo3::prelude::*;
 
 #[cfg_attr(feature = "python_stubgen", pyo3_stub_gen::derive::gen_stub_pyclass)]
@@ -21,6 +25,7 @@ pub(crate) struct PyThresholdSettings {
     transport_bytes: u64,
     represented: Option<(represented::NumericalMeaning, represented::Limits)>,
     graph_payloads: Option<represented::graph::GraphPayloadPolicy>,
+    endpoint_resources: Option<EndpointPreparationResources>,
 }
 impl Default for PyThresholdSettings {
     fn default() -> Self {
@@ -30,6 +35,7 @@ impl Default for PyThresholdSettings {
             transport_bytes: 1 << 30,
             represented: None,
             graph_payloads: None,
+            endpoint_resources: None,
         }
     }
 }
@@ -53,7 +59,8 @@ impl PyThresholdSettings {
     /// labels and shorthand arguments) are currently refused.
     /// Omit numerical_meaning to retain the ordinary exact-input path.
     #[new]
-    #[pyo3(signature=(*, gcad_limits_json=None, solver_options_json=None, maximum_transport_bytes=1_073_741_824, numerical_meaning=None, represented_limits_json=None, graph_payloads=None))]
+    #[allow(clippy::too_many_arguments)] // Keyword-only native policy fields.
+    #[pyo3(signature=(*, gcad_limits_json=None, solver_options_json=None, maximum_transport_bytes=1_073_741_824, numerical_meaning=None, represented_limits_json=None, graph_payloads=None, endpoint_resources_json=None))]
     fn new(
         py: Python<'_>,
         gcad_limits_json: Option<&str>,
@@ -62,6 +69,7 @@ impl PyThresholdSettings {
         numerical_meaning: Option<&str>,
         represented_limits_json: Option<&str>,
         graph_payloads: Option<&str>,
+        endpoint_resources_json: Option<&str>,
     ) -> PyResult<Self> {
         if maximum_transport_bytes == 0 {
             return Err(pyo3::exceptions::PyValueError::new_err(
@@ -141,6 +149,15 @@ impl PyThresholdSettings {
                     .map_err(|e| error::native(py, "graph payload policy", e))
             })
             .transpose()?;
+        let endpoint_resources: Option<EndpointPreparationResources> = endpoint_resources_json
+            .map(serde_json::from_str)
+            .transpose()
+            .map_err(|e| error::native(py, "endpoint preparation resources", e))?;
+        if let Some(resources) = &endpoint_resources {
+            resources
+                .validate()
+                .map_err(|e| error::native(py, "endpoint preparation resources", e))?;
+        }
         Ok(Self {
             limits,
             solver: solver_options_json
@@ -151,12 +168,17 @@ impl PyThresholdSettings {
             transport_bytes: maximum_transport_bytes,
             represented,
             graph_payloads,
+            endpoint_resources,
         })
     }
     fn to_json(&self) -> PyResult<String> {
         let mut value = serde_json::json!({"gcad_limits":self.limits,"solver_options":self.solver,"maximum_transport_bytes":self.transport_bytes,"represented":self.represented});
         if let Some(policy) = self.graph_payloads {
             value["graph_payloads"] = serde_json::to_value(policy)
+                .map_err(|e| pyo3::exceptions::PyValueError::new_err(e.to_string()))?;
+        }
+        if let Some(resources) = &self.endpoint_resources {
+            value["endpoint_resources"] = serde_json::to_value(resources)
                 .map_err(|e| pyo3::exceptions::PyValueError::new_err(e.to_string()))?;
         }
         serde_json::to_string(&value)
@@ -167,7 +189,8 @@ impl PyThresholdSettings {
 impl PyIntegral {
     /// Inert native work. prepare() performs parametrization/verified preparation;
     /// compile_next() performs compilation. Neither action starts integration.
-    /// Initially supports fixed inputs with one admitted rational integration axis.
+    /// Uses the shared native admitted fixed-fiber/regular/projective routes.
+    /// Resource overrides affect fresh preparation, not checkpoint recovery.
     #[pyo3(signature=(max_order=0, *, coefficient_expansion="coefficient_series", subtraction="integrate_by_parts", compilation_settings=None, threshold_settings=None))]
     pub(crate) fn threshold_generation_session(
         &self,
@@ -199,6 +222,12 @@ impl PyIntegral {
             ));
         }
         let settings = threshold_settings.cloned().unwrap_or_default();
+        options.enable_automatic_endpoint_routes();
+        if let Some(resources) = &settings.endpoint_resources {
+            options
+                .apply_endpoint_resources(resources)
+                .map_err(|e| error::native(py, "endpoint preparation resources", e))?;
+        }
         options.threshold.gcad_limits = settings.limits;
         options.threshold.solver = settings.solver;
         options.represented = settings.represented;

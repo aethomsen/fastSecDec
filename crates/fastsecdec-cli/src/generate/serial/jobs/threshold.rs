@@ -200,10 +200,10 @@ pub(super) fn prepare(
         .card
         .threshold_decomposition
         .native(&loaded.runtime_parameters)?;
-    // Existing threshold entrypoint; roots/brackets remain native discovery.
-    // The preparer resolves actual compact dimension and preserves legacy 1D.
-    if !loaded.runtime_parameters.is_empty() || loaded.integrand.parameters().len() > 1 {
-        options.regular_family = Some(Default::default());
+    // Source/domain classification and roles remain native, shared with HEPKit.
+    options.enable_automatic_endpoint_routes();
+    if let Some(resources) = &loaded.card.threshold_decomposition.endpoint_resources {
+        options.apply_endpoint_resources(resources)?;
     }
     options.generation = generation;
     options.compilation = loaded.card.generation.evaluator;

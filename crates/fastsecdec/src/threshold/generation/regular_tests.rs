@@ -32,12 +32,42 @@ fn regular_input(paired: bool) -> (Arc<ParametricIntegrand>, PreparationOptions)
     )
     .unwrap();
     let mut options = PreparationOptions::new(t);
-    options.regular_family = Some(RegularFamilyPreparation::default());
+    options.enable_automatic_endpoint_routes();
     options.threshold.solver.order = vec!["v0".into(), "v1".into()];
     options.threshold.gcad_limits.wall_time_secs = 30.;
     options.threshold.gcad_limits.memory_mib = 1024;
     options.generation.max_order = 0;
     (Arc::new(input), options)
+}
+
+#[test]
+fn endpoint_certificate_resources_reach_native_proof_admission() {
+    // CertificateOptions::validate is native/private. Forward its resource
+    // policy and require actual native proof admission to reject bad limits;
+    // the frontend must neither silently ignore them nor duplicate its table.
+    for work_limit in [0usize, usize::MAX] {
+        let directory = tempfile::tempdir().unwrap();
+        let (input, mut options) = regular_input(false);
+        let resources = EndpointPreparationResources {
+            geometry: GeometryResources {
+                certificates: CertificateResources {
+                    work_limit: Some(work_limit),
+                    ..Default::default()
+                },
+                ..Default::default()
+            },
+            ..Default::default()
+        };
+        options.apply_endpoint_resources(&resources).unwrap();
+        let outcome = prepare(input, options, directory.path(), |_| {
+            ControlFlow::Continue(())
+        });
+        let error = match outcome {
+            Ok(_) => panic!("invalid certificate allowance was ignored"),
+            Err(error) => error.to_string(),
+        };
+        assert!(error.contains("certificate arithmetic budget"), "{error}");
+    }
 }
 
 #[test]

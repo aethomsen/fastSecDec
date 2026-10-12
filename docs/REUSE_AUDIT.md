@@ -4898,3 +4898,21 @@ Symbolica/Numerica identity and change only the symGCAD revision. Long-running
 experimental jobs retain their frozen executable identities. The GCAD allowance
 does not imply an overall endpoint-preparation timeout or successful completion
 of the double-box atlas.
+
+## Shared endpoint policy and HEPKit resources (2026-10-12)
+
+The [endpoint interface review](reviews/no-deformation-endpoint-resources.md)
+records a HEPKit admission gap and its correction through the existing native
+route policy. CLI and Python callers now share automatic route enablement and
+a partial native resource DTO. No topology classifier, mathematical admission,
+certificate algorithm or private owner ceiling was copied into a frontend.
+The native configuration retains effective settings; ordinary resume keeps its
+strict original identity and policy checks.
+
+Independent source/interface review and native generation, CLI input/recovery
+and strict core/CLI checks pass. An actual native HEPKit host also prepares,
+compiles, restores and integrates the physical triangle and box through graph
+and integral-family entrypoints, agreeing with OneLOop across the complete
+Laurent vectors. These are in-process archive restoration tests, separate from
+distributed Community publication and portable threshold support. The general
+algebraic resolver and complete double-box generation remain unfinished.
