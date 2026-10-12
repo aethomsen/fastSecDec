@@ -84,9 +84,27 @@ benchmark.
 
 The separate [massive-sunrise reference controls](reviews/no-deformation-massive-sunrise-controls.md)
 at mass one and external square sixteen agree across fixed and dynamic contours
-and independent pySecDec for the complete Laurent vector. Its seven-cell
-no-contour endpoint construction remains in development; these short reference
-runs do not add a no-contour benchmark entry.
+and independent pySecDec for the complete Laurent vector. The complete
+[no-contour paired-family control](reviews/no-deformation-positive-projective-family.md)
+now agrees with all three references: seven verified cells produce 62 closed
+endpoint charts, retaining the original source, Gamma prefactor, causal phase,
+all six real/imaginary Laurent components and their covariance. Detached local
+archives restore without loading the original graph or GCAD proof.
+
+[Automatic map discovery](reviews/no-deformation-positive-projective-discovery.md)
+now finds and certifies this family from native source polynomials. Its current
+automatic class is two-dimensional, constant-first CAD with quadratic moving
+pairs and positive rays. The underlying root evaluator and explicit certificate
+issuer support higher degrees; automatic general collision resolution does not
+follow from that support. Connecting the new discovery to ordinary generation
+and recovery is the next integration gate.
+
+The complete no-contour sunrise measurement and an optimized, identical-point
+repeat appear in [the benchmark report](benchmark.pdf). They are scientific
+and sampling-profile controls, separate from the approximately ten-minute,
+25-core benchmark arms. General algebraic towers and collision resolution,
+auxiliary-regulator continuation, the complete kite and both complete
+no-contour double-box results remain open.
 
 ## Native interface
 

@@ -23,7 +23,7 @@ The pySecDec finite reference is $10.0161430322940-3.3089881368544 i$.
 The no-contour relative standard error of the complex magnitude is
 $1.55 times 10^(-7)$, retaining the full real/imaginary covariance.
 
-*Diagnostic cost, not an optimized benchmark.* Fresh verification of the saved
+*Preparation and execution controls.* Fresh verification of the saved
 proof, supplied-map admission, symbolic continuation and local publication took
 12.38 seconds with a 60 MiB observed process peak. This excludes the original
 GCAD solve. The saved universal archive is 1.60 MB. Cold restoration and
@@ -37,9 +37,18 @@ up to 256 bits, and no failures, unstable points or cutoff zeros. All 16
 complete replica vectors and their 36-entry covariance were independently
 checked. Earlier incomplete diagnostic allocations were not pooled.
 
+An optimized native Eager build repeated the same archive, lattice, seed and
+253,952 points in *97.83848 sampling seconds* and *101.49132 outer seconds*,
+with a *24 MiB* observed process peak. All estimates, replica vectors,
+covariances and non-timing diagnostics matched exactly, including the precision
+rescues. This is the same statistical realization, not additional independent
+data, and the two runs are not pooled. The observed sampling-time ratio is
+2.82 for this single matched build comparison; it is not a general speed claim.
+
 These clocks are not comparable to the optimized 25-core, approximately
 ten-minute arms in the overview, and no square-root time extrapolation is
-applied. Automatic CLI routing and optimized measurements are the next gates.
+applied. Automatic CLI routing and a genuinely compiled SymJIT archive remain
+separate gates.
 The general algebraic resolver, mixed-mass kite and complete double-box
 no-contour results remain unfinished.
 

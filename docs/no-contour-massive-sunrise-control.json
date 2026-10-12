@@ -1,6 +1,6 @@
 {
   "schema": "fastsecdec-native-scientific-control-v1",
-  "scope": "Complete actual massive-sunrise source, saved-proof preparation and cold universal-archive integration. Unoptimized Eager scientific control, not the 25-core ten-minute benchmark or automatic CLI generation.",
+  "scope": "Complete actual massive-sunrise source, saved-proof preparation and cold universal-archive integration. Unoptimized Eager scientific control plus a matched optimized Eager repeat; not the 25-core ten-minute benchmark or automatic CLI generation.",
   "input": {
     "card": "examples/no_deformation/benchmarks/controls/massive_sunrise.toml",
     "masses": [
@@ -139,6 +139,76 @@
     "Geometry solve excluded from preparation clock.",
     "Hand proposals in this diagnostic; automatic discovery is separately verified and not part of its timed scope.",
     "Prior interrupted and unsupported-rule allocations were not pooled.",
-    "No ten-minute normalization or speed comparison is inferred."
-  ]
+    "No ten-minute normalization or cross-method speed comparison is inferred. The optimized Eager ratio is one matched build observation."
+  ],
+  "optimized_eager_profile": {
+    "scope": "Single matched build comparison using the same statistical realization; no independent data and no pooling.",
+    "backend": "Eager",
+    "source_commit": "83e2c3026aff67b226f9f89f51388396bd9a906e",
+    "same_archive": true,
+    "same_helper_sources": true,
+    "same_protocol_rule_seed_and_points": true,
+    "independent_data": false,
+    "pooled": false,
+    "sectors": 62,
+    "replicas": 16,
+    "production_calls": 253952,
+    "counts_complete": true,
+    "sampling_seconds": 97.838479174,
+    "cold_setup_seconds": 3.535844958,
+    "native_total_seconds": 101.37688273,
+    "outer_seconds": 101.49131973506883,
+    "own_peak_rss_bytes": 25165824,
+    "joint_peak_rss_bytes": 3930783744,
+    "all_non_timing_native_payloads_identical": true,
+    "primary_comparisons_pass": true,
+    "diagnostics": {
+      "additional_replays": 59,
+      "arbitrary_points": 133764,
+      "arbitrary_timing": {
+        "calls": 267528,
+        "matrix_invocations": 0,
+        "matrix_points": 0,
+        "nanoseconds": 42174332603
+      },
+      "conditioning_checks": 135871,
+      "cutoff_zero_points": 0,
+      "double_float_points": 0,
+      "double_float_timing": {
+        "calls": 0,
+        "matrix_invocations": 0,
+        "matrix_points": 0,
+        "nanoseconds": 0
+      },
+      "evaluations": 253952,
+      "f64_points": 120188,
+      "f64_timing": {
+        "calls": 253952,
+        "matrix_invocations": 0,
+        "matrix_points": 0,
+        "nanoseconds": 294821806
+      },
+      "failures": 0,
+      "max_precision_bits": 256,
+      "rescues": 133764,
+      "unstable_points": 0,
+      "weighted_checks": 93
+    },
+    "observed_sampling_ratio_to_unoptimized": 2.819780762488736,
+    "source_reads": 0,
+    "proof_reads": 0,
+    "geometry_solves": 0,
+    "evidence": {
+      "outcome_path": "target/no-deformation-massive-sunrise-density-audit/optimized-r1/outcome-r1.json",
+      "outcome_sha256": "2750da64cc762f45e8a5e7baad2558c2e26079f0d61786c1089afde5ef25b94e",
+      "profile_sha256": "da1d26fd950d8bcd616c63b0a3bdbab7805024b4c20f73182f04e61a5ef41caf",
+      "pre_run_manifest_sha256": "26083cd8edf0c09468a30e0617e4efe5ce4a681fa60e0a9aa123f9fd717fe7dc",
+      "plan_sha256": "3bb9ece8f8bcb786218ed589fa7d7a8511366232c43d7c0dea0c26728b2c9ee6",
+      "helper_sha256": "ff78dc75dcfe8ed48584c29961ede1759e060fe3f6a0c9e59349556c0fc85321",
+      "archive_sha256": "37ee107940a905688062fdec3895fe05177ffa4a2d35887977a281570cf61ddf",
+      "release_build_receipt_sha256": "1b37ecd447e2af9daf7b6c45344d888201d1b6d06e902b948cfbc3273fa14d9c",
+      "helper_build_receipt_sha256": "4ef1a762ddde26a605c2d38b1c7acd2ad715b8388a83e5f8c4d2eba849d704bc",
+      "root_outcome_review_sha256": "68ce6ccc45086f71f1dcf9829b013bf57a0a1b128ce578eafcbb6a64c0170eca"
+    }
+  }
 }

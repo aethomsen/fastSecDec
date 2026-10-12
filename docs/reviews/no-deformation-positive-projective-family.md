@@ -93,10 +93,30 @@ seconds and recorded 133,764 precision rescues; these are correctness-control
 observations, not production performance claims. Compact values and provenance
 are in `docs/no-contour-massive-sunrise-control.json`.
 
+An optimized Eager build from commit
+`83e2c3026aff67b226f9f89f51388396bd9a906e` repeated the exact same archive,
+helper sources, lattice, seed and allocation. Sampling took 97.838479174 seconds,
+cold setup 3.535844958 seconds and the supervised process 101.491319735 seconds,
+with a 24 MiB observed process peak. All non-timing native payloads matched the
+accepted diagnostic run exactly: sector estimates, 16 replica vectors, the full
+covariance, weight diagnostics and precision counters. All 18 unfloored reference
+checks still pass. This matched repeat is not independent data and is not pooled
+with the first run; the observed 2.82 sampling-time ratio is a single build
+comparison, not an end-to-end or 600-second benchmark result. No graph or proof
+was loaded, and no archive backend metadata was altered.
+
+The immutable profile outcome is
+`target/no-deformation-massive-sunrise-density-audit/optimized-r1/outcome-r1.json`,
+SHA-256 `2750da64cc762f45e8a5e7baad2558c2e26079f0d61786c1089afde5ef25b94e`.
+Its frozen build, helper, archive and protocol identities are also retained in
+the compact control JSON. A SymJIT comparison requires a separately issued
+native compilation plan and archive.
+
 Shared projective, threshold-owner and threshold-compilation regression filters
 pass, including the new reversed native-order test. Strict threshold-enabled
 core Clippy across all targets and formatting also pass. Automatic generation
-routing and optimized performance remain separate integration steps.
+routing and the full optimized performance campaign remain separate integration
+steps.
 
 Production performance rows must come from the requested optimized complete
 campaign, with the binary, settings, full epsilon-zero covariance and actual
