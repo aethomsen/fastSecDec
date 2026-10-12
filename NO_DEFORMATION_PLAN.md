@@ -1,5 +1,15 @@
 # No-contour threshold decomposition
 
+> **Latest scope amendment, 2026-10-12.** The user has stopped double-box
+> no-contour development and requested completion of the remaining benchmark
+> report, including the massive kite only if reachable without substantial
+> further work. Document the algebraic boundary difficulties, admitted versus
+> compiled sector counts and qualified full-atlas count scenarios. Add a
+> theoretical Landau-pinch/blow-up discussion without implementing it. Publish
+> the completed supported comparisons and stop. The original approved plan
+> below is preserved; finishing this narrower campaign does not assert that
+> all its general-resolution requirements have been implemented.
+
 ## 1. Goal, scope and repository workflow
 
 **Goal statement**

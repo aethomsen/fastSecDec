@@ -1,4 +1,4 @@
-// Rebuild: nix-shell -p typst --run 'typst compile docs/contour-deformation.typ docs/contour-deformation.pdf'
+// Rebuild: nix-shell -p typst --run 'typst compile docs/contour-deformation.typ docs/benchmark.pdf'
 // Measurements are accompanied by native full-covariance summaries and audit records.
 #set document(title: "Threshold regularisation in FastSecDec", author: "FastSecDec collaboration")
 #set page(paper: "a4", margin: (x: 19mm, top: 18mm, bottom: 19mm),
@@ -22,6 +22,10 @@
 #pagebreak()
 #include "benchmark-overview-details.typ"
 #pagebreak()
+#include "no-contour-boundaries.typ"
+#pagebreak()
+#include "landau-pinches.typ"
+#pagebreak()
 #include "benchmark-compatibility.typ"
 #pagebreak()
 
@@ -29,7 +33,7 @@
 
 #text(size: 13pt)[FastSecDec · contour deformation and threshold decomposition]
 #v(3mm)
-#text(size: 9pt, fill: rgb("64748b"))[Benchmark checkpoint · 11 October 2026]
+#text(size: 9pt, fill: rgb("64748b"))[Benchmark campaign closure · 12 October 2026]
 
 = Deformation styles and formulae
 == Common geometry and fixed strength

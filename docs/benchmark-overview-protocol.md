@@ -1,10 +1,24 @@
 # Twenty-five-core finite-coefficient benchmark protocol
 
-Status: the original 44 admitted instrumented timed arms are complete, with frozen
-dependency, executable and recorded run plans. Generation, explicit-Off costs
-and confirmation estimates are recorded; unsupported no-contour routes remain
-unfinished. No earlier historical number is relabelled as a measurement of this
-campaign.
+Final status: 66 measured timed sampler rows across eight topologies, including
+the original 44 admitted instrumented arms and separately recorded extensions.
+Generation, explicit-Off costs and confirmation estimates are recorded. Under
+the final user instruction, no-contour double-box work is stopped and excluded
+from the overview. Kite no-contour remains not completed: its ten selected
+boundary charts do not supply a complete interval or 9,840-cell integral.
+The later report sections document both limitations and theoretical Landau
+pinch handling. This closes the narrowed benchmark campaign, not the general
+resolver plan. No earlier historical number is relabelled as a measurement of
+this campaign.
+
+The final independent double-box tuning controls are recorded in
+`double-box-dynamic-work-overview.json`: twenty jobs closed, eight complete
+timed confirmations, six exact-work QMC controls and six explicitly capped,
+incomplete MC work targets. Tuned caps use S=0.8, R=1e6 and L=1.25e-5 for
+scalar QMC, L=1.25e-6 otherwise. The original artifact generation and timed
+baseline measurements are retained. The secondary fixed-QMC work values now use
+the fresh equal-work controls. Native covariance checks cover 234 complex
+blocks without covariance regularization or error inflation.
 
 The scalar double-box sign-aware extension adds two independent 600-second
 confirmations on the frozen `6647950` release. Its compact record is

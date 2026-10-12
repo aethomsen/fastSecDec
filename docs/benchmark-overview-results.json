@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "campaign_status": "partial",
+  "campaign_status": "completed_under_final_user_scope",
   "target_order": 0,
   "workers": 25,
   "memory_limit_bytes": 100000000000,
@@ -2013,10 +2013,10 @@
         {
           "id": "no-contour",
           "label": "No contour",
-          "generation_status": "refused",
-          "status_detail": "Verified9840-cell GCAD. Native next-root resultant/tower composition reaches denominator and bracket endpoint certificates; original denominators certify, complete moving-root chart and density admission remain unfinished.",
+          "generation_status": "incomplete",
+          "status_detail": "Verified 9,840-cell GCAD atlas. Ten selected-boundary charts of cell 0 pass 40 strict precision checks; complete interval/source-density closure and whole-atlas continuation remain substantial work. No full-integral artifact or numerical result. Stopped under the final user scope.",
           "generation": {
-            "generation_seconds": "Refused",
+            "generation_seconds": "Not completed",
             "generation_peak_gb": null,
             "artifact_mb": null,
             "stochastic_sectors": null
@@ -2029,7 +2029,7 @@
             {
               "id": "qmc",
               "label": "QMC",
-              "state": "refused",
+              "state": "not_available",
               "metrics": {
                 "integration_peak_gb": null,
                 "work_relative_se": null,
@@ -2044,7 +2044,7 @@
                 "time_reported_sector_calls_million": null
               },
               "weight_metrics": {
-                "status": "not_measured_by_campaign_executable",
+                "status": "no_complete_integral_artifact",
                 "absolute_weight_integral_over_norm": null,
                 "maximum_observed_weight_over_norm": null
               }
@@ -2052,7 +2052,7 @@
             {
               "id": "discrete_mc",
               "label": "MC",
-              "state": "refused",
+              "state": "not_available",
               "metrics": {
                 "integration_peak_gb": null,
                 "work_relative_se": null,
@@ -2067,7 +2067,7 @@
                 "time_reported_sector_calls_million": null
               },
               "weight_metrics": {
-                "status": "not_measured_by_campaign_executable",
+                "status": "no_complete_integral_artifact",
                 "absolute_weight_integral_over_norm": null,
                 "maximum_observed_weight_over_norm": null
               }
@@ -2128,11 +2128,15 @@
                 {
                   "path": "/common/dev/fastsecdec/target/no-deformation-overview-campaign/fixed_time-off-double-box-scalar-fixed-qmc-instrumented-r1/completion.json",
                   "sha256": "34eba983872166261696dafcb0deab979669a73141a94b8b2f0d408b0f6aa9d4"
+                },
+                {
+                  "path": "/common/dev/fastsecdec/target/no-deformation-double-box-dynamic-tuning-r1/scalar-fixed-qmc-matched_work/completion.json",
+                  "sha256": "000d26078ff45cecb7c8e329f3ce777188d69885de515ccdd964059abad8b5ae"
                 }
               ],
               "normalized_metrics": {
-                "work_radial_relative_se": "0.0264",
-                "work_joint_se": "1.11e-17",
+                "work_radial_relative_se": "0.0259",
+                "work_joint_se": "1.09e-17",
                 "time_radial_relative_se": "0.0102",
                 "time_reported_sector_calls_million": "363"
               },
@@ -2143,6 +2147,20 @@
                 "maximum_observed_weight_over_norm": 7021.353990954743,
                 "display_cancellation_ratio": "9.95",
                 "display_maximum_ratio": "7.02e+03"
+              },
+              "work_comparison": {
+                "source": "Independent complete final tuning fixed-QMC control; timed baseline unchanged",
+                "actual_requested_control_status": "native_complete_record_estimate",
+                "actual_requested_accepted": 71958528,
+                "actual_observed_accepted": 71958528,
+                "display_target": 72000000,
+                "display_scale": 0.9997119585160518,
+                "display_scale_is_heuristic": true,
+                "result": {
+                  "path": "/common/dev/fastsecdec/target/no-deformation-double-box-dynamic-tuning-r1/scalar-fixed-qmc-matched_work-result.json",
+                  "sha256": "4d9930d591fb256593f96b68a7cb78aa18664150683bb7da5a3d63c882c8d000",
+                  "bytes": 32119
+                }
               }
             },
             {
@@ -2700,70 +2718,6 @@
               ]
             }
           ]
-        },
-        {
-          "id": "no-contour",
-          "label": "No contour",
-          "generation_status": "not_available",
-          "status_detail": "Complete644699-cell GCAD verified; first-cell307-chart exact cover and common convergence strip pass. Closed-unit certificates and algebraic constant endpoints across the full atlas remain unfinished. No complete integral artifact/timing.",
-          "generation": {
-            "generation_seconds": null,
-            "generation_peak_gb": null,
-            "artifact_mb": null,
-            "stochastic_sectors": null
-          },
-          "kernel_cost": {
-            "f64_max_avg_us": null,
-            "sum_f64_checked_us": null
-          },
-          "samplers": [
-            {
-              "id": "qmc",
-              "label": "QMC",
-              "state": "not_available",
-              "metrics": {
-                "integration_peak_gb": null,
-                "work_relative_se": null,
-                "work_joint_se": null,
-                "time_relative_se": null
-              },
-              "receipts": [],
-              "normalized_metrics": {
-                "work_radial_relative_se": null,
-                "work_joint_se": null,
-                "time_radial_relative_se": null,
-                "time_reported_sector_calls_million": null
-              },
-              "weight_metrics": {
-                "status": "not_measured_by_campaign_executable",
-                "absolute_weight_integral_over_norm": null,
-                "maximum_observed_weight_over_norm": null
-              }
-            },
-            {
-              "id": "discrete_mc",
-              "label": "MC",
-              "state": "not_available",
-              "metrics": {
-                "integration_peak_gb": null,
-                "work_relative_se": null,
-                "work_joint_se": null,
-                "time_relative_se": null
-              },
-              "receipts": [],
-              "normalized_metrics": {
-                "work_radial_relative_se": null,
-                "work_joint_se": null,
-                "time_radial_relative_se": null,
-                "time_reported_sector_calls_million": null
-              },
-              "weight_metrics": {
-                "status": "not_measured_by_campaign_executable",
-                "absolute_weight_integral_over_norm": null,
-                "maximum_observed_weight_over_norm": null
-              }
-            }
-          ]
         }
       ],
       "display_work_target_average_per_sector": 4000000
@@ -2811,11 +2765,15 @@
                 {
                   "path": "/common/dev/fastsecdec/target/no-deformation-overview-campaign/fixed_time-off-double-box-physical-fixed-qmc-instrumented-r1/completion.json",
                   "sha256": "86b8cebcf93fccd3ed8dcb011e8a76055616719a2164283644bef882003ff14c"
+                },
+                {
+                  "path": "/common/dev/fastsecdec/target/no-deformation-double-box-dynamic-tuning-r1/physical-fixed-qmc-matched_work/completion.json",
+                  "sha256": "13ca2e644dde98d14cb345ef28c1c73510d324d805c83ff00b06af56fd2612d6"
                 }
               ],
               "normalized_metrics": {
-                "work_radial_relative_se": "0.0278",
-                "work_joint_se": "2.97",
+                "work_radial_relative_se": "0.0311",
+                "work_joint_se": "3",
                 "time_radial_relative_se": "0.0198",
                 "time_reported_sector_calls_million": "344"
               },
@@ -2826,6 +2784,20 @@
                 "maximum_observed_weight_over_norm": 10393.866112289119,
                 "display_cancellation_ratio": "23.1",
                 "display_maximum_ratio": "1.04e+04"
+              },
+              "work_comparison": {
+                "source": "Independent complete final tuning fixed-QMC control; timed baseline unchanged",
+                "actual_requested_control_status": "native_complete_record_estimate",
+                "actual_requested_accepted": 179896320,
+                "actual_observed_accepted": 179896320,
+                "display_target": 180000000,
+                "display_scale": 0.9997119585160518,
+                "display_scale_is_heuristic": true,
+                "result": {
+                  "path": "/common/dev/fastsecdec/target/no-deformation-double-box-dynamic-tuning-r1/physical-fixed-qmc-matched_work-result.json",
+                  "sha256": "4eed9deb3c3665ca2194ab130daced09d23c1f5d116416d0f31b1e3861f3f73d",
+                  "bytes": 60596
+                }
               }
             },
             {
@@ -3018,26 +2990,26 @@
               },
               "metrics": {
                 "integration_peak_gb": "0.775",
-                "work_relative_se": "0.0218",
-                "work_joint_se": "2.43",
+                "work_relative_se": "0.0272",
+                "work_joint_se": "2.98",
                 "time_relative_se": "0.0209"
               },
               "normalized_metrics": {
-                "work_radial_relative_se": "0.0218",
-                "work_joint_se": "2.43",
+                "work_radial_relative_se": "0.0272",
+                "work_joint_se": "2.98",
                 "time_radial_relative_se": "0.0209",
                 "time_reported_sector_calls_million": "297"
               },
               "work_comparison": {
-                "source": "600 s estimate with MC-equivalent heuristic",
-                "actual_requested_control_status": "pending",
+                "source": "complete actual work control",
+                "actual_requested_control_status": "native_complete_record_estimate",
                 "actual_requested_accepted": 179896320,
-                "actual_observed_accepted": null,
-                "raw_actual_radial_relative_se": null,
-                "raw_actual_joint_se": null,
-                "table_source_accepted": 194641920,
+                "actual_observed_accepted": 179896320,
+                "raw_actual_radial_relative_se": 0.02720492964557014,
+                "raw_actual_joint_se": 2.985066892100969,
+                "table_source_accepted": 179896320,
                 "display_target": 180000000,
-                "display_scale": 1.039876915793403,
+                "display_scale": 0.9997119585160518,
                 "display_scale_is_heuristic": true
               },
               "weight_metrics": {
@@ -3052,6 +3024,10 @@
                 {
                   "path": "/common/dev/fastsecdec/target/no-deformation-double-box-dynamic-tuning-r1/physical-polynomial-qmc-fixed-time-confirmation/completion.json",
                   "sha256": "c19179c4c759809dd74d35b64e49929956df5c7e30304e86ebba1242677ae823"
+                },
+                {
+                  "path": "/common/dev/fastsecdec/target/no-deformation-double-box-dynamic-tuning-r1/physical-polynomial-qmc-matched_work/completion.json",
+                  "sha256": "58790de11d59a2c1b7568c14c6405b909b930b99f81a46fab644601d3e0b8018"
                 }
               ]
             },
@@ -3088,11 +3064,11 @@
               },
               "work_comparison": {
                 "source": "600 s estimate with MC-equivalent heuristic",
-                "actual_requested_control_status": "pending",
+                "actual_requested_control_status": "incomplete_requested_work",
                 "actual_requested_accepted": 179896320,
-                "actual_observed_accepted": null,
-                "raw_actual_radial_relative_se": null,
-                "raw_actual_joint_se": null,
+                "actual_observed_accepted": 20480000,
+                "raw_actual_radial_relative_se": 0.010064345003885394,
+                "raw_actual_joint_se": 1.036744434502247,
                 "table_source_accepted": 43487232,
                 "display_target": 180000000,
                 "display_scale": 0.4915238888735046,
@@ -3110,6 +3086,10 @@
                 {
                   "path": "/common/dev/fastsecdec/target/no-deformation-double-box-dynamic-tuning-r1/physical-polynomial-discrete_mc-fixed-time-confirmation/completion.json",
                   "sha256": "b86ecc00a6c80dd78a01eb2ecef86ff70b3994bb2c192f86e9b6294ba05f2b8b"
+                },
+                {
+                  "path": "/common/dev/fastsecdec/target/no-deformation-double-box-dynamic-tuning-r1/physical-polynomial-discrete_mc-matched_work/completion.json",
+                  "sha256": "4939518d550a7907a3ef5eb5da45475e66547ce948850b38630bda3224be21b1"
                 }
               ]
             }
@@ -3247,26 +3227,26 @@
               },
               "metrics": {
                 "integration_peak_gb": "0.807",
-                "work_relative_se": "0.0224",
-                "work_joint_se": "2.5",
+                "work_relative_se": "0.0287",
+                "work_joint_se": "2.97",
                 "time_relative_se": "0.0214"
               },
               "normalized_metrics": {
-                "work_radial_relative_se": "0.0224",
-                "work_joint_se": "2.5",
+                "work_radial_relative_se": "0.0287",
+                "work_joint_se": "2.97",
                 "time_radial_relative_se": "0.0214",
                 "time_reported_sector_calls_million": "323"
               },
               "work_comparison": {
-                "source": "600 s estimate with MC-equivalent heuristic",
-                "actual_requested_control_status": "pending",
+                "source": "complete actual work control",
+                "actual_requested_control_status": "native_complete_record_estimate",
                 "actual_requested_accepted": 179896320,
-                "actual_observed_accepted": null,
-                "raw_actual_radial_relative_se": null,
-                "raw_actual_joint_se": null,
-                "table_source_accepted": 197001216,
+                "actual_observed_accepted": 179896320,
+                "raw_actual_radial_relative_se": 0.0286936546474064,
+                "raw_actual_joint_se": 2.9678206192134104,
+                "table_source_accepted": 179896320,
                 "display_target": 180000000,
-                "display_scale": 1.0461602171751705,
+                "display_scale": 0.9997119585160518,
                 "display_scale_is_heuristic": true
               },
               "weight_metrics": {
@@ -3281,6 +3261,10 @@
                 {
                   "path": "/common/dev/fastsecdec/target/no-deformation-double-box-dynamic-tuning-r1/physical-sign_aware-qmc-fixed-time-confirmation/completion.json",
                   "sha256": "e25bd13c70c6d50fc7a700401ce0757fcb8682c5f05ac859f5b2980158dc449e"
+                },
+                {
+                  "path": "/common/dev/fastsecdec/target/no-deformation-double-box-dynamic-tuning-r1/physical-sign_aware-qmc-matched_work/completion.json",
+                  "sha256": "9030cd180a2680e472bcda437c8a612c7fca60a5dcd18d09ddfb932a2e6151ed"
                 }
               ]
             },
@@ -3317,11 +3301,11 @@
               },
               "work_comparison": {
                 "source": "600 s estimate with MC-equivalent heuristic",
-                "actual_requested_control_status": "pending",
+                "actual_requested_control_status": "incomplete_requested_work",
                 "actual_requested_accepted": 179896320,
-                "actual_observed_accepted": null,
-                "raw_actual_radial_relative_se": null,
-                "raw_actual_joint_se": null,
+                "actual_observed_accepted": 20582400,
+                "raw_actual_radial_relative_se": 0.008802023894840819,
+                "raw_actual_joint_se": 0.9387714918164499,
                 "table_source_accepted": 42258432,
                 "display_target": 180000000,
                 "display_scale": 0.4845297376494725,
@@ -3339,72 +3323,12 @@
                 {
                   "path": "/common/dev/fastsecdec/target/no-deformation-double-box-dynamic-tuning-r1/physical-sign_aware-discrete_mc-fixed-time-confirmation/completion.json",
                   "sha256": "20a407b3a2237ef70c716ed7b8faf0f427728082c7808eeaa1bbe478b33f3ffe"
+                },
+                {
+                  "path": "/common/dev/fastsecdec/target/no-deformation-double-box-dynamic-tuning-r1/physical-sign_aware-discrete_mc-matched_work/completion.json",
+                  "sha256": "7a158d4997d583271ca36dec237ca8a497b7eec9757dba21b64c4d18757b8909"
                 }
               ]
-            }
-          ]
-        },
-        {
-          "id": "no-contour",
-          "label": "No contour",
-          "generation_status": "not_available",
-          "status_detail": "Same verified644699-cell geometry; all156 original exact pi/radical prefactors now admitted with Gamma associations preserved. Full-atlas endpoint continuation/common strip and integral artifact remain unfinished.",
-          "generation": {
-            "generation_seconds": null,
-            "generation_peak_gb": null,
-            "artifact_mb": null,
-            "stochastic_sectors": null
-          },
-          "kernel_cost": {
-            "f64_max_avg_us": null,
-            "sum_f64_checked_us": null
-          },
-          "samplers": [
-            {
-              "id": "qmc",
-              "label": "QMC",
-              "state": "not_available",
-              "metrics": {
-                "integration_peak_gb": null,
-                "work_relative_se": null,
-                "work_joint_se": null,
-                "time_relative_se": null
-              },
-              "receipts": [],
-              "normalized_metrics": {
-                "work_radial_relative_se": null,
-                "work_joint_se": null,
-                "time_radial_relative_se": null,
-                "time_reported_sector_calls_million": null
-              },
-              "weight_metrics": {
-                "status": "not_measured_by_campaign_executable",
-                "absolute_weight_integral_over_norm": null,
-                "maximum_observed_weight_over_norm": null
-              }
-            },
-            {
-              "id": "discrete_mc",
-              "label": "MC",
-              "state": "not_available",
-              "metrics": {
-                "integration_peak_gb": null,
-                "work_relative_se": null,
-                "work_joint_se": null,
-                "time_relative_se": null
-              },
-              "receipts": [],
-              "normalized_metrics": {
-                "work_radial_relative_se": null,
-                "work_joint_se": null,
-                "time_radial_relative_se": null,
-                "time_reported_sector_calls_million": null
-              },
-              "weight_metrics": {
-                "status": "not_measured_by_campaign_executable",
-                "absolute_weight_integral_over_norm": null,
-                "maximum_observed_weight_over_norm": null
-              }
             }
           ]
         }
@@ -196275,5 +196199,149 @@
     },
     "generation_worker_exception": 6,
     "work_target_average_per_sector": 6000000
+  },
+  "final_scope": {
+    "date": "2026-10-12",
+    "instruction": "Stop double-box no-contour work, finish supported benchmarks; kite only if promptly reachable; add boundary/count and Landau-pinch discussion, then stop.",
+    "double_box_no_contour": "Excluded at user request; no compiled or integrated result claimed",
+    "omitted_overview_rows": [
+      {
+        "topology": "d05-scalar",
+        "method": {
+          "id": "no-contour",
+          "label": "No contour",
+          "generation_status": "not_available",
+          "status_detail": "Complete644699-cell GCAD verified; first-cell307-chart exact cover and common convergence strip pass. Closed-unit certificates and algebraic constant endpoints across the full atlas remain unfinished. No complete integral artifact/timing.",
+          "generation": {
+            "generation_seconds": null,
+            "generation_peak_gb": null,
+            "artifact_mb": null,
+            "stochastic_sectors": null
+          },
+          "kernel_cost": {
+            "f64_max_avg_us": null,
+            "sum_f64_checked_us": null
+          },
+          "samplers": [
+            {
+              "id": "qmc",
+              "label": "QMC",
+              "state": "not_available",
+              "metrics": {
+                "integration_peak_gb": null,
+                "work_relative_se": null,
+                "work_joint_se": null,
+                "time_relative_se": null
+              },
+              "receipts": [],
+              "normalized_metrics": {
+                "work_radial_relative_se": null,
+                "work_joint_se": null,
+                "time_radial_relative_se": null,
+                "time_reported_sector_calls_million": null
+              },
+              "weight_metrics": {
+                "status": "not_measured_by_campaign_executable",
+                "absolute_weight_integral_over_norm": null,
+                "maximum_observed_weight_over_norm": null
+              }
+            },
+            {
+              "id": "discrete_mc",
+              "label": "MC",
+              "state": "not_available",
+              "metrics": {
+                "integration_peak_gb": null,
+                "work_relative_se": null,
+                "work_joint_se": null,
+                "time_relative_se": null
+              },
+              "receipts": [],
+              "normalized_metrics": {
+                "work_radial_relative_se": null,
+                "work_joint_se": null,
+                "time_radial_relative_se": null,
+                "time_reported_sector_calls_million": null
+              },
+              "weight_metrics": {
+                "status": "not_measured_by_campaign_executable",
+                "absolute_weight_integral_over_norm": null,
+                "maximum_observed_weight_over_norm": null
+              }
+            }
+          ]
+        }
+      },
+      {
+        "topology": "d05-physical",
+        "method": {
+          "id": "no-contour",
+          "label": "No contour",
+          "generation_status": "not_available",
+          "status_detail": "Same verified644699-cell geometry; all156 original exact pi/radical prefactors now admitted with Gamma associations preserved. Full-atlas endpoint continuation/common strip and integral artifact remain unfinished.",
+          "generation": {
+            "generation_seconds": null,
+            "generation_peak_gb": null,
+            "artifact_mb": null,
+            "stochastic_sectors": null
+          },
+          "kernel_cost": {
+            "f64_max_avg_us": null,
+            "sum_f64_checked_us": null
+          },
+          "samplers": [
+            {
+              "id": "qmc",
+              "label": "QMC",
+              "state": "not_available",
+              "metrics": {
+                "integration_peak_gb": null,
+                "work_relative_se": null,
+                "work_joint_se": null,
+                "time_relative_se": null
+              },
+              "receipts": [],
+              "normalized_metrics": {
+                "work_radial_relative_se": null,
+                "work_joint_se": null,
+                "time_radial_relative_se": null,
+                "time_reported_sector_calls_million": null
+              },
+              "weight_metrics": {
+                "status": "not_measured_by_campaign_executable",
+                "absolute_weight_integral_over_norm": null,
+                "maximum_observed_weight_over_norm": null
+              }
+            },
+            {
+              "id": "discrete_mc",
+              "label": "MC",
+              "state": "not_available",
+              "metrics": {
+                "integration_peak_gb": null,
+                "work_relative_se": null,
+                "work_joint_se": null,
+                "time_relative_se": null
+              },
+              "receipts": [],
+              "normalized_metrics": {
+                "work_radial_relative_se": null,
+                "work_joint_se": null,
+                "time_radial_relative_se": null,
+                "time_reported_sector_calls_million": null
+              },
+              "weight_metrics": {
+                "status": "not_measured_by_campaign_executable",
+                "absolute_weight_integral_over_norm": null,
+                "maximum_observed_weight_over_norm": null
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "kite_no_contour": "Verified 9,840-cell GCAD atlas. Ten selected-boundary charts of cell 0 pass 40 strict precision checks; complete interval/source-density closure and whole-atlas continuation remain substantial work. No full-integral artifact or numerical result. Stopped under the final user scope.",
+    "general_resolver": "Not completed; this report closes the narrowed benchmark campaign only",
+    "closed_tuning": "double-box-dynamic-work-overview.json"
   }
 }

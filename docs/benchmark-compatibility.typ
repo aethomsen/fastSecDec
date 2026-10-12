@@ -45,7 +45,9 @@ criterion without an added floor; the largest difference is 2.162 combined SE.
 Both complete native covariance matrices and the radial norm uncertainties are
 checked independently. These comparisons are recorded in
 `no-contour-massive-sunrise-overview.json`; they do not change the original
-campaign counts above or supply missing matched contour timings.
+campaign counts above. The subsequently completed six contour timings and
+their separate native joint audit are recorded in the overview details and
+`massive-sunrise-contour-overview.json`.
 
 The bubble's finite reference is $2-3 log(3)/2+i pi/2$. Native HEPKit/OneLOop
 expression evaluation supplies the triangle and box references at exactly the
@@ -78,3 +80,11 @@ binary64 entries and its matrix determinant/solve. It checks the native saved
 result, input-card association and distinct seeds without generating or sampling.
 Full covariance and raw estimates remain in the benchmark data; private audit
 receipts preserve every pair and coefficient rather than only these maxima.
+
+The final double-box tuning extension has its own 26-estimate audit in
+`double-box-dynamic-work-overview.json`. Its 234 complex-block comparisons
+include six complete equal-work QMC controls as well as the timed baselines
+and confirmations. The largest distances are 3.169 (scalar finite), 3.805
+(physical pole) and 3.280 (physical finite), without non-positive covariance
+or rounding-sensitivity flags. This does not replace the original broader
+campaign audit or discard its earlier high-variance and roundoff diagnostics.

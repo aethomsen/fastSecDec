@@ -53,20 +53,32 @@ completed exactly 71,958,528 accepted calls. Tuned polynomial/fixed covariance
 trace is 0.193; sign-aware/fixed is about 0.224. Thus the scalar improvement also
 appears at equal accepted work, using the full complex error rather than just
 radial relative uncertainty. These independent estimates are not pooled with
-the timed runs. Scalar MC controls stopped at their original caps with about
-40–41 million accepted calls and remain labeled incomplete requested work.
-The separate physical work controls were still running at this report cutoff.
+the timed runs. Three physical QMC controls completed exactly 179,896,320
+accepted calls each: fixed, polynomial and sign-aware took 377.81, 406.92 and
+328.12 seconds. Their covariance-trace ratios to fixed are 1, 0.9904 and 0.9790.
+The physical tuning therefore recovers approximately the fixed per-call variance;
+these independent single controls do not establish a statistically significant
+variance advantage. Scalar fixed, polynomial and sign-aware controls took
+112.49, 145.95 and 136.80 seconds at their common work target.
+
+All six MC work controls stopped at their original 600-second caps, with
+40–41 million scalar or 20–21 million physical accepted calls. They remain
+explicitly incomplete requested work; there was no retry to force equal counts.
+All twenty predeclared final jobs are closed without failed, unstable or
+cutoff-zero evaluations.
 
 For the secondary overview column, completed work controls receive the small
-explicit correction to 72 million scalar calls. Otherwise the timed estimate is
+explicit correction to 72 million scalar or 180 million physical calls. The fresh
+fixed QMC controls supply the corresponding secondary baseline values; original
+timed baseline results remain unchanged. Otherwise the timed estimate is
 scaled to the designated 72 million scalar or 180 million physical calls using
 the stated MC-equivalent heuristic. This does not relabel unfinished allocations
 as equal-work measurements. The final ten-minute column is the primary metric.
 
 Native Numerica matrix checks compare the 12 retained baseline estimates, eight
-new timed estimates and three completed scalar QMC controls: 168 complex-block
+new timed estimates and six completed QMC controls: 234 complex-block
 comparisons. The largest descriptive Mahalanobis distances are 3.169 for scalar
-$epsilon^0$, 3.805 for physical $epsilon^(-1)$ and 2.548 for physical $epsilon^0$.
+$epsilon^0$, 3.805 for physical $epsilon^(-1)$ and 3.280 for physical $epsilon^0$.
 There are no non-positive covariance or rounding-sensitivity flags in this set.
 Component checks are also retained. These estimated-covariance diagnostics are
 not calibrated p-values or an independent analytic reference for this diagram.
@@ -74,5 +86,7 @@ not calibrated p-values or an independent analytic reference for this diagram.
 The compact record `docs/double-box-dynamic-tuning-overview.json` preserves exact
 native arguments, independent seeds, elapsed times, accepted/total calls,
 full Laurent means and covariance, $C$, maximum-weight ratios, memory and source
-identities. It uses frozen executable source `6647950` and the original D05 graph,
-model, parameters and generation cards. Only runtime contour caps change.
+identities. The completed work controls and final 234-pair audit are in
+`docs/double-box-dynamic-work-overview.json`. Both use frozen executable source
+`6647950` and the original D05 graph, model, parameters and generation cards.
+Only runtime contour caps change.

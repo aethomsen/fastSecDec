@@ -1,5 +1,24 @@
 # FastSecDec first-phase implementation plan
 
+## Final benchmark scope and stopping point (2026-10-12)
+
+The latest user instruction supersedes the double-box no-contour and mandatory
+kite completion requirements below. Stop no-contour double-box development and
+generation. Retain the completed contour comparisons, document the difficult
+algebraic boundaries and distinguish admitted endpoint charts from compiled
+sectors. Report the 644,699-cell atlas and qualified illustrative sector-count
+scenarios without treating one selected cell as representative of the atlas.
+
+Finish the supported scalar benchmark suite and independently tuned double-box
+contour comparisons in `docs/benchmark.pdf`, including the massive kite only if
+its remaining no-contour work is practical to complete promptly. Record the
+substantial remaining kite interval/whole-atlas gap explicitly. Add a researched,
+documentation-only discussion of interior Landau pinches, the limitations of the
+current dynamic contour, and potential future blow-up/analytic continuation.
+Publish validated code, measurements, Typst and PDF, then stop. Completion of
+this explicitly narrowed campaign does not claim completion of the broader
+general algebraic resolver in `NO_DEFORMATION_PLAN.md`.
+
 ## Threshold benchmark campaign completion (2026-10-12)
 
 The user assigned the following active goal. It prioritizes complete physical

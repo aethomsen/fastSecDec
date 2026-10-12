@@ -3,9 +3,11 @@
 
 #let overview-data = json("benchmark-overview-results.json")
 #block(width: 100%, inset: 8pt, fill: rgb("edf4f7"), radius: 3pt)[
-  *Completed measurements and remaining campaign gaps.* The original 44 timed
-  arms and the subsequently accepted extensions retain separate run identities.
-  The no-contour routes marked unsupported or in preparation remain unfinished.
+  *Final campaign scope.* The overview contains 66 measured timed sampler rows
+  across eight topologies, retaining the original 44 arms and separately
+  identified extensions. The user removed double-box no-contour development
+  from scope. Kite no-contour remains not completed; its boundary milestone and
+  substantial remaining work are documented below.
   A dash is an unavailable measurement,
   never a zero. The opening tables use the new finite-coefficient campaign only.
   Historical studies below retain their original points, settings and resources;
@@ -180,7 +182,8 @@ returned zero failures; maximum precision was 384 and 256 bits, respectively.
 The checked clocks retain this overhead, independently of the raw f64 profile.
 
 == Current admission limits
-The bubble, triangle, massless sunrise and massive box now have complete no-contour integration rows. The
+The bubble, triangle, massless sunrise, massive sunrise and massive box have
+complete no-contour integration rows. The
 triangle uses its unchanged native HEPKit graph input, four freshly verified
 source cells, and 18 endpoint charts; its quoted generation time includes the
 complete publication step. Fresh-process loading and separate QMC/MC
@@ -197,19 +200,21 @@ loading and separate 600-second QMC/MC confirmations are measured.
 
 The original frozen benchmark CLI reported “Unsupported” for box and kite
 before invoking GCAD. Those original refusal receipts remain historical. The
-kite still lacks a complete endpoint artifact and no-contour numerical row;
-a later native solve and fresh verification produced 9,840 cells, exposing
-moving nonlinear sections and boundary root collisions that remain unresolved.
+kite still lacks a complete endpoint artifact and no-contour numerical row.
+A later native solve and fresh verification produced 9,840 cells. Selected
+moving-boundary admission now passes, but full interval densities, closed-face
+continuation and whole-atlas coverage remain unfinished.
 These are implementation gaps, not rejected physical integrals or evidence of
 GCAD infeasibility. Geometry-only work is not counted as complete generation.
 The existing native
 HEPKit CLI graph-parametrization route binds the prepared source and input
 fingerprint; it is distinct from the stricter pre-parametrization GraphPoint
 owner API. Surviving inexact geometric coefficients are refused, not rounded.
-Verified double-box geometry and open maps still lack complete endpoint
-continuation for a full no-contour integral. Those rows remain unavailable;
-GCAD-only timings are not used as complete generation measurements. The studies
-below retain their original scope and measurements.
+The user stopped double-box no-contour development after the documented local
+admission result. Those two methods are omitted from the opening overview;
+the subsequent boundary discussion records their atlas, chart counts and
+implementation limits. GCAD-only timings are not complete generation
+measurements. The studies below retain their original scope and measurements.
 
 #set text(size: 8pt)
 *Campaign completion update.* The massive sunrise now has measurements for all
@@ -218,19 +223,14 @@ and physical double boxes now both include measured sign-aware results.
 The bubble now also contains its separate sign-aware confirmation. Previously
 measured entries retain their original values and run identities.
 
-The massive-kite no-contour gap lies in endpoint treatment of the next moving
-algebraic root. Native resultant composition and exact tower reduction now
-reach its boundary-sign checks. An original denominator certifies positive
-where a reduced representative loses independent-box positivity. All nine such
-denominator certificates and all eighteen bracket-endpoint certificates now
-replay; complete chart admission and runtime root evaluation remain under test.
-For the double boxes, the full 644,699-cell geometry is verified. An explicitly
-bounded native fan probe reproduced all 299 proposed replacement maps and
-Jacobians, removing the earlier support-pair allowance as the immediate probe
-blocker. Retained certificate replay and full-atlas endpoint continuation are
-still required. The physical source's 156 exact pi/radical prefactors pass the
-new admission tests, but that alone does not certify the full physical strip.
-These preparation results do not provide full-integral integration times.
+For massive-kite cell 0, all ten replacement boundary charts pass 40 strict
+native 128/256-bit checks. This is a selected fourth boundary over three
+integration directions, not a complete four-dimensional interval density.
+The remaining 9,839 cells and Laurent continuation make completion substantial
+work; it is reported as *Not completed* under the final user scope. The
+double-box scalar diagnostic admitted 307 charts of one original cell, with
+zero compiled kernels or integral estimates. Neither preparation result is
+entered as full-integral generation or integration time.
 
 *Scalar double-box sign-aware extension.* Fresh serial generation with 25 workers
 took 34.15 seconds and 2.03 GB sampled peak RSS, producing 18 kernels and
