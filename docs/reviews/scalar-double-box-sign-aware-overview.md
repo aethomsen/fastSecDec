@@ -45,6 +45,12 @@ is 1.349 combined SE. Source identity and conventions agree even though the
 recipe artifacts differ. This is statistical compatibility, not proof of
 accuracy, and the noisy sign-aware results show no improvement here.
 
+The unchanged native `benchmark_compatibility` example additionally compares
+all six current scalar confirmations using Numerica's exact-rational 2x2
+covariance solve. The maximum descriptive Mahalanobis distance across 15 pairs
+is 2.715; every summed covariance is positive definite and none trigger the
+rounding-sensitive flag. No covariance inflation or calibrated p-value is used.
+
 Review receipt:
 `target/no-deformation-double-box-sign-aware-6647950/scalar-collector-r1/runtime-outcome-review-r1.json`,
 SHA-256 `759ee8391f766fb686463c804a66e401044beae17c4da8c6bc6526cbb8649177`.

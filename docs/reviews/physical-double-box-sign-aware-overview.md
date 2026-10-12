@@ -30,6 +30,15 @@ eight-combined-SE diagnostic, with maximum 2.64241 combined SE. No covariance
 or observations are pooled. This is statistical compatibility of noisy results,
 not proof of accuracy or of a variance advantage.
 
+The coordinator also applied the unchanged native `benchmark_compatibility`
+example to all six current physical confirmations. Numerica's exact-rational
+matrix solve retains each complex covariance, without diagonalization or error
+inflation. Across 30 pair/order comparisons the maximum descriptive Mahalanobis
+distance is 3.778 in the pole coefficient and 2.547 in the finite coefficient.
+All summed covariances are positive definite; none trigger the helper's
+rounding-sensitive flag. These are estimated-covariance diagnostics, not
+calibrated p-values, and the larger pole difference remains recorded.
+
 The compact record is `../physical-double-box-sign-aware-overview.json`.
 It retains exact timings, memory, weights, full covariance, seeds and settings.
 The secondary six-million-per-sector display is only the requested square-root

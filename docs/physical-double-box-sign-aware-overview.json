@@ -472,5 +472,21 @@
     "path": "target/no-deformation-double-box-sign-aware-6647950/physical-collector-r1/runtime-outcome-review-r1.json",
     "sha256": "281c91ab8a4781056f0f8a5b29809bb77d7f237a7eaef3b8ded83eabb7d01e4f",
     "status": "PASS;32 marginal comparisons, maximum2.64241combinedSE; full4component covariance and native norm warnings retained"
+  },
+  "native_joint_comparison": {
+    "receipt": {
+      "path": "target/no-deformation-double-box-sign-aware-6647950/root-joint-review-r1/comparisons.json",
+      "sha256": "0098741744b5f351ad286b6fea70027b78685610ea2f8b9bfbbd78a6d5ae9f3a"
+    },
+    "helper": "crates/fastsecdec/examples/benchmark_compatibility.rs",
+    "arms": 6,
+    "comparisons": 30,
+    "maximum_mahalanobis_by_order": {
+      "-1": 3.7777124918520775,
+      "0": 2.5474508671969924
+    },
+    "rounding_sensitive": 0,
+    "nonpositive_covariances": 0,
+    "interpretation": "Descriptive native Numerica exact-rational2x2 covariance diagnostic. No calibrated p-value, inflated covariance, or accuracy guarantee."
   }
 }
