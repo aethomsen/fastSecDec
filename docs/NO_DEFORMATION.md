@@ -1,16 +1,18 @@
 # Exact graph export and threshold implementation status
 
-This preparation lives on the explicitly authorized `no_deformation` branch.
-For this work, that instruction supersedes the older main-branch publication
-and reviewer guidance in `AGENTS.md`. FastSecDec remains a separate repository;
-consumers may optionally clone this branch and pin a tested commit. No copy of
-FastSecDec is vendored into symGCAD.
+The threshold implementation is consolidated on `main`. The completed
+`no_deformation` branch is retained through its
+[annotated archive tag](BRANCH_ARCHIVE.md). Consumers should use `main` or pin
+a tested commit. FastSecDec remains a separate repository; no copy of it is
+vendored into symGCAD.
 
 The exporter documented here produces exact native graph U/F and provenance.
 Export itself does not perform integration or supply a sign/coverage certificate.
 
-The ongoing native implementation is governed by
-[the approved threshold plan](../NO_DEFORMATION_PLAN.md). Its optional
+The native implementation follows
+[the approved threshold plan](../NO_DEFORMATION_PLAN.md), with the final
+campaign scope and unresolved generalization gaps recorded in
+[FIRST_PHASE_PLAN.md](../FIRST_PHASE_PLAN.md). Its optional
 `threshold-decomposition` library feature now provides caller-driven native
 solve/verify requests, compact projective preparation, causal cell phases,
 composed linear cell maps and durable proof staging. A restricted, certified

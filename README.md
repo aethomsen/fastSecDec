@@ -3,10 +3,12 @@
 Native Rust sector decomposition and numerical integration for Feynman integrals,
 built around HEPKit, Linnet, Symbolica, and Numerica/Havana.
 
-The first phase is under active implementation. The complete design, scientific
-scope, milestone gates, and original requirements are in
-[FIRST_PHASE_PLAN.md](FIRST_PHASE_PLAN.md). The standalone CLI is being developed
-alongside the library. The optional [Python bindings](bindings/python/README.md)
+The native library and standalone CLI include sector decomposition, contour
+deformation and the supported no-contour threshold methods. Development and
+delivery are consolidated on `main`; completed feature branches are preserved
+as [archive tags](docs/BRANCH_ARCHIVE.md). The complete design, scientific scope,
+milestone gates and remaining limitations are recorded in
+[FIRST_PHASE_PLAN.md](FIRST_PHASE_PLAN.md). The optional [Python bindings](bindings/python/README.md)
 live in an isolated FastSecDec crate; HEPKit registers their public module through
 [merged PR #18](https://github.com/symbolica-dev/symbolica-community/pull/18).
 The original [eager notebook bridge update](https://github.com/symbolica-dev/symbolica-community/pull/22)
@@ -48,8 +50,8 @@ cargo run --locked -- run examples/runs/analytic_endpoint.toml --points 4096 --s
 cargo run --locked -- --json inspect examples/runs/double_box.toml --expressions
 ```
 
-The workspace selects upstream Symbolica's `community` source through Cargo,
-and the lockfile records the resolved public dependency identities. See the
+The workspace selects a shared public Symbolica revision through Cargo,
+and the lockfile records the resolved dependency identities. See the
 [development guide](docs/DEVELOPMENT.md) for portable-library and HEPKit
 consumers and the build/runtime validation boundaries.
 
@@ -69,7 +71,7 @@ is a minimum sampling residence in seconds; complete replicas update live
 results throughout the stay. See the [serial execution guide](docs/SERIAL_MODE.md)
 for refinement, recovery, seed partitioning and measured memory bounds.
 
-The `contour_deformation` branch implements the
+Contour deformation on `main` follows the
 [Phase B plan](CONTOUR_DEFORMATION_PLAN.md). Fixed-strength contour generation
 is opt-in with `generate --contour`; use `integrate --contour fixed --lambda 0.1`
 to bind its strength. `--contour-validation off` is the default; opt into `pilot`
@@ -77,9 +79,19 @@ for preflight checks or `always` for preflight and production checks. Stability
 checks and precision rescue remain active with causal validation off. Fixed-strength checks
 are sampled safeguards, not a global certificate. The
 [small threshold controls](examples/contour/README.md) exercise both ordinary
-and serial execution. Dynamic production deformation and the remaining multiloop
-acceptance gates are still in progress; see the
-[acceptance ledger](docs/reviews/contour-phase-b-progress.md).
+and serial execution. Polynomial and sign-aware dynamic strengths retain the
+complete position-dependent Jacobian. Their scalar and physical double-box
+measurements, tuning and scientific limitations are in the
+[benchmark report](docs/benchmark.pdf).
+
+The native CLI also exposes `generate --threshold-decomposition` for supported
+real-domain no-contour recipes. Complete bubble, triangle, box and sunrise
+examples are documented in the [threshold guide](examples/no_deformation/README.md).
+The general algebraic endpoint resolver remains incomplete: the massive kite
+and the two double-box variants do not have complete no-contour integration
+artifacts. Verified geometry alone does not establish an executable integral;
+see the report's support-limit chapter. Threshold decomposition in WASM is
+outside the completed campaign.
 
 Native HEPKit master and reduction comparisons now cover twelve scalar and
 eight numerator points, including rank five and a zero Gram determinant. An

@@ -1,5 +1,19 @@
 # FastSecDec first-phase implementation plan
 
+## Main-branch consolidation (2026-10-12)
+
+The user requested consolidation of all completed feature-branch work into
+`main` and archival of the integrated branches. `main` is now the development
+and delivery branch, superseding the earlier feature-branch instructions below.
+Preserve the approved plans as historical scope records. Annotated archive tags
+retain the final `contour_deformation` and `no_deformation` branch tips; their
+commit identities and restoration instructions are in
+[docs/BRANCH_ARCHIVE.md](docs/BRANCH_ARCHIVE.md).
+
+This repository consolidation does not restart the completed benchmark campaign
+or claim completion of the general algebraic resolver. Its remaining limitations
+and the final narrowed benchmark scope remain unchanged.
+
 ## Final benchmark scope and stopping point (2026-10-12)
 
 The latest user instruction supersedes the double-box no-contour and mandatory
