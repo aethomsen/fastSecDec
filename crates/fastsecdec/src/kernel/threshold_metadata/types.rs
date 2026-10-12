@@ -44,6 +44,28 @@ pub enum SourceExtent {
         selection: SourceSectorSelection,
         ordinary_geometry: Digest,
     },
+    /// An explicitly selected subset of original GCAD cells. This is distinct
+    /// from ordinary-sector selection and remains partial even if all cells
+    /// were listed. Earlier readers reject this additive versioned tag.
+    SelectedOriginalCellsV1 { selection: OriginalCellSelectionV1 },
+}
+
+/// Arithmetic provenance for an issued original-cell selection. Deserializing
+/// this inventory does not restore the live geometric proof authority.
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct OriginalCellSelectionV1 {
+    pub source: Digest,
+    pub original_request_record: Digest,
+    pub original_raw_evidence: Digest,
+    pub quotient_request_record: Digest,
+    pub quotient_raw_evidence: Digest,
+    /// Positive-projective anchor, source maps and original/quotient evidence.
+    pub quotient: Digest,
+    pub original_cell_count: usize,
+    pub cells: Vec<usize>,
+    /// Complete replacement-tree coverage of precisely these selected cells.
+    pub coverage: Digest,
 }
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]

@@ -47,6 +47,7 @@ pub(super) fn catalogue_facts(
             match &summary.source_extent {
                 SourceExtent::Full { .. } => "Full input",
                 SourceExtent::Selected { .. } => "Selected sources",
+                SourceExtent::SelectedOriginalCellsV1 { .. } => "Selected original cells (partial)",
             }
             .into(),
         ],

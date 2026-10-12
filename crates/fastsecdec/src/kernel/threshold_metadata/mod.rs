@@ -3,6 +3,7 @@
 //! These types intentionally depend on neither symGCAD nor the optional
 //! generation module. A later native completion factory owns proof admission.
 mod records;
+mod selected_cells;
 mod serde_wire;
 mod types;
 mod validate;

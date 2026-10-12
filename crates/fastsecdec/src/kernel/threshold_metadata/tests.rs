@@ -1,5 +1,7 @@
 use super::*;
 
+mod selected_cells;
+
 fn digest(n: u8) -> Digest {
     Digest(format!("{n:064x}"))
 }

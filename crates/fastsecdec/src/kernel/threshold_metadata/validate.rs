@@ -384,6 +384,11 @@ impl LineageManifestV1 {
         }
 
         let expected_sources = match (&p.extent, p.strategy) {
+            (SourceExtent::SelectedOriginalCellsV1 { selection }, ResolvedStrategy::GcadFirst) => {
+                budget.refs(selection.cells.len())?;
+                selection.validate()?;
+                BTreeSet::from([None])
+            }
             (
                 SourceExtent::Full {
                     ordinary_geometry: None,
@@ -504,6 +509,9 @@ impl LineageManifestV1 {
                 return Err(invalid("cell coordinate permutation differs from patch"));
             }
             cells.insert(cell.id, cell);
+        }
+        if let SourceExtent::SelectedOriginalCellsV1 { selection } = &p.extent {
+            selection.validate_manifest(self)?;
         }
         ordered(
             &self

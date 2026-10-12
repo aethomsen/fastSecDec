@@ -5155,3 +5155,14 @@ controls pass. Shared consuming gates are recorded in the linked review.
 This milestone admits constant first boundaries of arbitrary supported degree.
 Later algebraic prefixes, complete closed-face resolution and full double-box
 integration are separate gates; unsupported endpoint transport remains explicit.
+
+## Original-cell selection provenance (2026-10-12)
+
+The [selected-cell scope review](reviews/no-deformation-selected-cell-scope.md)
+records the additive native extent used for partial original GCAD cells. It
+reuses native source identity, lineage records, catalogue serialization and
+result-scope canonicalization. No graph or algebra helper is required. Existing
+HEPKit execution retains the native partial qualification; a missing direct
+read-only Python scope/lineage view is assigned as a separate binding follow-up.
+Nineteen metadata tests, strict core/CLI Clippy and the portable-feature build
+pass. Actual producer/cold-archive acceptance remains part of the compiler bridge.

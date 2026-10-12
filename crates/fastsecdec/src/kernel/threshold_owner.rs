@@ -721,8 +721,14 @@ impl ThresholdResultScope {
         &self.selection
     }
     pub(crate) fn validate(&self) -> Result<(), KernelError> {
-        if let m::SourceExtent::Selected { selection, .. } = &self.source_extent {
-            selection.validate().map_err(invalid)?;
+        match &self.source_extent {
+            m::SourceExtent::Selected { selection, .. } => {
+                selection.validate().map_err(invalid)?;
+            }
+            m::SourceExtent::SelectedOriginalCellsV1 { selection } => {
+                selection.validate().map_err(invalid)?;
+            }
+            m::SourceExtent::Full { .. } => {}
         }
         Ok(())
     }
