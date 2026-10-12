@@ -16,6 +16,7 @@ pub struct RetainedMargin {
     roles: Vec<Symbol>,
     constraints: Vec<String>,
     margin: Rational,
+    scale: Rational,
     bytes: Arc<[u8]>,
     certificate: DomainCertificate,
 }
@@ -55,9 +56,29 @@ impl RetainedMargin {
             roles,
             constraints,
             margin,
+            scale: Rational::one(),
             bytes,
             certificate,
         })
+    }
+    /// Propose an exact positive QQ normalization, without changing the original
+    /// certificate, domain, margin or bytes. Admission checks Q = scale * P in
+    /// the genuine chart frame and replays P - original_margin unchanged.
+    /// Rational resource limits are enforced when the proposal is consumed.
+    pub fn with_positive_scale(mut self, scale: Rational) -> Result<Self> {
+        if scale <= 0 {
+            return Err(Error::Invalid(
+                "retained normalization scale must be positive".into(),
+            ));
+        }
+        self.scale = scale;
+        Ok(self)
+    }
+    /// Exact multiplier between the original positive polynomial and the actual
+    /// chart obligation. The issued MarginProof retains the actual polynomial
+    /// and margin; `margin()` below retains the original certificate margin.
+    pub fn scale(&self) -> &Rational {
+        &self.scale
     }
     pub fn original_bytes(&self) -> &[u8] {
         &self.bytes
@@ -78,6 +99,12 @@ impl RetainedMargin {
     pub(super) fn replay(&self, target: &Atom, actual: &ProofBox, b: &Budget) -> Result<()> {
         b.check()?;
         b.rational(&self.margin)?;
+        b.rational(&self.scale)?;
+        if self.scale <= 0 {
+            return Err(Error::Invalid(
+                "retained normalization scale must be positive".into(),
+            ));
+        }
         if self.certificate.sign != 1
             || self.certificate.domain.empty
             || !self.certificate.domain.excluded_sign_constraints.is_empty()
@@ -96,7 +123,15 @@ impl RetainedMargin {
         let polynomial = ring.polynomial(target, b)?;
         // Bound conversion before native replay reparses the saved target. This
         // equality is exact QQ equality, not a digest or string comparison.
-        if polynomial != self.original_polynomial(&ring, &self.certificate.polynomial, b)? {
+        let original = self.original_polynomial(&ring, &self.certificate.polynomial, b)?;
+        let scaled = original.clone().mul_coeff(self.scale.clone());
+        for coefficient in &scaled.coefficients {
+            b.check()?;
+            b.rational(coefficient)?;
+        }
+        // target is Q - scale*m; comparing it to scale*(P-m) establishes
+        // Q=scale*P exactly, with the original native proof still proving P-m.
+        if polynomial != scaled {
             return Err(Error::Invalid(
                 "retained native target differs from chart obligation".into(),
             ));
@@ -159,7 +194,7 @@ impl RetainedMargin {
         b.check()?;
         verify_certificate(
             &ring.native,
-            &polynomial,
+            &original,
             &constraints,
             &[],
             &self.certificate,
@@ -213,9 +248,14 @@ impl ProofBox {
         candidate: Arc<RetainedMargin>,
         b: &Budget,
     ) -> Result<MarginProof> {
+        b.check()?;
+        b.rational(&candidate.scale)?;
+        b.rational(&candidate.margin)?;
+        let margin = &candidate.scale * &candidate.margin;
+        b.rational(&margin)?;
         let proof = MarginProof {
             polynomial: polynomial.clone(),
-            margin: candidate.margin.clone(),
+            margin,
             evidence: MarginEvidence::Retained(candidate),
         };
         proof.replay(self, b)?;

@@ -5089,3 +5089,15 @@ diagnostic tests ignored, alongside strict all-target core Clippy and formatting
 The broader candidate that regressed work budgets was withdrawn before this
 narrower change. General collision/tower resolution and full double-box
 endpoint admission remain outstanding.
+
+## Exact scaling of retained native margins (2026-10-12)
+
+The [retained-margin scaling review](reviews/no-deformation-retained-margin-scale.md)
+records exact positive rational normalization between a saved polynomial and
+the actual source-bound chart obligation. Symbolica coefficient operations and
+native equality check that relation; symGCAD replays the original certificate
+unchanged. Source roles, closed-domain containment, resource limits and the
+original proof bytes remain mandatory. No parallel algebra or proof format was
+introduced. Independent reviews, 47 shared endpoint-transport tests, strict
+all-target core Clippy and formatting pass. Complete double-box admission and
+continuation remain separate outstanding work.
