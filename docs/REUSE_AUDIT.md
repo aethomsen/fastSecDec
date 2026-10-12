@@ -4788,8 +4788,9 @@ parametrization, retaining its input provenance. It does not claim to invoke
 the separate strict pre-parametric `GraphPoint` owner. The saved triangle
 artifact integrates in a fresh process with complete 18-sector production
 coverage and agrees with the existing native OneLOop reference, including its
-vanishing pole. Moving algebraic bounds, higher-dimensional projective inputs,
-and the complete double-box atlas remain separate uncompleted work.
+vanishing pole. At this milestone, moving algebraic bounds, higher-dimensional
+projective inputs and the complete double-box atlas remained separate work;
+the subsequent dimension-general milestone is recorded below.
 
 ## Closed residual-factor margin discovery (2026-10-12)
 
@@ -4800,3 +4801,53 @@ closed-domain sign certificate and replay remain the only algebra/proof engines.
 Six factor and two closed-chart tests pass, with an independent scientific and
 ecosystem-reuse review. Actual double-box residuals establish why the earlier
 fixed trial could miss valid factors; this does not certify the full atlas.
+
+## Trivial algebraic-context conversion (2026-10-12)
+
+The [sunrise review](reviews/no-deformation-scalar-sunrise.md) traces its original
+generation failure to a native algebraic context retaining zero as its preferred
+generator. Reconstructing a new rational coefficient then formed `0^0` rather
+than the degree-zero coefficient. FastSecDec uses the existing native
+`to_expression()` for trivial rational fields. That frozen sunrise acceptance
+binary retained contextual conversion for selected algebraic branches. The
+subsequent conversion below avoids its unnecessary coefficient simplification.
+Neither path implements a coefficient converter.
+
+The same regression fails on upstream Symbolica `community` at
+`f4e787074d45f1dddd0b9646a5ebc85690deb2d1`. The narrow owner fix in
+[Symbolica PR 74](https://github.com/symbolica-dev/symbolica/pull/74) preserves
+degree-zero coefficients directly; all 30 algebraic tests pass afterwards.
+That PR was developed in an isolated worktree. The dependency revision used by
+FastSecDec and the frozen benchmark executables is unchanged. Native CLI
+generation, fresh-process artifact loading and all Laurent coefficients of the
+six-chart sunrise control pass against the existing analytic reference.
+
+## Dimension-general projective maps and coefficient reuse (2026-10-12)
+
+The [independent route audit](reviews/no-deformation-generic-projective-route-audit.md)
+records the checked extension from two coordinates to arbitrary finite dimension
+within the existing constant-first/rational-linear-prefix class. Every native
+linear bound receives the full previously issued coordinate prefix. Native
+Symbolica matrices calculate the fan determinant; the coordinate permutation,
+half-cube reflection and measure are composed once. No graph, CAS, derivative or
+serializer implementation was added. Existing version-3 configuration remains
+two-dimensional; version 4 identifies the higher-dimensional route.
+
+Actual box coefficient probes exposed repeated number-field simplification in
+contextual expression conversion. The native public
+`to_expression_with_coeff_map` and `AlgebraicExtension::element_to_atom` preserve
+the selected coefficient field and embedding without this simplification.
+Public API inspection, native source and exact round-trip probes support that
+choice. Admission checks the polynomial's field and variable map, and refuses
+chart coordinates colliding with either the stored field generator or the
+native canonical root-polynomial variable. Independent source review and a
+genuine source-owner collision regression cover the latter distinction.
+
+All five projective owner tests and 24 generation/recovery/publication tests
+pass (two child-process entry tests are intentionally ignored by the parent
+runner). They include six three-dimensional box cells, every half-cube mask,
+the signed Jacobian, complete complex density at nonzero regulator and selective
+artifact restoration. Strict feature-enabled core/CLI all-target Clippy, the
+default native library check and formatting also pass. Actual CLI box generation
+and its numerical comparison remain separate gates; moving nonlinear sections,
+the general endpoint resolver and the complete double-box atlas remain open.

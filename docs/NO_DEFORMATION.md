@@ -19,12 +19,18 @@ above-threshold bubble comparison with OneLOop. The corresponding CLI path now
 supports fixed one-dimensional rational cells, indexed artifacts, ordinary and
 serial execution, and recovery. A bounded automatic route also supports regular
 algebraic families on the unit cube, as detailed below.
-Fixed two-dimensional affine-projective inputs now also have a
-[resolved-family route](reviews/no-deformation-resolved-projective-family.md):
-constant algebraic bounds on the first CAD axis, rational linear bounds on the
-second, and independently replayed residual margins on every closed chart.
+Fixed affine-projective inputs with at least two integration coordinates also
+have a [resolved-family route](reviews/no-deformation-resolved-projective-family.md):
+constant algebraic bounds on the first CAD axis, rational linear bounds on every
+later axis, and independently replayed residual margins on every closed chart.
+The [dimension-general route audit](reviews/no-deformation-generic-projective-route-audit.md)
+covers the complete triangular prefix, every half-cube and orientation.
 The original massive-triangle graph card generates 18 kernels and its saved
 artifact's full Laurent vector agrees with OneLOop in a native QMC control.
+The [massless sunrise](reviews/no-deformation-scalar-sunrise.md) generates six
+kernels and agrees with its analytic Laurent vector, including its imaginary
+finite part. Three-dimensional box geometry and native artifact publication
+tests pass; the actual graph-card box benchmark remains a separate gate.
 This is a sufficient class, not the general algebraic endpoint resolver.
 The [runnable examples](../examples/no_deformation/README.md)
 and [CLI review](reviews/no-deformation-cli.md) describe that supported subset.
@@ -33,7 +39,7 @@ Explicit single-chamber runtime templates now reach the CLI, including normal
 and serial generation/integration, point rebinding and checkpoint identity checks;
 see the [parameterized examples](../examples/no_deformation/parameter_templates/README.md).
 The general endpoint resolver, broader parametric chambers, complete HEPKit
-generation interface and higher-dimensional physics suite remain under development. A
+generation interface and broader physical suite remain under development. A
 verified GCAD result alone is not an executable integral. See the
 [reuse and acceptance ledger](REUSE_AUDIT.md#no-contour-foundation-and-consolidation-2026-10-10).
 

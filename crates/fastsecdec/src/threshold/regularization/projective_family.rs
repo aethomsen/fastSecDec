@@ -1,7 +1,7 @@
-//! Complete finite two-dimensional projective cell families.
+//! Complete finite triangular projective cell families.
 //!
 //! The sufficient class has constant algebraic first-axis bounds and rational
-//! linear last-axis bounds. Native algebraic fields preserve selected constants;
+//! linear later-axis bounds. Native algebraic fields preserve selected constants;
 //! native cube fans and replayed closed-box margins resolve every chart face.
 mod algebra;
 mod continuation;

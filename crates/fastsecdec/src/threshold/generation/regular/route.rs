@@ -25,7 +25,7 @@ fn classify(options: &PreparationOptions, request: &gcad::GcadRequest) -> Result
     if parameters.is_empty() {
         return match request.domain().origin() {
             DomainOrigin::NativeUnitCube => Ok(Route::FixedCube),
-            DomainOrigin::AffineProjective { .. } if n == 2 => Ok(Route::ResolvedProjective),
+            DomainOrigin::AffineProjective { .. } if n >= 2 => Ok(Route::ResolvedProjective),
             _ => Err(Error::Unsupported(
                 "fixed regular preparation requires a native cube or a supported resolved projective family",
             )),

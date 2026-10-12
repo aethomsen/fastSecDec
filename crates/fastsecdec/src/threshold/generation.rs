@@ -375,7 +375,7 @@ fn finish<F: FnMut(&Progress) -> ControlFlow<()>>(
             owner.request().domain().origin(),
             gcad::DomainOrigin::AffineProjective { .. }
         )
-        && integration_dimensions == 2
+        && integration_dimensions >= 2
         && owner.request().kinematics().runtime_parameters.is_empty()
     {
         let mut limits = regularization::projective_family::Limits {

@@ -60,14 +60,25 @@ pub(super) fn admit(
     let prepared = request
         .projective_preparation()
         .ok_or_else(|| unsupported("original affine-projective request required"))?;
+    let dimensions = prepared.coordinates().len();
     if !request.kinematics().runtime_parameters.is_empty()
-        || prepared.coordinates().len() != 2
-        || coordinates.len() != 2
-        || coordinates.iter().collect::<BTreeSet<_>>().len() != 2
+        || dimensions < 2
+        || coordinates.len() != dimensions
+        || coordinates.iter().collect::<BTreeSet<_>>().len() != dimensions
         || owner.cells().len() == 0
     {
         return Err(unsupported(
-            "nonempty fixed two-dimensional projective cell family required",
+            "nonempty fixed projective cell family with distinct chart coordinates required",
+        ));
+    }
+    let minimum_charts = u32::try_from(dimensions)
+        .ok()
+        .and_then(|n| 1usize.checked_shl(n))
+        .and_then(|halves| halves.checked_mul(owner.cells().len()))
+        .ok_or_else(|| Error::ResourceIncomplete("projective half-cube count overflow".into()))?;
+    if minimum_charts > limits.max_charts {
+        return Err(Error::ResourceIncomplete(
+            "complete projective half-cube allowance".into(),
         ));
     }
     let mut w = Work {

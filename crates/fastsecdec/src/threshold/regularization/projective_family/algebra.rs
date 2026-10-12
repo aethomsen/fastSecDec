@@ -41,6 +41,11 @@ impl Field {
         primitive: Symbol,
         w: &Work<'_>,
     ) -> Result<Self> {
+        if symbols.contains(&symbolica::transcendental::root_var()) {
+            return Err(invalid(
+                "chart role collides with native root polynomial variable",
+            ));
+        }
         let mut context = AlgebraicContext::new(AlgebraicExtension::trivial(Q));
         for a in constants {
             w.atom(a)?;
@@ -50,6 +55,23 @@ impl Field {
                     "constant number-field degree".into(),
                 ));
             }
+        }
+        let variables = Arc::new(
+            symbols
+                .iter()
+                .copied()
+                .map(PolyVariable::from)
+                .collect::<Vec<_>>(),
+        );
+        if !context.is_trivial()
+            && context
+                .field()
+                .poly()
+                .get_vars_ref()
+                .iter()
+                .any(|variable| variables.contains(variable))
+        {
+            return Err(invalid("chart role collides with native field generator"));
         }
         let interval = if context.is_trivial() {
             [Rational::zero(), Rational::one()]
@@ -79,7 +101,7 @@ impl Field {
         };
         Ok(Self {
             context,
-            variables: Arc::new(symbols.iter().copied().map(PolyVariable::from).collect()),
+            variables,
             symbols: symbols.to_vec(),
             primitive,
             interval,
@@ -130,7 +152,24 @@ impl Field {
         Ok(q)
     }
     pub(super) fn expression(&self, p: &Polynomial) -> Result<Atom> {
-        p.to_expression_with_context(&self.context).map_err(native)
+        if p.variables() != &self.variables || p.ring() != self.context.field() {
+            return Err(invalid(
+                "polynomial uses a different selected coefficient field",
+            ));
+        }
+        if self.context.is_trivial() {
+            // The rational field has no selected primitive to preserve. Its
+            // native coefficient converter also avoids treating cached zero as
+            // a preferred generator and forming 0^0 for new rational terms.
+            Ok(p.to_expression())
+        } else {
+            // Retain the native primitive and its selected embedding. Contextual
+            // conversion may simplify each uncached coefficient into a new
+            // number field, an unnecessary cost for exact map pullbacks.
+            Ok(p.to_expression_with_coeff_map(|ring, coefficient, out| {
+                *out = ring.element_to_atom(coefficient);
+            }))
+        }
     }
     pub(super) fn support(p: &Polynomial) -> Result<fastsecdec_sectors::PolynomialSupport> {
         fastsecdec_sectors::PolynomialSupport::new(

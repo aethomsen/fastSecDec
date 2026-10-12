@@ -28,7 +28,10 @@ fn constant(
     let p = native_ring
         .parse(&raw.polynomials[bound.polynomial])
         .map_err(native)?;
-    if p.degree(0) == 0 || p.degree(1) != 0 || p.degree(0) as usize > w.limits.max_field_degree {
+    if p.degree(0) == 0
+        || (1..raw.order.len()).any(|i| p.degree(i) != 0)
+        || p.degree(0) as usize > w.limits.max_field_degree
+    {
         return Err(unsupported("constant first-axis algebraic bound required"));
     }
     let mut roots = p.to_univariate_from_univariate(0).isolate_real_roots();
@@ -88,34 +91,72 @@ pub(super) fn build_cell(
         sections.extend(s);
     }
     let mut field = Field::new(&constants, coordinates, primitive, w)?;
-    let first = &constants[0] + (&constants[1] - &constants[0]) * Atom::var(coordinates[0]);
-    let last = source.linear_axes(1..2).map_err(native)?;
-    let axis = &last[0];
-    let lower = pull(
-        axis.lower()
-            .ok_or_else(|| unsupported("finite final lower bound"))?,
-        &[source.axes()[0].symbol()],
-        std::slice::from_ref(&first),
-    );
-    let upper = pull(
-        axis.upper()
-            .ok_or_else(|| unsupported("finite final upper bound"))?,
-        &[source.axes()[0].symbol()],
-        std::slice::from_ref(&first),
-    );
-    let width = &upper - &lower;
-    let second = &lower + &width * Atom::var(coordinates[1]);
-    let measure = (&constants[1] - &constants[0]) * width;
+    let dimensions = coordinates.len();
+    let native_dimensions = u32::try_from(dimensions)
+        .map_err(|_| Error::ResourceIncomplete("half-cube dimension allowance".into()))?;
+    let half_count = 1usize
+        .checked_shl(native_dimensions)
+        .ok_or_else(|| Error::ResourceIncomplete("half-cube count overflow".into()))?;
+    if half_count > w.limits.max_charts {
+        return Err(Error::ResourceIncomplete(
+            "resolved half-cube allowance".into(),
+        ));
+    }
+    let source_roles = source.axes().iter().map(|a| a.symbol()).collect::<Vec<_>>();
     let prepared = owner.request().domain().coordinates();
-    let images = prepared
+    if dimensions == 0 || source_roles.len() != dimensions || prepared.len() != dimensions {
+        return Err(invalid("triangular source dimension association"));
+    }
+    let source_order = prepared
         .iter()
         .map(|s| {
-            if *s == source.axes()[0].symbol() {
-                first.clone()
-            } else {
-                second.clone()
-            }
+            source_roles
+                .iter()
+                .position(|a| a == s)
+                .ok_or_else(|| invalid("prepared coordinate missing from CAD order"))
         })
+        .collect::<Result<Vec<_>>>()?;
+    let mut permutation = 1i8;
+    for (i, a) in source_order.iter().enumerate() {
+        for b in &source_order[i + 1..] {
+            if a > b {
+                permutation = -permutation;
+            }
+        }
+    }
+    let first_width = &constants[1] - &constants[0];
+    let mut cad_images = vec![&constants[0] + &first_width * Atom::var(coordinates[0])];
+    let mut measure = first_width;
+    // Each native linear root is a function of the complete original prefix.
+    // Substitute all already-issued images, retaining triangular dependence.
+    for (axis_index, axis) in source
+        .linear_axes(1..dimensions)
+        .map_err(native)?
+        .iter()
+        .enumerate()
+    {
+        let axis_index = axis_index + 1;
+        let lower = pull(
+            axis.lower()
+                .ok_or_else(|| unsupported("finite later lower bound"))?,
+            &source_roles[..axis_index],
+            &cad_images,
+        );
+        let upper = pull(
+            axis.upper()
+                .ok_or_else(|| unsupported("finite later upper bound"))?,
+            &source_roles[..axis_index],
+            &cad_images,
+        );
+        let width = &upper - &lower;
+        cad_images.push(&lower + &width * Atom::var(coordinates[axis_index]));
+        measure *= width;
+        w.atom(cad_images.last().expect("new triangular image"))?;
+        w.atom(&measure)?;
+    }
+    let images = source_order
+        .iter()
+        .map(|i| cad_images[*i].clone())
         .collect::<Vec<_>>();
     let mut base_inputs = inputs
         .iter()
@@ -141,28 +182,30 @@ pub(super) fn build_cell(
         .iter()
         .map(|a| Atom::var(a.symbol()))
         .collect::<Vec<_>>();
-    for (i, bound) in [
-        &source.native_axes()[1].lower,
-        &source.native_axes()[1].upper,
-    ]
-    .into_iter()
-    .enumerate()
-    {
-        let p = ring
-            .parse(&raw.polynomials[bound.as_ref().expect("finite lowered bound").polynomial])
-            .map_err(native)?;
-        let cs = p.to_univariate_polynomial_list(1);
-        let leading = &cs
-            .iter()
-            .find(|(_, d)| *d == 1)
-            .ok_or_else(|| invalid("linear leading coefficient"))?
-            .0;
-        let original = pull(&leading.to_expression(), &aliases, &source_symbols);
-        base_inputs.push((
-            FactorOrigin::BoundDenominator(i),
-            original.clone(),
-            pull(&original, prepared, &images),
-        ));
+    for axis in 1..dimensions {
+        for (side, bound) in [
+            &source.native_axes()[axis].lower,
+            &source.native_axes()[axis].upper,
+        ]
+        .into_iter()
+        .enumerate()
+        {
+            let p = ring
+                .parse(&raw.polynomials[bound.as_ref().expect("finite lowered bound").polynomial])
+                .map_err(native)?;
+            let cs = p.to_univariate_polynomial_list(axis);
+            let leading = &cs
+                .iter()
+                .find(|(_, d)| *d == 1)
+                .ok_or_else(|| invalid("linear leading coefficient"))?
+                .0;
+            let original = pull(&leading.to_expression(), &aliases, &source_symbols);
+            base_inputs.push((
+                FactorOrigin::BoundDenominator(2 * (axis - 1) + side),
+                original.clone(),
+                pull(&original, prepared, &images),
+            ));
+        }
     }
     base_inputs.push((FactorOrigin::Measure, measure.clone(), measure.clone()));
     // Source-coordinate images must extend smoothly, even when that coordinate
@@ -179,7 +222,7 @@ pub(super) fn build_cell(
         field.unit(&r.denominator, w)?;
     }
     let mut pending = Vec::new();
-    for half in 0..4 {
+    for half in 0..half_count {
         w.emit(Progress::Half { cell, half })?;
         let half_images = coordinates
             .iter()
@@ -262,7 +305,7 @@ pub(super) fn build_cell(
                 .collect::<Vec<_>>();
             let final_measure = pull(&measure, coordinates, &composed_half)
                 * native_map.measure_jacobian()
-                / Atom::num(4);
+                / Atom::num(half_count as u64);
             // The measure ledger includes fan determinant/powers and the half
             // Jacobian exactly once, rather than folding them into factor rows.
             let ratio = field.ratio(&final_measure, w)?;
@@ -297,18 +340,13 @@ pub(super) fn build_cell(
                     .cloned()
                     .map(Rational::from)
                     .collect(),
-                2,
-                2,
+                native_dimensions,
+                native_dimensions,
                 Q,
             )
             .map_err(native)?
             .det()
             .map_err(native)?;
-            let permutation = if source.axes()[0].symbol() == prepared[0] {
-                1i8
-            } else {
-                -1i8
-            };
             let reflection = if half.count_ones() % 2 == 0 {
                 1i8
             } else {
