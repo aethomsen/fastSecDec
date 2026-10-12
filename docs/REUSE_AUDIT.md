@@ -1,5 +1,16 @@
 # Ecosystem reuse evidence
 
+## Exact physical prefactor constants (2026-10-12)
+
+The [constant-prefactor review](reviews/no-deformation-constant-prefactors.md)
+records native AtomField polynomial conversion, exact evaluator coefficients,
+ComplexBall arithmetic and directed real square roots. Original Atoms, Gamma
+factors and source indices survive admission; certified balls establish
+definedness without replacing exact coefficients. Six new controls and the
+actual 156 physical ggHH prefactors pass independent scientific/API review.
+There is no new CAS, arithmetic implementation, serialized schema or Python
+logic. Full physical endpoint coverage remains a separate obligation.
+
 ## Benchmark covariance and presentation (2026-10-11)
 
 The [campaign review](reviews/benchmark-overview-campaign.md) records a native

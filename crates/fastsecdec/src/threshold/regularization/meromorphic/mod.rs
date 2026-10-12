@@ -1,5 +1,7 @@
-//! Ignored first meromorphic prefactor certificate. No auxiliary removal.
+//! Exact meromorphic prefactor admission and a shared regular witness.
+pub mod constant;
 mod rational;
+pub use constant::{ConstantCoefficientLimits, ConstantPolynomialPrefactor};
 pub(crate) use rational::preflight_expression;
 pub use rational::{Error, Limits, RationalPrefactor, SharedWitness};
 use std::ops::ControlFlow;
@@ -100,10 +102,31 @@ impl GammaPower {
         Ok(Some(distance / self.slope.abs()))
     }
 }
+/// Exact residual classes. Constant-polynomial balls certify definedness only;
+/// the original coefficient Atoms remain the arithmetic source.
+#[derive(Clone, Debug)]
+pub enum PrefactorResidual {
+    Rational(RationalPrefactor),
+    ConstantPolynomial(ConstantPolynomialPrefactor),
+}
+impl PrefactorResidual {
+    pub fn original(&self) -> &Atom {
+        match self {
+            Self::Rational(p) => p.original(),
+            Self::ConstantPolynomial(p) => p.original(),
+        }
+    }
+    pub fn regulator(&self) -> Symbol {
+        match self {
+            Self::Rational(p) => p.regulator(),
+            Self::ConstantPolynomial(p) => p.regulator(),
+        }
+    }
+}
 #[derive(Clone, Debug)]
 pub struct MeromorphicPrefactor {
     original: Atom,
-    rational: RationalPrefactor,
+    residual: PrefactorResidual,
     gamma: Vec<GammaPower>,
     scales: Vec<PositiveScale>,
 }
@@ -111,8 +134,14 @@ impl MeromorphicPrefactor {
     pub fn original(&self) -> &Atom {
         &self.original
     }
-    pub fn rational(&self) -> &RationalPrefactor {
-        &self.rational
+    pub fn residual(&self) -> &PrefactorResidual {
+        &self.residual
+    }
+    pub fn rational(&self) -> Option<&RationalPrefactor> {
+        match &self.residual {
+            PrefactorResidual::Rational(p) => Some(p),
+            PrefactorResidual::ConstantPolynomial(_) => None,
+        }
     }
     pub fn gamma_factors(&self) -> &[GammaPower] {
         &self.gamma
@@ -121,6 +150,21 @@ impl MeromorphicPrefactor {
         &self.scales
     }
     pub fn admit(original: Atom, regulator: Symbol, limits: Limits) -> Result<Self> {
+        Self::admit_with_constants(
+            original,
+            regulator,
+            limits,
+            ConstantCoefficientLimits::default(),
+        )
+    }
+    /// Native-only constant proof resources. Persisted common Limits are unchanged.
+    pub fn admit_with_constants(
+        original: Atom,
+        regulator: Symbol,
+        limits: Limits,
+        constants: ConstantCoefficientLimits,
+    ) -> Result<Self> {
+        constants.validate()?;
         if limits.integer_power < 0 {
             return Err(Error::Invalid("negative prefactor power limit"));
         }
@@ -226,13 +270,19 @@ impl MeromorphicPrefactor {
                 power,
             });
         }
-        let rational = RationalPrefactor::admit(rational, regulator, limits)?;
+        let residual = match RationalPrefactor::admit(rational.clone(), regulator, limits) {
+            Ok(p) => PrefactorResidual::Rational(p),
+            Err(Error::Unsupported(_)) => PrefactorResidual::ConstantPolynomial(
+                ConstantPolynomialPrefactor::admit(rational, regulator, limits, constants)?,
+            ),
+            Err(e) => return Err(e),
+        };
         // Atom normalization already owns the product identity. Retain every
         // original Gamma atom and exponent; never replace it with a value at
         // the witness or remove an apparent pole in isolation.
         Ok(Self {
             original,
-            rational,
+            residual,
             gamma,
             scales,
         })
@@ -264,6 +314,7 @@ impl GammaWitness {
 pub struct MeromorphicWitness {
     prefactors: Vec<MeromorphicPrefactor>,
     rational: SharedWitness,
+    rational_term_indices: Vec<usize>,
     gamma: Vec<GammaWitness>,
 }
 impl MeromorphicWitness {
@@ -272,6 +323,10 @@ impl MeromorphicWitness {
     }
     pub fn rational_witness(&self) -> &SharedWitness {
         &self.rational
+    }
+    /// Original term indices for the actual rational subset in rational_witness.
+    pub fn rational_term_indices(&self) -> &[usize] {
+        &self.rational_term_indices
     }
     pub fn gamma_witnesses(&self) -> &[GammaWitness] {
         &self.gamma
@@ -283,6 +338,17 @@ impl MeromorphicWitness {
         limits: Limits,
         observer: impl FnMut(usize) -> ControlFlow<()>,
     ) -> Result<Self> {
+        if prefactors
+            .windows(2)
+            .any(|pair| pair[0].residual.regulator() != pair[1].residual.regulator())
+        {
+            return Err(Error::Invalid("prefactor regulator mismatch"));
+        }
+        let rational_term_indices = prefactors
+            .iter()
+            .enumerate()
+            .filter_map(|(i, p)| p.rational().map(|_| i))
+            .collect::<Vec<_>>();
         let (a, b) = rational::inner_interval(lower, upper)?;
         let mut excluded = 0usize;
         for gamma in prefactors.iter().flat_map(|p| &p.gamma) {
@@ -293,7 +359,7 @@ impl MeromorphicWitness {
         let rational = SharedWitness::construct_with(
             &prefactors
                 .iter()
-                .map(|p| p.rational.clone())
+                .filter_map(|p| p.rational().cloned())
                 .collect::<Vec<_>>(),
             lower,
             upper,
@@ -321,6 +387,7 @@ impl MeromorphicWitness {
         Ok(Self {
             prefactors,
             rational,
+            rational_term_indices,
             gamma,
         })
     }
