@@ -4878,3 +4878,23 @@ full covariance and numerical rescues. The source physics is unchanged; the new
 example card exposes an existing solver variable-order choice. This acceptance
 is separate from the ten-minute benchmark and from the still-open moving-root
 endpoint and double-box gates.
+
+## Explicit five-hour generation and certificate budgets (2026-10-12)
+
+The [resource-budget review](reviews/no-deformation-generation-budgets.md)
+records two narrow symGCAD owner improvements: the explicit solve-time ceiling
+now admits five hours, and caller-selected Bernstein certificates can admit
+the actual 793,152-coefficient double-box residual. Defaults remain unchanged.
+Existing checked counters, native certificate construction and independent
+replay remain the only proof path. No solver or certificate implementation was
+duplicated in FastSecDec.
+
+The published `bef2a9e6` dependency carries the exact reviewed union of the two
+owner PRs. Independent source review, 41 owner tests, 48 consuming native tests,
+strict FastSecDec core/CLI Clippy, default checking and the native Python build
+pass. The CLI serial bubble also accepts an explicit 17,700-second allowance
+and publishes a complete artifact. Root and Python lockfiles retain one shared
+Symbolica/Numerica identity and change only the symGCAD revision. Long-running
+experimental jobs retain their frozen executable identities. The GCAD allowance
+does not imply an overall endpoint-preparation timeout or successful completion
+of the double-box atlas.
