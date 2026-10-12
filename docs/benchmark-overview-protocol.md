@@ -6,6 +6,31 @@ and confirmation estimates are recorded; unsupported no-contour routes remain
 unfinished. No earlier historical number is relabelled as a measurement of this
 campaign.
 
+The 12 October massive-sunrise extension adds two independent 600-second
+no-contour arms using the rebuilt `6647950` release and full fresh CLI generation.
+It is distinct from the massless sunrise. Its separate compact record is
+`no-contour-massive-sunrise-overview.json`; matching fresh contour arms remain
+pending. The secondary work display uses the latest user-requested square-root
+normalization of the timed result to 20 million accepted calls, with no claim
+of a separate measured matched-work run. Historical controls and the disjoint
+30-second calibration are not pooled. Both samplers retain validated algebraic
+precision handling; optional causal validation is off.
+
+Reproduce this extension with
+`examples/no_deformation/benchmarks/controls/massive_sunrise_no_contour.toml`:
+
+```sh
+fastsecdec generate examples/no_deformation/benchmarks/controls/massive_sunrise_no_contour.toml --serial --workers 25 -o target/massive-sunrise.fsd
+fastsecdec integrate target/massive-sunrise.fsd --method qmc --serial 1 --workers 25 --seed 202610125021 --max-seconds 600 --contour off --contour-validation off --save-result target/massive-sunrise-qmc.json
+fastsecdec integrate target/massive-sunrise.fsd --method discrete_mc --workers 25 --seed 202610125022 --max-seconds 600 --contour off --contour-validation off --save-result target/massive-sunrise-mc.json
+fastsecdec benchmark target/massive-sunrise.fsd --points 1024 --repetitions 3 --warmup 0 --contour off --contour-validation off
+```
+
+The frozen source revision and executable digest are in the compact result.
+The campaign assigned separate physical CPU sets and sampled parent-plus-child
+RSS under the shared 100 GB supervisor. The native commands above reproduce
+the numerical settings; they do not themselves measure aggregate peak RSS.
+
 The opening report is `benchmark-overview.typ`, driven by
 `benchmark-overview-results.json`. It uses A4 landscape topology blocks with
 adjacent QMC and discrete-MC rows for each prescription. Settings, qualifications

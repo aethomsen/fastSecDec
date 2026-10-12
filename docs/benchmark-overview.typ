@@ -68,7 +68,7 @@
         #h(1fr)
         #text(fill: rgb("d8e7ef"), size: 7.5pt)[#topology.point]
         #let target = topology.at("display_work_target_average_per_sector", default: none)
-        #if target != none { [#h(6pt) #text(fill: white, size: 7pt)[· average work target #(target / 1000000)M / sector]] }
+        #if target != none { [#h(6pt) #text(fill: white, size: 7pt)[· average work target #calc.round(target / 1000000, digits: 3)M / sector]] }
       ]
       #table(columns: columns, inset: (x: 3pt, y: 4.2pt), stroke: rule,
         align: center + horizon,
@@ -77,7 +77,7 @@
       )
     ]
   }
-  let groups = ((0, 1, 2), (3, 4), (5, 6))
+  let groups = ((0, 1, 2), (3, 4, 7), (5, 6))
   for (page-index, group) in groups.enumerate() {
     if page-index > 0 { pagebreak() }
     text(size: 19pt, weight: "bold", fill: ink)[Overview]

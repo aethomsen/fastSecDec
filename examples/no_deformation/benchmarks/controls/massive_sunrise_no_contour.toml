@@ -1,0 +1,78 @@
+# Massive sunrise: mt=1, p^2=16, D=4-2*eps, native measure multiplier 1.
+# Reproduction card for the 25-core, 600-second no-contour Overview campaign.
+# Explicit positive-projective route; fixed two-dimensional quadratic discovery.
+# This does not select a general algebraic-tower or collision resolver.
+[input]
+graph = "../overview/sunrise.dot"
+model = "../../../models/scalar.json"
+model_parameters = "fixed"
+
+[parameters]
+"UFO::mt" = "1"
+
+[integral]
+dimension = "4-2*eps"
+regulator = "eps"
+measure_multiplier = "1"
+
+[[kinematics.products]]
+left = 0
+right = 0
+value = "16"
+
+[generation]
+threshold_decomposition = true
+order = 0
+mode = "symbolic"
+subtraction = "taylor"
+
+[generation.evaluator]
+backend = "symjit"
+cores = 1
+horner_iterations = 10
+cpe_rounds = 1000
+
+# Original homogeneous coordinates: anchor first, then the complete CAD order.
+[threshold_decomposition.solver]
+homogeneous_anchor = "x2"
+ordering = "given"
+order = ["x2", "x0", "x1"]
+
+[threshold_decomposition.gcad_limits]
+workers = 1
+wall_time_secs = 30.0
+memory_mib = 1024
+
+[threshold_decomposition.endpoint_resources.geometry]
+max_terms = 100000
+wall_time_secs = 120.0
+
+[threshold_decomposition.endpoint_resources.geometry.certificates]
+bernstein_coefficients = 262144
+work_limit = 1000000000
+
+[threshold_decomposition.endpoint_resources.discovery]
+max_dyadic_level = 4
+wall_time_secs = 120.0
+
+[threshold_decomposition.endpoint_resources.prefactors]
+source_nodes = 32768
+
+[integration]
+method = "qmc"
+workers = 25
+points = 4096
+shifts = 8
+max_rounds = 64
+double_points = false
+evaluation_batch_size = 256
+package_points = 1024
+lattice = "kuo33002"
+periodization = "korobov3"
+accuracy_target = { target = "laurent_order", order = 0 }
+relative_tolerance = 1e-30
+absolute_tolerance = 1e-30
+contour_diagnostics = "disabled"
+
+[integration.stability]
+mode = "validated"

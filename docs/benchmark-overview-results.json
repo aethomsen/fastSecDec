@@ -2567,6 +2567,100 @@
         }
       ],
       "display_work_target_average_per_sector": 6000000
+    },
+    {
+      "id": "massive-sunrise",
+      "label": "Massive sunrise \u2014 new no-contour campaign",
+      "point": "m1=m2=m3=1, s=16; contour timing pending",
+      "display_work_target_average_per_sector": 322580.6451612903,
+      "methods": [
+        {
+          "id": "no-contour",
+          "label": "No contour",
+          "generation_status": "measured",
+          "status_detail": "Complete massive sunrise, fresh serial25 generation and independent600s QMC/ordinary discrete MC; fresh matched contour arms pending.",
+          "generation": {
+            "generation_seconds": "6.7",
+            "generation_peak_gb": "0.215",
+            "artifact_mb": "2.3",
+            "stochastic_sectors": 62
+          },
+          "kernel_cost": {
+            "f64_max_avg_us": "2.79 / 0.764",
+            "sum_f64_checked_us": "47.4 / 2.37e+04"
+          },
+          "samplers": [
+            {
+              "id": "qmc",
+              "label": "QMC",
+              "state": "measured",
+              "metrics": {
+                "integration_peak_gb": "0.497",
+                "work_relative_se": "3.65e-11",
+                "work_joint_se": "3.99e-11",
+                "time_relative_se": "3.95e-11"
+              },
+              "receipts": [
+                {
+                  "path": "/common/dev/fastsecdec/target/no-deformation-massive-sunrise-overview-6647950/confirmation-qmc-r1/completion.json",
+                  "sha256": "2e84cc2802422b56120c1f5b8cd2b1145f64354d5a38d898620a9219429db934"
+                }
+              ],
+              "normalized_metrics": {
+                "work_radial_relative_se": "3.65e-11",
+                "time_radial_relative_se": "3.95e-11",
+                "time_reported_sector_calls_million": "25.9"
+              },
+              "weight_metrics": {
+                "status": "measured",
+                "native_status": "Available",
+                "absolute_weight_integral_over_norm": 1.5365105306131985,
+                "maximum_observed_weight_over_norm": 4.15412924361454,
+                "display_cancellation_ratio": "1.54",
+                "display_maximum_ratio": "4.15"
+              }
+            },
+            {
+              "id": "discrete_mc",
+              "label": "MC",
+              "state": "measured",
+              "metrics": {
+                "integration_peak_gb": "0.561",
+                "work_relative_se": "0.000301",
+                "work_joint_se": "0.00039",
+                "time_relative_se": "0.000351"
+              },
+              "receipts": [
+                {
+                  "path": "/common/dev/fastsecdec/target/no-deformation-massive-sunrise-overview-6647950/confirmation-discrete_mc-r1/completion.json",
+                  "sha256": "8041fa3cfd8ec3062b48dfa5d4962758d76d6facce7ae35125b0b5529427bdc3"
+                }
+              ],
+              "normalized_metrics": {
+                "work_radial_relative_se": "0.000301",
+                "time_radial_relative_se": "0.000351",
+                "time_reported_sector_calls_million": "14.8"
+              },
+              "weight_metrics": {
+                "status": "measured",
+                "native_status": "Available",
+                "absolute_weight_integral_over_norm": 1.5364754330331722,
+                "maximum_observed_weight_over_norm": 1.657016013250287,
+                "display_cancellation_ratio": "1.54",
+                "display_maximum_ratio": "1.66"
+              }
+            }
+          ],
+          "generation_receipt": {
+            "path": "/common/dev/fastsecdec/target/no-deformation-massive-sunrise-overview-6647950/generation-r1/massive-sunrise-no-contour/execution.json",
+            "sha256": "94085b25f4d8c05494eb6608836e950ede8227a78577cfca04c190adaa99f8f6"
+          },
+          "profile_receipt": {
+            "path": "/common/dev/fastsecdec/target/no-deformation-massive-sunrise-overview-6647950/kernel-cost-r1/massive-sunrise-no-contour-kernel-cost/stdout.json",
+            "sha256": "2f93a5162d21a7b0591d973d5e4fc55ba5687b11d8809067ba4e5cf1735776d7"
+          }
+        }
+      ]
     }
   ],
   "historical_sources": [
@@ -195026,5 +195120,12 @@
     },
     "all_original125_raw_records_unchanged": true,
     "total_instrumented_timed_arms": 42
+  },
+  "massive_sunrise_extension": {
+    "summary": "docs/no-contour-massive-sunrise-overview.json",
+    "source_commit": "6647950859ff4ec4c87c0fbcb86ed71fe7dceba7",
+    "complete_timed_arms": 2,
+    "cross_method_timed_comparison": "pending",
+    "historical_values_reused": false
   }
 }

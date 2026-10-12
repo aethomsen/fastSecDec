@@ -3,7 +3,7 @@
 #let compatibility = json("benchmark-compatibility-results.json")
 #let fmt-distance(value) = if value == none { [—] } else { str(calc.round(value, digits: 2)) }
 
-This checkpoint compares #compatibility.accepted_runs accepted native production estimates. The tests
+The original campaign audit compares #compatibility.accepted_runs accepted native production estimates. The tests
 use the full real–imaginary covariance, retained before rounding for display.
 For two independent runs, the difference uses $C_1+C_2$. The diagnostic distance
 is $sqrt(Delta^T C^(-1) Delta)$. It is an estimated-covariance diagnostic, not a
@@ -38,6 +38,15 @@ its covariance still comes from complete native batches. An overlapping partial
 prefix is omitted when its completed continuation is used.
 
 == Independent references and numerical limits
+The added massive-sunrise block has a separate audit of its two fresh timed
+estimates. All 36 full-Laurent component comparisons with the previously
+validated fixed, dynamic and pySecDec controls pass the existing eight-combined-SE
+criterion without an added floor; the largest difference is 2.162 combined SE.
+Both complete native covariance matrices and the radial norm uncertainties are
+checked independently. These comparisons are recorded in
+`no-contour-massive-sunrise-overview.json`; they do not change the original
+campaign counts above or supply missing matched contour timings.
+
 The bubble's finite reference is $2-3 log(3)/2+i pi/2$. Native HEPKit/OneLOop
 expression evaluation supplies the triangle and box references at exactly the
 listed invariants and masses. Their measure includes the explicit inverse

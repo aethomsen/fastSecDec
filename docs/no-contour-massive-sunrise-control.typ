@@ -57,6 +57,13 @@ ten-minute arms in the overview, and no square-root time extrapolation is
 applied. Ordinary and serial CLI generation now produce all 62 charts, and a
 separate cold process restores one selected record. Their clocks are outside
 this control.
+The opening overview now adds a separate fresh 25-core no-contour campaign:
+complete CLI generation in 6.70 seconds, followed by independent QMC and
+ordinary discrete-MC confirmations near 600 seconds. It does not reuse the
+one-worker estimates above. Its compact record is
+`docs/no-contour-massive-sunrise-overview.json`; matching fresh contour timings
+remain pending.
+
 The general algebraic resolver, mixed-mass kite and complete double-box
 no-contour results remain unfinished.
 

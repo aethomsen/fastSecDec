@@ -1,0 +1,869 @@
+{
+  "schema": "massive-sunrise-overview-extension-v1",
+  "scope": "Complete fixed mt=1,s=16,D=4-2eps native measure1; no-contour only. Fresh matching contour campaigns remain pending.",
+  "source_commit": "6647950859ff4ec4c87c0fbcb86ed71fe7dceba7",
+  "binary": {
+    "path": "/common/dev/fastsecdec/target/no-deformation-release-6647950/fastsecdec",
+    "sha256": "1465d3f8e3524c7b710cf7d71bd73f62e32c80b995c945534d19d2454db64606",
+    "bytes": 102042112
+  },
+  "source_card": "examples/no_deformation/massive_sunrise.toml",
+  "card": {
+    "path": "/common/dev/fastsecdec/target/no-deformation-massive-sunrise-overview-6647950/massive-sunrise.toml",
+    "sha256": "ec9a265184c5957df63ec52da5689d9e4b91820fee2235f428a3579a115fbf2f"
+  },
+  "generation": {
+    "seconds": 6.695269159041345,
+    "peak_rss_bytes": 215478272,
+    "artifact_bytes": 2296298,
+    "sectors": 62,
+    "receipt": {
+      "path": "/common/dev/fastsecdec/target/no-deformation-massive-sunrise-overview-6647950/generation-r1/massive-sunrise-no-contour/execution.json",
+      "sha256": "94085b25f4d8c05494eb6608836e950ede8227a78577cfca04c190adaa99f8f6"
+    }
+  },
+  "cost": {
+    "f64_max_us": 2.7874830729166664,
+    "f64_average_us": 0.764325205813172,
+    "f64_sum_us": 47.38816276041666,
+    "checked_sum_us": 23736.475884765627,
+    "options": {
+      "batch_size": 256,
+      "points": 1024,
+      "repetitions": 3,
+      "warmup": 0
+    },
+    "receipt": {
+      "path": "/common/dev/fastsecdec/target/no-deformation-massive-sunrise-overview-6647950/kernel-cost-r1/massive-sunrise-no-contour-kernel-cost/stdout.json",
+      "sha256": "2f93a5162d21a7b0591d973d5e4fc55ba5687b11d8809067ba4e5cf1735776d7"
+    }
+  },
+  "policy": {
+    "timed_seconds": 600,
+    "workers": 25,
+    "qmc_serial_seconds": 1,
+    "discrete_mc_scheduler": "ordinary authorized exception",
+    "causal_validation": "off",
+    "algebraic_stability": "validated",
+    "work_target_total_accepted_calls": 20000000,
+    "normalization": "MC-equivalent sqrt scaling is heuristic, especially QMC; no separate matched-work campaign or pooled pilots.",
+    "elapsed": "native integration including complete allocation drain; load separately recorded"
+  },
+  "runs": [
+    {
+      "method": "qmc",
+      "seed": 202610125021,
+      "elapsed_seconds": 604.968089649,
+      "artifact_load_seconds": 0.062335368,
+      "own_peak_rss_bytes": 497356800,
+      "total_sector_calls": 25882624,
+      "accepted_sector_calls": 17219584,
+      "norm_uncertainty": {
+        "joint_relative_error": 4.300375069924196e-11,
+        "linearization_warning": false,
+        "mean_magnitude": 10.548579228080454,
+        "radial_relative_error": 3.935293056722182e-11,
+        "radial_standard_error": 4.1511750594548854e-10
+      },
+      "weights": {
+        "order": 0,
+        "stochastic_absolute_mean": 16.208003066953264,
+        "exact_absolute": 0.0,
+        "absolute_integral_estimate": 16.208003066953264,
+        "sampled_sector_local_maximum": 43.82016144995391,
+        "total_mean_magnitude": 10.548579228080454,
+        "cancellation_ratio": 1.5365105306131985,
+        "maximum_ratio": 4.15412924361454
+      },
+      "total": {
+        "orders": [
+          -2,
+          -2,
+          -1,
+          -1,
+          0,
+          0
+        ],
+        "components": [
+          "Real",
+          "Imag",
+          "Real",
+          "Imag",
+          "Real",
+          "Imag"
+        ],
+        "mean": [
+          1.5000000000315328,
+          0.0,
+          -1.2316469947405841,
+          0.0,
+          10.016143032195886,
+          -3.3089881368303877
+        ],
+        "standard_error": [
+          1.7572814182088757e-11,
+          0.0,
+          1.0613430343271189e-10,
+          0.0,
+          4.3535069877831593e-10,
+          1.2746983603043858e-10
+        ],
+        "covariance_of_mean": [
+          3.0880379827821976e-22,
+          0.0,
+          -6.969249240741724e-22,
+          0.0,
+          2.9545330194053983e-21,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          -6.969249240741724e-22,
+          0.0,
+          1.126449036514696e-20,
+          0.0,
+          -2.9613775519570905e-20,
+          2.586038585367781e-21,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          2.9545330194053983e-21,
+          0.0,
+          -2.9613775519570905e-20,
+          0.0,
+          1.8953023092676797e-19,
+          2.6267771224409772e-22,
+          0.0,
+          0.0,
+          2.586038585367781e-21,
+          0.0,
+          2.6267771224409772e-22,
+          1.62485590976269e-20
+        ],
+        "production_complete": false
+      },
+      "evaluation_diagnostics": {
+        "evaluations": 25882624,
+        "conditioning_checks": 17629514,
+        "rescues": 17622832,
+        "max_precision_bits": 320,
+        "failures": 0,
+        "weighted_checks": 82,
+        "additional_replays": 34,
+        "f64_points": 8259792,
+        "double_float_points": 0,
+        "arbitrary_points": 17622832,
+        "unstable_points": 0,
+        "cutoff_zero_points": 0,
+        "f64_timing": {
+          "calls": 25882624,
+          "nanoseconds": 14345886031,
+          "matrix_invocations": 101104,
+          "matrix_points": 25882624
+        },
+        "double_float_timing": {
+          "calls": 0,
+          "nanoseconds": 0,
+          "matrix_invocations": 0,
+          "matrix_points": 0
+        },
+        "arbitrary_timing": {
+          "calls": 35245664,
+          "nanoseconds": 6031548993548,
+          "matrix_invocations": 0,
+          "matrix_points": 0
+        },
+        "conditioning_timing": {
+          "calls": 32974021,
+          "nanoseconds": 8550708607396,
+          "matrix_invocations": 0,
+          "matrix_points": 0
+        }
+      },
+      "caller_settings": {
+        "absolute_tolerance": 1e-30,
+        "accuracy_target": {
+          "order": 0,
+          "target": "laurent_order"
+        },
+        "double_points": false,
+        "evaluation_batch_size": 256,
+        "max_rounds": 64,
+        "max_seconds": 600.0,
+        "method": "qmc",
+        "package_points": 1024,
+        "periodization": "korobov3",
+        "points": 4096,
+        "production_seconds": 10.0,
+        "relative_tolerance": 1e-30,
+        "replay": {
+          "growth_factor": 16.0,
+          "minimum_bits": 128
+        },
+        "seed": 202610125021,
+        "serial_seconds": 1.0,
+        "shifts": 8,
+        "stability": {
+          "levels": [
+            {
+              "escalate_for_large_weight_threshold": 0.9,
+              "minimum_effective_distance": 0.001,
+              "power_thresholds": {},
+              "precision": "f64"
+            },
+            {
+              "escalate_for_large_weight_threshold": null,
+              "minimum_effective_distance": 1e-08,
+              "power_thresholds": {},
+              "precision": "double_float"
+            },
+            {
+              "escalate_for_large_weight_threshold": null,
+              "minimum_effective_distance": 0.0,
+              "power_thresholds": {},
+              "precision": "arbitrary"
+            }
+          ],
+          "mode": "validated",
+          "unstable_cutoff": null,
+          "unstable_power_thresholds": {}
+        },
+        "workers": 25
+      },
+      "timed_stop": {
+        "counts_complete": true,
+        "deadline_observed_seconds": 600.00112239,
+        "drain_seconds": 4.934461976,
+        "in_flight_at_deadline": 25,
+        "requested_seconds": 600.0
+      },
+      "stopping_reason": "WorkLimit",
+      "time_normalized_radial_relative_se": 3.951551876990613e-11,
+      "work_normalized_radial_relative_se": 3.65151769158443e-11,
+      "result": {
+        "path": "/common/dev/fastsecdec/target/no-deformation-massive-sunrise-overview-6647950/confirmation-qmc-result.json",
+        "sha256": "ec2b4b17618d846f1f8ecb68c4aba2a429298dc452797fe48801f202e606054e"
+      },
+      "receipt": {
+        "path": "/common/dev/fastsecdec/target/no-deformation-massive-sunrise-overview-6647950/confirmation-qmc-r1/completion.json",
+        "sha256": "2e84cc2802422b56120c1f5b8cd2b1145f64354d5a38d898620a9219429db934"
+      }
+    },
+    {
+      "method": "discrete_mc",
+      "seed": 202610125022,
+      "elapsed_seconds": 602.669357257,
+      "artifact_load_seconds": 3.617432875,
+      "own_peak_rss_bytes": 560730112,
+      "total_sector_calls": 14835712,
+      "accepted_sector_calls": 14737408,
+      "norm_uncertainty": {
+        "joint_relative_error": 0.0004546846990590734,
+        "linearization_warning": false,
+        "mean_magnitude": 10.54890652809946,
+        "radial_relative_error": 0.0003501577065534002,
+        "radial_standard_error": 0.003693780916525498
+      },
+      "weights": {
+        "order": 0,
+        "stochastic_absolute_mean": 16.208135725788075,
+        "exact_absolute": 0.0,
+        "absolute_integral_estimate": 16.208135725788075,
+        "sampled_sector_local_maximum": 17.479707039341292,
+        "total_mean_magnitude": 10.54890652809946,
+        "cancellation_ratio": 1.5364754330331722,
+        "maximum_ratio": 1.657016013250287
+      },
+      "total": {
+        "orders": [
+          -2,
+          -2,
+          -1,
+          -1,
+          0,
+          0
+        ],
+        "components": [
+          "Real",
+          "Imag",
+          "Real",
+          "Imag",
+          "Real",
+          "Imag"
+        ],
+        "mean": [
+          1.4998263793798636,
+          0.0,
+          -1.2329311512659031,
+          0.0,
+          10.015607879574548,
+          -3.311650304785158
+        ],
+        "standard_error": [
+          0.00046703144999468444,
+          0.0,
+          0.001655384353342444,
+          0.0,
+          0.00410507833978249,
+          0.0024807333472575462
+        ],
+        "covariance_of_mean": [
+          2.1811837528413742e-07,
+          0.0,
+          -2.8083896677920723e-07,
+          0.0,
+          1.5015643332794021e-06,
+          3.4520859037001335e-07,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          -2.8083896677920723e-07,
+          0.0,
+          2.740297357290982e-06,
+          0.0,
+          -3.972455434957825e-06,
+          7.619175058820979e-07,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.5015643332794021e-06,
+          0.0,
+          -3.972455434957825e-06,
+          0.0,
+          1.6851668175751363e-05,
+          3.612261115183641e-06,
+          3.4520859037001335e-07,
+          0.0,
+          7.619175058820979e-07,
+          0.0,
+          3.612261115183641e-06,
+          6.15403794019563e-06
+        ],
+        "production_complete": false
+      },
+      "evaluation_diagnostics": {
+        "evaluations": 14835712,
+        "conditioning_checks": 13024259,
+        "rescues": 13024259,
+        "max_precision_bits": 256,
+        "failures": 0,
+        "weighted_checks": 593,
+        "additional_replays": 0,
+        "f64_points": 1811453,
+        "double_float_points": 0,
+        "arbitrary_points": 13024259,
+        "unstable_points": 0,
+        "cutoff_zero_points": 0,
+        "f64_timing": {
+          "calls": 14835712,
+          "nanoseconds": 12592196587,
+          "matrix_invocations": 2455204,
+          "matrix_points": 14835712
+        },
+        "double_float_timing": {
+          "calls": 0,
+          "nanoseconds": 0,
+          "matrix_invocations": 0,
+          "matrix_points": 0
+        },
+        "arbitrary_timing": {
+          "calls": 26048518,
+          "nanoseconds": 3841551135499,
+          "matrix_invocations": 0,
+          "matrix_points": 0
+        },
+        "conditioning_timing": {
+          "calls": 7864764,
+          "nanoseconds": 4218943721047,
+          "matrix_invocations": 0,
+          "matrix_points": 0
+        }
+      },
+      "caller_settings": {
+        "absolute_tolerance": 1e-30,
+        "accuracy_target": {
+          "order": 0,
+          "target": "laurent_order"
+        },
+        "double_points": false,
+        "evaluation_batch_size": 256,
+        "max_rounds": 64,
+        "max_seconds": 600.0,
+        "method": "discrete_mc",
+        "package_points": 1024,
+        "periodization": "korobov3",
+        "points": 4096,
+        "production_seconds": 10.0,
+        "relative_tolerance": 1e-30,
+        "replay": {
+          "growth_factor": 16.0,
+          "minimum_bits": 128
+        },
+        "seed": 202610125022,
+        "shifts": 8,
+        "stability": {
+          "levels": [
+            {
+              "escalate_for_large_weight_threshold": 0.9,
+              "minimum_effective_distance": 0.001,
+              "power_thresholds": {},
+              "precision": "f64"
+            },
+            {
+              "escalate_for_large_weight_threshold": null,
+              "minimum_effective_distance": 1e-08,
+              "power_thresholds": {},
+              "precision": "double_float"
+            },
+            {
+              "escalate_for_large_weight_threshold": null,
+              "minimum_effective_distance": 0.0,
+              "power_thresholds": {},
+              "precision": "arbitrary"
+            }
+          ],
+          "mode": "validated",
+          "unstable_cutoff": null,
+          "unstable_power_thresholds": {}
+        },
+        "workers": 25
+      },
+      "timed_stop": {
+        "counts_complete": true,
+        "deadline_observed_seconds": 600.148676075,
+        "drain_seconds": 2.065071837,
+        "in_flight_at_deadline": 25,
+        "requested_seconds": 600.0
+      },
+      "stopping_reason": "WorkLimit",
+      "time_normalized_radial_relative_se": 0.0003509357554885896,
+      "work_normalized_radial_relative_se": 0.00030057942183510736,
+      "result": {
+        "path": "/common/dev/fastsecdec/target/no-deformation-massive-sunrise-overview-6647950/confirmation-discrete_mc-result.json",
+        "sha256": "85b4f14c108827c346b0b2046b4fa14308835fe6ffad4e806f34b0ee5338dfc2"
+      },
+      "receipt": {
+        "path": "/common/dev/fastsecdec/target/no-deformation-massive-sunrise-overview-6647950/confirmation-discrete_mc-r1/completion.json",
+        "sha256": "8041fa3cfd8ec3062b48dfa5d4962758d76d6facce7ae35125b0b5529427bdc3"
+      }
+    }
+  ],
+  "reproduction_card": "examples/no_deformation/benchmarks/controls/massive_sunrise_no_contour.toml",
+  "independent_review": {
+    "status": "PASS",
+    "receipt_sha256": "04c7da6a706fb2d06f1c7bd242d956c474a1493d3eea1d6c55b97f01a8081c4c",
+    "comparison_scope": "Previously audited same native measure/phase/Gamma full Laurent fixed,dynamic and independent pySecDec; latter supplies marginal errors only, not cross-component covariance. New comparison uses no inherited roundoff floor.",
+    "comparisons": [
+      {
+        "method": "qmc",
+        "reference": "fixed",
+        "order": -2,
+        "component": "Real",
+        "difference": 3.1165736658067544e-11,
+        "combined_se": 1.7694547222689374e-11,
+        "sigma": 1.7613186856855159,
+        "criterion": "squared exact binary64 Fraction difference <=64*(marginal SE squares); no floor",
+        "passed": true
+      },
+      {
+        "method": "qmc",
+        "reference": "fixed",
+        "order": -2,
+        "component": "Imag",
+        "difference": 2.3989819167156582e-14,
+        "combined_se": 6.17471929261703e-14,
+        "sigma": 0.38851675728547946,
+        "criterion": "squared exact binary64 Fraction difference <=64*(marginal SE squares); no floor",
+        "passed": true
+      },
+      {
+        "method": "qmc",
+        "reference": "fixed",
+        "order": -1,
+        "component": "Real",
+        "difference": -3.7612579717460903e-11,
+        "combined_se": 1.0614952967896931e-10,
+        "sigma": 0.35433581129575964,
+        "criterion": "squared exact binary64 Fraction difference <=64*(marginal SE squares); no floor",
+        "passed": true
+      },
+      {
+        "method": "qmc",
+        "reference": "fixed",
+        "order": -1,
+        "component": "Imag",
+        "difference": -1.368410116340749e-13,
+        "combined_se": 7.690173168472738e-13,
+        "sigma": 0.17794269210357902,
+        "criterion": "squared exact binary64 Fraction difference <=64*(marginal SE squares); no floor",
+        "passed": true
+      },
+      {
+        "method": "qmc",
+        "reference": "fixed",
+        "order": 0,
+        "component": "Real",
+        "difference": -2.6060398283789254e-10,
+        "combined_se": 4.515315255885024e-10,
+        "sigma": 0.5771556758926966,
+        "criterion": "squared exact binary64 Fraction difference <=64*(marginal SE squares); no floor",
+        "passed": true
+      },
+      {
+        "method": "qmc",
+        "reference": "fixed",
+        "order": 0,
+        "component": "Imag",
+        "difference": 4.958788935027769e-11,
+        "combined_se": 1.7240123056122606e-10,
+        "sigma": 0.28763071579507776,
+        "criterion": "squared exact binary64 Fraction difference <=64*(marginal SE squares); no floor",
+        "passed": true
+      },
+      {
+        "method": "qmc",
+        "reference": "dynamic",
+        "order": -2,
+        "component": "Real",
+        "difference": 3.7012837239558394e-11,
+        "combined_se": 1.7764201481769557e-11,
+        "sigma": 2.083563242487577,
+        "criterion": "squared exact binary64 Fraction difference <=64*(marginal SE squares); no floor",
+        "passed": true
+      },
+      {
+        "method": "qmc",
+        "reference": "dynamic",
+        "order": -2,
+        "component": "Imag",
+        "difference": -2.7946242970547028e-12,
+        "combined_se": 1.2927848797826513e-12,
+        "sigma": 2.161708680816678,
+        "criterion": "squared exact binary64 Fraction difference <=64*(marginal SE squares); no floor",
+        "passed": true
+      },
+      {
+        "method": "qmc",
+        "reference": "dynamic",
+        "order": -1,
+        "component": "Real",
+        "difference": -2.3931430170875956e-09,
+        "combined_se": 3.0344595304667272e-09,
+        "sigma": 0.7886554403048864,
+        "criterion": "squared exact binary64 Fraction difference <=64*(marginal SE squares); no floor",
+        "passed": true
+      },
+      {
+        "method": "qmc",
+        "reference": "dynamic",
+        "order": -1,
+        "component": "Imag",
+        "difference": 2.1564389141190058e-09,
+        "combined_se": 3.637745625113709e-09,
+        "sigma": 0.5927954113206032,
+        "criterion": "squared exact binary64 Fraction difference <=64*(marginal SE squares); no floor",
+        "passed": true
+      },
+      {
+        "method": "qmc",
+        "reference": "dynamic",
+        "order": 0,
+        "component": "Real",
+        "difference": 3.7452636547641305e-09,
+        "combined_se": 1.4439307935951137e-08,
+        "sigma": 0.2593797203700556,
+        "criterion": "squared exact binary64 Fraction difference <=64*(marginal SE squares); no floor",
+        "passed": true
+      },
+      {
+        "method": "qmc",
+        "reference": "dynamic",
+        "order": 0,
+        "component": "Imag",
+        "difference": -5.4175162134129096e-09,
+        "combined_se": 9.467473052363747e-09,
+        "sigma": 0.5722240964879554,
+        "criterion": "squared exact binary64 Fraction difference <=64*(marginal SE squares); no floor",
+        "passed": true
+      },
+      {
+        "method": "qmc",
+        "reference": "pySecDec",
+        "order": -2,
+        "component": "Real",
+        "difference": 3.153277639000862e-11,
+        "combined_se": 1.757281418315641e-11,
+        "sigma": 1.7944067501853445,
+        "criterion": "squared exact binary64 Fraction difference <=64*(marginal SE squares); no floor",
+        "passed": true
+      },
+      {
+        "method": "qmc",
+        "reference": "pySecDec",
+        "order": -2,
+        "component": "Imag",
+        "difference": -4.2014497470746186e-18,
+        "combined_se": 5.113640446970278e-18,
+        "sigma": 0.8216161833520945,
+        "criterion": "squared exact binary64 Fraction difference <=64*(marginal SE squares); no floor",
+        "passed": true
+      },
+      {
+        "method": "qmc",
+        "reference": "pySecDec",
+        "order": -1,
+        "component": "Real",
+        "difference": -3.602362852461738e-11,
+        "combined_se": 1.0613438271166618e-10,
+        "sigma": 0.33941525455028343,
+        "criterion": "squared exact binary64 Fraction difference <=64*(marginal SE squares); no floor",
+        "passed": true
+      },
+      {
+        "method": "qmc",
+        "reference": "pySecDec",
+        "order": -1,
+        "component": "Imag",
+        "difference": 3.1590856889885706e-14,
+        "combined_se": 5.946829254673295e-14,
+        "sigma": 0.531221858523349,
+        "criterion": "squared exact binary64 Fraction difference <=64*(marginal SE squares); no floor",
+        "passed": true
+      },
+      {
+        "method": "qmc",
+        "reference": "pySecDec",
+        "order": 0,
+        "component": "Real",
+        "difference": -9.812062273795163e-11,
+        "combined_se": 4.3916045409341586e-10,
+        "sigma": 0.223427728574759,
+        "criterion": "squared exact binary64 Fraction difference <=64*(marginal SE squares); no floor",
+        "passed": true
+      },
+      {
+        "method": "qmc",
+        "reference": "pySecDec",
+        "order": 0,
+        "component": "Imag",
+        "difference": 2.4005686327654985e-11,
+        "combined_se": 1.4206928877442888e-10,
+        "sigma": 0.16897167948640973,
+        "criterion": "squared exact binary64 Fraction difference <=64*(marginal SE squares); no floor",
+        "passed": true
+      },
+      {
+        "method": "discrete_mc",
+        "reference": "fixed",
+        "order": -2,
+        "component": "Real",
+        "difference": -0.00017362062050341187,
+        "combined_se": 0.00046703144999468444,
+        "sigma": 0.37175359497821386,
+        "criterion": "squared exact binary64 Fraction difference <=64*(marginal SE squares); no floor",
+        "passed": true
+      },
+      {
+        "method": "discrete_mc",
+        "reference": "fixed",
+        "order": -2,
+        "component": "Imag",
+        "difference": 2.3989819167156582e-14,
+        "combined_se": 6.17471929261703e-14,
+        "sigma": 0.38851675728547946,
+        "criterion": "squared exact binary64 Fraction difference <=64*(marginal SE squares); no floor",
+        "passed": true
+      },
+      {
+        "method": "discrete_mc",
+        "reference": "fixed",
+        "order": -1,
+        "component": "Real",
+        "difference": -0.001284156562931571,
+        "combined_se": 0.001655384353342444,
+        "sigma": 0.775745258397958,
+        "criterion": "squared exact binary64 Fraction difference <=64*(marginal SE squares); no floor",
+        "passed": true
+      },
+      {
+        "method": "discrete_mc",
+        "reference": "fixed",
+        "order": -1,
+        "component": "Imag",
+        "difference": -1.368410116340749e-13,
+        "combined_se": 7.690173168472738e-13,
+        "sigma": 0.17794269210357902,
+        "criterion": "squared exact binary64 Fraction difference <=64*(marginal SE squares); no floor",
+        "passed": true
+      },
+      {
+        "method": "discrete_mc",
+        "reference": "fixed",
+        "order": 0,
+        "component": "Real",
+        "difference": -0.0005351528819428353,
+        "combined_se": 0.004105078339782492,
+        "sigma": 0.13036362223752115,
+        "criterion": "squared exact binary64 Fraction difference <=64*(marginal SE squares); no floor",
+        "passed": true
+      },
+      {
+        "method": "discrete_mc",
+        "reference": "fixed",
+        "order": 0,
+        "component": "Imag",
+        "difference": -0.0026621679051825886,
+        "combined_se": 0.002480733347257549,
+        "sigma": 1.0731374688559798,
+        "criterion": "squared exact binary64 Fraction difference <=64*(marginal SE squares); no floor",
+        "passed": true
+      },
+      {
+        "method": "discrete_mc",
+        "reference": "dynamic",
+        "order": -2,
+        "component": "Real",
+        "difference": -0.0001736206146563113,
+        "combined_se": 0.00046703144999468444,
+        "sigma": 0.37175358245849904,
+        "criterion": "squared exact binary64 Fraction difference <=64*(marginal SE squares); no floor",
+        "passed": true
+      },
+      {
+        "method": "discrete_mc",
+        "reference": "dynamic",
+        "order": -2,
+        "component": "Imag",
+        "difference": -2.7946242970547028e-12,
+        "combined_se": 1.2927848797826513e-12,
+        "sigma": 2.161708680816678,
+        "criterion": "squared exact binary64 Fraction difference <=64*(marginal SE squares); no floor",
+        "passed": true
+      },
+      {
+        "method": "discrete_mc",
+        "reference": "dynamic",
+        "order": -1,
+        "component": "Real",
+        "difference": -0.0012841589184620084,
+        "combined_se": 0.0016553843533452218,
+        "sigma": 0.7757466813474246,
+        "criterion": "squared exact binary64 Fraction difference <=64*(marginal SE squares); no floor",
+        "passed": true
+      },
+      {
+        "method": "discrete_mc",
+        "reference": "dynamic",
+        "order": -1,
+        "component": "Imag",
+        "difference": 2.1564389141190058e-09,
+        "combined_se": 3.637745625113709e-09,
+        "sigma": 0.5927954113206032,
+        "criterion": "squared exact binary64 Fraction difference <=64*(marginal SE squares); no floor",
+        "passed": true
+      },
+      {
+        "method": "discrete_mc",
+        "reference": "dynamic",
+        "order": 0,
+        "component": "Real",
+        "difference": -0.0005351488760751977,
+        "combined_se": 0.004105078339807861,
+        "sigma": 0.13036264640451303,
+        "criterion": "squared exact binary64 Fraction difference <=64*(marginal SE squares); no floor",
+        "passed": true
+      },
+      {
+        "method": "discrete_mc",
+        "reference": "dynamic",
+        "order": 0,
+        "component": "Imag",
+        "difference": -0.0026621733722866914,
+        "combined_se": 0.0024807333472756086,
+        "sigma": 1.073139672673947,
+        "criterion": "squared exact binary64 Fraction difference <=64*(marginal SE squares); no floor",
+        "passed": true
+      },
+      {
+        "method": "discrete_mc",
+        "reference": "pySecDec",
+        "order": -2,
+        "component": "Real",
+        "difference": -0.00017362062013637214,
+        "combined_se": 0.00046703144999468444,
+        "sigma": 0.3717535941923145,
+        "criterion": "squared exact binary64 Fraction difference <=64*(marginal SE squares); no floor",
+        "passed": true
+      },
+      {
+        "method": "discrete_mc",
+        "reference": "pySecDec",
+        "order": -2,
+        "component": "Imag",
+        "difference": -4.2014497470746186e-18,
+        "combined_se": 5.113640446970278e-18,
+        "sigma": 0.8216161833520945,
+        "criterion": "squared exact binary64 Fraction difference <=64*(marginal SE squares); no floor",
+        "passed": true
+      },
+      {
+        "method": "discrete_mc",
+        "reference": "pySecDec",
+        "order": -1,
+        "component": "Real",
+        "difference": -0.0012841565613426198,
+        "combined_se": 0.001655384353342444,
+        "sigma": 0.7757452574380896,
+        "criterion": "squared exact binary64 Fraction difference <=64*(marginal SE squares); no floor",
+        "passed": true
+      },
+      {
+        "method": "discrete_mc",
+        "reference": "pySecDec",
+        "order": -1,
+        "component": "Imag",
+        "difference": 3.1590856889885706e-14,
+        "combined_se": 5.946829254673295e-14,
+        "sigma": 0.531221858523349,
+        "criterion": "squared exact binary64 Fraction difference <=64*(marginal SE squares); no floor",
+        "passed": true
+      },
+      {
+        "method": "discrete_mc",
+        "reference": "pySecDec",
+        "order": 0,
+        "component": "Real",
+        "difference": -0.0005351527194594752,
+        "combined_se": 0.004105078339782491,
+        "sigma": 0.13036358265645923,
+        "criterion": "squared exact binary64 Fraction difference <=64*(marginal SE squares); no floor",
+        "passed": true
+      },
+      {
+        "method": "discrete_mc",
+        "reference": "pySecDec",
+        "order": 0,
+        "component": "Imag",
+        "difference": -0.0026621679307647916,
+        "combined_se": 0.002480733347257547,
+        "sigma": 1.0731374791683357,
+        "criterion": "squared exact binary64 Fraction difference <=64*(marginal SE squares); no floor",
+        "passed": true
+      }
+    ],
+    "maximum_component_sigma": 2.161708680816678,
+    "covariance_checks": "All63 principal minors of each six-component native covariance checked exactly from binary64 entries; independent-sector QMC sum checked, MC native total preserved."
+  }
+}

@@ -209,6 +209,29 @@ GCAD-only timings are not used as complete generation measurements. The studies
 below retain their original scope and measurements.
 
 #set text(size: 8pt)
+*Massive-sunrise extension (12 October).* The new opening block is a distinct
+complete source with all three masses one and $s=16$, native measure one and
+$D=4-2epsilon$. Release `6647950` generated all 62 charts in 6.70 seconds,
+including the fresh solve and automatic endpoint admission. Horner10, CPE1000
+and SymJIT O2 were used. QMC has one-second minimum serial residence; MC uses
+the authorized ordinary scheduler. Both use 25 physical cores, Korobov3,
+4096-point initial designs, eight initial replicas, fixed-size continuation,
+validated algebraic precision rescue and optional causal checks off.
+
+Independent confirmation seeds 202610125021 and 202610125022 ran for 604.97 and
+602.67 seconds including native task drain. The preceding 30-second calibrations
+are not pooled. The secondary work display scales to 20 million accepted calls
+in total (20 million / 62 per sector); it is a square-root heuristic from these
+same timed runs, not an additional matched-work experiment. The final column
+uses native radial norm uncertainty and the small square-root correction to
+600 seconds. Complete covariance, accepted counts, total calls, diagnostic
+timings and settings are in `docs/no-contour-massive-sunrise-overview.json`.
+Fresh matching ten-minute contour arms remain pending; earlier one-worker
+contour controls are not inserted into this opening block.
+The portable reproduction card is
+`examples/no_deformation/benchmarks/controls/massive_sunrise_no_contour.toml`;
+commands and measurement scope are in `docs/benchmark-overview-protocol.md`.
+
 #table(
   columns: (1.1fr, 1fr, 3fr), inset: 4pt,
   stroke: .35pt + rgb("c7d4df"),
