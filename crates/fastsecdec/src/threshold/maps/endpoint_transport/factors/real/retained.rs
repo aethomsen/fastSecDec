@@ -81,7 +81,8 @@ impl RetainedMargin {
         if self.certificate.sign != 1
             || self.certificate.domain.empty
             || !self.certificate.domain.excluded_sign_constraints.is_empty()
-            || self.roles.iter().collect::<BTreeSet<_>>() != actual.roles.iter().collect()
+            || self.roles.iter().collect::<BTreeSet<_>>()
+                != actual.roles.iter().collect::<BTreeSet<_>>()
         {
             return Err(Error::Invalid("retained proof requires the complete actual chart roles and nonempty positive domain".into()));
         }

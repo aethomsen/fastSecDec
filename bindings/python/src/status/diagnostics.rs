@@ -75,6 +75,14 @@ impl PyEvaluationDiagnostics {
             inner: self.inner.arbitrary_timing,
         }
     }
+    /// Tracked evaluator work, including algebraic root conditioning and rescue checks.
+    /// A default bucket may mean unrecorded or disabled work rather than zero cost.
+    #[getter]
+    fn conditioning_timing(&self) -> PyEvaluatorTiming {
+        PyEvaluatorTiming {
+            inner: self.inner.conditioning_timing,
+        }
+    }
     #[getter]
     fn evaluations(&self) -> u64 {
         self.inner.evaluations

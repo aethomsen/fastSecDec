@@ -63,6 +63,7 @@ pub(crate) fn evaluate_batch(
     local.f64_timing = timings.f64;
     local.double_float_timing = timings.double_float;
     local.arbitrary_timing = timings.arbitrary;
+    local.conditioning_timing = timings.conditioning;
     diagnostics.merge(&local).map_err(|e| e.to_string())?;
     result.map(|_| ()).map_err(|e| e.error.to_string())
 }

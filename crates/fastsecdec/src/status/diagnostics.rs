@@ -30,6 +30,15 @@ pub struct EvaluationDiagnostics {
     pub f64_timing: EvaluatorTiming,
     pub double_float_timing: EvaluatorTiming,
     pub arbitrary_timing: EvaluatorTiming,
+    /// Existing native tracked-evaluator work, including algebraic root checks.
+    /// A zero/default bucket can mean unrecorded or disabled, not measured zero.
+    /// Omission preserves historical JSON checkpoint re-encoding and digests.
+    #[serde(default, skip_serializing_if = "timing_is_empty")]
+    pub conditioning_timing: EvaluatorTiming,
+}
+
+fn timing_is_empty(timing: &EvaluatorTiming) -> bool {
+    *timing == EvaluatorTiming::default()
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, thiserror::Error)]
@@ -92,6 +101,7 @@ impl EvaluationDiagnostics {
             f64_timing: report.timings.f64,
             double_float_timing: report.timings.double_float,
             arbitrary_timing: report.timings.arbitrary,
+            conditioning_timing: report.timings.conditioning,
             ..Self::default()
         })
     }
@@ -114,6 +124,7 @@ impl EvaluationDiagnostics {
             f64_timing: report.precision.timings.f64,
             double_float_timing: report.precision.timings.double_float,
             arbitrary_timing: report.precision.timings.arbitrary,
+            conditioning_timing: report.precision.timings.conditioning,
             ..Self::default()
         })
     }
@@ -133,6 +144,7 @@ impl EvaluationDiagnostics {
             f64_timing: timings.f64,
             double_float_timing: timings.double_float,
             arbitrary_timing: timings.arbitrary,
+            conditioning_timing: timings.conditioning,
             ..Self::default()
         })
     }
@@ -192,6 +204,7 @@ impl EvaluationDiagnostics {
             f64_timing: timing(self.f64_timing, other.f64_timing)?,
             double_float_timing: timing(self.double_float_timing, other.double_float_timing)?,
             arbitrary_timing: timing(self.arbitrary_timing, other.arbitrary_timing)?,
+            conditioning_timing: timing(self.conditioning_timing, other.conditioning_timing)?,
         };
         *self = combined;
         Ok(())
@@ -289,3 +302,6 @@ mod tests {
         assert_eq!(old.additional_replays, 0);
     }
 }
+
+#[cfg(test)]
+mod timing_tests;

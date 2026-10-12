@@ -5060,3 +5060,15 @@ Automatic discovery is initially a fixed two-dimensional quadratic class;
 generic high-degree root evaluation does not imply a complete algebraic-tower
 or collision resolver. Existing affine/cube bytes and typed failure boundaries
 remain unchanged.
+
+## Native conditioning timing in status (2026-10-12)
+
+The [telemetry review](reviews/no-deformation-conditioning-telemetry.md) records
+forwarding of the existing native evaluator timing bucket through Rust status,
+CLI batches, serial diagnostics and thin HEPKit wrappers. It introduces no new
+timers, algebra, evaluation or sampling work. Existing native timing deltas and
+checked aggregation are reused; historical JSON checkpoint bytes remain stable
+when the new bucket is absent. Independent persistence/ecosystem and consumer
+reviews pass, as do focused status, saved-result, execution and checkpoint
+controls, strict core/CLI Clippy and the native Python typecheck. No new
+performance or live Python presentation-test result is claimed.

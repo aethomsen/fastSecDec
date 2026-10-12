@@ -149,7 +149,8 @@ fn accept_metrics(
     let seconds = returned.worker_seconds + returned.load_seconds;
     let evaluator = returned.diagnostics.f64_timing.seconds()
         + returned.diagnostics.double_float_timing.seconds()
-        + returned.diagnostics.arbitrary_timing.seconds();
+        + returned.diagnostics.arbitrary_timing.seconds()
+        + returned.diagnostics.conditioning_timing.seconds();
     metrics.worker_seconds += seconds;
     metrics.integrand_seconds += returned.integrand_seconds + returned.load_seconds;
     metrics.evaluator_seconds += evaluator;

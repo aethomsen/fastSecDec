@@ -85,6 +85,7 @@ def test_estimates_keep_full_laurent_vector_covariance_and_small_values(owners):
         snapshot.evaluation_diagnostics, snapshot.evaluation_diagnostics.f64_timing,
         snapshot.evaluation_diagnostics.double_float_timing,
         snapshot.evaluation_diagnostics.arbitrary_timing,
+        snapshot.evaluation_diagnostics.conditioning_timing,
         initial, initial.total, *initial.sectors]
     for sector in live.sectors:
         objects.append(sector.estimate)

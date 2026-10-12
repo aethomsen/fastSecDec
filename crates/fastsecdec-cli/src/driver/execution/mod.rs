@@ -198,6 +198,7 @@ fn evaluate_batch_observed(
     local.f64_timing = timings.f64;
     local.double_float_timing = timings.double_float;
     local.arbitrary_timing = timings.arbitrary;
+    local.conditioning_timing = timings.conditioning;
     meter.record_batch(
         sector,
         elapsed,

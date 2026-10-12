@@ -228,6 +228,7 @@ fn bounded_slots_match_eager_full_vectors_for_identical_worker_schedules() {
             diagnostics.f64_timing.nanoseconds = 0;
             diagnostics.double_float_timing.nanoseconds = 0;
             diagnostics.arbitrary_timing.nanoseconds = 0;
+            diagnostics.conditioning_timing.nanoseconds = 0;
         }
         assert_eq!(bounded, eager);
     }
