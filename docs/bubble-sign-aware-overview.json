@@ -1,0 +1,624 @@
+{
+  "schema": "bubble-contour-extension-v1",
+  "source_commit": "6647950859ff4ec4c87c0fbcb86ed71fe7dceba7",
+  "binary": {
+    "path": "/common/dev/fastsecdec/target/no-deformation-release-6647950/fastsecdec",
+    "sha256": "1465d3f8e3524c7b710cf7d71bd73f62e32c80b995c945534d19d2454db64606",
+    "bytes": 102042112
+  },
+  "scope": "Fresh sign-aware contour at mt=sqrt3,s16,D4-2eps and maintained gamma-normalized measure; full Laurent[-1,0]. No old timings reused. QMC variance near floating-point roundoff is not a numerical-bias guarantee.",
+  "audit": {
+    "path": "/common/dev/fastsecdec/target/no-deformation-bubble-sign-aware-6647950/collector-r1/confirmation-audit-final-r1.json",
+    "sha256": "d17fdcc1e7363108c33ccfdad9ba639ced92441920cdf6ef4db9f57f722e9157"
+  },
+  "protocol": {
+    "path": "/common/dev/fastsecdec/target/no-deformation-bubble-sign-aware-6647950/PROTOCOL.json",
+    "sha256": "eceb2d86dbd5ae1d688c8277ee9858688a3e6ec5cc962f53a610634931b4141b"
+  },
+  "secondary": {
+    "average_per_sector_exact": "30000000",
+    "total_target_formula": "K*30M; published bubble average-per-sector target",
+    "scope": "Prospective MC-equivalent sqrt normalization only; no measured matched-work arm"
+  },
+  "runs": [
+    {
+      "id": "bubble-sign-aware-qmc",
+      "method": "bubble-sign-aware",
+      "sampler": "qmc",
+      "sectors": 1,
+      "seed": 202610128121,
+      "native_result": {
+        "path": "/common/dev/fastsecdec/target/no-deformation-bubble-sign-aware-6647950/confirmation-sign-aware-qmc-r1-result.json",
+        "sha256": "6734ddb027d41e28c63705323fdb2b58b34dab2dbcffc731e504f41cbadb1c5e"
+      },
+      "pilot": {
+        "path": "/common/dev/fastsecdec/target/no-deformation-bubble-sign-aware-6647950/pilot-sign-aware-qmc-r1-result.json",
+        "sha256": "7d6c43bc44f285a10a281a53ea785d3ff94c46a108578212444b23695dfe11d4"
+      },
+      "elapsed_seconds": 600.043299788,
+      "total_calls": 337993728,
+      "accepted_calls": 268435456,
+      "mean_epsilon0": [
+        0.35208156699783544,
+        1.5707963267948966
+      ],
+      "native_radial_relative_se": 9.853650044235074e-17,
+      "linearization_warning": false,
+      "relative_se_at600_heuristic": 9.854005588618893e-17,
+      "secondary_target_total_exact": "30000000",
+      "secondary_target_average_exact": "30000000",
+      "secondary_relative_se_heuristic": 2.947517864885905e-16,
+      "secondary_scope": "Prospective equal-average-per-sector work normalization only; no measured matched-work arm",
+      "C": 2.805608190865274,
+      "maximum_ratio": 7.905136930194598,
+      "time_normalization": "native radialrelativeSE *sqrt(actualelapsed/600)",
+      "settings_changes": [
+        "max_seconds",
+        "seed"
+      ],
+      "full_covariance": [
+        6.991772518725621e-34,
+        4.02619374231215e-33,
+        7.910395683799643e-34,
+        -4.475467278993117e-33,
+        4.02619374231215e-33,
+        2.3186243470752675e-32,
+        4.555557395172269e-33,
+        -2.5773635285320957e-32,
+        7.910395683799643e-34,
+        4.555557395172269e-33,
+        8.951166362985499e-34,
+        -5.0639625818701817e-33,
+        -4.475467278993117e-33,
+        -2.5773635285320957e-32,
+        -5.0639625818701817e-33,
+        2.864987248300066e-32
+      ],
+      "generation_method": "sign-aware",
+      "own_peak_rss_bytes": 567361536,
+      "artifact_load_seconds": 0.055235962,
+      "total": {
+        "orders": [
+          -1,
+          -1,
+          0,
+          0
+        ],
+        "components": [
+          "Real",
+          "Imag",
+          "Real",
+          "Imag"
+        ],
+        "mean": [
+          1.0,
+          -3.748291064284463e-17,
+          0.35208156699783544,
+          1.5707963267948966
+        ],
+        "standard_error": [
+          2.644196006109536e-17,
+          1.522702974015375e-16,
+          2.991849990053896e-17,
+          1.6926273211490078e-16
+        ],
+        "covariance_of_mean": [
+          6.991772518725621e-34,
+          4.02619374231215e-33,
+          7.910395683799643e-34,
+          -4.475467278993117e-33,
+          4.02619374231215e-33,
+          2.3186243470752675e-32,
+          4.555557395172269e-33,
+          -2.5773635285320957e-32,
+          7.910395683799643e-34,
+          4.555557395172269e-33,
+          8.951166362985499e-34,
+          -5.0639625818701817e-33,
+          -4.475467278993117e-33,
+          -2.5773635285320957e-32,
+          -5.0639625818701817e-33,
+          2.864987248300066e-32
+        ],
+        "production_complete": true
+      },
+      "caller_settings": {
+        "absolute_tolerance": 1e-30,
+        "accuracy_target": {
+          "order": 0,
+          "target": "laurent_order"
+        },
+        "contour": {
+          "deformation": {
+            "construction": "sign_aware",
+            "displacement_cap": 1.0,
+            "lambda_cap": 1.0,
+            "mode": "dynamical",
+            "safety_fraction": 0.8
+          },
+          "validation": {
+            "pilot_points": 256,
+            "policy": "off"
+          }
+        },
+        "double_points": false,
+        "evaluation_batch_size": 256,
+        "max_rounds": 100000,
+        "max_seconds": 600.0,
+        "method": "qmc",
+        "package_points": 1024,
+        "periodization": "korobov3",
+        "points": 4096,
+        "production_seconds": 10.0,
+        "relative_tolerance": 1e-30,
+        "replay": {
+          "growth_factor": 16.0,
+          "minimum_bits": 128
+        },
+        "seed": 202610128121,
+        "serial_seconds": 1.0,
+        "shifts": 8,
+        "stability": {
+          "levels": [
+            {
+              "escalate_for_large_weight_threshold": 0.9,
+              "minimum_effective_distance": 0.001,
+              "power_thresholds": {},
+              "precision": "f64"
+            },
+            {
+              "escalate_for_large_weight_threshold": null,
+              "minimum_effective_distance": 1e-08,
+              "power_thresholds": {},
+              "precision": "double_float"
+            },
+            {
+              "escalate_for_large_weight_threshold": null,
+              "minimum_effective_distance": 0.0,
+              "power_thresholds": {},
+              "precision": "arbitrary"
+            }
+          ],
+          "mode": "validated",
+          "unstable_cutoff": null,
+          "unstable_power_thresholds": {}
+        },
+        "workers": 25
+      },
+      "timed_stop": {
+        "counts_complete": true,
+        "deadline_observed_seconds": 600.01228251,
+        "drain_seconds": 5.6e-07,
+        "in_flight_at_deadline": 0,
+        "requested_seconds": 600.0
+      },
+      "diagnostics": {
+        "contour": {
+          "production": {
+            "checked_arguments": 0,
+            "maximum_bits": 0
+          },
+          "adaptation": {
+            "checked_arguments": 0,
+            "maximum_bits": 0
+          }
+        },
+        "evaluations": 337993728,
+        "conditioning_checks": 1,
+        "rescues": 1,
+        "max_precision_bits": 256,
+        "failures": 0,
+        "weighted_checks": 1,
+        "additional_replays": 1,
+        "f64_points": 337993727,
+        "double_float_points": 0,
+        "arbitrary_points": 1,
+        "unstable_points": 0,
+        "cutoff_zero_points": 0,
+        "f64_timing": {
+          "calls": 337993728,
+          "nanoseconds": 157742696685,
+          "matrix_invocations": 1320288,
+          "matrix_points": 337993728
+        },
+        "double_float_timing": {
+          "calls": 0,
+          "nanoseconds": 0,
+          "matrix_invocations": 0,
+          "matrix_points": 0
+        },
+        "arbitrary_timing": {
+          "calls": 2,
+          "nanoseconds": 215091,
+          "matrix_invocations": 0,
+          "matrix_points": 0
+        }
+      },
+      "weights": {
+        "status": "Available",
+        "accepted_points": 268435456,
+        "orders": [
+          {
+            "order": -1,
+            "stochastic_absolute_mean": 1.9152081405106334,
+            "exact_absolute": 0.0,
+            "absolute_integral_estimate": 1.9152081405106334,
+            "sampled_sector_local_maximum": 6.489216870891452,
+            "total_mean_magnitude": 1.0,
+            "cancellation_ratio": 1.9152081405106334,
+            "maximum_ratio": 6.489216870891452
+          },
+          {
+            "order": 0,
+            "stochastic_absolute_mean": 4.516386578970065,
+            "exact_absolute": 0.0,
+            "absolute_integral_estimate": 4.516386578970065,
+            "sampled_sector_local_maximum": 12.72545983173812,
+            "total_mean_magnitude": 1.6097709557859436,
+            "cancellation_ratio": 2.805608190865274,
+            "maximum_ratio": 7.905136930194598
+          }
+        ]
+      }
+    },
+    {
+      "id": "bubble-sign-aware-discrete_mc",
+      "method": "bubble-sign-aware",
+      "sampler": "discrete_mc",
+      "sectors": 1,
+      "seed": 202610128122,
+      "native_result": {
+        "path": "/common/dev/fastsecdec/target/no-deformation-bubble-sign-aware-6647950/confirmation-sign-aware-discrete_mc-r1-result.json",
+        "sha256": "55c97548be64e719cc2ac8817c9db4ee987254ce232bf4c8fed0f9bb347f1ca0"
+      },
+      "pilot": {
+        "path": "/common/dev/fastsecdec/target/no-deformation-bubble-sign-aware-6647950/pilot-sign-aware-discrete_mc-r1-result.json",
+        "sha256": "cdd819a5aea3cf5a98f4a191862be0daba6e8c602bfeaa3d63cd6d473fd37968"
+      },
+      "elapsed_seconds": 602.84320303,
+      "total_calls": 218181632,
+      "accepted_calls": 218083328,
+      "mean_epsilon0": [
+        0.35187377632530276,
+        1.5706491304851675
+      ],
+      "native_radial_relative_se": 0.0001001755750155107,
+      "linearization_warning": false,
+      "relative_se_at600_heuristic": 0.00010041264408133061,
+      "secondary_target_total_exact": "30000000",
+      "secondary_target_average_exact": "30000000",
+      "secondary_relative_se_heuristic": 0.00027009245327626406,
+      "secondary_scope": "Prospective equal-average-per-sector work normalization only; no measured matched-work arm",
+      "C": 2.8059852954550326,
+      "maximum_ratio": 4.640209611507828,
+      "time_normalization": "native radialrelativeSE *sqrt(actualelapsed/600)",
+      "settings_changes": [
+        "max_seconds",
+        "seed"
+      ],
+      "full_covariance": [
+        3.630016322979711e-09,
+        5.7927093248422605e-09,
+        -1.5486104936311163e-08,
+        7.448389648259744e-10,
+        5.7927093248422605e-09,
+        1.68905429900327e-08,
+        -2.815285190213759e-08,
+        -1.1365845883964817e-08,
+        -1.5486104936311163e-08,
+        -2.815285190213759e-08,
+        6.868623937269559e-08,
+        2.750339219870678e-09,
+        7.448389648259744e-10,
+        -1.1365845883964817e-08,
+        2.750339219870678e-09,
+        2.2623786910664563e-08
+      ],
+      "generation_method": "sign-aware",
+      "own_peak_rss_bytes": 610353152,
+      "artifact_load_seconds": 0.003774843,
+      "total": {
+        "orders": [
+          -1,
+          -1,
+          0,
+          0
+        ],
+        "components": [
+          "Real",
+          "Imag",
+          "Real",
+          "Imag"
+        ],
+        "mean": [
+          1.0000338001319593,
+          0.00015626611131066767,
+          0.35187377632530276,
+          1.5706491304851675
+        ],
+        "standard_error": [
+          6.024961678699468e-05,
+          0.00012996362179484188,
+          0.0002620805970931377,
+          0.00015041205706546455
+        ],
+        "covariance_of_mean": [
+          3.630016322979711e-09,
+          5.7927093248422605e-09,
+          -1.5486104936311163e-08,
+          7.448389648259744e-10,
+          5.7927093248422605e-09,
+          1.68905429900327e-08,
+          -2.815285190213759e-08,
+          -1.1365845883964817e-08,
+          -1.5486104936311163e-08,
+          -2.815285190213759e-08,
+          6.868623937269559e-08,
+          2.750339219870678e-09,
+          7.448389648259744e-10,
+          -1.1365845883964817e-08,
+          2.750339219870678e-09,
+          2.2623786910664563e-08
+        ],
+        "production_complete": false
+      },
+      "caller_settings": {
+        "absolute_tolerance": 1e-30,
+        "accuracy_target": {
+          "order": 0,
+          "target": "laurent_order"
+        },
+        "contour": {
+          "deformation": {
+            "construction": "sign_aware",
+            "displacement_cap": 1.0,
+            "lambda_cap": 1.0,
+            "mode": "dynamical",
+            "safety_fraction": 0.8
+          },
+          "validation": {
+            "pilot_points": 256,
+            "policy": "off"
+          }
+        },
+        "double_points": false,
+        "evaluation_batch_size": 256,
+        "max_rounds": 100000,
+        "max_seconds": 600.0,
+        "method": "discrete_mc",
+        "package_points": 1024,
+        "periodization": "korobov3",
+        "points": 4096,
+        "production_seconds": 10.0,
+        "relative_tolerance": 1e-30,
+        "replay": {
+          "growth_factor": 16.0,
+          "minimum_bits": 128
+        },
+        "seed": 202610128122,
+        "shifts": 8,
+        "stability": {
+          "levels": [
+            {
+              "escalate_for_large_weight_threshold": 0.9,
+              "minimum_effective_distance": 0.001,
+              "power_thresholds": {},
+              "precision": "f64"
+            },
+            {
+              "escalate_for_large_weight_threshold": null,
+              "minimum_effective_distance": 1e-08,
+              "power_thresholds": {},
+              "precision": "double_float"
+            },
+            {
+              "escalate_for_large_weight_threshold": null,
+              "minimum_effective_distance": 0.0,
+              "power_thresholds": {},
+              "precision": "arbitrary"
+            }
+          ],
+          "mode": "validated",
+          "unstable_cutoff": null,
+          "unstable_power_thresholds": {}
+        },
+        "workers": 25
+      },
+      "timed_stop": {
+        "counts_complete": true,
+        "deadline_observed_seconds": 600.003782914,
+        "drain_seconds": 1.7441832050000001,
+        "in_flight_at_deadline": 25,
+        "requested_seconds": 600.0
+      },
+      "diagnostics": {
+        "contour": {
+          "production": {
+            "checked_arguments": 0,
+            "maximum_bits": 0
+          },
+          "adaptation": {
+            "checked_arguments": 0,
+            "maximum_bits": 0
+          }
+        },
+        "evaluations": 218181632,
+        "conditioning_checks": 9,
+        "rescues": 9,
+        "max_precision_bits": 256,
+        "failures": 0,
+        "weighted_checks": 9,
+        "additional_replays": 9,
+        "f64_points": 218181623,
+        "double_float_points": 0,
+        "arbitrary_points": 9,
+        "unstable_points": 0,
+        "cutoff_zero_points": 0,
+        "f64_timing": {
+          "calls": 218181632,
+          "nanoseconds": 115788274326,
+          "matrix_invocations": 852272,
+          "matrix_points": 218181632
+        },
+        "double_float_timing": {
+          "calls": 0,
+          "nanoseconds": 0,
+          "matrix_invocations": 0,
+          "matrix_points": 0
+        },
+        "arbitrary_timing": {
+          "calls": 18,
+          "nanoseconds": 1736476,
+          "matrix_invocations": 0,
+          "matrix_points": 0
+        }
+      },
+      "weights": {
+        "status": "Available",
+        "accepted_points": 218083328,
+        "orders": [
+          {
+            "order": -1,
+            "stochastic_absolute_mean": 1.9153055354558524,
+            "exact_absolute": 0.0,
+            "absolute_integral_estimate": 1.9153055354558524,
+            "sampled_sector_local_maximum": 6.63633422217346,
+            "total_mean_magnitude": 1.0000338123410952,
+            "cancellation_ratio": 1.9152407766814317,
+            "maximum_ratio": 6.636109839764012
+          },
+          {
+            "order": 0,
+            "stochastic_absolute_mean": 4.516463102046515,
+            "exact_absolute": 0.0,
+            "absolute_integral_estimate": 4.516463102046515,
+            "sampled_sector_local_maximum": 7.468797334783664,
+            "total_mean_magnitude": 1.6095818853227821,
+            "cancellation_ratio": 2.8059852954550326,
+            "maximum_ratio": 4.640209611507828
+          }
+        ]
+      }
+    }
+  ],
+  "method_records": [
+    {
+      "id": "dynamic-sign-aware",
+      "label": "Sign-aware",
+      "generation_status": "measured",
+      "status_detail": "Fresh same6647950 symbolic-Jacobian generation/cost and independent600s confirmations; pilots unpooled; full native Laurent covariance retained.",
+      "generation": {
+        "generation_seconds": "0.865",
+        "generation_peak_gb": "0.0508",
+        "artifact_mb": "0.0245",
+        "stochastic_sectors": 1
+      },
+      "kernel_cost": {
+        "f64_max_avg_us": "0.298 / 0.298",
+        "sum_f64_checked_us": "0.298 / 0.393"
+      },
+      "samplers": [
+        {
+          "id": "qmc",
+          "label": "QMC",
+          "state": "measured",
+          "metrics": {
+            "integration_peak_gb": "0.567",
+            "work_relative_se": "2.95e-16",
+            "work_joint_se": "5.14e-16",
+            "time_relative_se": "9.85e-17"
+          },
+          "receipts": [
+            {
+              "path": "/common/dev/fastsecdec/target/no-deformation-bubble-sign-aware-6647950/confirmation-sign-aware-qmc-r1/completion.json",
+              "sha256": "2909a73471efbfadc8109047c59fb3a511e719bfabb411211ab67b96cd1d235d"
+            }
+          ],
+          "normalized_metrics": {
+            "work_radial_relative_se": "2.95e-16",
+            "work_joint_se": "5.14e-16",
+            "time_radial_relative_se": "9.85e-17",
+            "time_reported_sector_calls_million": "338"
+          },
+          "weight_metrics": {
+            "status": "measured",
+            "native_status": "Available",
+            "absolute_weight_integral_over_norm": 2.805608190865274,
+            "maximum_observed_weight_over_norm": 7.905136930194598,
+            "display_cancellation_ratio": "2.81",
+            "display_maximum_ratio": "7.91"
+          }
+        },
+        {
+          "id": "discrete_mc",
+          "label": "MC",
+          "state": "measured",
+          "metrics": {
+            "integration_peak_gb": "0.61",
+            "work_relative_se": "0.00027",
+            "work_joint_se": "0.000815",
+            "time_relative_se": "0.0001"
+          },
+          "receipts": [
+            {
+              "path": "/common/dev/fastsecdec/target/no-deformation-bubble-sign-aware-6647950/confirmation-sign-aware-discrete_mc-r1/completion.json",
+              "sha256": "8e8829ac50ed91450a5fc2279a7a84cc96212efa4749f9e3ddb1e0ca410cb85e"
+            }
+          ],
+          "normalized_metrics": {
+            "work_radial_relative_se": "0.00027",
+            "work_joint_se": "0.000815",
+            "time_radial_relative_se": "0.0001",
+            "time_reported_sector_calls_million": "218"
+          },
+          "weight_metrics": {
+            "status": "measured",
+            "native_status": "Available",
+            "absolute_weight_integral_over_norm": 2.8059852954550326,
+            "maximum_observed_weight_over_norm": 4.640209611507828,
+            "display_cancellation_ratio": "2.81",
+            "display_maximum_ratio": "4.64"
+          }
+        }
+      ],
+      "selected_jacobian": "symbolic",
+      "generation_receipt": {
+        "path": "/common/dev/fastsecdec/target/no-deformation-bubble-sign-aware-6647950/generation-r1/bubble-sign-aware-symbolic/execution.json",
+        "sha256": "be1db989810dad646ef553b4cf24d6d6d681ad83c4e69bc35c8b0c2c38a6e23e"
+      },
+      "profile_receipt": {
+        "path": "/common/dev/fastsecdec/target/no-deformation-bubble-sign-aware-6647950/cost-r1/sign-aware-kernel-cost/stdout.json",
+        "sha256": "9b184aaacb0af19aab9d53ea56c2a8d7e4f19aaaa78d277c0e68d050920923d9"
+      }
+    }
+  ],
+  "independent_review": {
+    "path": "/common/dev/fastsecdec/target/no-deformation-bubble-sign-aware-6647950/root-outcome-review-r1/review.json",
+    "sha256": "915a69d283e9f335fedfedc168a96c6897fc0b5198c82a930f7b05525c3aab04",
+    "bytes": 730
+  },
+  "generation_exact": {
+    "seconds": 0.8645231630653143,
+    "peak_rss_bytes": 50774016,
+    "source_receipt": {
+      "path": "/common/dev/fastsecdec/target/no-deformation-bubble-sign-aware-6647950/generation-r1/bubble-sign-aware-symbolic/execution.json",
+      "sha256": "be1db989810dad646ef553b4cf24d6d6d681ad83c4e69bc35c8b0c2c38a6e23e"
+    }
+  },
+  "cost_exact": {
+    "options": {
+      "batch_size": 256,
+      "points": 1024,
+      "repetitions": 3,
+      "warmup": 0
+    },
+    "f64_max_us": 0.2978447265625,
+    "f64_average_us": 0.2978447265625,
+    "f64_sum_us": 0.2978447265625,
+    "checked_sum_us": 0.392755859375,
+    "receipt": {
+      "path": "/common/dev/fastsecdec/target/no-deformation-bubble-sign-aware-6647950/cost-r1/sign-aware-kernel-cost/stdout.json",
+      "sha256": "9b184aaacb0af19aab9d53ea56c2a8d7e4f19aaaa78d277c0e68d050920923d9"
+    }
+  }
+}

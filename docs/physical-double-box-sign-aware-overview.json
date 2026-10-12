@@ -1,0 +1,476 @@
+{
+  "schema": "double-box-sign-aware-overview-extension-v1",
+  "scope": "Complete physical-numerator incoming++ D05 double box at exact s=1000000,t=-97077,mH=125,mt=345/2; original numerator and prefactors preserved.",
+  "source_commit": "6647950859ff4ec4c87c0fbcb86ed71fe7dceba7",
+  "binary": {
+    "path": "/common/dev/fastsecdec/target/no-deformation-release-6647950/fastsecdec",
+    "sha256": "1465d3f8e3524c7b710cf7d71bd73f62e32c80b995c945534d19d2454db64606",
+    "bytes": 102042112
+  },
+  "source_card": "examples/no_deformation/benchmarks/overview/double_box_physical.toml",
+  "card": {
+    "path": "/common/dev/fastsecdec/target/no-deformation-double-box-sign-aware-6647950/physical.toml",
+    "sha256": "3cdbca3930d0dd29f7a0497a061c61dc4dd9f7ddcabb410c40c27d0cea931406"
+  },
+  "artifact": {
+    "manifest": {
+      "path": "/common/dev/fastsecdec/target/no-deformation-double-box-sign-aware-6647950/physical.fsd.json",
+      "sha256": "c4b35f505e4732d29ccd09b56243bc15e554dc3fc1c92a1496c4d38a85e5338c"
+    },
+    "data": {
+      "path": "/common/dev/fastsecdec/target/no-deformation-double-box-sign-aware-6647950/physical.fsd.1791798577962145141-3994695-0.dat",
+      "sha256": "8a99bf163d0c397d12ae7189744178eb8f9287bec52339a0cf40264640c15165"
+    },
+    "content_id": "a4b468c9bd2252f87ff12d526dba71a9a206bc7193ed72a9c8172afa9da54e42"
+  },
+  "generation": {
+    "seconds": 1536.1025761649944,
+    "peak_rss_bytes": 36669079552,
+    "artifact_bytes": 99710967,
+    "sectors": 30,
+    "receipt": {
+      "path": "/common/dev/fastsecdec/target/no-deformation-double-box-sign-aware-6647950/generation-physical-r1/double-box-physical-sign-aware-symbolic/execution.json",
+      "sha256": "225fcb971fad0ed4b9b98092c9ee3f02bf2386980c2d712e56ff262ea8108881"
+    },
+    "native_stage_seconds": {
+      "coefficient_expansion_seconds": 1475.791301162,
+      "compilation_seconds": 0.0,
+      "domain_seconds": 0.030361416,
+      "geometry_seconds": 0.004416262,
+      "input_seconds": 0.089199864,
+      "laurent_seconds": 0.0,
+      "mapping_seconds": 55.669253474,
+      "parametrization_seconds": 3.665767301,
+      "subtraction_seconds": 0.0,
+      "symmetry_seconds": 3.729e-05,
+      "total_seconds": 1535.955765096
+    }
+  },
+  "cost": {
+    "f64_max_us": 9.107515950520835,
+    "f64_average_us": 7.724002853732639,
+    "f64_sum_us": 231.72008561197916,
+    "checked_sum_us": 236.72328417968748,
+    "options": {
+      "batch_size": 256,
+      "points": 1024,
+      "repetitions": 3,
+      "warmup": 0
+    },
+    "receipt": {
+      "path": "/common/dev/fastsecdec/target/no-deformation-double-box-sign-aware-6647950/physical-cost-r1/physical-sign-aware-cost/stdout.json",
+      "sha256": "8b98953d47f13f6f34d9739106d3fab0d18608b4ddb8860b3754c913236c30eb"
+    }
+  },
+  "policy": {
+    "timed_seconds": 600,
+    "workers": 25,
+    "generation_workers": 6,
+    "generation_exception": "Six resident workers under25core affinity to control peakRAM",
+    "qmc_serial_seconds": 1,
+    "discrete_mc_scheduler": "ordinary authorized exception",
+    "causal_validation": "off",
+    "numerical_stability": "validated",
+    "work_target_average_per_sector": 6000000,
+    "normalization": "MC-equivalent sqrt scaling is heuristic; no pooled pilots or measured matched-work arm.",
+    "elapsed": "Native integration including complete allocation drain; load separately recorded."
+  },
+  "runs": [
+    {
+      "method": "qmc",
+      "seed": 202610127121,
+      "elapsed_seconds": 600.135053987,
+      "artifact_load_seconds": 0.050677921,
+      "own_peak_rss_bytes": 804569088,
+      "total_sector_calls": 331702272,
+      "accepted_sector_calls": 306839552,
+      "norm_uncertainty": {
+        "joint_relative_error": 0.9720463819292633,
+        "linearization_warning": true,
+        "mean_magnitude": 100.20720364066354,
+        "radial_relative_error": 0.7077316287361881,
+        "radial_standard_error": 70.91980744370568
+      },
+      "weights": {
+        "order": 0,
+        "stochastic_absolute_mean": 9899.343552327553,
+        "exact_absolute": 0.0,
+        "absolute_integral_estimate": 9899.343552327553,
+        "sampled_sector_local_maximum": 8723824867.50592,
+        "total_mean_magnitude": 100.20720364066354,
+        "cancellation_ratio": 98.78874165400273,
+        "maximum_ratio": 87057861.6163064
+      },
+      "total": {
+        "orders": [
+          -1,
+          -1,
+          0,
+          0
+        ],
+        "components": [
+          "Real",
+          "Imag",
+          "Real",
+          "Imag"
+        ],
+        "mean": [
+          -1.3814615419360454,
+          -11.624528181057759,
+          85.84926975616162,
+          51.68545775955946
+        ],
+        "standard_error": [
+          1.3023792453812977,
+          1.2351908003474517,
+          69.12461381826617,
+          68.62744560922339
+        ],
+        "covariance_of_mean": [
+          1.6961916987999583,
+          0.1135972941916384,
+          -49.601328467267614,
+          -1.1690127584560703,
+          0.1135972941916384,
+          1.5256963132629784,
+          -6.47811733524708,
+          -45.326381403872915,
+          -49.601328467267614,
+          -6.47811733524708,
+          4778.212235524434,
+          305.0882726606798,
+          -1.1690127584560703,
+          -45.326381403872915,
+          305.0882726606798,
+          4709.726290846914
+        ],
+        "production_complete": true
+      },
+      "evaluation_diagnostics": {
+        "contour": {
+          "production": {
+            "checked_arguments": 0,
+            "maximum_bits": 0
+          },
+          "adaptation": {
+            "checked_arguments": 0,
+            "maximum_bits": 0
+          }
+        },
+        "evaluations": 331702272,
+        "conditioning_checks": 105,
+        "rescues": 105,
+        "max_precision_bits": 4096,
+        "failures": 0,
+        "weighted_checks": 105,
+        "additional_replays": 105,
+        "f64_points": 331702167,
+        "double_float_points": 0,
+        "arbitrary_points": 105,
+        "unstable_points": 0,
+        "cutoff_zero_points": 0,
+        "f64_timing": {
+          "calls": 331702272,
+          "nanoseconds": 1288712337695,
+          "matrix_invocations": 1295712,
+          "matrix_points": 331702272
+        },
+        "double_float_timing": {
+          "calls": 0,
+          "nanoseconds": 0,
+          "matrix_invocations": 0,
+          "matrix_points": 0
+        },
+        "arbitrary_timing": {
+          "calls": 214,
+          "nanoseconds": 586332878,
+          "matrix_invocations": 0,
+          "matrix_points": 0
+        }
+      },
+      "caller_settings": {
+        "absolute_tolerance": 1e-30,
+        "accuracy_target": {
+          "order": 0,
+          "target": "laurent_order"
+        },
+        "contour": {
+          "deformation": {
+            "construction": "sign_aware",
+            "displacement_cap": 1.0,
+            "lambda_cap": 1.0,
+            "mode": "dynamical",
+            "safety_fraction": 0.8
+          },
+          "validation": {
+            "pilot_points": 256,
+            "policy": "off"
+          }
+        },
+        "double_points": false,
+        "evaluation_batch_size": 256,
+        "max_rounds": 100000,
+        "max_seconds": 600.0,
+        "method": "qmc",
+        "package_points": 1024,
+        "periodization": "korobov3",
+        "points": 4096,
+        "production_seconds": 10.0,
+        "relative_tolerance": 1e-30,
+        "replay": {
+          "growth_factor": 16.0,
+          "minimum_bits": 128
+        },
+        "seed": 202610127121,
+        "serial_seconds": 1.0,
+        "shifts": 8,
+        "stability": {
+          "levels": [
+            {
+              "escalate_for_large_weight_threshold": 0.9,
+              "minimum_effective_distance": 0.001,
+              "power_thresholds": {},
+              "precision": "f64"
+            },
+            {
+              "escalate_for_large_weight_threshold": null,
+              "minimum_effective_distance": 1e-08,
+              "power_thresholds": {},
+              "precision": "double_float"
+            },
+            {
+              "escalate_for_large_weight_threshold": null,
+              "minimum_effective_distance": 0.0,
+              "power_thresholds": {},
+              "precision": "arbitrary"
+            }
+          ],
+          "mode": "validated",
+          "unstable_cutoff": null,
+          "unstable_power_thresholds": {}
+        },
+        "workers": 25
+      },
+      "timed_stop": {
+        "counts_complete": true,
+        "deadline_observed_seconds": 600.082095401,
+        "drain_seconds": 3.7e-07,
+        "in_flight_at_deadline": 0,
+        "requested_seconds": 600.0
+      },
+      "stopping_reason": "WorkLimit",
+      "time_normalization_factor": 1.000112538656692,
+      "work_normalization_factor": 1.3056278864124256,
+      "time_normalized_radial_relative_se": 0.7078112759029845,
+      "work_normalized_radial_relative_se": 0.9240341505740527,
+      "result": {
+        "path": "/common/dev/fastsecdec/target/no-deformation-double-box-sign-aware-6647950/confirmation-physical-qmc-result.json",
+        "sha256": "3961841a7894a7db02a0b381bf251fa9b93d1bcb9c1b704c53f2c5a8a19901a3"
+      },
+      "receipt": {
+        "path": "/common/dev/fastsecdec/target/no-deformation-double-box-sign-aware-6647950/confirmation-physical-qmc-r1/completion.json",
+        "sha256": "8d1513433bc7f1a2a510d5112b7d72c4c6ea5fa4a626db64a1aee546adc9aab3"
+      }
+    },
+    {
+      "method": "discrete_mc",
+      "seed": 202610127122,
+      "elapsed_seconds": 603.712005868,
+      "artifact_load_seconds": 3.66556967,
+      "own_peak_rss_bytes": 1197780992,
+      "total_sector_calls": 43585536,
+      "accepted_sector_calls": 43487232,
+      "norm_uncertainty": {
+        "joint_relative_error": 1.0728297033440821,
+        "linearization_warning": true,
+        "mean_magnitude": 139.0957586419098,
+        "radial_relative_error": 0.6776234977472112,
+        "radial_standard_error": 94.25455449273281
+      },
+      "weights": {
+        "order": 0,
+        "stochastic_absolute_mean": 8572.85671924799,
+        "exact_absolute": 0.0,
+        "absolute_integral_estimate": 8572.85671924799,
+        "sampled_sector_local_maximum": 101174357.31407622,
+        "total_mean_magnitude": 139.0957586419098,
+        "cancellation_ratio": 61.63276869798798,
+        "maximum_ratio": 727371.9795766094
+      },
+      "total": {
+        "orders": [
+          -1,
+          -1,
+          0,
+          0
+        ],
+        "components": [
+          "Real",
+          "Imag",
+          "Real",
+          "Imag"
+        ],
+        "mean": [
+          -1.5434511199309426,
+          -4.970284862838156,
+          127.44059389511585,
+          -55.73620995213605
+        ],
+        "standard_error": [
+          2.283799930324639,
+          3.168992396637605,
+          95.20910158685416,
+          114.90711205109339
+        ],
+        "covariance_of_mean": [
+          5.215742121750824,
+          1.6547710945279286,
+          -137.29562410975703,
+          -1.796258120631612,
+          1.6547710945279286,
+          10.04251280994695,
+          -45.928249330259774,
+          -269.06238571164124,
+          -137.29562410975703,
+          -45.928249330259774,
+          9064.773024975915,
+          1151.3752502853738,
+          -1.796258120631612,
+          -269.06238571164124,
+          1151.3752502853738,
+          13203.644399922534
+        ],
+        "production_complete": false
+      },
+      "evaluation_diagnostics": {
+        "contour": {
+          "production": {
+            "checked_arguments": 0,
+            "maximum_bits": 0
+          },
+          "adaptation": {
+            "checked_arguments": 0,
+            "maximum_bits": 0
+          }
+        },
+        "evaluations": 43585536,
+        "conditioning_checks": 484,
+        "rescues": 484,
+        "max_precision_bits": 256,
+        "failures": 0,
+        "weighted_checks": 484,
+        "additional_replays": 484,
+        "f64_points": 43585052,
+        "double_float_points": 0,
+        "arbitrary_points": 484,
+        "unstable_points": 0,
+        "cutoff_zero_points": 0,
+        "f64_timing": {
+          "calls": 43585536,
+          "nanoseconds": 364914542758,
+          "matrix_invocations": 4395924,
+          "matrix_points": 43585536
+        },
+        "double_float_timing": {
+          "calls": 0,
+          "nanoseconds": 0,
+          "matrix_invocations": 0,
+          "matrix_points": 0
+        },
+        "arbitrary_timing": {
+          "calls": 968,
+          "nanoseconds": 2533191141,
+          "matrix_invocations": 0,
+          "matrix_points": 0
+        }
+      },
+      "caller_settings": {
+        "absolute_tolerance": 1e-30,
+        "accuracy_target": {
+          "order": 0,
+          "target": "laurent_order"
+        },
+        "contour": {
+          "deformation": {
+            "construction": "sign_aware",
+            "displacement_cap": 1.0,
+            "lambda_cap": 1.0,
+            "mode": "dynamical",
+            "safety_fraction": 0.8
+          },
+          "validation": {
+            "pilot_points": 256,
+            "policy": "off"
+          }
+        },
+        "double_points": false,
+        "evaluation_batch_size": 256,
+        "max_rounds": 100000,
+        "max_seconds": 600.0,
+        "method": "discrete_mc",
+        "package_points": 1024,
+        "periodization": "korobov3",
+        "points": 4096,
+        "production_seconds": 10.0,
+        "relative_tolerance": 1e-30,
+        "replay": {
+          "growth_factor": 16.0,
+          "minimum_bits": 128
+        },
+        "seed": 202610127122,
+        "shifts": 8,
+        "stability": {
+          "levels": [
+            {
+              "escalate_for_large_weight_threshold": 0.9,
+              "minimum_effective_distance": 0.001,
+              "power_thresholds": {},
+              "precision": "f64"
+            },
+            {
+              "escalate_for_large_weight_threshold": null,
+              "minimum_effective_distance": 1e-08,
+              "power_thresholds": {},
+              "precision": "double_float"
+            },
+            {
+              "escalate_for_large_weight_threshold": null,
+              "minimum_effective_distance": 0.0,
+              "power_thresholds": {},
+              "precision": "arbitrary"
+            }
+          ],
+          "mode": "validated",
+          "unstable_cutoff": null,
+          "unstable_power_thresholds": {}
+        },
+        "workers": 25
+      },
+      "timed_stop": {
+        "counts_complete": true,
+        "deadline_observed_seconds": 600.133083268,
+        "drain_seconds": 2.894469908,
+        "in_flight_at_deadline": 25,
+        "requested_seconds": 600.0
+      },
+      "stopping_reason": "WorkLimit",
+      "time_normalization_factor": 1.0030885685953492,
+      "work_normalization_factor": 0.4915238888735046,
+      "time_normalized_radial_relative_se": 0.6797163844018239,
+      "work_normalized_radial_relative_se": 0.33306813680477576,
+      "result": {
+        "path": "/common/dev/fastsecdec/target/no-deformation-double-box-sign-aware-6647950/confirmation-physical-discrete_mc-result.json",
+        "sha256": "eaf6ba2c5810dcc573ff6c743dea32aa0f5198a576668f0f66f26cb97eaf46fd"
+      },
+      "receipt": {
+        "path": "/common/dev/fastsecdec/target/no-deformation-double-box-sign-aware-6647950/confirmation-physical-discrete_mc-r1/completion.json",
+        "sha256": "d1104d97c875b6628ea176f121f3f755cc66d6b5376ac8f47ed2b512d949a87a"
+      }
+    }
+  ],
+  "independent_review": {
+    "path": "target/no-deformation-double-box-sign-aware-6647950/physical-collector-r1/runtime-outcome-review-r1.json",
+    "sha256": "281c91ab8a4781056f0f8a5b29809bb77d7f237a7eaef3b8ded83eabb7d01e4f",
+    "status": "PASS;32 marginal comparisons, maximum2.64241combinedSE; full4component covariance and native norm warnings retained"
+  }
+}

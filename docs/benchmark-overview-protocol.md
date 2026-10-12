@@ -1,17 +1,57 @@
 # Twenty-five-core finite-coefficient benchmark protocol
 
-Status: all 44 admitted instrumented timed arms are complete, with frozen
+Status: the original 44 admitted instrumented timed arms are complete, with frozen
 dependency, executable and recorded run plans. Generation, explicit-Off costs
 and confirmation estimates are recorded; unsupported no-contour routes remain
 unfinished. No earlier historical number is relabelled as a measurement of this
 campaign.
 
+The scalar double-box sign-aware extension adds two independent 600-second
+confirmations on the frozen `6647950` release. Its compact record is
+`scalar-double-box-sign-aware-overview.json`: fresh 25-worker serial generation,
+symbolic endpoint reduction/Jacobian, S=0.8 and L=R=1. Its secondary display
+retains the existing four-million evaluations-per-sector target. Both native
+norm-linearization warnings remain visible. The physical-numerator sign-aware
+arm is now independently complete, with its own 30-sector generation and two
+confirmations in `physical-double-box-sign-aware-overview.json`. It uses six
+generation workers under 25-core affinity, the existing memory exception, and
+25 integration workers. Seeds 202610127121/202610127122 and the six-million
+evaluations-per-sector display target remain separate from scalar D05.
+
+Reproduce the scalar sign-aware numerical settings with the checked-in exact
+card (the default Horner count is ten):
+
+```sh
+fastsecdec generate examples/no_deformation/benchmarks/overview/double_box_scalar.toml --serial --workers 25 --recipe dynamic-sign-aware-v1 --contour-jacobian symbolic -o target/scalar-sign-aware.fsd
+fastsecdec integrate target/scalar-sign-aware.fsd --method qmc --serial 1 --workers 25 --points 4096 --shifts 8 --max-rounds 100000 --double-points false --evaluation-batch-size 256 --seed 202610127021 --max-seconds 600 --contour dynamical=0.8 --lambda-cap 1 --displacement-cap 1 --contour-construction sign_aware --contour-validation off --contour-diagnostics disabled --save-result target/scalar-sign-aware-qmc.json
+```
+
+For its discrete-MC confirmation, use the same integration settings with
+`--method discrete_mc`, omit `--serial 1`, use seed `202610127022`, and choose a
+separate result/checkpoint path. The native commands reproduce numerical
+settings; CPU affinity and aggregate RSS require the external caller's resource
+supervisor. The compact record keeps the exact original invocation settings.
+For physical D05 use `double_box_physical.toml`, six generation workers, the
+physical seeds above and distinct artifacts/results, with the same contour
+recipe and integration options. Neither baseline is tuned to its confirmation.
+
+The bubble sign-aware extension similarly completes its fourth prescription:
+`bubble-sign-aware-overview.json` retains fresh generation, cost profiling and
+independent seeds 202610128121/202610128122. Its round display target remains
+30 million calls per sector; the QMC uncertainty at floating-point roundoff
+does not certify absence of numerical bias. All new extensions use the frozen
+`6647950` executable, independent pilot/confirmation streams and native complete
+deadline/drain accounting. The dynamic-cap tuning study is a subsequent,
+separate campaign and cannot overwrite these baseline measurements.
+
 The 12 October massive-sunrise extension adds two independent 600-second
 no-contour arms using the rebuilt `6647950` release and full fresh CLI generation.
 It is distinct from the massless sunrise. Its separate compact record is
-`no-contour-massive-sunrise-overview.json`; matching fresh contour arms remain
-pending. The secondary work display uses the latest user-requested square-root
-normalization of the timed result to 20 million accepted calls, with no claim
+`no-contour-massive-sunrise-overview.json`; the six matching fresh contour arms
+are now in `massive-sunrise-contour-overview.json`. All eight use the same
+frozen executable. The secondary work display uses the latest user-requested square-root
+normalization of the timed result to an average of 20 million/62 accepted calls
+per sector (20 million total for the 62-sector no-contour artifact), with no claim
 of a separate measured matched-work run. Historical controls and the disjoint
 30-second calibration are not pooled. Both samplers retain validated algebraic
 precision handling; optional causal validation is off.

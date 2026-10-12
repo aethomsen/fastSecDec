@@ -223,6 +223,95 @@
           }
         },
         {
+          "id": "dynamic-sign-aware",
+          "label": "Sign-aware",
+          "generation_status": "measured",
+          "status_detail": "Fresh same6647950 symbolic-Jacobian generation/cost and independent600s confirmations; pilots unpooled; full native Laurent covariance retained.",
+          "generation": {
+            "generation_seconds": "0.865",
+            "generation_peak_gb": "0.0508",
+            "artifact_mb": "0.0245",
+            "stochastic_sectors": 1
+          },
+          "kernel_cost": {
+            "f64_max_avg_us": "0.298 / 0.298",
+            "sum_f64_checked_us": "0.298 / 0.393"
+          },
+          "samplers": [
+            {
+              "id": "qmc",
+              "label": "QMC",
+              "state": "measured",
+              "metrics": {
+                "integration_peak_gb": "0.567",
+                "work_relative_se": "2.95e-16",
+                "work_joint_se": "5.14e-16",
+                "time_relative_se": "9.85e-17"
+              },
+              "receipts": [
+                {
+                  "path": "/common/dev/fastsecdec/target/no-deformation-bubble-sign-aware-6647950/confirmation-sign-aware-qmc-r1/completion.json",
+                  "sha256": "2909a73471efbfadc8109047c59fb3a511e719bfabb411211ab67b96cd1d235d"
+                }
+              ],
+              "normalized_metrics": {
+                "work_radial_relative_se": "2.95e-16",
+                "work_joint_se": "5.14e-16",
+                "time_radial_relative_se": "9.85e-17",
+                "time_reported_sector_calls_million": "338"
+              },
+              "weight_metrics": {
+                "status": "measured",
+                "native_status": "Available",
+                "absolute_weight_integral_over_norm": 2.805608190865274,
+                "maximum_observed_weight_over_norm": 7.905136930194598,
+                "display_cancellation_ratio": "2.81",
+                "display_maximum_ratio": "7.91"
+              }
+            },
+            {
+              "id": "discrete_mc",
+              "label": "MC",
+              "state": "measured",
+              "metrics": {
+                "integration_peak_gb": "0.61",
+                "work_relative_se": "0.00027",
+                "work_joint_se": "0.000815",
+                "time_relative_se": "0.0001"
+              },
+              "receipts": [
+                {
+                  "path": "/common/dev/fastsecdec/target/no-deformation-bubble-sign-aware-6647950/confirmation-sign-aware-discrete_mc-r1/completion.json",
+                  "sha256": "8e8829ac50ed91450a5fc2279a7a84cc96212efa4749f9e3ddb1e0ca410cb85e"
+                }
+              ],
+              "normalized_metrics": {
+                "work_radial_relative_se": "0.00027",
+                "work_joint_se": "0.000815",
+                "time_radial_relative_se": "0.0001",
+                "time_reported_sector_calls_million": "218"
+              },
+              "weight_metrics": {
+                "status": "measured",
+                "native_status": "Available",
+                "absolute_weight_integral_over_norm": 2.8059852954550326,
+                "maximum_observed_weight_over_norm": 4.640209611507828,
+                "display_cancellation_ratio": "2.81",
+                "display_maximum_ratio": "4.64"
+              }
+            }
+          ],
+          "selected_jacobian": "symbolic",
+          "generation_receipt": {
+            "path": "/common/dev/fastsecdec/target/no-deformation-bubble-sign-aware-6647950/generation-r1/bubble-sign-aware-symbolic/execution.json",
+            "sha256": "be1db989810dad646ef553b4cf24d6d6d681ad83c4e69bc35c8b0c2c38a6e23e"
+          },
+          "profile_receipt": {
+            "path": "/common/dev/fastsecdec/target/no-deformation-bubble-sign-aware-6647950/cost-r1/sign-aware-kernel-cost/stdout.json",
+            "sha256": "9b184aaacb0af19aab9d53ea56c2a8d7e4f19aaaa78d277c0e68d050920923d9"
+          }
+        },
+        {
           "id": "no-contour",
           "label": "No contour",
           "generation_status": "measured",
@@ -1925,7 +2014,7 @@
           "id": "no-contour",
           "label": "No contour",
           "generation_status": "refused",
-          "status_detail": "Endpoint implementation incomplete at the next moving root: conservative rational-composition preflight and discriminant division modulo the retained algebraic tower. Native reduced/resultant probes pass; complete density not yet admitted.",
+          "status_detail": "Verified9840-cell GCAD. Native next-root resultant/tower composition reaches denominator and bracket endpoint certificates; original denominators certify, complete moving-root chart and density admission remain unfinished.",
           "generation": {
             "generation_seconds": "Refused",
             "generation_peak_gb": null,
@@ -2230,50 +2319,97 @@
         {
           "id": "dynamic-sign-aware",
           "label": "Sign-aware",
-          "generation_status": "pending",
-          "status_detail": "Missing campaign arm: sign-aware recipe generation and independent QMC/MC confirmations requested; no completed double-box sign-aware measurement yet.",
+          "generation_status": "measured",
+          "status_detail": "Fresh complete scalar double-box symbolic generation and independent600s QMC/ordinaryMC; optional causal checks off; native norm warnings retained.",
           "generation": {
-            "generation_seconds": null,
-            "generation_peak_gb": null,
-            "artifact_mb": null,
-            "stochastic_sectors": null
+            "generation_seconds": "34.1",
+            "generation_peak_gb": "2.03",
+            "artifact_mb": "88.6",
+            "stochastic_sectors": 18
           },
           "kernel_cost": {
-            "f64_max_avg_us": null,
-            "sum_f64_checked_us": null
+            "f64_max_avg_us": "6.74 / 5.47",
+            "sum_f64_checked_us": "98.5 / 101"
           },
           "samplers": [
             {
               "id": "qmc",
               "label": "QMC",
-              "state": "pending",
+              "state": "measured",
               "metrics": {
-                "integration_peak_gb": null,
-                "work_relative_se": null,
-                "work_joint_se": null,
-                "time_relative_se": null
+                "integration_peak_gb": "1.13",
+                "work_relative_se": "0.328",
+                "work_joint_se": "1.3e-16",
+                "time_relative_se": "0.197"
               },
-              "receipts": []
+              "receipts": [
+                {
+                  "path": "/common/dev/fastsecdec/target/no-deformation-double-box-sign-aware-6647950/confirmation-scalar-qmc-r1/completion.json",
+                  "sha256": "67d5286ef6a294f624cbb111dedd5ef3af3eb684025246d1f7b07d9e652bcd97"
+                }
+              ],
+              "normalized_metrics": {
+                "work_radial_relative_se": "0.328\u2020",
+                "work_joint_se": "1.3e-16",
+                "time_radial_relative_se": "0.197\u2020",
+                "time_reported_sector_calls_million": "326"
+              },
+              "weight_metrics": {
+                "status": "measured",
+                "native_status": "Available",
+                "absolute_weight_integral_over_norm": 24.42708009689807,
+                "maximum_observed_weight_over_norm": 4040361.920787707,
+                "display_cancellation_ratio": "24.4",
+                "display_maximum_ratio": "4.04e+06"
+              }
             },
             {
               "id": "discrete_mc",
               "label": "MC",
-              "state": "pending",
+              "state": "measured",
               "metrics": {
-                "integration_peak_gb": null,
-                "work_relative_se": null,
-                "work_joint_se": null,
-                "time_relative_se": null
+                "integration_peak_gb": "0.965",
+                "work_relative_se": "0.626",
+                "work_joint_se": "2.42e-16",
+                "time_relative_se": "0.586"
               },
-              "receipts": []
+              "receipts": [
+                {
+                  "path": "/common/dev/fastsecdec/target/no-deformation-double-box-sign-aware-6647950/confirmation-scalar-discrete_mc-r1/completion.json",
+                  "sha256": "c98cd0d73ca44f55a6797fcdbd790571a12009978a573b04e1baded003695a27"
+                }
+              ],
+              "normalized_metrics": {
+                "work_radial_relative_se": "0.626\u2020",
+                "work_joint_se": "2.42e-16",
+                "time_radial_relative_se": "0.586\u2020",
+                "time_reported_sector_calls_million": "82.5"
+              },
+              "weight_metrics": {
+                "status": "measured",
+                "native_status": "Available",
+                "absolute_weight_integral_over_norm": 35.22977486305202,
+                "maximum_observed_weight_over_norm": 5044340.1271988945,
+                "display_cancellation_ratio": "35.2",
+                "display_maximum_ratio": "5.04e+06"
+              }
             }
-          ]
+          ],
+          "selected_jacobian": "symbolic",
+          "generation_receipt": {
+            "path": "/common/dev/fastsecdec/target/no-deformation-double-box-sign-aware-6647950/generation-scalar-r1/double-box-scalar-sign-aware-symbolic/execution.json",
+            "sha256": "583cd1f58c291b3f2d015b04893c26a24b56979816e3483d1e50190f84cedcfa"
+          },
+          "profile_receipt": {
+            "path": "/common/dev/fastsecdec/target/no-deformation-double-box-sign-aware-6647950/scalar-cost-r1/scalar-sign-aware-cost/stdout.json",
+            "sha256": "1149673c3c5d39a3ead70fbeb6e3c3619ce0d912dc938a6bfdac6bc40bbfe71d"
+          }
         },
         {
           "id": "no-contour",
           "label": "No contour",
           "generation_status": "not_available",
-          "status_detail": "Complete 644699-cell GCAD verified; endpoint cover currently stops at native support-pair resource allowance before retained certificate replay. No full integral artifact or integration timing yet.",
+          "status_detail": "Complete644699-cell GCAD verified; first-cell307-chart exact cover and common convergence strip pass. Closed-unit certificates and algebraic constant endpoints across the full atlas remain unfinished. No complete integral artifact/timing.",
           "generation": {
             "generation_seconds": null,
             "generation_peak_gb": null,
@@ -2546,50 +2682,97 @@
         {
           "id": "dynamic-sign-aware",
           "label": "Sign-aware",
-          "generation_status": "pending",
-          "status_detail": "Missing campaign arm: sign-aware recipe generation and independent QMC/MC confirmations requested; no completed double-box sign-aware measurement yet.",
+          "generation_status": "measured",
+          "status_detail": "Fresh complete physical double-box symbolic generation and independent600s QMC/ordinaryMC; optional causal checks off; native norm warnings retained.",
           "generation": {
-            "generation_seconds": null,
-            "generation_peak_gb": null,
-            "artifact_mb": null,
-            "stochastic_sectors": null
+            "generation_seconds": "1.54e+03",
+            "generation_peak_gb": "36.7",
+            "artifact_mb": "99.7",
+            "stochastic_sectors": 30
           },
           "kernel_cost": {
-            "f64_max_avg_us": null,
-            "sum_f64_checked_us": null
+            "f64_max_avg_us": "9.11 / 7.72",
+            "sum_f64_checked_us": "232 / 237"
           },
           "samplers": [
             {
               "id": "qmc",
               "label": "QMC",
-              "state": "pending",
+              "state": "measured",
               "metrics": {
-                "integration_peak_gb": null,
-                "work_relative_se": null,
-                "work_joint_se": null,
-                "time_relative_se": null
+                "integration_peak_gb": "0.805",
+                "work_relative_se": "0.924",
+                "work_joint_se": "127",
+                "time_relative_se": "0.708"
               },
-              "receipts": []
+              "receipts": [
+                {
+                  "path": "/common/dev/fastsecdec/target/no-deformation-double-box-sign-aware-6647950/confirmation-physical-qmc-r1/completion.json",
+                  "sha256": "8d1513433bc7f1a2a510d5112b7d72c4c6ea5fa4a626db64a1aee546adc9aab3"
+                }
+              ],
+              "normalized_metrics": {
+                "work_radial_relative_se": "0.924\u2020",
+                "work_joint_se": "127",
+                "time_radial_relative_se": "0.708\u2020",
+                "time_reported_sector_calls_million": "332"
+              },
+              "weight_metrics": {
+                "status": "measured",
+                "native_status": "Available",
+                "absolute_weight_integral_over_norm": 98.78874165400273,
+                "maximum_observed_weight_over_norm": 87057861.6163064,
+                "display_cancellation_ratio": "98.8",
+                "display_maximum_ratio": "8.71e+07"
+              }
             },
             {
               "id": "discrete_mc",
               "label": "MC",
-              "state": "pending",
+              "state": "measured",
               "metrics": {
-                "integration_peak_gb": null,
-                "work_relative_se": null,
-                "work_joint_se": null,
-                "time_relative_se": null
+                "integration_peak_gb": "1.2",
+                "work_relative_se": "0.333",
+                "work_joint_se": "73.3",
+                "time_relative_se": "0.68"
               },
-              "receipts": []
+              "receipts": [
+                {
+                  "path": "/common/dev/fastsecdec/target/no-deformation-double-box-sign-aware-6647950/confirmation-physical-discrete_mc-r1/completion.json",
+                  "sha256": "d1104d97c875b6628ea176f121f3f755cc66d6b5376ac8f47ed2b512d949a87a"
+                }
+              ],
+              "normalized_metrics": {
+                "work_radial_relative_se": "0.333\u2020",
+                "work_joint_se": "73.3",
+                "time_radial_relative_se": "0.68\u2020",
+                "time_reported_sector_calls_million": "43.6"
+              },
+              "weight_metrics": {
+                "status": "measured",
+                "native_status": "Available",
+                "absolute_weight_integral_over_norm": 61.63276869798798,
+                "maximum_observed_weight_over_norm": 727371.9795766094,
+                "display_cancellation_ratio": "61.6",
+                "display_maximum_ratio": "7.27e+05"
+              }
             }
-          ]
+          ],
+          "selected_jacobian": "symbolic",
+          "generation_receipt": {
+            "path": "/common/dev/fastsecdec/target/no-deformation-double-box-sign-aware-6647950/generation-physical-r1/double-box-physical-sign-aware-symbolic/execution.json",
+            "sha256": "225fcb971fad0ed4b9b98092c9ee3f02bf2386980c2d712e56ff262ea8108881"
+          },
+          "profile_receipt": {
+            "path": "/common/dev/fastsecdec/target/no-deformation-double-box-sign-aware-6647950/physical-cost-r1/physical-sign-aware-cost/stdout.json",
+            "sha256": "8b98953d47f13f6f34d9739106d3fab0d18608b4ddb8860b3754c913236c30eb"
+          }
         },
         {
           "id": "no-contour",
           "label": "No contour",
           "generation_status": "not_available",
-          "status_detail": "Complete 644699-cell GCAD verified; endpoint cover currently stops at native support-pair resource allowance before retained certificate replay. No full integral artifact or integration timing yet.",
+          "status_detail": "Same verified644699-cell geometry; all156 original exact pi/radical prefactors now admitted with Gamma associations preserved. Full-atlas endpoint continuation/common strip and integral artifact remain unfinished.",
           "generation": {
             "generation_seconds": null,
             "generation_peak_gb": null,
@@ -2655,140 +2838,281 @@
     {
       "id": "massive-sunrise",
       "label": "Massive sunrise",
-      "point": "m1=m2=m3=1, s=16",
+      "point": "m1=m2=m3=1, s=16; native measure1",
       "display_work_target_average_per_sector": 322580.6451612903,
       "methods": [
         {
           "id": "fixed",
           "label": "Fixed",
-          "generation_status": "pending",
-          "status_detail": "Fresh matched-source generation and 600-second confirmations requested; earlier short controls remain separate.",
+          "generation_status": "measured",
+          "status_detail": "Fresh same6647950 symbolic-Jacobian generation/cost and independent600s confirmations; pilots unpooled; full native Laurent covariance retained.",
           "generation": {
-            "generation_seconds": null,
-            "generation_peak_gb": null,
-            "artifact_mb": null,
-            "stochastic_sectors": null
+            "generation_seconds": "1.61",
+            "generation_peak_gb": "0.0444",
+            "artifact_mb": "0.0365",
+            "stochastic_sectors": 1
           },
           "kernel_cost": {
-            "f64_max_avg_us": null,
-            "sum_f64_checked_us": null
+            "f64_max_avg_us": "0.652 / 0.652",
+            "sum_f64_checked_us": "0.652 / 1.74"
           },
           "samplers": [
             {
               "id": "qmc",
               "label": "QMC",
-              "state": "pending",
+              "state": "measured",
               "metrics": {
-                "integration_peak_gb": null,
-                "work_relative_se": null,
-                "work_joint_se": null,
-                "time_relative_se": null
+                "integration_peak_gb": "0.485",
+                "work_relative_se": "1.07e-11",
+                "work_joint_se": "1.22e-10",
+                "time_relative_se": "5.27e-13"
               },
-              "receipts": []
+              "receipts": [
+                {
+                  "path": "/common/dev/fastsecdec/target/no-deformation-massive-sunrise-contour-6647950/confirmation-fixed-qmc-r1/completion.json",
+                  "sha256": "bd5ee3581e880f17ae2766f49b7becfc0eb624b771fe7eb614df2f1a9bed474a"
+                }
+              ],
+              "normalized_metrics": {
+                "work_radial_relative_se": "1.07e-11",
+                "work_joint_se": "1.22e-10",
+                "time_radial_relative_se": "5.27e-13",
+                "time_reported_sector_calls_million": "232"
+              },
+              "weight_metrics": {
+                "status": "measured",
+                "native_status": "Available",
+                "absolute_weight_integral_over_norm": 1.2480483670100082,
+                "maximum_observed_weight_over_norm": 5.878683011759139,
+                "display_cancellation_ratio": "1.25",
+                "display_maximum_ratio": "5.88"
+              }
             },
             {
               "id": "discrete_mc",
               "label": "MC",
-              "state": "pending",
+              "state": "measured",
               "metrics": {
-                "integration_peak_gb": null,
-                "work_relative_se": null,
-                "work_joint_se": null,
-                "time_relative_se": null
+                "integration_peak_gb": "0.635",
+                "work_relative_se": "0.00097",
+                "work_joint_se": "0.0158",
+                "time_relative_se": "3.78e-05"
               },
-              "receipts": []
+              "receipts": [
+                {
+                  "path": "/common/dev/fastsecdec/target/no-deformation-massive-sunrise-contour-6647950/confirmation-fixed-discrete_mc-r1/completion.json",
+                  "sha256": "b7f0a424f7ce3157aaf0a81fdcb8bec4c9946ebc0d3711f2d2888103a550dc86"
+                }
+              ],
+              "normalized_metrics": {
+                "work_radial_relative_se": "0.00097",
+                "work_joint_se": "0.0158",
+                "time_radial_relative_se": "3.78e-05",
+                "time_reported_sector_calls_million": "213"
+              },
+              "weight_metrics": {
+                "status": "measured",
+                "native_status": "Available",
+                "absolute_weight_integral_over_norm": 1.2480181470891145,
+                "maximum_observed_weight_over_norm": 9.825170236992298,
+                "display_cancellation_ratio": "1.25",
+                "display_maximum_ratio": "9.83"
+              }
             }
-          ]
+          ],
+          "selected_jacobian": "symbolic",
+          "generation_receipt": {
+            "path": "/common/dev/fastsecdec/target/no-deformation-massive-sunrise-contour-6647950/generation-r1/massive-sunrise-fixed-symbolic/execution.json",
+            "sha256": "71742eaa46dc308e2bfe78f3219397d6873f77e3e8eba3fe14bb6574b53faec0"
+          },
+          "profile_receipt": {
+            "path": "/common/dev/fastsecdec/target/no-deformation-massive-sunrise-contour-6647950/cost-r1/fixed-kernel-cost/stdout.json",
+            "sha256": "d2a09901e08f8b98915a16c1ef215c8b5994c6ce97e6cd5d43be1094e18f0f21"
+          }
         },
         {
           "id": "dynamic-polynomial",
           "label": "Dynamical",
-          "generation_status": "pending",
-          "status_detail": "Fresh matched-source generation and 600-second confirmations requested; earlier short controls remain separate.",
+          "generation_status": "measured",
+          "status_detail": "Fresh same6647950 symbolic-Jacobian generation/cost and independent600s confirmations; pilots unpooled; full native Laurent covariance retained.",
           "generation": {
-            "generation_seconds": null,
-            "generation_peak_gb": null,
-            "artifact_mb": null,
-            "stochastic_sectors": null
+            "generation_seconds": "1.44",
+            "generation_peak_gb": "0.0381",
+            "artifact_mb": "0.0801",
+            "stochastic_sectors": 1
           },
           "kernel_cost": {
-            "f64_max_avg_us": null,
-            "sum_f64_checked_us": null
+            "f64_max_avg_us": "3.62 / 3.62",
+            "sum_f64_checked_us": "3.62 / 7.09"
           },
           "samplers": [
             {
               "id": "qmc",
               "label": "QMC",
-              "state": "pending",
+              "state": "measured",
               "metrics": {
-                "integration_peak_gb": null,
-                "work_relative_se": null,
-                "work_joint_se": null,
-                "time_relative_se": null
+                "integration_peak_gb": "0.568",
+                "work_relative_se": "8.75e-10",
+                "work_joint_se": "1.49e-08",
+                "time_relative_se": "4.29e-11"
               },
-              "receipts": []
+              "receipts": [
+                {
+                  "path": "/common/dev/fastsecdec/target/no-deformation-massive-sunrise-contour-6647950/confirmation-polynomial-qmc-r1/completion.json",
+                  "sha256": "b99fdf75c7174495ea7eaeaeabc535b2bb9ca32fe7de6513654297f6077fa22a"
+                }
+              ],
+              "normalized_metrics": {
+                "work_radial_relative_se": "8.75e-10",
+                "work_joint_se": "1.49e-08",
+                "time_radial_relative_se": "4.29e-11",
+                "time_reported_sector_calls_million": "160"
+              },
+              "weight_metrics": {
+                "status": "measured",
+                "native_status": "Available",
+                "absolute_weight_integral_over_norm": 3.839580603537518,
+                "maximum_observed_weight_over_norm": 23.653742002626608,
+                "display_cancellation_ratio": "3.84",
+                "display_maximum_ratio": "23.7"
+              }
             },
             {
               "id": "discrete_mc",
               "label": "MC",
-              "state": "pending",
+              "state": "measured",
               "metrics": {
-                "integration_peak_gb": null,
-                "work_relative_se": null,
-                "work_joint_se": null,
-                "time_relative_se": null
+                "integration_peak_gb": "0.608",
+                "work_relative_se": "0.00545",
+                "work_joint_se": "0.0804",
+                "time_relative_se": "0.000216"
               },
-              "receipts": []
+              "receipts": [
+                {
+                  "path": "/common/dev/fastsecdec/target/no-deformation-massive-sunrise-contour-6647950/confirmation-polynomial-discrete_mc-r1/completion.json",
+                  "sha256": "52c88c7ce14e645f377795c45037beb8f9687df7eded35c153334b12536f78af"
+                }
+              ],
+              "normalized_metrics": {
+                "work_radial_relative_se": "0.00545",
+                "work_joint_se": "0.0804",
+                "time_radial_relative_se": "0.000216",
+                "time_reported_sector_calls_million": "207"
+              },
+              "weight_metrics": {
+                "status": "measured",
+                "native_status": "Available",
+                "absolute_weight_integral_over_norm": 3.8391968163672607,
+                "maximum_observed_weight_over_norm": 49.48547449721265,
+                "display_cancellation_ratio": "3.84",
+                "display_maximum_ratio": "49.5"
+              }
             }
-          ]
+          ],
+          "selected_jacobian": "symbolic",
+          "generation_receipt": {
+            "path": "/common/dev/fastsecdec/target/no-deformation-massive-sunrise-contour-6647950/generation-r1/massive-sunrise-polynomial-symbolic/execution.json",
+            "sha256": "aaa79e07417101c6f98577ca8083b1386055809fbfae820b6199bb2abdefc901"
+          },
+          "profile_receipt": {
+            "path": "/common/dev/fastsecdec/target/no-deformation-massive-sunrise-contour-6647950/cost-r1/polynomial-kernel-cost/stdout.json",
+            "sha256": "e81e51660af46bbb0ea11a69861eaf2f122439ee086b5e809c12430e79a04635"
+          }
         },
         {
           "id": "dynamic-sign-aware",
           "label": "Sign-aware",
-          "generation_status": "pending",
-          "status_detail": "Fresh matched-source generation and 600-second confirmations requested; earlier short controls remain separate.",
+          "generation_status": "measured",
+          "status_detail": "Fresh same6647950 symbolic-Jacobian generation/cost and independent600s confirmations; pilots unpooled; full native Laurent covariance retained.",
           "generation": {
-            "generation_seconds": null,
-            "generation_peak_gb": null,
-            "artifact_mb": null,
-            "stochastic_sectors": null
+            "generation_seconds": "1.44",
+            "generation_peak_gb": "0.0413",
+            "artifact_mb": "0.0859",
+            "stochastic_sectors": 1
           },
           "kernel_cost": {
-            "f64_max_avg_us": null,
-            "sum_f64_checked_us": null
+            "f64_max_avg_us": "2.47 / 2.47",
+            "sum_f64_checked_us": "2.47 / 5.12"
           },
           "samplers": [
             {
               "id": "qmc",
               "label": "QMC",
-              "state": "pending",
+              "state": "measured",
               "metrics": {
-                "integration_peak_gb": null,
-                "work_relative_se": null,
-                "work_joint_se": null,
-                "time_relative_se": null
+                "integration_peak_gb": "0.568",
+                "work_relative_se": "4.38e-09",
+                "work_joint_se": "6.34e-08",
+                "time_relative_se": "2.15e-10"
               },
-              "receipts": []
+              "receipts": [
+                {
+                  "path": "/common/dev/fastsecdec/target/no-deformation-massive-sunrise-contour-6647950/confirmation-sign-aware-qmc-r1/completion.json",
+                  "sha256": "34270f98e653665d10e466981f5a075919b9208dda6ee8c44a02741f27cb7d08"
+                }
+              ],
+              "normalized_metrics": {
+                "work_radial_relative_se": "4.38e-09",
+                "work_joint_se": "6.34e-08",
+                "time_radial_relative_se": "2.15e-10",
+                "time_reported_sector_calls_million": "154"
+              },
+              "weight_metrics": {
+                "status": "measured",
+                "native_status": "Available",
+                "absolute_weight_integral_over_norm": 3.869238911225144,
+                "maximum_observed_weight_over_norm": 24.051526303869682,
+                "display_cancellation_ratio": "3.87",
+                "display_maximum_ratio": "24.1"
+              }
             },
             {
               "id": "discrete_mc",
               "label": "MC",
-              "state": "pending",
+              "state": "measured",
               "metrics": {
-                "integration_peak_gb": null,
-                "work_relative_se": null,
-                "work_joint_se": null,
-                "time_relative_se": null
+                "integration_peak_gb": "0.628",
+                "work_relative_se": "0.00548",
+                "work_joint_se": "0.0809",
+                "time_relative_se": "0.00022"
               },
-              "receipts": []
+              "receipts": [
+                {
+                  "path": "/common/dev/fastsecdec/target/no-deformation-massive-sunrise-contour-6647950/confirmation-sign-aware-discrete_mc-r1/completion.json",
+                  "sha256": "bf175aa0782e1fc5530af5194297e4f75f82bc904ca60c702d2c85b9a817d849"
+                }
+              ],
+              "normalized_metrics": {
+                "work_radial_relative_se": "0.00548",
+                "work_joint_se": "0.0809",
+                "time_radial_relative_se": "0.00022",
+                "time_reported_sector_calls_million": "202"
+              },
+              "weight_metrics": {
+                "status": "measured",
+                "native_status": "Available",
+                "absolute_weight_integral_over_norm": 3.8673396327768432,
+                "maximum_observed_weight_over_norm": 45.80706758840597,
+                "display_cancellation_ratio": "3.87",
+                "display_maximum_ratio": "45.8"
+              }
             }
-          ]
+          ],
+          "selected_jacobian": "symbolic",
+          "generation_receipt": {
+            "path": "/common/dev/fastsecdec/target/no-deformation-massive-sunrise-contour-6647950/generation-r1/massive-sunrise-sign-aware-symbolic/execution.json",
+            "sha256": "3c2ed8b1fdcfb46454a0030e823d779f4f670451fa4482122b67c2811f5e149a"
+          },
+          "profile_receipt": {
+            "path": "/common/dev/fastsecdec/target/no-deformation-massive-sunrise-contour-6647950/cost-r1/sign-aware-kernel-cost/stdout.json",
+            "sha256": "3a2ab1ee822cc210630580b01658a5508e8d9b66db901e4f9aafeb188a2cf3b6"
+          }
         },
         {
           "id": "no-contour",
           "label": "No contour",
           "generation_status": "measured",
-          "status_detail": "Complete massive sunrise, fresh serial25 generation and independent600s QMC/ordinary discrete MC; fresh matched contour arms pending.",
+          "status_detail": "Complete62-chart no-contour generation and independent600s confirmations; now compared with fresh fixed/polynomial/sign-aware arms on same frozen executable.",
           "generation": {
             "generation_seconds": "6.7",
             "generation_peak_gb": "0.215",
@@ -195335,7 +195659,45 @@
     "summary": "docs/no-contour-massive-sunrise-overview.json",
     "source_commit": "6647950859ff4ec4c87c0fbcb86ed71fe7dceba7",
     "complete_timed_arms": 2,
-    "cross_method_timed_comparison": "pending",
+    "cross_method_timed_comparison": "Complete8arms including6freshcontour confirmations; identical6647950binary and samephysics.",
     "historical_values_reused": false
+  },
+  "scalar_sign_aware_extension": {
+    "summary": "docs/scalar-double-box-sign-aware-overview.json",
+    "source_commit": "6647950859ff4ec4c87c0fbcb86ed71fe7dceba7",
+    "complete_timed_arms": 2,
+    "historical_values_reused": false,
+    "physical_variant": "separate complete generation and independent confirmation results published"
+  },
+  "massive_sunrise_contour_extension": {
+    "summary": "docs/massive-sunrise-contour-overview.json",
+    "complete_timed_arms": 6,
+    "historical_values_reused": false,
+    "independent_review": {
+      "path": "/common/dev/fastsecdec/target/no-deformation-massive-sunrise-contour-6647950/root-outcome-review-r1/review.json",
+      "sha256": "7b0489ff9cc8fe533982f201aeb0a885e836f43edb1eab4f49654bfd17908ba7"
+    }
+  },
+  "bubble_sign_aware_extension": {
+    "summary": "docs/bubble-sign-aware-overview.json",
+    "source_commit": "6647950859ff4ec4c87c0fbcb86ed71fe7dceba7",
+    "complete_timed_arms": 2,
+    "historical_values_reused": false,
+    "independent_review": {
+      "path": "/common/dev/fastsecdec/target/no-deformation-bubble-sign-aware-6647950/root-outcome-review-r1/review.json",
+      "sha256": "915a69d283e9f335fedfedc168a96c6897fc0b5198c82a930f7b05525c3aab04",
+      "bytes": 730
+    }
+  },
+  "physical_sign_aware_extension": {
+    "summary": "docs/physical-double-box-sign-aware-overview.json",
+    "status": "two independently audited full-source600s arms",
+    "independent_review": {
+      "path": "target/no-deformation-double-box-sign-aware-6647950/physical-collector-r1/runtime-outcome-review-r1.json",
+      "sha256": "281c91ab8a4781056f0f8a5b29809bb77d7f237a7eaef3b8ded83eabb7d01e4f",
+      "status": "PASS;32 marginal comparisons, maximum2.64241combinedSE; full4component covariance and native norm warnings retained"
+    },
+    "generation_worker_exception": 6,
+    "work_target_average_per_sector": 6000000
   }
 }

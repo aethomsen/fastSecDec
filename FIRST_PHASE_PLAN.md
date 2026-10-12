@@ -18,6 +18,16 @@ verified GCAD atlas, local endpoint certificate or missing row is not completion
 Record implementation/resource blockers precisely rather than describing an
 unfinished algorithm as a rejected physical integral.
 
+The subsequent 12 October instruction requires a delegated double-box dynamic
+deformation tuning study alongside the coordinator's no-contour work. Investigate
+the worse variance even at comparable integrand-call counts, including runtime
+cap/displacement/safety settings and the small-strength limit that can approach
+fixed deformation when the other bounds are inactive. Preserve the full dynamic
+Jacobian and causal construction. Use existing artifacts first, scalar before
+physical numerator, independent tuning and confirmation streams, and retain the
+original settings as a baseline. Report both per-call and per-time convergence
+in the benchmark PDF; do not mistake a larger displacement for an improvement.
+
 ## No-contour threshold decomposition (2026-10-10)
 
 The approved [no-contour implementation plan](NO_DEFORMATION_PLAN.md) is the

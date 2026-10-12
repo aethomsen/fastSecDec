@@ -3,8 +3,10 @@
 
 #let overview-data = json("benchmark-overview-results.json")
 #block(width: 100%, inset: 8pt, fill: rgb("edf4f7"), radius: 3pt)[
-  *All 44 admitted timed arms complete.* The no-contour routes marked unsupported
-  or in preparation remain unfinished. A dash is an unavailable measurement,
+  *Completed measurements and remaining campaign gaps.* The original 44 timed
+  arms and the subsequently accepted extensions retain separate run identities.
+  The no-contour routes marked unsupported or in preparation remain unfinished.
+  A dash is an unavailable measurement,
   never a zero. The opening tables use the new finite-coefficient campaign only.
   Historical studies below retain their original points, settings and resources;
   they are not substituted for missing new measurements.
@@ -46,7 +48,8 @@ costs, not the slowest individual point. *Σ f64 / checked* sums those means for
 one complete sweep and separately sums the per-sector measured wall costs with
 normal stability checks and precision rescue. It is not a 25-core wall-time
 prediction. The native profiling harness uses deterministic coordinates (4096
-for the smaller scalar cases, 1024 for the scalar D05), three repetitions and
+for the original smaller scalar cases, 1024 for both D05 variants and the new
+massive-sunrise/bubble extensions), three repetitions and
 zero warmup; call counts and coordinate counts are retained
 separately. Loading and evaluator restoration have their own receipts.
 The integration elapsed clock starts after ordinary coordinator kernel loading;
@@ -209,20 +212,77 @@ GCAD-only timings are not used as complete generation measurements. The studies
 below retain their original scope and measurements.
 
 #set text(size: 8pt)
-*Campaign completion update.* The massive sunrise now lists all four intended
-prescriptions. Its missing contour measurements are marked pending. Both
-double boxes likewise list the missing sign-aware arm explicitly. Previously
+*Campaign completion update.* The massive sunrise now has measurements for all
+four intended prescriptions and both samplers. The scalar
+and physical double boxes now both include measured sign-aware results.
+The bubble now also contains its separate sign-aware confirmation. Previously
 measured entries retain their original values and run identities.
 
 The massive-kite no-contour gap lies in endpoint treatment of the next moving
-algebraic root: rational composition needs a bounded native resultant, and its
-discriminant quotient must be reduced using the retained algebraic tower.
-Small exact native probes pass; this is not yet complete chart or density
-admission. For the double boxes, the full 644,699-cell geometry is verified,
-but the current complete-density endpoint cover reaches a native support-pair
-resource allowance before certificate replay. These preparation results do not
-provide full-integral integration times. The physical prefactor extension and
-full-atlas endpoint continuation remain required.
+algebraic root. Native resultant composition and exact tower reduction now
+reach its boundary-sign checks. An original denominator certifies positive
+where a reduced representative loses independent-box positivity. All nine such
+denominator certificates and all eighteen bracket-endpoint certificates now
+replay; complete chart admission and runtime root evaluation remain under test.
+For the double boxes, the full 644,699-cell geometry is verified. An explicitly
+bounded native fan probe reproduced all 299 proposed replacement maps and
+Jacobians, removing the earlier support-pair allowance as the immediate probe
+blocker. Retained certificate replay and full-atlas endpoint continuation are
+still required. The physical source's 156 exact pi/radical prefactors pass the
+new admission tests, but that alone does not certify the full physical strip.
+These preparation results do not provide full-integral integration times.
+
+*Scalar double-box sign-aware extension.* Fresh serial generation with 25 workers
+took 34.15 seconds and 2.03 GB sampled peak RSS, producing 18 kernels and
+88.60 MB of artifacts. Symbolic endpoint reduction and symbolic contour
+Jacobians use Horner10 and SymJIT O2. The recipe was absent from the previous
+campaign, rather than rejected by the implementation. The sign-aware bound
+penalizes higher-order terms that oppose the causal direction, allowing helpful
+terms without imposing the same absolute-magnitude penalty. It does not imply
+better variance for every topology.
+
+At the predeclared $S=0.8$, $L=R=1$, independent QMC and ordinary discrete-MC
+confirmations ran for 600.159 and 601.285 native seconds. Their 600-second
+normalized radial relative errors are 0.197 and 0.586, both carrying the native
+large-uncertainty warning. These runs show no improvement over the existing
+polynomial-dynamic measurements; they do not establish an optimal tuning or a
+high-precision integral value. Sixteen marginal comparisons with the currently
+reported fixed and polynomial arms pass the stated compatibility diagnostic,
+with a maximum difference of 1.349 combined standard errors. Full covariance
+and distinct artifact identities are retained. The secondary target remains
+four million accepted evaluations per sector, with the explicit square-root
+display correction. Compact results and exact invocation settings are in
+`docs/scalar-double-box-sign-aware-overview.json`.
+
+*Physical double-box sign-aware extension.* Independent full-source generation
+took 1536.10 seconds and 36.67 GB peak aggregate RSS with six resident generation
+workers. It produced 30 kernels and 99.71 MB of artifacts, retaining the physical
+numerator and full four-component Laurent vector. The raw f64 maximum/average
+sector costs are 9.108/7.724 microseconds; their full-sweep sum is 231.72
+microseconds, or 236.72 microseconds with stability handling in this profile.
+
+At the same predeclared $S=0.8$, $L=R=1$, QMC made 331.70 million logical calls
+in 600.135 seconds and ordinary discrete MC made 43.59 million in 603.712
+seconds. Their normalized radial relative errors are 0.708 and 0.680, with
+large-uncertainty warnings. All 32 marginal comparisons with the fixed and
+polynomial confirmations pass the stated compatibility diagnostic; the largest
+is 2.643 combined SE. This is a noisy baseline, not an accuracy certificate.
+The physical compact record is `docs/physical-double-box-sign-aware-overview.json`.
+
+*Dynamic tuning follow-up.* The default caps do not demonstrate a variance
+advantage in the double boxes. A separate study tests smaller runtime strengths
+against the fixed map before varying caps and displacement bounds. The complete
+dynamic Jacobian is retained. Calibration and confirmation use separate streams,
+and both error per call and error per time will be reported; these baseline
+entries are preserved irrespective of tuning outcome.
+
+*Bubble sign-aware completion.* A fresh 0.865-second generation produces one
+kernel. Independent QMC/MC confirmations take 600.043/602.843 seconds and give
+normalized radial relative errors $9.85 times 10^(-17)$/$1.00 times 10^(-4)$.
+The first value is at floating-point roundoff and is not a numerical accuracy
+claim. Eight full-vector marginal checks against the retained independent
+reference pass, with a maximum 1.203 combined SE.
+See `docs/bubble-sign-aware-overview.json` for exact settings and native results.
 
 *Massive-sunrise extension (12 October).* The new opening block is a distinct
 complete source with all three masses one and $s=16$, native measure one and
@@ -241,11 +301,36 @@ same timed runs, not an additional matched-work experiment. The final column
 uses native radial norm uncertainty and the small square-root correction to
 600 seconds. Complete covariance, accepted counts, total calls, diagnostic
 timings and settings are in `docs/no-contour-massive-sunrise-overview.json`.
-Fresh matching ten-minute contour arms remain pending; earlier short
-contour controls are not inserted into this opening block.
+Fresh matching ten-minute fixed, polynomial-dynamic and sign-aware contour
+arms now appear alongside it; earlier short controls are not substituted.
 The portable reproduction card is
 `examples/no_deformation/benchmarks/controls/massive_sunrise_no_contour.toml`;
 commands and measurement scope are in `docs/benchmark-overview-protocol.md`.
+
+The six contour confirmations use the identical frozen executable, full
+Laurent orders $-2,-1,0$, symbolic endpoint reduction and symbolic Jacobians.
+Their generation times are 1.61, 1.44 and 1.44 seconds, with one compiled kernel
+per recipe. Fixed $lambda=0.1$ gives relative norm SE of $5.27 times 10^(-13)$
+(QMC) and $3.78 times 10^(-5)$ (MC) after the small 600-second correction.
+Polynomial dynamics gives $4.29 times 10^(-11)$ and $2.16 times 10^(-4)$;
+sign-aware dynamics gives $2.15 times 10^(-10)$ and $2.20 times 10^(-4)$.
+All dynamic settings remain the predeclared $S=0.8$, $L=R=1$.
+
+The secondary average-work target is the same $20 times 10^6/62$ evaluations
+per sector for every method, so a one-kernel contour arm is rescaled to that
+total rather than to 20 million. This large work rescaling remains a heuristic;
+the near-ten-minute column is the primary comparison. Native covariance,
+diagnostics, settings, exact generation metrics and all six fresh results are
+in `docs/massive-sunrise-contour-overview.json`.
+
+Thirty-six marginal comparisons with the independently generated pySecDec
+Laurent reference pass, with maximum discrepancy 2.029 combined SE. The
+existing native Numerica matrix diagnostic additionally compares all eight
+campaign arms over all three complex Laurent blocks: 84 comparisons, largest
+defined descriptive Mahalanobis distance 2.611. Five pole comparisons are
+rounding-sensitive and two covariance blocks are not positive definite; their
+diagnostics are retained without regularization or inflated errors. Estimated
+QMC replica SE does not bound common numerical bias.
 
 #table(
   columns: (1.1fr, 1fr, 3fr), inset: 4pt,
