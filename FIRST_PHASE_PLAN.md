@@ -1,5 +1,23 @@
 # FastSecDec first-phase implementation plan
 
+## Threshold benchmark campaign completion (2026-10-12)
+
+The user assigned the following active goal. It prioritizes complete physical
+benchmark delivery while preserving the larger no-contour plan and its remaining
+general-resolution obligations:
+
+> **Complete the threshold-method benchmark campaign on `no_deformation`.** Resolve the implementation gaps needed for complete no-contour evaluation of the massive kite and both scalar and physical-numerator ggHH double boxes at the specified exact kinematics. Preserve source identity, causal phases, symbolic endpoint subtraction, complete Laurent vectors, covariance and certified algebraic branches.
+> Complete the comparison of fixed, polynomial-dynamic, sign-aware dynamic and no-contour methods across the scalar suite, including the massive sunrise, and both double-box variants, using QMC and discrete MC. Use independent calibration and confirmation streams, 25-core serial execution where supported, the authorized ordinary discrete-MC exception, the 100 GB memory allowance and five-hour double-box generation allowance.
+> Publish all agreed ε⁰ metrics in the opening overview of `benchmark.pdf`: complete generation time/RAM, artifact size, sector count, raw and checked sampling costs, integration RAM, C, maximum-weight ratio, total calls and relative uncertainty of the complex magnitude near ten minutes. Check compatibility between methods and against independent references where available. Keep failed attempts and incomplete preparation distinct from full-integral results.
+> Delegate implementation and independent audits, reuse native ecosystem capabilities, fix practical performance bottlenecks, and commit/push validated code, reproducible inputs, Typst and PDF. Do not declare this campaign complete while required full-integral results are missing, or confuse campaign completion with completion of the broader general-resolver plan.
+
+The reproduction and metric contract remains in
+`docs/benchmark-overview-protocol.md`. Every listed topology requires complete
+source coverage, native saved results and independent scientific review; a
+verified GCAD atlas, local endpoint certificate or missing row is not completion.
+Record implementation/resource blockers precisely rather than describing an
+unfinished algorithm as a rejected physical integral.
+
 ## No-contour threshold decomposition (2026-10-10)
 
 The approved [no-contour implementation plan](NO_DEFORMATION_PLAN.md) is the
