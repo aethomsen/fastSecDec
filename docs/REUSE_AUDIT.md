@@ -4899,6 +4899,19 @@ experimental jobs retain their frozen executable identities. The GCAD allowance
 does not imply an overall endpoint-preparation timeout or successful completion
 of the double-box atlas.
 
+## Retained certificate capacity (2026-10-12)
+
+The subsequent [certificate-capacity review](reviews/no-deformation-certificate-capacity.md)
+records adoption of the compatible public `3baffa71` symGCAD owner. It extends
+only explicitly requested native certificate ceilings, retaining the existing
+algorithms, defaults and saved proof semantics. Native replay accepts all 850
+targeted local double-box certificates; complete source-bound charts and the
+full integral remain separate obligations. The 39 owner controls, relevant
+consuming proof/generation controls, strict core/CLI Clippy and formatting pass.
+The broader threshold suite remains incomplete because one higher-degree
+resolution control exceeded the diagnostic run; the review records that limit
+explicitly. No certificate operation or CAS was duplicated in FastSecDec.
+
 ## Shared endpoint policy and HEPKit resources (2026-10-12)
 
 The [endpoint interface review](reviews/no-deformation-endpoint-resources.md)

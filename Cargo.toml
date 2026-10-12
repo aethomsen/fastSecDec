@@ -17,7 +17,7 @@ symbolica = { version = "3.0.1", default-features = false, features = ["serde", 
 numerica = { version = "3.0.1", default-features = false, features = ["serde", "bincode"] }
 # Keep a compatible minimum; the consumer patch below selects pending owner fixes.
 symjit = "2.27.0"
-symgcad = { git = "https://github.com/alphal00p/symgcad", rev = "bef2a9e6a7441aee4c0ba69acb80e68959e78928" }
+symgcad = { git = "https://github.com/alphal00p/symgcad", rev = "3baffa7134334c62b45a6b8df9198004060be715" }
 feynkit-graph = { git = "https://github.com/alphal00p/gammaloop", branch = "feynkit", default-features = false }
 feynkit-model = { git = "https://github.com/alphal00p/gammaloop", branch = "feynkit", default-features = false }
 feynkit-kinematics = { git = "https://github.com/alphal00p/gammaloop", branch = "feynkit", default-features = false }
