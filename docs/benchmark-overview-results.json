@@ -2317,6 +2317,154 @@
           }
         },
         {
+          "id": "dynamic-polynomial-tuned",
+          "label": "Dynamic tuned",
+          "generation_status": "measured",
+          "generation": {
+            "generation_seconds": "19.2",
+            "generation_peak_gb": "1.46",
+            "artifact_mb": "77.8",
+            "stochastic_sectors": 18
+          },
+          "generation_receipt": {
+            "path": "/common/dev/fastsecdec/target/no-deformation-overview-campaign/double-box-scalar-generation-r1/double-box-scalar-polynomial-symbolic/stdout.json",
+            "sha256": "b9820fbb63e7446e050ba663f6f0dcb6eaed9172cc92364e39fee8150e253847"
+          },
+          "generation_reuse": "Original immutable artifact/generation receipt reused; no fresh generation.",
+          "selected_jacobian": "symbolic",
+          "kernel_cost": {
+            "f64_max_avg_us": null,
+            "sum_f64_checked_us": null
+          },
+          "status_detail": "Frozen sampler-specific caps selected with independent calibration; fresh 600 s confirmations and separate bounded work controls; full native Jacobian/precision retained.",
+          "samplers": [
+            {
+              "id": "qmc",
+              "label": "QMC",
+              "state": "measured",
+              "contour_settings": {
+                "construction": "polynomial",
+                "safety_fraction": 0.8,
+                "lambda_cap": 1.25e-05,
+                "displacement_cap": 1000000.0
+              },
+              "kernel_cost": {
+                "f64_max_avg_us": "6.2 / 5.33",
+                "sum_f64_checked_us": "95.9 / 98.5"
+              },
+              "profile_receipt": {
+                "path": "/common/dev/fastsecdec/target/no-deformation-double-box-dynamic-tuning-r1/scalar-selected-cost-r1/scalar-qmc-polynomial-cost/stdout.json",
+                "sha256": "4bce7019d6798d9140729de0d952d118413e8e682087bb30f849fcdcb01e1ef4",
+                "bytes": 30223
+              },
+              "metrics": {
+                "integration_peak_gb": "0.956",
+                "work_relative_se": "0.0118",
+                "work_joint_se": "4.79e-18",
+                "time_relative_se": "0.00665"
+              },
+              "normalized_metrics": {
+                "work_radial_relative_se": "0.0118",
+                "work_joint_se": "4.79e-18",
+                "time_radial_relative_se": "0.00665",
+                "time_reported_sector_calls_million": "289"
+              },
+              "work_comparison": {
+                "source": "complete actual work control",
+                "actual_requested_control_status": "native_complete_record_estimate",
+                "actual_requested_accepted": 71958528,
+                "actual_observed_accepted": 71958528,
+                "raw_actual_radial_relative_se": 0.011806131604863886,
+                "raw_actual_joint_se": 4.7932665543509016e-18,
+                "table_source_accepted": 71958528,
+                "display_target": 72000000,
+                "display_scale": 0.9997119585160518,
+                "display_scale_is_heuristic": true
+              },
+              "weight_metrics": {
+                "status": "measured",
+                "native_status": "Available",
+                "absolute_weight_integral_over_norm": 9.367125524965745,
+                "maximum_observed_weight_over_norm": 1746.8325908265435,
+                "display_cancellation_ratio": "9.37",
+                "display_maximum_ratio": "1.75e+03"
+              },
+              "receipts": [
+                {
+                  "path": "/common/dev/fastsecdec/target/no-deformation-double-box-dynamic-tuning-r1/scalar-polynomial-qmc-fixed-time-confirmation/completion.json",
+                  "sha256": "d59ac17dc22076193b068a8c9753aa04493798b9c3b8ec07facc571adc48d8e0"
+                },
+                {
+                  "path": "/common/dev/fastsecdec/target/no-deformation-double-box-dynamic-tuning-r1/scalar-polynomial-qmc-matched_work/completion.json",
+                  "sha256": "8ae36fe21d30f2747e8085524256ea28bf585a4800142777f1db1d4492882e26"
+                }
+              ]
+            },
+            {
+              "id": "discrete_mc",
+              "label": "MC",
+              "state": "measured",
+              "contour_settings": {
+                "construction": "polynomial",
+                "safety_fraction": 0.8,
+                "lambda_cap": 1.25e-06,
+                "displacement_cap": 1000000.0
+              },
+              "kernel_cost": {
+                "f64_max_avg_us": "5.14 / 4.4",
+                "sum_f64_checked_us": "79.2 / 81.8"
+              },
+              "profile_receipt": {
+                "path": "/common/dev/fastsecdec/target/no-deformation-double-box-dynamic-tuning-r1/scalar-selected-cost-r1/scalar-discrete_mc-polynomial-cost/stdout.json",
+                "sha256": "d7ffe088ba51443b8d1c87b3fad33edff818218eb811eb635eaba7b7939b9be3",
+                "bytes": 30220
+              },
+              "metrics": {
+                "integration_peak_gb": "0.862",
+                "work_relative_se": "0.00271",
+                "work_joint_se": "1.12e-18",
+                "time_relative_se": "0.00262"
+              },
+              "normalized_metrics": {
+                "work_radial_relative_se": "0.00271",
+                "work_joint_se": "1.12e-18",
+                "time_radial_relative_se": "0.00262",
+                "time_reported_sector_calls_million": "77.3"
+              },
+              "work_comparison": {
+                "source": "600 s estimate with MC-equivalent heuristic",
+                "actual_requested_control_status": "incomplete_requested_work",
+                "actual_requested_accepted": 71958528,
+                "actual_observed_accepted": 40857600,
+                "raw_actual_radial_relative_se": 0.0032654947434312917,
+                "raw_actual_joint_se": 1.3638991068877068e-18,
+                "table_source_accepted": 77246464,
+                "display_target": 72000000,
+                "display_scale": 1.0357932011533748,
+                "display_scale_is_heuristic": true
+              },
+              "weight_metrics": {
+                "status": "measured",
+                "native_status": "Available",
+                "absolute_weight_integral_over_norm": 10.004785371560224,
+                "maximum_observed_weight_over_norm": 692.1698357582288,
+                "display_cancellation_ratio": "10",
+                "display_maximum_ratio": "692"
+              },
+              "receipts": [
+                {
+                  "path": "/common/dev/fastsecdec/target/no-deformation-double-box-dynamic-tuning-r1/scalar-polynomial-discrete_mc-fixed-time-confirmation/completion.json",
+                  "sha256": "21027cee344adcd4d1e96bca50886042d764223b3de19184042fa1c9f178ed3b"
+                },
+                {
+                  "path": "/common/dev/fastsecdec/target/no-deformation-double-box-dynamic-tuning-r1/scalar-polynomial-discrete_mc-matched_work/completion.json",
+                  "sha256": "07a876ec9c5ab2b590ba0089443bed90bc163e7d5ec75d86f9fd162bae896ec6"
+                }
+              ]
+            }
+          ]
+        },
+        {
           "id": "dynamic-sign-aware",
           "label": "Sign-aware",
           "generation_status": "measured",
@@ -2404,6 +2552,154 @@
             "path": "/common/dev/fastsecdec/target/no-deformation-double-box-sign-aware-6647950/scalar-cost-r1/scalar-sign-aware-cost/stdout.json",
             "sha256": "1149673c3c5d39a3ead70fbeb6e3c3619ce0d912dc938a6bfdac6bc40bbfe71d"
           }
+        },
+        {
+          "id": "dynamic-sign-aware-tuned",
+          "label": "Sign-aware tuned",
+          "generation_status": "measured",
+          "generation": {
+            "generation_seconds": "34.1",
+            "generation_peak_gb": "2.03",
+            "artifact_mb": "88.6",
+            "stochastic_sectors": 18
+          },
+          "generation_receipt": {
+            "path": "/common/dev/fastsecdec/target/no-deformation-double-box-sign-aware-6647950/generation-scalar-r1/double-box-scalar-sign-aware-symbolic/execution.json",
+            "sha256": "583cd1f58c291b3f2d015b04893c26a24b56979816e3483d1e50190f84cedcfa"
+          },
+          "generation_reuse": "Original immutable artifact/generation receipt reused; no fresh generation.",
+          "selected_jacobian": "symbolic",
+          "kernel_cost": {
+            "f64_max_avg_us": null,
+            "sum_f64_checked_us": null
+          },
+          "status_detail": "Frozen sampler-specific caps selected with independent calibration; fresh 600 s confirmations and separate bounded work controls; full native Jacobian/precision retained.",
+          "samplers": [
+            {
+              "id": "qmc",
+              "label": "QMC",
+              "state": "measured",
+              "contour_settings": {
+                "construction": "sign_aware",
+                "safety_fraction": 0.8,
+                "lambda_cap": 1.25e-05,
+                "displacement_cap": 1000000.0
+              },
+              "kernel_cost": {
+                "f64_max_avg_us": "7.36 / 6.16",
+                "sum_f64_checked_us": "111 / 114"
+              },
+              "profile_receipt": {
+                "path": "/common/dev/fastsecdec/target/no-deformation-double-box-dynamic-tuning-r1/scalar-selected-cost-r1/scalar-qmc-sign_aware-cost/stdout.json",
+                "sha256": "8f226ea6184140f06993d9d93f25c13fd5ed7f8e55e808856ff0391ca329ef8c",
+                "bytes": 30262
+              },
+              "metrics": {
+                "integration_peak_gb": "1.08",
+                "work_relative_se": "0.0125",
+                "work_joint_se": "5.16e-18",
+                "time_relative_se": "0.00755"
+              },
+              "normalized_metrics": {
+                "work_radial_relative_se": "0.0125",
+                "work_joint_se": "5.16e-18",
+                "time_radial_relative_se": "0.00755",
+                "time_reported_sector_calls_million": "284"
+              },
+              "work_comparison": {
+                "source": "complete actual work control",
+                "actual_requested_control_status": "native_complete_record_estimate",
+                "actual_requested_accepted": 71958528,
+                "actual_observed_accepted": 71958528,
+                "raw_actual_radial_relative_se": 0.012545029600036223,
+                "raw_actual_joint_se": 5.1648232285410315e-18,
+                "table_source_accepted": 71958528,
+                "display_target": 72000000,
+                "display_scale": 0.9997119585160518,
+                "display_scale_is_heuristic": true
+              },
+              "weight_metrics": {
+                "status": "measured",
+                "native_status": "Available",
+                "absolute_weight_integral_over_norm": 10.655705113665269,
+                "maximum_observed_weight_over_norm": 1981.2740565346912,
+                "display_cancellation_ratio": "10.7",
+                "display_maximum_ratio": "1.98e+03"
+              },
+              "receipts": [
+                {
+                  "path": "/common/dev/fastsecdec/target/no-deformation-double-box-dynamic-tuning-r1/scalar-sign_aware-qmc-fixed-time-confirmation/completion.json",
+                  "sha256": "eb59b2201b3c38ea8f86c30bcdfe7a8b7e35335fb4628a032d9c40072ebf71c2"
+                },
+                {
+                  "path": "/common/dev/fastsecdec/target/no-deformation-double-box-dynamic-tuning-r1/scalar-sign_aware-qmc-matched_work/completion.json",
+                  "sha256": "88a8e710afb2d592bede2acc0e58f00c4377f604206a368e00c20bc2c414c996"
+                }
+              ]
+            },
+            {
+              "id": "discrete_mc",
+              "label": "MC",
+              "state": "measured",
+              "contour_settings": {
+                "construction": "sign_aware",
+                "safety_fraction": 0.8,
+                "lambda_cap": 1.25e-06,
+                "displacement_cap": 1000000.0
+              },
+              "kernel_cost": {
+                "f64_max_avg_us": "6.16 / 5.23",
+                "sum_f64_checked_us": "94.2 / 96.7"
+              },
+              "profile_receipt": {
+                "path": "/common/dev/fastsecdec/target/no-deformation-double-box-dynamic-tuning-r1/scalar-selected-cost-r1/scalar-discrete_mc-sign_aware-cost/stdout.json",
+                "sha256": "30250aa73d3c16e6dbd57a7b149b204bfa0c911043c43d2bcf6f2ca4265bfab0",
+                "bytes": 30220
+              },
+              "metrics": {
+                "integration_peak_gb": "0.997",
+                "work_relative_se": "0.00248",
+                "work_joint_se": "1.04e-18",
+                "time_relative_se": "0.00233"
+              },
+              "normalized_metrics": {
+                "work_radial_relative_se": "0.00248",
+                "work_joint_se": "1.04e-18",
+                "time_radial_relative_se": "0.00233",
+                "time_reported_sector_calls_million": "82.5"
+              },
+              "work_comparison": {
+                "source": "600 s estimate with MC-equivalent heuristic",
+                "actual_requested_control_status": "incomplete_requested_work",
+                "actual_requested_accepted": 71958528,
+                "actual_observed_accepted": 40960000,
+                "raw_actual_radial_relative_se": 0.003740806950251016,
+                "raw_actual_joint_se": 1.5510969825229472e-18,
+                "table_source_accepted": 82366464,
+                "display_target": 72000000,
+                "display_scale": 1.069569383755288,
+                "display_scale_is_heuristic": true
+              },
+              "weight_metrics": {
+                "status": "measured",
+                "native_status": "Available",
+                "absolute_weight_integral_over_norm": 10.017934399680728,
+                "maximum_observed_weight_over_norm": 545.8649062012578,
+                "display_cancellation_ratio": "10",
+                "display_maximum_ratio": "546"
+              },
+              "receipts": [
+                {
+                  "path": "/common/dev/fastsecdec/target/no-deformation-double-box-dynamic-tuning-r1/scalar-sign_aware-discrete_mc-fixed-time-confirmation/completion.json",
+                  "sha256": "84933e6c400e5081f554b906ceaed488af24642b5bb2e6d96bb2e608f3e869c4"
+                },
+                {
+                  "path": "/common/dev/fastsecdec/target/no-deformation-double-box-dynamic-tuning-r1/scalar-sign_aware-discrete_mc-matched_work/completion.json",
+                  "sha256": "a5242b3fcb16d52b83425e56be1418dd48878975b676bd8b7ad25fe70b554908"
+                }
+              ]
+            }
+          ]
         },
         {
           "id": "no-contour",
@@ -2680,6 +2976,146 @@
           }
         },
         {
+          "id": "dynamic-polynomial-tuned",
+          "label": "Dynamic tuned",
+          "generation_status": "measured",
+          "generation": {
+            "generation_seconds": "1.8e+03",
+            "generation_peak_gb": "34.8",
+            "artifact_mb": "88.6",
+            "stochastic_sectors": 30
+          },
+          "generation_receipt": {
+            "path": "/common/dev/fastsecdec/target/no-deformation-overview-campaign/double-box-physical-generation-r1/double-box-physical-polynomial-symbolic/stdout.json",
+            "sha256": "954990766658574e69c0ff2835dd0b1a5f3cc3a29e51840b8a4780460d7f3981"
+          },
+          "generation_reuse": "Original immutable artifact/generation receipt reused; no fresh generation.",
+          "selected_jacobian": "symbolic",
+          "kernel_cost": {
+            "f64_max_avg_us": null,
+            "sum_f64_checked_us": null
+          },
+          "status_detail": "Frozen sampler-specific caps selected with independent calibration; fresh 600 s confirmations and separate bounded work controls; full native Jacobian/precision retained.",
+          "samplers": [
+            {
+              "id": "qmc",
+              "label": "QMC",
+              "state": "measured",
+              "contour_settings": {
+                "construction": "polynomial",
+                "safety_fraction": 0.8,
+                "lambda_cap": 1.25e-06,
+                "displacement_cap": 1000000.0
+              },
+              "kernel_cost": {
+                "f64_max_avg_us": "7.52 / 6.71",
+                "sum_f64_checked_us": "201 / 206"
+              },
+              "profile_receipt": {
+                "path": "/common/dev/fastsecdec/target/no-deformation-double-box-dynamic-tuning-r1/physical-selected-cost-r1/physical-polynomial-selected-cost/stdout.json",
+                "sha256": "8cc9743be969fa7228161cf4b34e09ad91d64328c198cf41197de3bddd62df63",
+                "bytes": 49667
+              },
+              "metrics": {
+                "integration_peak_gb": "0.775",
+                "work_relative_se": "0.0218",
+                "work_joint_se": "2.43",
+                "time_relative_se": "0.0209"
+              },
+              "normalized_metrics": {
+                "work_radial_relative_se": "0.0218",
+                "work_joint_se": "2.43",
+                "time_radial_relative_se": "0.0209",
+                "time_reported_sector_calls_million": "297"
+              },
+              "work_comparison": {
+                "source": "600 s estimate with MC-equivalent heuristic",
+                "actual_requested_control_status": "pending",
+                "actual_requested_accepted": 179896320,
+                "actual_observed_accepted": null,
+                "raw_actual_radial_relative_se": null,
+                "raw_actual_joint_se": null,
+                "table_source_accepted": 194641920,
+                "display_target": 180000000,
+                "display_scale": 1.039876915793403,
+                "display_scale_is_heuristic": true
+              },
+              "weight_metrics": {
+                "status": "measured",
+                "native_status": "Available",
+                "absolute_weight_integral_over_norm": 22.60978709583754,
+                "maximum_observed_weight_over_norm": 9794.113719572397,
+                "display_cancellation_ratio": "22.6",
+                "display_maximum_ratio": "9.79e+03"
+              },
+              "receipts": [
+                {
+                  "path": "/common/dev/fastsecdec/target/no-deformation-double-box-dynamic-tuning-r1/physical-polynomial-qmc-fixed-time-confirmation/completion.json",
+                  "sha256": "c19179c4c759809dd74d35b64e49929956df5c7e30304e86ebba1242677ae823"
+                }
+              ]
+            },
+            {
+              "id": "discrete_mc",
+              "label": "MC",
+              "state": "measured",
+              "contour_settings": {
+                "construction": "polynomial",
+                "safety_fraction": 0.8,
+                "lambda_cap": 1.25e-06,
+                "displacement_cap": 1000000.0
+              },
+              "kernel_cost": {
+                "f64_max_avg_us": "7.52 / 6.71",
+                "sum_f64_checked_us": "201 / 206"
+              },
+              "profile_receipt": {
+                "path": "/common/dev/fastsecdec/target/no-deformation-double-box-dynamic-tuning-r1/physical-selected-cost-r1/physical-polynomial-selected-cost/stdout.json",
+                "sha256": "8cc9743be969fa7228161cf4b34e09ad91d64328c198cf41197de3bddd62df63",
+                "bytes": 49667
+              },
+              "metrics": {
+                "integration_peak_gb": "1.14",
+                "work_relative_se": "0.00324",
+                "work_joint_se": "0.333",
+                "time_relative_se": "0.00662"
+              },
+              "normalized_metrics": {
+                "work_radial_relative_se": "0.00324",
+                "work_joint_se": "0.333",
+                "time_radial_relative_se": "0.00662",
+                "time_reported_sector_calls_million": "43.6"
+              },
+              "work_comparison": {
+                "source": "600 s estimate with MC-equivalent heuristic",
+                "actual_requested_control_status": "pending",
+                "actual_requested_accepted": 179896320,
+                "actual_observed_accepted": null,
+                "raw_actual_radial_relative_se": null,
+                "raw_actual_joint_se": null,
+                "table_source_accepted": 43487232,
+                "display_target": 180000000,
+                "display_scale": 0.4915238888735046,
+                "display_scale_is_heuristic": true
+              },
+              "weight_metrics": {
+                "status": "measured",
+                "native_status": "Available",
+                "absolute_weight_integral_over_norm": 23.125640418109725,
+                "maximum_observed_weight_over_norm": 1433.804357980943,
+                "display_cancellation_ratio": "23.1",
+                "display_maximum_ratio": "1.43e+03"
+              },
+              "receipts": [
+                {
+                  "path": "/common/dev/fastsecdec/target/no-deformation-double-box-dynamic-tuning-r1/physical-polynomial-discrete_mc-fixed-time-confirmation/completion.json",
+                  "sha256": "b86ecc00a6c80dd78a01eb2ecef86ff70b3994bb2c192f86e9b6294ba05f2b8b"
+                }
+              ]
+            }
+          ]
+        },
+        {
           "id": "dynamic-sign-aware",
           "label": "Sign-aware",
           "generation_status": "measured",
@@ -2767,6 +3203,146 @@
             "path": "/common/dev/fastsecdec/target/no-deformation-double-box-sign-aware-6647950/physical-cost-r1/physical-sign-aware-cost/stdout.json",
             "sha256": "8b98953d47f13f6f34d9739106d3fab0d18608b4ddb8860b3754c913236c30eb"
           }
+        },
+        {
+          "id": "dynamic-sign-aware-tuned",
+          "label": "Sign-aware tuned",
+          "generation_status": "measured",
+          "generation": {
+            "generation_seconds": "1.54e+03",
+            "generation_peak_gb": "36.7",
+            "artifact_mb": "99.7",
+            "stochastic_sectors": 30
+          },
+          "generation_receipt": {
+            "path": "/common/dev/fastsecdec/target/no-deformation-double-box-sign-aware-6647950/generation-physical-r1/double-box-physical-sign-aware-symbolic/execution.json",
+            "sha256": "225fcb971fad0ed4b9b98092c9ee3f02bf2386980c2d712e56ff262ea8108881"
+          },
+          "generation_reuse": "Original immutable artifact/generation receipt reused; no fresh generation.",
+          "selected_jacobian": "symbolic",
+          "kernel_cost": {
+            "f64_max_avg_us": null,
+            "sum_f64_checked_us": null
+          },
+          "status_detail": "Frozen sampler-specific caps selected with independent calibration; fresh 600 s confirmations and separate bounded work controls; full native Jacobian/precision retained.",
+          "samplers": [
+            {
+              "id": "qmc",
+              "label": "QMC",
+              "state": "measured",
+              "contour_settings": {
+                "construction": "sign_aware",
+                "safety_fraction": 0.8,
+                "lambda_cap": 1.25e-06,
+                "displacement_cap": 1000000.0
+              },
+              "kernel_cost": {
+                "f64_max_avg_us": "8.98 / 7.59",
+                "sum_f64_checked_us": "228 / 232"
+              },
+              "profile_receipt": {
+                "path": "/common/dev/fastsecdec/target/no-deformation-double-box-dynamic-tuning-r1/physical-selected-cost-r1/physical-sign_aware-selected-cost/stdout.json",
+                "sha256": "42ea9405614987822f27abd8cae03187d61b0a5c86645abeb973c4c9e38a9b88",
+                "bytes": 49586
+              },
+              "metrics": {
+                "integration_peak_gb": "0.807",
+                "work_relative_se": "0.0224",
+                "work_joint_se": "2.5",
+                "time_relative_se": "0.0214"
+              },
+              "normalized_metrics": {
+                "work_radial_relative_se": "0.0224",
+                "work_joint_se": "2.5",
+                "time_radial_relative_se": "0.0214",
+                "time_reported_sector_calls_million": "323"
+              },
+              "work_comparison": {
+                "source": "600 s estimate with MC-equivalent heuristic",
+                "actual_requested_control_status": "pending",
+                "actual_requested_accepted": 179896320,
+                "actual_observed_accepted": null,
+                "raw_actual_radial_relative_se": null,
+                "raw_actual_joint_se": null,
+                "table_source_accepted": 197001216,
+                "display_target": 180000000,
+                "display_scale": 1.0461602171751705,
+                "display_scale_is_heuristic": true
+              },
+              "weight_metrics": {
+                "status": "measured",
+                "native_status": "Available",
+                "absolute_weight_integral_over_norm": 22.751297981632618,
+                "maximum_observed_weight_over_norm": 9692.015115403225,
+                "display_cancellation_ratio": "22.8",
+                "display_maximum_ratio": "9.69e+03"
+              },
+              "receipts": [
+                {
+                  "path": "/common/dev/fastsecdec/target/no-deformation-double-box-dynamic-tuning-r1/physical-sign_aware-qmc-fixed-time-confirmation/completion.json",
+                  "sha256": "e25bd13c70c6d50fc7a700401ce0757fcb8682c5f05ac859f5b2980158dc449e"
+                }
+              ]
+            },
+            {
+              "id": "discrete_mc",
+              "label": "MC",
+              "state": "measured",
+              "contour_settings": {
+                "construction": "sign_aware",
+                "safety_fraction": 0.8,
+                "lambda_cap": 1.25e-06,
+                "displacement_cap": 1000000.0
+              },
+              "kernel_cost": {
+                "f64_max_avg_us": "8.98 / 7.59",
+                "sum_f64_checked_us": "228 / 232"
+              },
+              "profile_receipt": {
+                "path": "/common/dev/fastsecdec/target/no-deformation-double-box-dynamic-tuning-r1/physical-selected-cost-r1/physical-sign_aware-selected-cost/stdout.json",
+                "sha256": "42ea9405614987822f27abd8cae03187d61b0a5c86645abeb973c4c9e38a9b88",
+                "bytes": 49586
+              },
+              "metrics": {
+                "integration_peak_gb": "1.2",
+                "work_relative_se": "0.00313",
+                "work_joint_se": "0.324",
+                "time_relative_se": "0.00648"
+              },
+              "normalized_metrics": {
+                "work_radial_relative_se": "0.00313",
+                "work_joint_se": "0.324",
+                "time_radial_relative_se": "0.00648",
+                "time_reported_sector_calls_million": "42.4"
+              },
+              "work_comparison": {
+                "source": "600 s estimate with MC-equivalent heuristic",
+                "actual_requested_control_status": "pending",
+                "actual_requested_accepted": 179896320,
+                "actual_observed_accepted": null,
+                "raw_actual_radial_relative_se": null,
+                "raw_actual_joint_se": null,
+                "table_source_accepted": 42258432,
+                "display_target": 180000000,
+                "display_scale": 0.4845297376494725,
+                "display_scale_is_heuristic": true
+              },
+              "weight_metrics": {
+                "status": "measured",
+                "native_status": "Available",
+                "absolute_weight_integral_over_norm": 23.01994131441066,
+                "maximum_observed_weight_over_norm": 1123.3542858874257,
+                "display_cancellation_ratio": "23",
+                "display_maximum_ratio": "1.12e+03"
+              },
+              "receipts": [
+                {
+                  "path": "/common/dev/fastsecdec/target/no-deformation-double-box-dynamic-tuning-r1/physical-sign_aware-discrete_mc-fixed-time-confirmation/completion.json",
+                  "sha256": "20a407b3a2237ef70c716ed7b8faf0f427728082c7808eeaa1bbe478b33f3ffe"
+                }
+              ]
+            }
+          ]
         },
         {
           "id": "no-contour",

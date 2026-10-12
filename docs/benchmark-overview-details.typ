@@ -269,12 +269,7 @@ polynomial confirmations pass the stated compatibility diagnostic; the largest
 is 2.643 combined SE. This is a noisy baseline, not an accuracy certificate.
 The physical compact record is `docs/physical-double-box-sign-aware-overview.json`.
 
-*Dynamic tuning follow-up.* The default caps do not demonstrate a variance
-advantage in the double boxes. A separate study tests smaller runtime strengths
-against the fixed map before varying caps and displacement bounds. The complete
-dynamic Jacobian is retained. Calibration and confirmation use separate streams,
-and both error per call and error per time will be reported; these baseline
-entries are preserved irrespective of tuning outcome.
+#include "double-box-dynamic-tuning.typ"
 
 *Bubble sign-aware completion.* A fresh 0.865-second generation produces one
 kernel. Independent QMC/MC confirmations take 600.043/602.843 seconds and give

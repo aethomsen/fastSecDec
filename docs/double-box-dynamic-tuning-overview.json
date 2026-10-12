@@ -1,0 +1,2670 @@
+{
+  "schema": 1,
+  "scope": "Eight independent tuned600s confirmations; no pooling. Physical exact-work controls pending at this frozen cutoff.",
+  "source_commit": "6647950859ff4ec4c87c0fbcb86ed71fe7dceba7",
+  "binary": {
+    "path": "/common/dev/fastsecdec/target/no-deformation-release-6647950/fastsecdec",
+    "sha256": "1465d3f8e3524c7b710cf7d71bd73f62e32c80b995c945534d19d2454db64606",
+    "bytes": 102042112
+  },
+  "artifact_generation": "Reused immutable previously validated fixed/polynomial/sign-aware artifacts; no fresh generation timing.",
+  "execution": {
+    "workers_per_run": 25,
+    "native_seconds": 600,
+    "outer_seconds": 750,
+    "shared_memory_bytes": 100000000000,
+    "qmc": "native serial1s coordinator, full task drain",
+    "discrete_mc": "ordinary native MC exception, unequal sector allocation retained",
+    "quiet_host_required": false
+  },
+  "selection": {
+    "S": 0.8,
+    "R": 1000000.0,
+    "scalar_qmc_L": 1.25e-05,
+    "scalar_discrete_mc_L": 1.25e-06,
+    "physical_both_L": 1.25e-06,
+    "calibration_pooled": false,
+    "baseline_L1_R1_retained": true
+  },
+  "rows": [
+    {
+      "id": "scalar-polynomial-qmc-fixed-time-confirmation",
+      "topology": "d05-scalar",
+      "construction": "polynomial",
+      "sampler": "qmc",
+      "seed": 202610129500,
+      "native_seconds": 600.127156286,
+      "outer_seconds": 600.4232314466499,
+      "artifact_load_seconds": 0.049457129,
+      "sampled_own_peak_rss_bytes": 955961344,
+      "accepted": 192413696,
+      "all_calls": 288772096,
+      "sector_used_points": [
+        8388608,
+        67108864,
+        33554432,
+        4194304,
+        2097152,
+        1048576,
+        16777216,
+        4194304,
+        16777216,
+        16777216,
+        2097152,
+        2097152,
+        524288,
+        4194304,
+        2097152,
+        4194304,
+        4194304,
+        2097152
+      ],
+      "full_laurent_vector": {
+        "orders": [
+          0,
+          0
+        ],
+        "components": [
+          "Real",
+          "Imag"
+        ],
+        "mean": [
+          -2.0618820991481612e-17,
+          2.932454511474671e-16
+        ],
+        "standard_error": [
+          1.9233022587799283e-18,
+          1.948083907207884e-18
+        ],
+        "covariance_of_mean": [
+          3.6990915786279746e-36,
+          -2.0763512358824174e-37,
+          -2.0763512358824174e-37,
+          3.795030909522336e-36
+        ],
+        "production_complete": true
+      },
+      "complex_norm_uncertainty": {
+        "0": {
+          "joint_relative_error": 0.009312326870316155,
+          "linearization_warning": false,
+          "mean_magnitude": 2.939694378634627e-16,
+          "radial_relative_error": 0.006651733460950361,
+          "radial_standard_error": 1.955406346333163e-18
+        }
+      },
+      "weight_diagnostics": {
+        "status": "Available",
+        "accepted_points": 192413696,
+        "orders": [
+          {
+            "order": 0,
+            "stochastic_absolute_mean": 2.7536486249706732e-15,
+            "exact_absolute": 0.0,
+            "absolute_integral_estimate": 2.7536486249706732e-15,
+            "sampled_sector_local_maximum": 5.135153947668552e-13,
+            "total_mean_magnitude": 2.939694378634627e-16,
+            "cancellation_ratio": 9.367125524965745,
+            "maximum_ratio": 1746.8325908265435
+          }
+        ]
+      },
+      "evaluation_diagnostics": {
+        "contour": {
+          "production": {
+            "checked_arguments": 0,
+            "maximum_bits": 0
+          },
+          "adaptation": {
+            "checked_arguments": 0,
+            "maximum_bits": 0
+          }
+        },
+        "evaluations": 288772096,
+        "conditioning_checks": 42,
+        "rescues": 42,
+        "max_precision_bits": 256,
+        "failures": 0,
+        "weighted_checks": 42,
+        "additional_replays": 42,
+        "f64_points": 288772054,
+        "double_float_points": 0,
+        "arbitrary_points": 42,
+        "unstable_points": 0,
+        "cutoff_zero_points": 0,
+        "f64_timing": {
+          "calls": 288772096,
+          "nanoseconds": 1010097263502,
+          "matrix_invocations": 1128016,
+          "matrix_points": 288772096
+        },
+        "double_float_timing": {
+          "calls": 0,
+          "nanoseconds": 0,
+          "matrix_invocations": 0,
+          "matrix_points": 0
+        },
+        "arbitrary_timing": {
+          "calls": 84,
+          "nanoseconds": 133182523,
+          "matrix_invocations": 0,
+          "matrix_points": 0
+        }
+      },
+      "finite_joint_standard_error": 2.7375394952676595e-18,
+      "finite_covariance_trace": 7.494122488150311e-36,
+      "trace_times_native_seconds": 4.497426417672608e-33,
+      "trace_times_accepted": 1.4419718062217175e-27,
+      "caller_settings": {
+        "absolute_tolerance": 1e-30,
+        "accuracy_target": {
+          "order": 0,
+          "target": "laurent_order"
+        },
+        "contour": {
+          "deformation": {
+            "construction": "polynomial",
+            "displacement_cap": 1000000.0,
+            "lambda_cap": 1.25e-05,
+            "mode": "dynamical",
+            "safety_fraction": 0.8
+          },
+          "validation": {
+            "pilot_points": 256,
+            "policy": "off"
+          }
+        },
+        "double_points": false,
+        "evaluation_batch_size": 256,
+        "max_rounds": 100000,
+        "max_seconds": 600.0,
+        "method": "qmc",
+        "package_points": 1024,
+        "periodization": "korobov3",
+        "points": 4096,
+        "production_seconds": 10.0,
+        "relative_tolerance": 1e-30,
+        "replay": {
+          "growth_factor": 16.0,
+          "minimum_bits": 128
+        },
+        "seed": 202610129500,
+        "serial_seconds": 1.0,
+        "shifts": 8,
+        "stability": {
+          "levels": [
+            {
+              "escalate_for_large_weight_threshold": 0.9,
+              "minimum_effective_distance": 0.001,
+              "power_thresholds": {},
+              "precision": "f64"
+            },
+            {
+              "escalate_for_large_weight_threshold": null,
+              "minimum_effective_distance": 1e-08,
+              "power_thresholds": {},
+              "precision": "double_float"
+            },
+            {
+              "escalate_for_large_weight_threshold": null,
+              "minimum_effective_distance": 0.0,
+              "power_thresholds": {},
+              "precision": "arbitrary"
+            }
+          ],
+          "mode": "validated",
+          "unstable_cutoff": null,
+          "unstable_power_thresholds": {}
+        },
+        "workers": 25
+      },
+      "execution_cpus": [
+        100,
+        101,
+        102,
+        103,
+        104,
+        105,
+        106,
+        107,
+        108,
+        109,
+        110,
+        111,
+        112,
+        113,
+        114,
+        115,
+        116,
+        117,
+        118,
+        119,
+        120,
+        121,
+        122,
+        123,
+        124
+      ],
+      "exact_native_argv": [
+        "/common/dev/fastsecdec/target/no-deformation-release-6647950/fastsecdec",
+        "integrate",
+        "/common/dev/fastsecdec/target/no-deformation-overview-campaign/double-box-scalar-generation-r1-artifacts/double-box-scalar-polynomial-symbolic",
+        "--method",
+        "qmc",
+        "--workers",
+        "25",
+        "--points",
+        "4096",
+        "--shifts",
+        "8",
+        "--max-rounds",
+        "100000",
+        "--double-points",
+        "false",
+        "--evaluation-batch-size",
+        "256",
+        "--seed",
+        "202610129500",
+        "--max-seconds",
+        "600",
+        "--save-result",
+        "/common/dev/fastsecdec/target/no-deformation-double-box-dynamic-tuning-r1/scalar-polynomial-qmc-fixed-time-confirmation-result.json",
+        "--checkpoint",
+        "/common/dev/fastsecdec/target/no-deformation-double-box-dynamic-tuning-r1/scalar-polynomial-qmc-fixed-time-confirmation-checkpoint",
+        "--contour",
+        "dynamical=0.8",
+        "--lambda-cap",
+        "0.0000125",
+        "--displacement-cap",
+        "1000000",
+        "--contour-construction",
+        "polynomial",
+        "--contour-validation",
+        "off",
+        "--contour-diagnostics",
+        "disabled",
+        "--serial",
+        "1"
+      ],
+      "result": {
+        "path": "/common/dev/fastsecdec/target/no-deformation-double-box-dynamic-tuning-r1/scalar-polynomial-qmc-fixed-time-confirmation-result.json",
+        "sha256": "dca4b47cad2534d8ee3acc133aed920ee3dd88c7d20143bb930b1dce90c98c0a",
+        "bytes": 35021
+      },
+      "process": {
+        "path": "/common/dev/fastsecdec/target/no-deformation-double-box-dynamic-tuning-r1/scalar-polynomial-qmc-fixed-time-confirmation/completion.json",
+        "sha256": "d59ac17dc22076193b068a8c9753aa04493798b9c3b8ec07facc571adc48d8e0"
+      },
+      "artifact_identity": "24acca8aecc42d7985b452b7752b914d433b017a5f44bfc8159a1cfdfc9f43f5",
+      "native_convention": "prod_l d^D k_l / (i*pi^(D/2)); propagators q^2-m^2+i0; no implicit scale factors; measure multiplier 1; dimension 4-2*eps",
+      "stopping_reason": "WorkLimit",
+      "timed_stop": {
+        "counts_complete": true,
+        "deadline_observed_seconds": 600.005281819,
+        "drain_seconds": 0.061294554,
+        "in_flight_at_deadline": 7,
+        "requested_seconds": 600.0
+      }
+    },
+    {
+      "id": "scalar-polynomial-discrete_mc-fixed-time-confirmation",
+      "topology": "d05-scalar",
+      "construction": "polynomial",
+      "sampler": "discrete_mc",
+      "seed": 202610129501,
+      "native_seconds": 601.554146187,
+      "outer_seconds": 604.6639075437561,
+      "artifact_load_seconds": 2.788008248,
+      "sampled_own_peak_rss_bytes": 862490624,
+      "accepted": 77246464,
+      "all_calls": 77344768,
+      "sector_used_points": [
+        3596170,
+        13934449,
+        5083678,
+        3711547,
+        2206663,
+        3442321,
+        3448210,
+        5609966,
+        10248465,
+        6577093,
+        2351337,
+        3195479,
+        2088346,
+        5516219,
+        1717016,
+        900637,
+        2034679,
+        1584189
+      ],
+      "full_laurent_vector": {
+        "orders": [
+          0,
+          0
+        ],
+        "components": [
+          "Real",
+          "Imag"
+        ],
+        "mean": [
+          -2.152382538118075e-17,
+          2.9274586637685764e-16
+        ],
+        "standard_error": [
+          7.590212676967317e-19,
+          7.68289654743461e-19
+        ],
+        "covariance_of_mean": [
+          5.7611328481595365e-37,
+          3.3232872247315244e-40,
+          3.3232872247315244e-40,
+          5.9026899358582655e-37
+        ],
+        "production_complete": false
+      },
+      "complex_norm_uncertainty": {
+        "0": {
+          "joint_relative_error": 0.003679247459149783,
+          "linearization_warning": false,
+          "mean_magnitude": 2.9353605798909367e-16,
+          "radial_relative_error": 0.002617083879528169,
+          "radial_standard_error": 7.682084854235028e-19
+        }
+      },
+      "weight_diagnostics": {
+        "status": "Available",
+        "accepted_points": 77246464,
+        "orders": [
+          {
+            "order": 0,
+            "stochastic_absolute_mean": 2.936765258994738e-15,
+            "exact_absolute": 0.0,
+            "absolute_integral_estimate": 2.936765258994738e-15,
+            "sampled_sector_local_maximum": 2.0317680504742888e-13,
+            "total_mean_magnitude": 2.9353605798909367e-16,
+            "cancellation_ratio": 10.004785371560224,
+            "maximum_ratio": 692.1698357582288
+          }
+        ]
+      },
+      "evaluation_diagnostics": {
+        "contour": {
+          "production": {
+            "checked_arguments": 0,
+            "maximum_bits": 0
+          },
+          "adaptation": {
+            "checked_arguments": 0,
+            "maximum_bits": 0
+          }
+        },
+        "evaluations": 77344768,
+        "conditioning_checks": 268,
+        "rescues": 268,
+        "max_precision_bits": 256,
+        "failures": 0,
+        "weighted_checks": 268,
+        "additional_replays": 268,
+        "f64_points": 77344500,
+        "double_float_points": 0,
+        "arbitrary_points": 268,
+        "unstable_points": 0,
+        "cutoff_zero_points": 0,
+        "f64_timing": {
+          "calls": 77344768,
+          "nanoseconds": 376794258610,
+          "matrix_invocations": 5420022,
+          "matrix_points": 77344768
+        },
+        "double_float_timing": {
+          "calls": 0,
+          "nanoseconds": 0,
+          "matrix_invocations": 0,
+          "matrix_points": 0
+        },
+        "arbitrary_timing": {
+          "calls": 536,
+          "nanoseconds": 748617573,
+          "matrix_invocations": 0,
+          "matrix_points": 0
+        }
+      },
+      "finite_joint_standard_error": 1.079991795525216e-18,
+      "finite_covariance_trace": 1.1663822784017801e-36,
+      "trace_times_native_seconds": 7.016420956116306e-34,
+      "trace_times_accepted": 9.009890667880109e-29,
+      "caller_settings": {
+        "absolute_tolerance": 1e-30,
+        "accuracy_target": {
+          "order": 0,
+          "target": "laurent_order"
+        },
+        "contour": {
+          "deformation": {
+            "construction": "polynomial",
+            "displacement_cap": 1000000.0,
+            "lambda_cap": 1.25e-06,
+            "mode": "dynamical",
+            "safety_fraction": 0.8
+          },
+          "validation": {
+            "pilot_points": 256,
+            "policy": "off"
+          }
+        },
+        "double_points": false,
+        "evaluation_batch_size": 256,
+        "max_rounds": 100000,
+        "max_seconds": 600.0,
+        "method": "discrete_mc",
+        "package_points": 1024,
+        "periodization": "korobov3",
+        "points": 4096,
+        "production_seconds": 10.0,
+        "relative_tolerance": 1e-30,
+        "replay": {
+          "growth_factor": 16.0,
+          "minimum_bits": 128
+        },
+        "seed": 202610129501,
+        "shifts": 8,
+        "stability": {
+          "levels": [
+            {
+              "escalate_for_large_weight_threshold": 0.9,
+              "minimum_effective_distance": 0.001,
+              "power_thresholds": {},
+              "precision": "f64"
+            },
+            {
+              "escalate_for_large_weight_threshold": null,
+              "minimum_effective_distance": 1e-08,
+              "power_thresholds": {},
+              "precision": "double_float"
+            },
+            {
+              "escalate_for_large_weight_threshold": null,
+              "minimum_effective_distance": 0.0,
+              "power_thresholds": {},
+              "precision": "arbitrary"
+            }
+          ],
+          "mode": "validated",
+          "unstable_cutoff": null,
+          "unstable_power_thresholds": {}
+        },
+        "workers": 25
+      },
+      "execution_cpus": [
+        75,
+        76,
+        77,
+        78,
+        79,
+        80,
+        81,
+        82,
+        83,
+        84,
+        85,
+        86,
+        87,
+        88,
+        89,
+        90,
+        91,
+        92,
+        93,
+        94,
+        95,
+        96,
+        97,
+        98,
+        99
+      ],
+      "exact_native_argv": [
+        "/common/dev/fastsecdec/target/no-deformation-release-6647950/fastsecdec",
+        "integrate",
+        "/common/dev/fastsecdec/target/no-deformation-overview-campaign/double-box-scalar-generation-r1-artifacts/double-box-scalar-polynomial-symbolic",
+        "--method",
+        "discrete_mc",
+        "--workers",
+        "25",
+        "--points",
+        "4096",
+        "--shifts",
+        "8",
+        "--max-rounds",
+        "100000",
+        "--double-points",
+        "false",
+        "--evaluation-batch-size",
+        "256",
+        "--seed",
+        "202610129501",
+        "--max-seconds",
+        "600",
+        "--save-result",
+        "/common/dev/fastsecdec/target/no-deformation-double-box-dynamic-tuning-r1/scalar-polynomial-discrete_mc-fixed-time-confirmation-result.json",
+        "--checkpoint",
+        "/common/dev/fastsecdec/target/no-deformation-double-box-dynamic-tuning-r1/scalar-polynomial-discrete_mc-fixed-time-confirmation-checkpoint",
+        "--contour",
+        "dynamical=0.8",
+        "--lambda-cap",
+        "0.00000125",
+        "--displacement-cap",
+        "1000000",
+        "--contour-construction",
+        "polynomial",
+        "--contour-validation",
+        "off",
+        "--contour-diagnostics",
+        "disabled"
+      ],
+      "result": {
+        "path": "/common/dev/fastsecdec/target/no-deformation-double-box-dynamic-tuning-r1/scalar-polynomial-discrete_mc-fixed-time-confirmation-result.json",
+        "sha256": "1fc0148674bd8bde7e6ce989204af31bd2bfcf6c090790658edc371ce512cc2d",
+        "bytes": 36519
+      },
+      "process": {
+        "path": "/common/dev/fastsecdec/target/no-deformation-double-box-dynamic-tuning-r1/scalar-polynomial-discrete_mc-fixed-time-confirmation/completion.json",
+        "sha256": "21027cee344adcd4d1e96bca50886042d764223b3de19184042fa1c9f178ed3b"
+      },
+      "artifact_identity": "99725138d9f014ed4a73d790ea114f799ab37c41794b33c44d4f2d1ac9d2a60b",
+      "native_convention": "prod_l d^D k_l / (i*pi^(D/2)); propagators q^2-m^2+i0; no implicit scale factors; measure multiplier 1; dimension 4-2*eps",
+      "stopping_reason": "WorkLimit",
+      "timed_stop": {
+        "counts_complete": true,
+        "deadline_observed_seconds": 600.731098892,
+        "drain_seconds": 0.0895159,
+        "in_flight_at_deadline": 25,
+        "requested_seconds": 600.0
+      }
+    },
+    {
+      "id": "scalar-sign_aware-qmc-fixed-time-confirmation",
+      "topology": "d05-scalar",
+      "construction": "sign_aware",
+      "sampler": "qmc",
+      "seed": 202610129510,
+      "native_seconds": 600.114287227,
+      "outer_seconds": 600.4310921407305,
+      "artifact_load_seconds": 0.04977066,
+      "sampled_own_peak_rss_bytes": 1076219904,
+      "accepted": 221773824,
+      "all_calls": 284450816,
+      "sector_used_points": [
+        8388608,
+        67108864,
+        67108864,
+        2097152,
+        2097152,
+        1048576,
+        16777216,
+        4194304,
+        16777216,
+        16777216,
+        2097152,
+        2097152,
+        524288,
+        4194304,
+        2097152,
+        2097152,
+        4194304,
+        2097152
+      ],
+      "full_laurent_vector": {
+        "orders": [
+          0,
+          0
+        ],
+        "components": [
+          "Real",
+          "Imag"
+        ],
+        "mean": [
+          -1.922179101847093e-17,
+          2.933668668023272e-16
+        ],
+        "standard_error": [
+          2.170690172833009e-18,
+          2.208441682436971e-18
+        ],
+        "covariance_of_mean": [
+          4.711895826433798e-36,
+          -3.4221830913954407e-37,
+          -3.4221830913954407e-37,
+          4.8772146647250386e-36
+        ],
+        "production_complete": true
+      },
+      "complex_norm_uncertainty": {
+        "0": {
+          "joint_relative_error": 0.010532897818358478,
+          "linearization_warning": false,
+          "mean_magnitude": 2.939959111745811e-16,
+          "radial_relative_error": 0.007545578085198001,
+          "radial_standard_error": 2.2183691044967373e-18
+        }
+      },
+      "weight_diagnostics": {
+        "status": "Available",
+        "accepted_points": 221773824,
+        "orders": [
+          {
+            "order": 0,
+            "stochastic_absolute_mean": 3.132733734099664e-15,
+            "exact_absolute": 0.0,
+            "absolute_integral_estimate": 3.132733734099664e-15,
+            "sampled_sector_local_maximum": 5.82486471537475e-13,
+            "total_mean_magnitude": 2.939959111745811e-16,
+            "cancellation_ratio": 10.655705113665269,
+            "maximum_ratio": 1981.2740565346912
+          }
+        ]
+      },
+      "evaluation_diagnostics": {
+        "contour": {
+          "production": {
+            "checked_arguments": 0,
+            "maximum_bits": 0
+          },
+          "adaptation": {
+            "checked_arguments": 0,
+            "maximum_bits": 0
+          }
+        },
+        "evaluations": 284450816,
+        "conditioning_checks": 42,
+        "rescues": 42,
+        "max_precision_bits": 256,
+        "failures": 0,
+        "weighted_checks": 42,
+        "additional_replays": 42,
+        "f64_points": 284450774,
+        "double_float_points": 0,
+        "arbitrary_points": 42,
+        "unstable_points": 0,
+        "cutoff_zero_points": 0,
+        "f64_timing": {
+          "calls": 284450816,
+          "nanoseconds": 1316666100936,
+          "matrix_invocations": 1111136,
+          "matrix_points": 284450816
+        },
+        "double_float_timing": {
+          "calls": 0,
+          "nanoseconds": 0,
+          "matrix_invocations": 0,
+          "matrix_points": 0
+        },
+        "arbitrary_timing": {
+          "calls": 84,
+          "nanoseconds": 146097432,
+          "matrix_invocations": 0,
+          "matrix_points": 0
+        }
+      },
+      "finite_joint_standard_error": 3.096628891417058e-18,
+      "finite_covariance_trace": 9.589110491158836e-36,
+      "trace_times_native_seconds": 5.754562207542733e-33,
+      "trace_times_accepted": 2.1266137023828135e-27,
+      "caller_settings": {
+        "absolute_tolerance": 1e-30,
+        "accuracy_target": {
+          "order": 0,
+          "target": "laurent_order"
+        },
+        "contour": {
+          "deformation": {
+            "construction": "sign_aware",
+            "displacement_cap": 1000000.0,
+            "lambda_cap": 1.25e-05,
+            "mode": "dynamical",
+            "safety_fraction": 0.8
+          },
+          "validation": {
+            "pilot_points": 256,
+            "policy": "off"
+          }
+        },
+        "double_points": false,
+        "evaluation_batch_size": 256,
+        "max_rounds": 100000,
+        "max_seconds": 600.0,
+        "method": "qmc",
+        "package_points": 1024,
+        "periodization": "korobov3",
+        "points": 4096,
+        "production_seconds": 10.0,
+        "relative_tolerance": 1e-30,
+        "replay": {
+          "growth_factor": 16.0,
+          "minimum_bits": 128
+        },
+        "seed": 202610129510,
+        "serial_seconds": 1.0,
+        "shifts": 8,
+        "stability": {
+          "levels": [
+            {
+              "escalate_for_large_weight_threshold": 0.9,
+              "minimum_effective_distance": 0.001,
+              "power_thresholds": {},
+              "precision": "f64"
+            },
+            {
+              "escalate_for_large_weight_threshold": null,
+              "minimum_effective_distance": 1e-08,
+              "power_thresholds": {},
+              "precision": "double_float"
+            },
+            {
+              "escalate_for_large_weight_threshold": null,
+              "minimum_effective_distance": 0.0,
+              "power_thresholds": {},
+              "precision": "arbitrary"
+            }
+          ],
+          "mode": "validated",
+          "unstable_cutoff": null,
+          "unstable_power_thresholds": {}
+        },
+        "workers": 25
+      },
+      "execution_cpus": [
+        175,
+        176,
+        177,
+        178,
+        179,
+        180,
+        181,
+        182,
+        183,
+        184,
+        185,
+        186,
+        187,
+        188,
+        189,
+        190,
+        191,
+        192,
+        193,
+        194,
+        195,
+        196,
+        197,
+        198,
+        199
+      ],
+      "exact_native_argv": [
+        "/common/dev/fastsecdec/target/no-deformation-release-6647950/fastsecdec",
+        "integrate",
+        "/common/dev/fastsecdec/target/no-deformation-double-box-sign-aware-6647950/scalar.fsd",
+        "--method",
+        "qmc",
+        "--workers",
+        "25",
+        "--points",
+        "4096",
+        "--shifts",
+        "8",
+        "--max-rounds",
+        "100000",
+        "--double-points",
+        "false",
+        "--evaluation-batch-size",
+        "256",
+        "--seed",
+        "202610129510",
+        "--max-seconds",
+        "600",
+        "--save-result",
+        "/common/dev/fastsecdec/target/no-deformation-double-box-dynamic-tuning-r1/scalar-sign_aware-qmc-fixed-time-confirmation-result.json",
+        "--checkpoint",
+        "/common/dev/fastsecdec/target/no-deformation-double-box-dynamic-tuning-r1/scalar-sign_aware-qmc-fixed-time-confirmation-checkpoint",
+        "--contour",
+        "dynamical=0.8",
+        "--lambda-cap",
+        "0.0000125",
+        "--displacement-cap",
+        "1000000",
+        "--contour-construction",
+        "sign_aware",
+        "--contour-validation",
+        "off",
+        "--contour-diagnostics",
+        "disabled",
+        "--serial",
+        "1"
+      ],
+      "result": {
+        "path": "/common/dev/fastsecdec/target/no-deformation-double-box-dynamic-tuning-r1/scalar-sign_aware-qmc-fixed-time-confirmation-result.json",
+        "sha256": "93b2ad35be6c91c553ebba99a820d6fe140ad62f8f02ace43f4f5a8413479d1f",
+        "bytes": 34903
+      },
+      "process": {
+        "path": "/common/dev/fastsecdec/target/no-deformation-double-box-dynamic-tuning-r1/scalar-sign_aware-qmc-fixed-time-confirmation/completion.json",
+        "sha256": "eb59b2201b3c38ea8f86c30bcdfe7a8b7e35335fb4628a032d9c40072ebf71c2"
+      },
+      "artifact_identity": "17f5583faa7934517560a1b6a01765be90f3f75457303a1ab5765085ba3be614",
+      "native_convention": "prod_l d^D k_l / (i*pi^(D/2)); propagators q^2-m^2+i0; no implicit scale factors; measure multiplier 1; dimension 4-2*eps",
+      "stopping_reason": "WorkLimit",
+      "timed_stop": {
+        "counts_complete": true,
+        "deadline_observed_seconds": 600.025273659,
+        "drain_seconds": 0.019189608,
+        "in_flight_at_deadline": 1,
+        "requested_seconds": 600.0
+      }
+    },
+    {
+      "id": "scalar-sign_aware-discrete_mc-fixed-time-confirmation",
+      "topology": "d05-scalar",
+      "construction": "sign_aware",
+      "sampler": "discrete_mc",
+      "seed": 202610129511,
+      "native_seconds": 601.234721221,
+      "outer_seconds": 604.6473278230987,
+      "artifact_load_seconds": 3.150456353,
+      "sampled_own_peak_rss_bytes": 996573184,
+      "accepted": 82366464,
+      "all_calls": 82464768,
+      "sector_used_points": [
+        4255574,
+        12883398,
+        5302785,
+        1353882,
+        1985051,
+        1817236,
+        3930764,
+        8113970,
+        12571918,
+        6036096,
+        2633074,
+        1541706,
+        3987064,
+        3126474,
+        1332748,
+        4730669,
+        3600072,
+        3163983
+      ],
+      "full_laurent_vector": {
+        "orders": [
+          0,
+          0
+        ],
+        "components": [
+          "Real",
+          "Imag"
+        ],
+        "mean": [
+          -1.9390143319570883e-17,
+          2.9258882119953154e-16
+        ],
+        "standard_error": [
+          6.899706898468009e-19,
+          6.80879279184988e-19
+        ],
+        "covariance_of_mean": [
+          4.760595528476703e-37,
+          -1.9669618682435155e-39,
+          -1.9669618682435155e-39,
+          4.635965928234688e-37
+        ],
+        "production_complete": false
+      },
+      "complex_norm_uncertainty": {
+        "0": {
+          "joint_relative_error": 0.003305789242171388,
+          "linearization_warning": false,
+          "mean_magnitude": 2.9323061905074806e-16,
+          "radial_relative_error": 0.002322778812442413,
+          "radial_standard_error": 6.811098690904502e-19
+        }
+      },
+      "weight_diagnostics": {
+        "status": "Available",
+        "accepted_points": 82366464,
+        "orders": [
+          {
+            "order": 0,
+            "stochastic_absolute_mean": 2.9375651056281642e-15,
+            "exact_absolute": 0.0,
+            "absolute_integral_estimate": 2.9375651056281642e-15,
+            "sampled_sector_local_maximum": 1.6006430436347334e-13,
+            "total_mean_magnitude": 2.9323061905074806e-16,
+            "cancellation_ratio": 10.017934399680728,
+            "maximum_ratio": 545.8649062012578
+          }
+        ]
+      },
+      "evaluation_diagnostics": {
+        "contour": {
+          "production": {
+            "checked_arguments": 0,
+            "maximum_bits": 0
+          },
+          "adaptation": {
+            "checked_arguments": 0,
+            "maximum_bits": 0
+          }
+        },
+        "evaluations": 82464768,
+        "conditioning_checks": 266,
+        "rescues": 266,
+        "max_precision_bits": 256,
+        "failures": 0,
+        "weighted_checks": 266,
+        "additional_replays": 266,
+        "f64_points": 82464502,
+        "double_float_points": 0,
+        "arbitrary_points": 266,
+        "unstable_points": 0,
+        "cutoff_zero_points": 0,
+        "f64_timing": {
+          "calls": 82464768,
+          "nanoseconds": 410247704022,
+          "matrix_invocations": 5784239,
+          "matrix_points": 82464768
+        },
+        "double_float_timing": {
+          "calls": 0,
+          "nanoseconds": 0,
+          "matrix_invocations": 0,
+          "matrix_points": 0
+        },
+        "arbitrary_timing": {
+          "calls": 532,
+          "nanoseconds": 792505455,
+          "matrix_invocations": 0,
+          "matrix_points": 0
+        }
+      },
+      "finite_joint_standard_error": 9.693586259332194e-19,
+      "finite_covariance_trace": 9.396561456711391e-37,
+      "trace_times_native_seconds": 5.649539007861867e-34,
+      "trace_times_accepted": 7.739615409480064e-29,
+      "caller_settings": {
+        "absolute_tolerance": 1e-30,
+        "accuracy_target": {
+          "order": 0,
+          "target": "laurent_order"
+        },
+        "contour": {
+          "deformation": {
+            "construction": "sign_aware",
+            "displacement_cap": 1000000.0,
+            "lambda_cap": 1.25e-06,
+            "mode": "dynamical",
+            "safety_fraction": 0.8
+          },
+          "validation": {
+            "pilot_points": 256,
+            "policy": "off"
+          }
+        },
+        "double_points": false,
+        "evaluation_batch_size": 256,
+        "max_rounds": 100000,
+        "max_seconds": 600.0,
+        "method": "discrete_mc",
+        "package_points": 1024,
+        "periodization": "korobov3",
+        "points": 4096,
+        "production_seconds": 10.0,
+        "relative_tolerance": 1e-30,
+        "replay": {
+          "growth_factor": 16.0,
+          "minimum_bits": 128
+        },
+        "seed": 202610129511,
+        "shifts": 8,
+        "stability": {
+          "levels": [
+            {
+              "escalate_for_large_weight_threshold": 0.9,
+              "minimum_effective_distance": 0.001,
+              "power_thresholds": {},
+              "precision": "f64"
+            },
+            {
+              "escalate_for_large_weight_threshold": null,
+              "minimum_effective_distance": 1e-08,
+              "power_thresholds": {},
+              "precision": "double_float"
+            },
+            {
+              "escalate_for_large_weight_threshold": null,
+              "minimum_effective_distance": 0.0,
+              "power_thresholds": {},
+              "precision": "arbitrary"
+            }
+          ],
+          "mode": "validated",
+          "unstable_cutoff": null,
+          "unstable_power_thresholds": {}
+        },
+        "workers": 25
+      },
+      "execution_cpus": [
+        125,
+        126,
+        127,
+        128,
+        129,
+        130,
+        131,
+        132,
+        133,
+        134,
+        135,
+        136,
+        137,
+        138,
+        139,
+        140,
+        141,
+        142,
+        143,
+        144,
+        145,
+        146,
+        147,
+        148,
+        149
+      ],
+      "exact_native_argv": [
+        "/common/dev/fastsecdec/target/no-deformation-release-6647950/fastsecdec",
+        "integrate",
+        "/common/dev/fastsecdec/target/no-deformation-double-box-sign-aware-6647950/scalar.fsd",
+        "--method",
+        "discrete_mc",
+        "--workers",
+        "25",
+        "--points",
+        "4096",
+        "--shifts",
+        "8",
+        "--max-rounds",
+        "100000",
+        "--double-points",
+        "false",
+        "--evaluation-batch-size",
+        "256",
+        "--seed",
+        "202610129511",
+        "--max-seconds",
+        "600",
+        "--save-result",
+        "/common/dev/fastsecdec/target/no-deformation-double-box-dynamic-tuning-r1/scalar-sign_aware-discrete_mc-fixed-time-confirmation-result.json",
+        "--checkpoint",
+        "/common/dev/fastsecdec/target/no-deformation-double-box-dynamic-tuning-r1/scalar-sign_aware-discrete_mc-fixed-time-confirmation-checkpoint",
+        "--contour",
+        "dynamical=0.8",
+        "--lambda-cap",
+        "0.00000125",
+        "--displacement-cap",
+        "1000000",
+        "--contour-construction",
+        "sign_aware",
+        "--contour-validation",
+        "off",
+        "--contour-diagnostics",
+        "disabled"
+      ],
+      "result": {
+        "path": "/common/dev/fastsecdec/target/no-deformation-double-box-dynamic-tuning-r1/scalar-sign_aware-discrete_mc-fixed-time-confirmation-result.json",
+        "sha256": "bb7e42e46810a49459ceb70d49712f4f3eb9e9e91b4a2b98a373fc315f8079b3",
+        "bytes": 36463
+      },
+      "process": {
+        "path": "/common/dev/fastsecdec/target/no-deformation-double-box-dynamic-tuning-r1/scalar-sign_aware-discrete_mc-fixed-time-confirmation/completion.json",
+        "sha256": "84933e6c400e5081f554b906ceaed488af24642b5bb2e6d96bb2e608f3e869c4"
+      },
+      "artifact_identity": "4039cc6db83e352427a56ba147901890ee0bb909c08a21ac40eb415d0a2c8f31",
+      "native_convention": "prod_l d^D k_l / (i*pi^(D/2)); propagators q^2-m^2+i0; no implicit scale factors; measure multiplier 1; dimension 4-2*eps",
+      "stopping_reason": "WorkLimit",
+      "timed_stop": {
+        "counts_complete": true,
+        "deadline_observed_seconds": 600.513905346,
+        "drain_seconds": 3e-07,
+        "in_flight_at_deadline": 0,
+        "requested_seconds": 600.0
+      }
+    },
+    {
+      "id": "physical-polynomial-qmc-fixed-time-confirmation",
+      "topology": "d05-physical",
+      "construction": "polynomial",
+      "sampler": "qmc",
+      "seed": 202610129700,
+      "native_seconds": 600.187956084,
+      "outer_seconds": 600.4064784077927,
+      "artifact_load_seconds": 0.050060396,
+      "sampled_own_peak_rss_bytes": 775213056,
+      "accepted": 194641920,
+      "all_calls": 297238528,
+      "sector_used_points": [
+        67108864,
+        33554432,
+        16777216,
+        16777216,
+        524288,
+        524288,
+        524288,
+        1048576,
+        1048576,
+        4194304,
+        8388608,
+        16777216,
+        524288,
+        524288,
+        524288,
+        524288,
+        524288,
+        131072,
+        524288,
+        1048576,
+        1048576,
+        524288,
+        524288,
+        2097152,
+        524288,
+        262144,
+        524288,
+        524288,
+        262144,
+        16777216
+      ],
+      "full_laurent_vector": {
+        "orders": [
+          -1,
+          -1,
+          0,
+          0
+        ],
+        "components": [
+          "Real",
+          "Imag",
+          "Real",
+          "Imag"
+        ],
+        "mean": [
+          0.010444956018592449,
+          -11.556763198833435,
+          69.60499896524632,
+          26.83850776025706
+        ],
+        "standard_error": [
+          0.02875144175390514,
+          0.028786308475876977,
+          1.6078104695253819,
+          1.6916757547813654
+        ],
+        "covariance_of_mean": [
+          0.0008266454029281998,
+          -5.763642683462303e-05,
+          -0.021215065658799732,
+          0.00895904822267417,
+          -5.763642683462303e-05,
+          0.0008286515556683466,
+          0.0015576469744527587,
+          -0.025428157934842464,
+          -0.021215065658799732,
+          0.0015576469744527587,
+          2.585054505915429,
+          -0.2766509291993286,
+          0.00895904822267417,
+          -0.025428157934842464,
+          -0.2766509291993286,
+          2.8617668593151024
+        ],
+        "production_complete": true
+      },
+      "complex_norm_uncertainty": {
+        "-1": {
+          "joint_relative_error": 0.0035204774481340404,
+          "linearization_warning": false,
+          "mean_magnitude": 11.556767918887056,
+          "radial_relative_error": 0.0024910180931623977,
+          "radial_standard_error": 0.028788117984426403
+        },
+        "0": {
+          "joint_relative_error": 0.03128474971329678,
+          "linearization_warning": false,
+          "mean_magnitude": 74.60000924764903,
+          "radial_relative_error": 0.020918137751963172,
+          "radial_standard_error": 1.5604932697400489
+        }
+      },
+      "weight_diagnostics": {
+        "status": "Available",
+        "accepted_points": 194641920,
+        "orders": [
+          {
+            "order": -1,
+            "stochastic_absolute_mean": 26.73715224627837,
+            "exact_absolute": 0.0,
+            "absolute_integral_estimate": 26.73715224627837,
+            "sampled_sector_local_maximum": 291.9214922983844,
+            "total_mean_magnitude": 11.556767918887056,
+            "cancellation_ratio": 2.3135492928418366,
+            "maximum_ratio": 25.259786676281816
+          },
+          {
+            "order": 0,
+            "stochastic_absolute_mean": 1686.6903264368561,
+            "exact_absolute": 0.0,
+            "absolute_integral_estimate": 1686.6903264368561,
+            "sampled_sector_local_maximum": 730640.974052627,
+            "total_mean_magnitude": 74.60000924764903,
+            "cancellation_ratio": 22.60978709583754,
+            "maximum_ratio": 9794.113719572397
+          }
+        ]
+      },
+      "evaluation_diagnostics": {
+        "contour": {
+          "production": {
+            "checked_arguments": 0,
+            "maximum_bits": 0
+          },
+          "adaptation": {
+            "checked_arguments": 0,
+            "maximum_bits": 0
+          }
+        },
+        "evaluations": 297238528,
+        "conditioning_checks": 81,
+        "rescues": 81,
+        "max_precision_bits": 256,
+        "failures": 0,
+        "weighted_checks": 81,
+        "additional_replays": 81,
+        "f64_points": 297238447,
+        "double_float_points": 0,
+        "arbitrary_points": 81,
+        "unstable_points": 0,
+        "cutoff_zero_points": 0,
+        "f64_timing": {
+          "calls": 297238528,
+          "nanoseconds": 1073190936265,
+          "matrix_invocations": 1161088,
+          "matrix_points": 297238528
+        },
+        "double_float_timing": {
+          "calls": 0,
+          "nanoseconds": 0,
+          "matrix_invocations": 0,
+          "matrix_points": 0
+        },
+        "arbitrary_timing": {
+          "calls": 162,
+          "nanoseconds": 368470989,
+          "matrix_invocations": 0,
+          "matrix_points": 0
+        }
+      },
+      "finite_joint_standard_error": 2.333842617922325,
+      "finite_covariance_trace": 5.446821365230532,
+      "trace_times_native_seconds": 3269.1165823523756,
+      "trace_times_accepted": 1060179768.4254919,
+      "caller_settings": {
+        "absolute_tolerance": 1e-30,
+        "accuracy_target": {
+          "order": 0,
+          "target": "laurent_order"
+        },
+        "contour": {
+          "deformation": {
+            "construction": "polynomial",
+            "displacement_cap": 1000000.0,
+            "lambda_cap": 1.25e-06,
+            "mode": "dynamical",
+            "safety_fraction": 0.8
+          },
+          "validation": {
+            "pilot_points": 256,
+            "policy": "off"
+          }
+        },
+        "double_points": false,
+        "evaluation_batch_size": 256,
+        "max_rounds": 100000,
+        "max_seconds": 600.0,
+        "method": "qmc",
+        "package_points": 1024,
+        "periodization": "korobov3",
+        "points": 4096,
+        "production_seconds": 10.0,
+        "relative_tolerance": 1e-30,
+        "replay": {
+          "growth_factor": 16.0,
+          "minimum_bits": 128
+        },
+        "seed": 202610129700,
+        "serial_seconds": 1.0,
+        "shifts": 8,
+        "stability": {
+          "levels": [
+            {
+              "escalate_for_large_weight_threshold": 0.9,
+              "minimum_effective_distance": 0.001,
+              "power_thresholds": {},
+              "precision": "f64"
+            },
+            {
+              "escalate_for_large_weight_threshold": null,
+              "minimum_effective_distance": 1e-08,
+              "power_thresholds": {},
+              "precision": "double_float"
+            },
+            {
+              "escalate_for_large_weight_threshold": null,
+              "minimum_effective_distance": 0.0,
+              "power_thresholds": {},
+              "precision": "arbitrary"
+            }
+          ],
+          "mode": "validated",
+          "unstable_cutoff": null,
+          "unstable_power_thresholds": {}
+        },
+        "workers": 25
+      },
+      "execution_cpus": [
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49
+      ],
+      "exact_native_argv": [
+        "/common/dev/fastsecdec/target/no-deformation-release-6647950/fastsecdec",
+        "integrate",
+        "/common/dev/fastsecdec/target/no-deformation-overview-campaign/double-box-physical-generation-r1-artifacts/double-box-physical-polynomial-symbolic",
+        "--method",
+        "qmc",
+        "--workers",
+        "25",
+        "--points",
+        "4096",
+        "--shifts",
+        "8",
+        "--max-rounds",
+        "100000",
+        "--double-points",
+        "false",
+        "--evaluation-batch-size",
+        "256",
+        "--seed",
+        "202610129700",
+        "--max-seconds",
+        "600",
+        "--save-result",
+        "/common/dev/fastsecdec/target/no-deformation-double-box-dynamic-tuning-r1/physical-polynomial-qmc-fixed-time-confirmation-result.json",
+        "--checkpoint",
+        "/common/dev/fastsecdec/target/no-deformation-double-box-dynamic-tuning-r1/physical-polynomial-qmc-fixed-time-confirmation-checkpoint",
+        "--contour",
+        "dynamical=0.8",
+        "--lambda-cap",
+        "0.00000125",
+        "--displacement-cap",
+        "1000000",
+        "--contour-construction",
+        "polynomial",
+        "--contour-validation",
+        "off",
+        "--contour-diagnostics",
+        "disabled",
+        "--serial",
+        "1"
+      ],
+      "result": {
+        "path": "/common/dev/fastsecdec/target/no-deformation-double-box-dynamic-tuning-r1/physical-polynomial-qmc-fixed-time-confirmation-result.json",
+        "sha256": "3c1c94bca562c0a7d85c1742edd0372cf8a50b10b0f7bb84c0c328f6398ed871",
+        "bytes": 64473
+      },
+      "process": {
+        "path": "/common/dev/fastsecdec/target/no-deformation-double-box-dynamic-tuning-r1/physical-polynomial-qmc-fixed-time-confirmation/completion.json",
+        "sha256": "c19179c4c759809dd74d35b64e49929956df5c7e30304e86ebba1242677ae823"
+      },
+      "artifact_identity": "2615544cec14cb4b3ea5e08c84569c251da419ad5ce6589566681d67e32207c1",
+      "native_convention": "prod_l d^D k_l / (i*pi^(D/2)); propagators q^2-m^2+i0; no implicit scale factors; measure multiplier 1; dimension 4-2*eps",
+      "stopping_reason": "WorkLimit",
+      "timed_stop": {
+        "counts_complete": true,
+        "deadline_observed_seconds": 600.140556213,
+        "drain_seconds": 3.7e-07,
+        "in_flight_at_deadline": 0,
+        "requested_seconds": 600.0
+      }
+    },
+    {
+      "id": "physical-polynomial-discrete_mc-fixed-time-confirmation",
+      "topology": "d05-physical",
+      "construction": "polynomial",
+      "sampler": "discrete_mc",
+      "seed": 202610129701,
+      "native_seconds": 604.794899097,
+      "outer_seconds": 608.4021474728361,
+      "artifact_load_seconds": 3.210503209,
+      "sampled_own_peak_rss_bytes": 1141088256,
+      "accepted": 43487232,
+      "all_calls": 43585536,
+      "sector_used_points": [
+        9408209,
+        2126985,
+        2326445,
+        1886143,
+        573141,
+        496443,
+        355602,
+        977255,
+        863760,
+        2110069,
+        2126817,
+        2298383,
+        677128,
+        559009,
+        129987,
+        465932,
+        1612537,
+        342953,
+        204774,
+        802978,
+        872270,
+        946680,
+        363879,
+        909407,
+        474991,
+        540229,
+        636701,
+        810056,
+        497738,
+        7090731
+      ],
+      "full_laurent_vector": {
+        "orders": [
+          -1,
+          -1,
+          0,
+          0
+        ],
+        "components": [
+          "Real",
+          "Imag",
+          "Real",
+          "Imag"
+        ],
+        "mean": [
+          -0.0027109404088002664,
+          -11.508654071719022,
+          68.55715217139476,
+          25.120492031880456
+        ],
+        "standard_error": [
+          0.005561007323782856,
+          0.006294249380888265,
+          0.4854451317099801,
+          0.4737335474036876
+        ],
+        "covariance_of_mean": [
+          3.092480245516656e-05,
+          -6.316470755316009e-06,
+          -0.0007928565567843367,
+          0.00014645917242332967,
+          -6.316470755316009e-06,
+          3.961757526881231e-05,
+          2.9586123399207273e-05,
+          -0.0010869882567496234,
+          -0.0007928565567843367,
+          2.9586123399207273e-05,
+          0.23565697590091994,
+          -0.0038963919683682935,
+          0.00014645917242332967,
+          -0.0010869882567496234,
+          -0.0038963919683682935,
+          0.22442347393568193
+        ],
+        "production_complete": false
+      },
+      "complex_norm_uncertainty": {
+        "-1": {
+          "joint_relative_error": 0.0007297943533745257,
+          "linearization_warning": false,
+          "mean_magnitude": 11.508654391009086,
+          "radial_relative_error": 0.0005468939057516218,
+          "radial_standard_error": 0.006294012949844512
+        },
+        "0": {
+          "joint_relative_error": 0.009289825781837322,
+          "linearization_warning": false,
+          "mean_magnitude": 73.01453440086807,
+          "radial_relative_error": 0.006594116793739719,
+          "radial_standard_error": 0.48146636747985055
+        }
+      },
+      "weight_diagnostics": {
+        "status": "Available",
+        "accepted_points": 43487232,
+        "orders": [
+          {
+            "order": -1,
+            "stochastic_absolute_mean": 26.713584960810024,
+            "exact_absolute": 0.0,
+            "absolute_integral_estimate": 26.713584960810024,
+            "sampled_sector_local_maximum": 362.9049002225054,
+            "total_mean_magnitude": 11.508654391009086,
+            "cancellation_ratio": 2.321173618844571,
+            "maximum_ratio": 31.533217341726573
+          },
+          {
+            "order": 0,
+            "stochastic_absolute_mean": 1688.5078678501777,
+            "exact_absolute": 0.0,
+            "absolute_integral_estimate": 1688.5078678501777,
+            "sampled_sector_local_maximum": 104688.55761991412,
+            "total_mean_magnitude": 73.01453440086807,
+            "cancellation_ratio": 23.125640418109725,
+            "maximum_ratio": 1433.804357980943
+          }
+        ]
+      },
+      "evaluation_diagnostics": {
+        "contour": {
+          "production": {
+            "checked_arguments": 0,
+            "maximum_bits": 0
+          },
+          "adaptation": {
+            "checked_arguments": 0,
+            "maximum_bits": 0
+          }
+        },
+        "evaluations": 43585536,
+        "conditioning_checks": 357,
+        "rescues": 357,
+        "max_precision_bits": 256,
+        "failures": 0,
+        "weighted_checks": 357,
+        "additional_replays": 357,
+        "f64_points": 43585179,
+        "double_float_points": 0,
+        "arbitrary_points": 357,
+        "unstable_points": 0,
+        "cutoff_zero_points": 0,
+        "f64_timing": {
+          "calls": 43585536,
+          "nanoseconds": 414801308219,
+          "matrix_invocations": 4843592,
+          "matrix_points": 43585536
+        },
+        "double_float_timing": {
+          "calls": 0,
+          "nanoseconds": 0,
+          "matrix_invocations": 0,
+          "matrix_points": 0
+        },
+        "arbitrary_timing": {
+          "calls": 714,
+          "nanoseconds": 1642889837,
+          "matrix_invocations": 0,
+          "matrix_points": 0
+        }
+      },
+      "finite_joint_standard_error": 0.6782923041260323,
+      "finite_covariance_trace": 0.4600804498366019,
+      "trace_times_native_seconds": 278.25430923543,
+      "trace_times_accepted": 20007625.260708667,
+      "caller_settings": {
+        "absolute_tolerance": 1e-30,
+        "accuracy_target": {
+          "order": 0,
+          "target": "laurent_order"
+        },
+        "contour": {
+          "deformation": {
+            "construction": "polynomial",
+            "displacement_cap": 1000000.0,
+            "lambda_cap": 1.25e-06,
+            "mode": "dynamical",
+            "safety_fraction": 0.8
+          },
+          "validation": {
+            "pilot_points": 256,
+            "policy": "off"
+          }
+        },
+        "double_points": false,
+        "evaluation_batch_size": 256,
+        "max_rounds": 100000,
+        "max_seconds": 600.0,
+        "method": "discrete_mc",
+        "package_points": 1024,
+        "periodization": "korobov3",
+        "points": 4096,
+        "production_seconds": 10.0,
+        "relative_tolerance": 1e-30,
+        "replay": {
+          "growth_factor": 16.0,
+          "minimum_bits": 128
+        },
+        "seed": 202610129701,
+        "shifts": 8,
+        "stability": {
+          "levels": [
+            {
+              "escalate_for_large_weight_threshold": 0.9,
+              "minimum_effective_distance": 0.001,
+              "power_thresholds": {},
+              "precision": "f64"
+            },
+            {
+              "escalate_for_large_weight_threshold": null,
+              "minimum_effective_distance": 1e-08,
+              "power_thresholds": {},
+              "precision": "double_float"
+            },
+            {
+              "escalate_for_large_weight_threshold": null,
+              "minimum_effective_distance": 0.0,
+              "power_thresholds": {},
+              "precision": "arbitrary"
+            }
+          ],
+          "mode": "validated",
+          "unstable_cutoff": null,
+          "unstable_power_thresholds": {}
+        },
+        "workers": 25
+      },
+      "execution_cpus": [
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49
+      ],
+      "exact_native_argv": [
+        "/common/dev/fastsecdec/target/no-deformation-release-6647950/fastsecdec",
+        "integrate",
+        "/common/dev/fastsecdec/target/no-deformation-overview-campaign/double-box-physical-generation-r1-artifacts/double-box-physical-polynomial-symbolic",
+        "--method",
+        "discrete_mc",
+        "--workers",
+        "25",
+        "--points",
+        "4096",
+        "--shifts",
+        "8",
+        "--max-rounds",
+        "100000",
+        "--double-points",
+        "false",
+        "--evaluation-batch-size",
+        "256",
+        "--seed",
+        "202610129701",
+        "--max-seconds",
+        "600",
+        "--save-result",
+        "/common/dev/fastsecdec/target/no-deformation-double-box-dynamic-tuning-r1/physical-polynomial-discrete_mc-fixed-time-confirmation-result.json",
+        "--checkpoint",
+        "/common/dev/fastsecdec/target/no-deformation-double-box-dynamic-tuning-r1/physical-polynomial-discrete_mc-fixed-time-confirmation-checkpoint",
+        "--contour",
+        "dynamical=0.8",
+        "--lambda-cap",
+        "0.00000125",
+        "--displacement-cap",
+        "1000000",
+        "--contour-construction",
+        "polynomial",
+        "--contour-validation",
+        "off",
+        "--contour-diagnostics",
+        "disabled"
+      ],
+      "result": {
+        "path": "/common/dev/fastsecdec/target/no-deformation-double-box-dynamic-tuning-r1/physical-polynomial-discrete_mc-fixed-time-confirmation-result.json",
+        "sha256": "2f6adf8c98ebfc0fa2cb63aea0a73232e5df42acc8368b13da0816ff972fa435",
+        "bytes": 67199
+      },
+      "process": {
+        "path": "/common/dev/fastsecdec/target/no-deformation-double-box-dynamic-tuning-r1/physical-polynomial-discrete_mc-fixed-time-confirmation/completion.json",
+        "sha256": "b86ecc00a6c80dd78a01eb2ecef86ff70b3994bb2c192f86e9b6294ba05f2b8b"
+      },
+      "artifact_identity": "2615544cec14cb4b3ea5e08c84569c251da419ad5ce6589566681d67e32207c1",
+      "native_convention": "prod_l d^D k_l / (i*pi^(D/2)); propagators q^2-m^2+i0; no implicit scale factors; measure multiplier 1; dimension 4-2*eps",
+      "stopping_reason": "WorkLimit",
+      "timed_stop": {
+        "counts_complete": true,
+        "deadline_observed_seconds": 600.029378113,
+        "drain_seconds": 4.088466993,
+        "in_flight_at_deadline": 25,
+        "requested_seconds": 600.0
+      }
+    },
+    {
+      "id": "physical-sign_aware-qmc-fixed-time-confirmation",
+      "topology": "d05-physical",
+      "construction": "sign_aware",
+      "sampler": "qmc",
+      "seed": 202610129710,
+      "native_seconds": 600.124436643,
+      "outer_seconds": 600.3906277548522,
+      "artifact_load_seconds": 0.050780227,
+      "sampled_own_peak_rss_bytes": 806789120,
+      "accepted": 197001216,
+      "all_calls": 322625536,
+      "sector_used_points": [
+        67108864,
+        33554432,
+        16777216,
+        16777216,
+        524288,
+        262144,
+        262144,
+        1048576,
+        1048576,
+        8388608,
+        8388608,
+        16777216,
+        524288,
+        524288,
+        131072,
+        262144,
+        262144,
+        262144,
+        524288,
+        524288,
+        1048576,
+        524288,
+        1048576,
+        2097152,
+        262144,
+        131072,
+        524288,
+        524288,
+        131072,
+        16777216
+      ],
+      "full_laurent_vector": {
+        "orders": [
+          -1,
+          -1,
+          0,
+          0
+        ],
+        "components": [
+          "Real",
+          "Imag",
+          "Real",
+          "Imag"
+        ],
+        "mean": [
+          -0.00630408227422896,
+          -11.49802716066641,
+          70.17394722347845,
+          24.789571630643106
+        ],
+        "standard_error": [
+          0.03379481467518832,
+          0.03403785216120014,
+          1.6326900429835272,
+          1.7486039179322537
+        ],
+        "covariance_of_mean": [
+          0.0011420894989303237,
+          -0.00012450172577495942,
+          -0.028394709562190066,
+          0.012575558585401374,
+          -0.00012450172577495942,
+          0.001158575379747717,
+          0.001771122378296086,
+          -0.03418233689559104,
+          -0.028394709562190066,
+          0.001771122378296086,
+          2.6656767764575515,
+          -0.28435028058873096,
+          0.012575558585401374,
+          -0.03418233689559104,
+          -0.28435028058873096,
+          3.0576156618080277
+        ],
+        "production_complete": true
+      },
+      "complex_norm_uncertainty": {
+        "-1": {
+          "joint_relative_error": 0.004171606023545745,
+          "linearization_warning": false,
+          "mean_magnitude": 11.498028888852028,
+          "radial_relative_error": 0.002960146204994629,
+          "radial_standard_error": 0.034035846580253944
+        },
+        "0": {
+          "joint_relative_error": 0.032144818783049305,
+          "linearization_warning": false,
+          "mean_magnitude": 74.42382501964222,
+          "radial_relative_error": 0.02137448242681336,
+          "radial_standard_error": 1.5907707400185753
+        }
+      },
+      "weight_diagnostics": {
+        "status": "Available",
+        "accepted_points": 197001216,
+        "orders": [
+          {
+            "order": -1,
+            "stochastic_absolute_mean": 26.82837558120537,
+            "exact_absolute": 0.0,
+            "absolute_integral_estimate": 26.82837558120537,
+            "sampled_sector_local_maximum": 301.09589093475324,
+            "total_mean_magnitude": 11.498028888852028,
+            "cancellation_ratio": 2.3333021547038344,
+            "maximum_ratio": 26.186739818220694
+          },
+          {
+            "order": 0,
+            "stochastic_absolute_mean": 1693.2386199547652,
+            "exact_absolute": 0.0,
+            "absolute_integral_estimate": 1693.2386199547652,
+            "sampled_sector_local_maximum": 721316.8370364971,
+            "total_mean_magnitude": 74.42382501964222,
+            "cancellation_ratio": 22.751297981632618,
+            "maximum_ratio": 9692.015115403225
+          }
+        ]
+      },
+      "evaluation_diagnostics": {
+        "contour": {
+          "production": {
+            "checked_arguments": 0,
+            "maximum_bits": 0
+          },
+          "adaptation": {
+            "checked_arguments": 0,
+            "maximum_bits": 0
+          }
+        },
+        "evaluations": 322625536,
+        "conditioning_checks": 78,
+        "rescues": 78,
+        "max_precision_bits": 256,
+        "failures": 0,
+        "weighted_checks": 78,
+        "additional_replays": 78,
+        "f64_points": 322625458,
+        "double_float_points": 0,
+        "arbitrary_points": 78,
+        "unstable_points": 0,
+        "cutoff_zero_points": 0,
+        "f64_timing": {
+          "calls": 322625536,
+          "nanoseconds": 1543866583761,
+          "matrix_invocations": 1260256,
+          "matrix_points": 322625536
+        },
+        "double_float_timing": {
+          "calls": 0,
+          "nanoseconds": 0,
+          "matrix_invocations": 0,
+          "matrix_points": 0
+        },
+        "arbitrary_timing": {
+          "calls": 156,
+          "nanoseconds": 388846243,
+          "matrix_invocations": 0,
+          "matrix_points": 0
+        }
+      },
+      "finite_joint_standard_error": 2.3923403683977704,
+      "finite_covariance_trace": 5.723292438265579,
+      "trace_times_native_seconds": 3434.6876502572723,
+      "trace_times_accepted": 1127495569.861924,
+      "caller_settings": {
+        "absolute_tolerance": 1e-30,
+        "accuracy_target": {
+          "order": 0,
+          "target": "laurent_order"
+        },
+        "contour": {
+          "deformation": {
+            "construction": "sign_aware",
+            "displacement_cap": 1000000.0,
+            "lambda_cap": 1.25e-06,
+            "mode": "dynamical",
+            "safety_fraction": 0.8
+          },
+          "validation": {
+            "pilot_points": 256,
+            "policy": "off"
+          }
+        },
+        "double_points": false,
+        "evaluation_batch_size": 256,
+        "max_rounds": 100000,
+        "max_seconds": 600.0,
+        "method": "qmc",
+        "package_points": 1024,
+        "periodization": "korobov3",
+        "points": 4096,
+        "production_seconds": 10.0,
+        "relative_tolerance": 1e-30,
+        "replay": {
+          "growth_factor": 16.0,
+          "minimum_bits": 128
+        },
+        "seed": 202610129710,
+        "serial_seconds": 1.0,
+        "shifts": 8,
+        "stability": {
+          "levels": [
+            {
+              "escalate_for_large_weight_threshold": 0.9,
+              "minimum_effective_distance": 0.001,
+              "power_thresholds": {},
+              "precision": "f64"
+            },
+            {
+              "escalate_for_large_weight_threshold": null,
+              "minimum_effective_distance": 1e-08,
+              "power_thresholds": {},
+              "precision": "double_float"
+            },
+            {
+              "escalate_for_large_weight_threshold": null,
+              "minimum_effective_distance": 0.0,
+              "power_thresholds": {},
+              "precision": "arbitrary"
+            }
+          ],
+          "mode": "validated",
+          "unstable_cutoff": null,
+          "unstable_power_thresholds": {}
+        },
+        "workers": 25
+      },
+      "execution_cpus": [
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49
+      ],
+      "exact_native_argv": [
+        "/common/dev/fastsecdec/target/no-deformation-release-6647950/fastsecdec",
+        "integrate",
+        "/common/dev/fastsecdec/target/no-deformation-double-box-sign-aware-6647950/physical.fsd",
+        "--method",
+        "qmc",
+        "--workers",
+        "25",
+        "--points",
+        "4096",
+        "--shifts",
+        "8",
+        "--max-rounds",
+        "100000",
+        "--double-points",
+        "false",
+        "--evaluation-batch-size",
+        "256",
+        "--seed",
+        "202610129710",
+        "--max-seconds",
+        "600",
+        "--save-result",
+        "/common/dev/fastsecdec/target/no-deformation-double-box-dynamic-tuning-r1/physical-sign_aware-qmc-fixed-time-confirmation-result.json",
+        "--checkpoint",
+        "/common/dev/fastsecdec/target/no-deformation-double-box-dynamic-tuning-r1/physical-sign_aware-qmc-fixed-time-confirmation-checkpoint",
+        "--contour",
+        "dynamical=0.8",
+        "--lambda-cap",
+        "0.00000125",
+        "--displacement-cap",
+        "1000000",
+        "--contour-construction",
+        "sign_aware",
+        "--contour-validation",
+        "off",
+        "--contour-diagnostics",
+        "disabled",
+        "--serial",
+        "1"
+      ],
+      "result": {
+        "path": "/common/dev/fastsecdec/target/no-deformation-double-box-dynamic-tuning-r1/physical-sign_aware-qmc-fixed-time-confirmation-result.json",
+        "sha256": "86fab2c7045a42ac3328b9f7f40d8668809c168768af237e67ae059b95844fc3",
+        "bytes": 64288
+      },
+      "process": {
+        "path": "/common/dev/fastsecdec/target/no-deformation-double-box-dynamic-tuning-r1/physical-sign_aware-qmc-fixed-time-confirmation/completion.json",
+        "sha256": "e25bd13c70c6d50fc7a700401ce0757fcb8682c5f05ac859f5b2980158dc449e"
+      },
+      "artifact_identity": "2888d45b3d8269feebd5dd051fb5ae959bc420bc13f0a98ea62ccee7dde997ce",
+      "native_convention": "prod_l d^D k_l / (i*pi^(D/2)); propagators q^2-m^2+i0; no implicit scale factors; measure multiplier 1; dimension 4-2*eps",
+      "stopping_reason": "WorkLimit",
+      "timed_stop": {
+        "counts_complete": true,
+        "deadline_observed_seconds": 600.059404656,
+        "drain_seconds": 0.016999992,
+        "in_flight_at_deadline": 1,
+        "requested_seconds": 600.0
+      }
+    },
+    {
+      "id": "physical-sign_aware-discrete_mc-fixed-time-confirmation",
+      "topology": "d05-physical",
+      "construction": "sign_aware",
+      "sampler": "discrete_mc",
+      "seed": 202610129711,
+      "native_seconds": 602.417640805,
+      "outer_seconds": 607.5458885920234,
+      "artifact_load_seconds": 3.9774948610000003,
+      "sampled_own_peak_rss_bytes": 1200975872,
+      "accepted": 42258432,
+      "all_calls": 42356736,
+      "sector_used_points": [
+        6349307,
+        2500030,
+        3502104,
+        3742443,
+        697907,
+        665056,
+        282215,
+        1051333,
+        1701194,
+        2698341,
+        2537815,
+        2148704,
+        718214,
+        514177,
+        863894,
+        1350597,
+        411974,
+        247264,
+        266000,
+        407352,
+        857986,
+        521598,
+        329119,
+        1951298,
+        526228,
+        391216,
+        468115,
+        512072,
+        496513,
+        3548366
+      ],
+      "full_laurent_vector": {
+        "orders": [
+          -1,
+          -1,
+          0,
+          0
+        ],
+        "components": [
+          "Real",
+          "Imag",
+          "Real",
+          "Imag"
+        ],
+        "mean": [
+          0.0011062582137120192,
+          -11.51666505799166,
+          68.95000494526676,
+          25.49353615065378
+        ],
+        "standard_error": [
+          0.005795736573498964,
+          0.006716410480969168,
+          0.4716059759342404,
+          0.4730661946074345
+        ],
+        "covariance_of_mean": [
+          3.359056242939351e-05,
+          -7.2993427408303135e-06,
+          -0.0008967489040204986,
+          0.00013107902510448423,
+          -7.2993427408303135e-06,
+          4.51101697488725e-05,
+          2.1948128327434176e-05,
+          -0.0011403247190019947,
+          -0.0008967489040204986,
+          2.1948128327434176e-05,
+          0.22241219653688737,
+          0.005411096636523759,
+          0.00013107902510448423,
+          -0.0011403247190019947,
+          0.005411096636523759,
+          0.22379162448035908
+        ],
+        "production_complete": false
+      },
+      "complex_norm_uncertainty": {
+        "-1": {
+          "joint_relative_error": 0.0007703048779717094,
+          "linearization_warning": false,
+          "mean_magnitude": 11.516665111123674,
+          "radial_relative_error": 0.0005831996330204486,
+          "radial_standard_error": 0.0067165148664267305
+        },
+        "0": {
+          "joint_relative_error": 0.009086738401775495,
+          "linearization_warning": false,
+          "mean_magnitude": 73.51206409438522,
+          "radial_relative_error": 0.006468297525587641,
+          "radial_standard_error": 0.475497902282552
+        }
+      },
+      "weight_diagnostics": {
+        "status": "Available",
+        "accepted_points": 42258432,
+        "orders": [
+          {
+            "order": -1,
+            "stochastic_absolute_mean": 26.83317805523101,
+            "exact_absolute": 0.0,
+            "absolute_integral_estimate": 26.83317805523101,
+            "sampled_sector_local_maximum": 304.3650096756459,
+            "total_mean_magnitude": 11.516665111123674,
+            "cancellation_ratio": 2.3299434164594643,
+            "maximum_ratio": 26.428224380829395
+          },
+          {
+            "order": 0,
+            "stochastic_absolute_mean": 1692.2434013539428,
+            "exact_absolute": 0.0,
+            "absolute_integral_estimate": 1692.2434013539428,
+            "sampled_sector_local_maximum": 82580.09226485877,
+            "total_mean_magnitude": 73.51206409438522,
+            "cancellation_ratio": 23.01994131441066,
+            "maximum_ratio": 1123.3542858874257
+          }
+        ]
+      },
+      "evaluation_diagnostics": {
+        "contour": {
+          "production": {
+            "checked_arguments": 0,
+            "maximum_bits": 0
+          },
+          "adaptation": {
+            "checked_arguments": 0,
+            "maximum_bits": 0
+          }
+        },
+        "evaluations": 42356736,
+        "conditioning_checks": 347,
+        "rescues": 347,
+        "max_precision_bits": 256,
+        "failures": 0,
+        "weighted_checks": 347,
+        "additional_replays": 347,
+        "f64_points": 42356389,
+        "double_float_points": 0,
+        "arbitrary_points": 347,
+        "unstable_points": 0,
+        "cutoff_zero_points": 0,
+        "f64_timing": {
+          "calls": 42356736,
+          "nanoseconds": 582304109849,
+          "matrix_invocations": 4744811,
+          "matrix_points": 42356736
+        },
+        "double_float_timing": {
+          "calls": 0,
+          "nanoseconds": 0,
+          "matrix_invocations": 0,
+          "matrix_points": 0
+        },
+        "arbitrary_timing": {
+          "calls": 694,
+          "nanoseconds": 1770865017,
+          "matrix_invocations": 0,
+          "matrix_points": 0
+        }
+      },
+      "finite_joint_standard_error": 0.6679848958002317,
+      "finite_covariance_trace": 0.4462038210172464,
+      "trace_times_native_seconds": 268.8010531753861,
+      "trace_times_accepted": 18855873.82859748,
+      "caller_settings": {
+        "absolute_tolerance": 1e-30,
+        "accuracy_target": {
+          "order": 0,
+          "target": "laurent_order"
+        },
+        "contour": {
+          "deformation": {
+            "construction": "sign_aware",
+            "displacement_cap": 1000000.0,
+            "lambda_cap": 1.25e-06,
+            "mode": "dynamical",
+            "safety_fraction": 0.8
+          },
+          "validation": {
+            "pilot_points": 256,
+            "policy": "off"
+          }
+        },
+        "double_points": false,
+        "evaluation_batch_size": 256,
+        "max_rounds": 100000,
+        "max_seconds": 600.0,
+        "method": "discrete_mc",
+        "package_points": 1024,
+        "periodization": "korobov3",
+        "points": 4096,
+        "production_seconds": 10.0,
+        "relative_tolerance": 1e-30,
+        "replay": {
+          "growth_factor": 16.0,
+          "minimum_bits": 128
+        },
+        "seed": 202610129711,
+        "shifts": 8,
+        "stability": {
+          "levels": [
+            {
+              "escalate_for_large_weight_threshold": 0.9,
+              "minimum_effective_distance": 0.001,
+              "power_thresholds": {},
+              "precision": "f64"
+            },
+            {
+              "escalate_for_large_weight_threshold": null,
+              "minimum_effective_distance": 1e-08,
+              "power_thresholds": {},
+              "precision": "double_float"
+            },
+            {
+              "escalate_for_large_weight_threshold": null,
+              "minimum_effective_distance": 0.0,
+              "power_thresholds": {},
+              "precision": "arbitrary"
+            }
+          ],
+          "mode": "validated",
+          "unstable_cutoff": null,
+          "unstable_power_thresholds": {}
+        },
+        "workers": 25
+      },
+      "execution_cpus": [
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        58,
+        59,
+        60,
+        61,
+        62,
+        63,
+        64,
+        65,
+        66,
+        67,
+        68,
+        69,
+        70,
+        71,
+        72,
+        73,
+        74
+      ],
+      "exact_native_argv": [
+        "/common/dev/fastsecdec/target/no-deformation-release-6647950/fastsecdec",
+        "integrate",
+        "/common/dev/fastsecdec/target/no-deformation-double-box-sign-aware-6647950/physical.fsd",
+        "--method",
+        "discrete_mc",
+        "--workers",
+        "25",
+        "--points",
+        "4096",
+        "--shifts",
+        "8",
+        "--max-rounds",
+        "100000",
+        "--double-points",
+        "false",
+        "--evaluation-batch-size",
+        "256",
+        "--seed",
+        "202610129711",
+        "--max-seconds",
+        "600",
+        "--save-result",
+        "/common/dev/fastsecdec/target/no-deformation-double-box-dynamic-tuning-r1/physical-sign_aware-discrete_mc-fixed-time-confirmation-result.json",
+        "--checkpoint",
+        "/common/dev/fastsecdec/target/no-deformation-double-box-dynamic-tuning-r1/physical-sign_aware-discrete_mc-fixed-time-confirmation-checkpoint",
+        "--contour",
+        "dynamical=0.8",
+        "--lambda-cap",
+        "0.00000125",
+        "--displacement-cap",
+        "1000000",
+        "--contour-construction",
+        "sign_aware",
+        "--contour-validation",
+        "off",
+        "--contour-diagnostics",
+        "disabled"
+      ],
+      "result": {
+        "path": "/common/dev/fastsecdec/target/no-deformation-double-box-dynamic-tuning-r1/physical-sign_aware-discrete_mc-fixed-time-confirmation-result.json",
+        "sha256": "a0bd683546f62bbc054d50a47d1ee1f539c7e4c5ba61c98b1059d8a032d46849",
+        "bytes": 67141
+      },
+      "process": {
+        "path": "/common/dev/fastsecdec/target/no-deformation-double-box-dynamic-tuning-r1/physical-sign_aware-discrete_mc-fixed-time-confirmation/completion.json",
+        "sha256": "20a407b3a2237ef70c716ed7b8faf0f427728082c7808eeaa1bbe478b33f3ffe"
+      },
+      "artifact_identity": "2888d45b3d8269feebd5dd051fb5ae959bc420bc13f0a98ea62ccee7dde997ce",
+      "native_convention": "prod_l d^D k_l / (i*pi^(D/2)); propagators q^2-m^2+i0; no implicit scale factors; measure multiplier 1; dimension 4-2*eps",
+      "stopping_reason": "WorkLimit",
+      "timed_stop": {
+        "counts_complete": true,
+        "deadline_observed_seconds": 600.065532525,
+        "drain_seconds": 1.24665093,
+        "in_flight_at_deadline": 25,
+        "requested_seconds": 600.0
+      }
+    }
+  ],
+  "work_at_cutoff": [
+    {
+      "id": "scalar-fixed-qmc-matched_work",
+      "status": "native_complete_record_estimate",
+      "requested_accepted_work": 71958528,
+      "accepted": 71958528,
+      "exact_requested_work_complete": true,
+      "raw_radial_relative_se": 0.02588434617992647,
+      "raw_joint_se": 1.0914691729545112e-17
+    },
+    {
+      "id": "scalar-fixed-discrete_mc-matched_work",
+      "status": "incomplete_requested_work",
+      "requested_accepted_work": 71958528,
+      "accepted": 40140800,
+      "exact_requested_work_complete": false,
+      "raw_radial_relative_se": 0.0035817644207712745,
+      "raw_joint_se": 1.5030096810926707e-18
+    },
+    {
+      "id": "scalar-polynomial-qmc-matched_work",
+      "status": "native_complete_record_estimate",
+      "requested_accepted_work": 71958528,
+      "accepted": 71958528,
+      "exact_requested_work_complete": true,
+      "raw_radial_relative_se": 0.011806131604863886,
+      "raw_joint_se": 4.7932665543509016e-18
+    },
+    {
+      "id": "scalar-polynomial-discrete_mc-matched_work",
+      "status": "incomplete_requested_work",
+      "requested_accepted_work": 71958528,
+      "accepted": 40857600,
+      "exact_requested_work_complete": false,
+      "raw_radial_relative_se": 0.0032654947434312917,
+      "raw_joint_se": 1.3638991068877068e-18
+    },
+    {
+      "id": "scalar-sign_aware-qmc-matched_work",
+      "status": "native_complete_record_estimate",
+      "requested_accepted_work": 71958528,
+      "accepted": 71958528,
+      "exact_requested_work_complete": true,
+      "raw_radial_relative_se": 0.012545029600036223,
+      "raw_joint_se": 5.1648232285410315e-18
+    },
+    {
+      "id": "scalar-sign_aware-discrete_mc-matched_work",
+      "status": "incomplete_requested_work",
+      "requested_accepted_work": 71958528,
+      "accepted": 40960000,
+      "exact_requested_work_complete": false,
+      "raw_radial_relative_se": 0.003740806950251016,
+      "raw_joint_se": 1.5510969825229472e-18
+    },
+    {
+      "id": "physical-fixed-qmc-matched_work",
+      "status": "pending",
+      "requested_accepted_work": 179896320,
+      "accepted": null,
+      "exact_requested_work_complete": false,
+      "raw_radial_relative_se": null,
+      "raw_joint_se": null
+    },
+    {
+      "id": "physical-fixed-discrete_mc-matched_work",
+      "status": "pending",
+      "requested_accepted_work": 179896320,
+      "accepted": null,
+      "exact_requested_work_complete": false,
+      "raw_radial_relative_se": null,
+      "raw_joint_se": null
+    },
+    {
+      "id": "physical-polynomial-qmc-matched_work",
+      "status": "pending",
+      "requested_accepted_work": 179896320,
+      "accepted": null,
+      "exact_requested_work_complete": false,
+      "raw_radial_relative_se": null,
+      "raw_joint_se": null
+    },
+    {
+      "id": "physical-polynomial-discrete_mc-matched_work",
+      "status": "pending",
+      "requested_accepted_work": 179896320,
+      "accepted": null,
+      "exact_requested_work_complete": false,
+      "raw_radial_relative_se": null,
+      "raw_joint_se": null
+    },
+    {
+      "id": "physical-sign_aware-qmc-matched_work",
+      "status": "pending",
+      "requested_accepted_work": 179896320,
+      "accepted": null,
+      "exact_requested_work_complete": false,
+      "raw_radial_relative_se": null,
+      "raw_joint_se": null
+    },
+    {
+      "id": "physical-sign_aware-discrete_mc-matched_work",
+      "status": "pending",
+      "requested_accepted_work": 179896320,
+      "accepted": null,
+      "exact_requested_work_complete": false,
+      "raw_radial_relative_se": null,
+      "raw_joint_se": null
+    }
+  ],
+  "comparisons": {
+    "full_saved_evidence": {
+      "path": "/common/dev/fastsecdec/target/no-deformation-double-box-dynamic-tuning-r1/timed-outcome-r1/report/summary.json",
+      "sha256": "d7ba71aaf3832a97664d74200488f85fecd514b9132a776e4e0bb90abfadc635",
+      "bytes": 581906
+    },
+    "unpadded_eight_sigma_component_failures": 0,
+    "joint_radii": "Saved full covariance and per-Laurent-order2x2 diagnostics, not calibrated p-values.",
+    "no_external_whole_integral_reference_claim": true
+  },
+  "native_inputs": [
+    {
+      "path": "/common/dev/fastsecdec/target/no-deformation-overview-campaign/double-box-scalar-generation-r1-artifacts/double-box-scalar-polynomial-symbolic.json",
+      "sha256": "feaf7245ea4c7c6dbaa6ed09fcc8f575a81be0190eec80e969b81ed16811d13c",
+      "bytes": 62156
+    },
+    {
+      "path": "/common/dev/fastsecdec/target/no-deformation-overview-campaign/double-box-scalar-generation-r1-artifacts/double-box-scalar-polynomial-symbolic.1791754671054794790-1477484-0.dat",
+      "sha256": "c4dbba7b77e446bd0f9b3a018a5919b2540e618adddc474f13070ae9e4d13702",
+      "bytes": 77740868
+    },
+    {
+      "path": "/common/dev/fastsecdec/target/no-deformation-overview-campaign/batch_drained.py",
+      "sha256": "c4fd04d632b2b8b79d5cc3e2875db92da7409727630493d460035353bbc7cb1c",
+      "bytes": 2181
+    },
+    {
+      "path": "/common/dev/fastsecdec/target/no-deformation-overview-campaign/drained.py",
+      "sha256": "fb0639e31beed89177331310cfaabf9e25f311c873d299a085846672fee2f8bd",
+      "bytes": 7666
+    },
+    {
+      "path": "/common/dev/fastsecdec/target/no-deformation-overview-campaign/actor.py",
+      "sha256": "c1f840e7f6b09a4eb2b5f29702224eb52bf3d055d64a405a5840a24a762a2f41",
+      "bytes": 14198
+    },
+    {
+      "path": "/common/dev/fastsecdec/target/no-deformation-release-6647950/fastsecdec",
+      "sha256": "1465d3f8e3524c7b710cf7d71bd73f62e32c80b995c945534d19d2454db64606",
+      "bytes": 102042112
+    },
+    {
+      "path": "/common/dev/fastsecdec/target/no-deformation-double-box-sign-aware-6647950/scalar.fsd.json",
+      "sha256": "a585b0398c358496f4b8cfd725067dc1a44ca6a6e20262b1fbbdbe57ad3d2f78",
+      "bytes": 62057
+    },
+    {
+      "path": "/common/dev/fastsecdec/target/no-deformation-double-box-sign-aware-6647950/scalar.fsd.1791797063055938551-3992384-0.dat",
+      "sha256": "1d839a3e92a01fe27b205b4ab79f1f307bd761b0197f17103fefb943e0356d64",
+      "bytes": 88539157
+    },
+    {
+      "path": "/common/dev/fastsecdec/target/no-deformation-overview-campaign/double-box-physical-generation-r1-artifacts/double-box-physical-polynomial-symbolic.json",
+      "bytes": 105413,
+      "sha256": "4adbb3543e3a3d52d845e61be592bc381290fe2c280eb7b6c0673dd140c3812c"
+    },
+    {
+      "path": "/common/dev/fastsecdec/target/no-deformation-overview-campaign/double-box-physical-generation-r1-artifacts/double-box-physical-polynomial-symbolic.1791757831350906702-1826282-0.dat",
+      "bytes": 88542816,
+      "sha256": "e66cbb2a01a2896c0a76114bd3efa44acdb806cb4878dc55647ed0c9e66a891f"
+    },
+    {
+      "path": "/common/dev/fastsecdec/target/no-deformation-double-box-sign-aware-6647950/physical.fsd.json",
+      "sha256": "c4b35f505e4732d29ccd09b56243bc15e554dc3fc1c92a1496c4d38a85e5338c",
+      "bytes": 105360
+    },
+    {
+      "path": "/common/dev/fastsecdec/target/no-deformation-double-box-sign-aware-6647950/physical.fsd.1791798577962145141-3994695-0.dat",
+      "sha256": "8a99bf163d0c397d12ae7189744178eb8f9287bec52339a0cf40264640c15165",
+      "bytes": 99605607
+    }
+  ],
+  "reproduction": "Use the pinned existing artifacts/source commit and exact native argument vectors with fresh output/checkpoint paths. Saved seeds identify these independent streams; never pool repeat executions.",
+  "independent_native_joint_review": {
+    "scope": "12 retained baselines,8 new timed estimates,3 complete scalar QMC work controls",
+    "native_backend": "Numerica Rational::try_from(f64), Matrix::det and Matrix::solve; exact operations on the reported binary64 entries",
+    "summary": [
+      {
+        "topology": "d05-scalar",
+        "order": 0,
+        "pairs": 78,
+        "max_mahalanobis": 3.16861886008765,
+        "non_positive": 0,
+        "rounding_sensitive": 0
+      },
+      {
+        "topology": "d05-physical",
+        "order": -1,
+        "pairs": 45,
+        "max_mahalanobis": 3.8051508005044283,
+        "non_positive": 0,
+        "rounding_sensitive": 0
+      },
+      {
+        "topology": "d05-physical",
+        "order": 0,
+        "pairs": 45,
+        "max_mahalanobis": 2.547674544332074,
+        "non_positive": 0,
+        "rounding_sensitive": 0
+      }
+    ],
+    "raw_comparisons_sha256": "7ffc6691cd6e936e994ddf9ae8560fb1725df42f216ff7a4a2e11f471ab196d2",
+    "pins_review": {
+      "handoff_sha256": "6e0bca54bab5d708bcabcb216d9c072e816aa0d987aafebdfb6af96bd09241ee",
+      "pins_checked": 79,
+      "accepted_timed": 8,
+      "native_comparison_rows": 23,
+      "scope": "12 retained baselines+8 timed+3 complete scalar-QMC work controls; cap-incomplete MC kept separate",
+      "source_projection_review": "89fb324aa2204f279dda0447df8d9583f41fb1e2817021022fcbcc32d26e7678"
+    },
+    "interpretation": "Estimated full-covariance diagnostics only; no pooling, covariance inflation or calibrated p-values. Incomplete requested-work controls retain separate status."
+  }
+}

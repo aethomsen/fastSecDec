@@ -26,7 +26,11 @@
   let topology-block(topology) = {
     let cells = ()
     for method in topology.methods {
+      // Runtime contour settings may be tuned separately for each sampler.
+      // Keep their measured kernel costs separate while sharing artifact costs.
+      let separate-costs = method.samplers.any(s => s.at("kernel_cost", default: none) != none)
       for (index, sampler) in method.samplers.enumerate() {
+        let kernel-cost = sampler.at("kernel_cost", default: method.kernel_cost)
         if index == 0 {
           cells.push(table.cell(rowspan: 2, align: left + horizon,
             text(weight: "semibold")[#method.label]))
@@ -51,11 +55,13 @@
             }
             cells.push(cell(value, rowspan: 2))
           }
-          cells.push(cell(method.kernel_cost.f64_max_avg_us, rowspan: 2))
+        }
+        if separate-costs or index == 0 {
+          cells.push(cell(kernel-cost.f64_max_avg_us, rowspan: if separate-costs { 1 } else { 2 }))
         }
         cells.push(cell(sampler.metrics.integration_peak_gb))
-        if index == 0 {
-          cells.push(cell(method.kernel_cost.sum_f64_checked_us, rowspan: 2))
+        if separate-costs or index == 0 {
+          cells.push(cell(kernel-cost.sum_f64_checked_us, rowspan: if separate-costs { 1 } else { 2 }))
         }
         let normalized = sampler.at("normalized_metrics", default: (:))
         cells.push(cell(normalized.at("work_radial_relative_se", default: none)))
@@ -82,7 +88,11 @@
       )
     ]
   }
-  let groups = ((0, 1, 2), (3, 7), (4,), (5, 6))
+  let double-box-groups = if (data.topologies.at(5).methods.len() > 4
+      or data.topologies.at(6).methods.len() > 4) {
+    ((5,), (6,))
+  } else { ((5, 6),) }
+  let groups = ((0, 1, 2), (3, 7), (4,)) + double-box-groups
   for (page-index, group) in groups.enumerate() {
     if page-index > 0 { pagebreak() }
     text(size: 19pt, weight: "bold", fill: ink)[Overview]
