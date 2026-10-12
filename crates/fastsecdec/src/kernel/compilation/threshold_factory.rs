@@ -64,6 +64,24 @@ impl KernelSet {
             settings,
         )
     }
+    /// Stage/compile a complete issued positive-projective family. The genuine
+    /// homogeneous source and closed atlas are projected during preparation;
+    /// detached jobs and restored samplers retain only native local records.
+    pub fn compile_threshold_projective_pair_family(
+        bound: &crate::threshold::regularization::projective_pair_family::ContinuedProjectivePairFamily<'_>,
+        staging: &Path,
+        maximum: i32,
+        precision: PrecisionPolicy,
+        settings: CompilationSettings,
+    ) -> Result<Self, KernelError> {
+        Self::compile_continued_source(
+            crate::threshold::continued::ContinuedSource::PositiveProjective(bound),
+            staging,
+            maximum,
+            precision,
+            settings,
+        )
+    }
     fn compile_continued_source(
         source: crate::threshold::continued::ContinuedSource<'_>,
         staging: &Path,
@@ -94,8 +112,8 @@ impl KernelSet {
             ));
         }
         let runtime = Arc::new(source.runtime_parameters().to_vec());
-        let request = source.request();
-        let parent = request
+        let parent = source
+            .authority()
             .source_identity()
             .map_err(|e| KernelError::Artifact(e.to_string()))?;
         let records = (0..source.charts().len())

@@ -3,6 +3,7 @@ mod atlas;
 mod bound;
 pub mod meromorphic;
 pub mod projective_family;
+pub mod projective_pair_family;
 pub mod secant;
 pub mod sign_definite;
 pub use bound::BoundContinuation;

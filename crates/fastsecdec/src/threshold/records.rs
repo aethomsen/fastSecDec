@@ -218,7 +218,7 @@ pub(crate) fn write(
         .collect();
     let mut definitions = Vec::new();
     if kind == (VectorKind::Stochastic {}) {
-        for definition in source.definitions() {
+        for definition in source.definitions(chart) {
             definitions.push(Definition {
                 head: symbol_index(&mut symbols, definition.head),
                 tags: definition.tags.iter().map(|a| atoms.push(a)).collect(),
@@ -242,7 +242,7 @@ pub(crate) fn write(
     }
     let algebraic = source.rational().is_none();
     let roots = source
-        .roots()
+        .roots(chart)
         .saved()
         .into_iter()
         .map(|(tag, bytes)| (symbol_index(&mut symbols, tag), bytes))

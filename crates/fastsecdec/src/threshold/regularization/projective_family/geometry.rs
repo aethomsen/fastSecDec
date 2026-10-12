@@ -389,7 +389,11 @@ pub(super) fn build_cell(
         .collect())
 }
 
-pub(super) fn rational_source(a: &Atom, coordinates: &[Symbol], w: &Work<'_>) -> Result<Atom> {
+pub(in crate::threshold::regularization) fn rational_source(
+    a: &Atom,
+    coordinates: &[Symbol],
+    w: &Work<'_>,
+) -> Result<Atom> {
     w.check()?;
     meromorphic::preflight_expression(a, w.limits.prefactors).map_err(prefactor_error)?;
     let variables = Arc::new(

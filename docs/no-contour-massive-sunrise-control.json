@@ -1,0 +1,144 @@
+{
+  "schema": "fastsecdec-native-scientific-control-v1",
+  "scope": "Complete actual massive-sunrise source, saved-proof preparation and cold universal-archive integration. Unoptimized Eager scientific control, not the 25-core ten-minute benchmark or automatic CLI generation.",
+  "input": {
+    "card": "examples/no_deformation/benchmarks/controls/massive_sunrise.toml",
+    "masses": [
+      1,
+      1,
+      1
+    ],
+    "s": 16,
+    "dimensions": "4-2*eps",
+    "density": "-Gamma(2*eps-1) * U^(-3+3*eps) * (F-i0)^(1-2*eps)",
+    "anchor": 2,
+    "original_cells": 7,
+    "closed_charts": 62
+  },
+  "protocol": {
+    "rule": "Published(HkknAlpha3)",
+    "replicas": 16,
+    "points_per_sector": 256,
+    "seed": 202610124919,
+    "primary_comparison": "unpadded8combinedSE",
+    "historical2e_9_floor": "separate sensitivity only",
+    "transform": "Korobov3",
+    "workers": 1,
+    "backend": "Eager, unoptimized native diagnostic build",
+    "production_calls": 253952,
+    "all_counts_complete": true,
+    "same_source_proof_runtime_reads": 0
+  },
+  "orders": [
+    -2,
+    -2,
+    -1,
+    -1,
+    0,
+    0
+  ],
+  "components": [
+    "Real",
+    "Imag",
+    "Real",
+    "Imag",
+    "Real",
+    "Imag"
+  ],
+  "mean": [
+    1.4999998620587403,
+    0.0,
+    -1.2316465861473729,
+    0.0,
+    10.016141184744226,
+    -3.3089881509832604
+  ],
+  "standard_error": [
+    1.871440324584936e-07,
+    0.0,
+    4.3910952400257904e-07,
+    0.0,
+    1.7194784334600543e-06,
+    6.710743026551123e-08
+  ],
+  "covariance_of_mean": [
+    3.5022888884825704e-14,
+    0.0,
+    -7.921372428031239e-14,
+    0.0,
+    2.8399836229619223e-13,
+    -1.2231746489516242e-15,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    -7.921372428031239e-14,
+    0.0,
+    1.9281717406977153e-13,
+    0.0,
+    -6.665716272118371e-13,
+    6.199449547953322e-15,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    2.8399836229619223e-13,
+    0.0,
+    -6.665716272118371e-13,
+    0.0,
+    2.9566060831342425e-12,
+    -2.1335237513046478e-14,
+    -1.2231746489516242e-15,
+    0.0,
+    6.199449547953322e-15,
+    0.0,
+    -2.1335237513046478e-14,
+    4.503407196840453e-15
+  ],
+  "epsilon0": {
+    "radial_standard_error": 1.6367112888946474e-06,
+    "relative_radial_standard_error": 1.5515943190054004e-07
+  },
+  "measurements": {
+    "saved_proof_prepare_outer_seconds": 12.376405687,
+    "saved_proof_prepare_peak_rss_bytes": 62914560,
+    "archive_bytes": 1602776,
+    "sampling_seconds": 275.883061406,
+    "cold_sample_process_seconds": 282.98493187176064,
+    "cold_sample_peak_rss_bytes": 44040192
+  },
+  "diagnostics": {
+    "evaluations": 253952,
+    "rescues": 133764,
+    "max_precision_bits": 256,
+    "failures": 0,
+    "unstable_points": 0,
+    "cutoff_zero_points": 0
+  },
+  "comparison": {
+    "rows": 18,
+    "primary": "unpadded8combinedstandarderrors",
+    "primary_pass": true,
+    "max_component_sigma": 2.161708680816678,
+    "historical_floor": "2e-9 sensitivity stored separately; not used for primary acceptance",
+    "native_covariance": "Full36 matrices and16replicas retained; comparison rows are marginal.",
+    "pysecdec_covariance": "Only reference marginal uncertainties supplied; no crosscovariance invented."
+  },
+  "evidence": {
+    "outcome_sha256": "016a3d22842da129d97594cc0faa1766fc433a025d7e7e0235ad2cca9ad0a20e",
+    "archive_sha256": "37ee107940a905688062fdec3895fe05177ffa4a2d35887977a281570cf61ddf",
+    "helper_sha256": "e0dee8b3040a3543845366154c2ba3856aa32c516b458da93a982756d27d255c",
+    "root_covariance_audit_sha256": "fe9ade6a2e5f512df737f1a1acd9af9e3457d89e15366306fa1954a000117e6e",
+    "constructor_handoff_sha256": "b885e252c7060156f894ad02f0dd784c3df17ca0ceb76991b1abcd99a175f9d6"
+  },
+  "limitations": [
+    "Geometry solve excluded from preparation clock.",
+    "Hand proposals in this diagnostic; automatic discovery is separately verified and not part of its timed scope.",
+    "Prior interrupted and unsupported-rule allocations were not pooled.",
+    "No ten-minute normalization or speed comparison is inferred."
+  ]
+}

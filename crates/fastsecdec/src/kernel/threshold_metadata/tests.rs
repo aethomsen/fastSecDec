@@ -494,6 +494,7 @@ fn resolved_endpoint_tables_preserve_roles_without_loosening_secant_contracts() 
                     exponent: NativeAtomId(13),
                     certificate: digest(24),
                 }],
+                numerators: Vec::new(),
             }],
             continuation_policy: digest(21),
             common_domain: digest(22),
@@ -811,4 +812,96 @@ fn uniform_runtime_capability_has_strict_roles_and_explicit_optional_wire() {
     let mut json = serde_json::to_value(&manifest).unwrap();
     json["preparation"]["runtime_chamber"]["claimed_geometry_proof"] = true.into();
     assert!(serde_json::from_value::<LineageManifestV1>(json).is_err());
+}
+
+#[test]
+fn optional_numerator_transport_preserves_legacy_wire_and_checks_local_roles() {
+    // Frozen pre-extension term bytes: default/skip-empty preserves the v7
+    // descriptor projection as well as accepting the old saved representation.
+    let legacy = r#"{"source_term":0,"prefactor":8,"regular":9,"powers":[10,11],"factors":[]}"#;
+    let old: NormalizedTermV1 = serde_json::from_str(legacy).unwrap();
+    assert!(old.numerators.is_empty());
+    assert_eq!(serde_json::to_string(&old).unwrap(), legacy);
+    let mut manifest = fixture();
+    let mut term = old;
+    term.numerators.push(NormalizedNumeratorV1 {
+        source_term: 0,
+        source_factor_count: 3,
+        source_factors: vec![1, 2],
+        source_coordinates: vec![NativeSymbolId(0), NativeSymbolId(1)],
+        source: digest(25),
+        template: digest(26),
+        regular: NativeAtomId(14),
+        degrees: vec![2, 3],
+        powers: vec![-2, 1],
+        transport: digest(27),
+        denominator_proofs: vec![digest(28)],
+    });
+    let chart = &mut manifest.endpoint_charts[0];
+    chart.map = MapDescriptor::ResolvedEndpointV1 {
+        geometry: chart.map.geometry().clone(),
+        sections: vec![],
+        endpoint: NormalizedEndpointV1 {
+            regulator: NativeSymbolId(2),
+            terms: vec![term],
+            continuation_policy: digest(21),
+            common_domain: digest(22),
+            numerator_functions: digest(23),
+            root_helpers: vec![],
+        },
+    };
+    checked(&manifest);
+    let wire = serde_json::to_vec(&manifest).unwrap();
+    let restored: LineageManifestV1 = serde_json::from_slice(&wire).unwrap();
+    assert_eq!(manifest, restored);
+    let prefix = "/endpoint_charts/0/map/endpoint/terms/0/numerators/0/";
+    for (field, value) in [
+        ("source_term", serde_json::json!(1)),
+        ("source_factor_count", serde_json::json!(2)),
+        ("source_factors", serde_json::json!([1, 1])),
+        ("source_coordinates", serde_json::json!([0, 99])),
+        ("source_coordinates", serde_json::json!([0, 0])),
+        ("degrees", serde_json::json!([2])),
+        ("powers", serde_json::json!([-2])),
+        ("regular", serde_json::json!(99)),
+        ("source", serde_json::json!("invalid")),
+        ("template", serde_json::json!("invalid")),
+        ("transport", serde_json::json!("invalid")),
+        ("denominator_proofs", serde_json::json!(["invalid"])),
+    ] {
+        let mut bad = serde_json::to_value(&manifest).unwrap();
+        *bad.pointer_mut(&format!("{prefix}{field}")).unwrap() = value;
+        let bad: LineageManifestV1 = serde_json::from_value(bad).unwrap();
+        assert!(
+            bad.validate_structure(&tables(), Limits::default())
+                .is_err(),
+            "{field}"
+        );
+    }
+    let mut altered = serde_json::to_value(&manifest).unwrap();
+    *altered.pointer_mut(&format!("{prefix}powers/0")).unwrap() = serde_json::json!(-3);
+    let altered: LineageManifestV1 = serde_json::from_value(altered).unwrap();
+    checked(&altered);
+    assert_ne!(
+        manifest.descriptor_digest().unwrap(),
+        altered.descriptor_digest().unwrap()
+    );
+
+    // The existing local-table translator must visit the finite numerator
+    // expression; bulk source/template bodies are only digests, never Atoms.
+    let MapDescriptor::ResolvedEndpointV1 { endpoint, .. } = &mut manifest.endpoint_charts[0].map
+    else {
+        unreachable!()
+    };
+    let mut visited = Vec::new();
+    endpoint
+        .map_atoms(|id| {
+            visited.push(id.0);
+            id.0 += 16;
+            Ok::<_, ()>(())
+        })
+        .unwrap();
+    assert_eq!(visited, vec![8, 9, 10, 11, 14]);
+    assert_eq!(endpoint.terms[0].numerators[0].regular, NativeAtomId(30));
+    assert_eq!(endpoint.terms[0].numerators[0].source, digest(25));
 }

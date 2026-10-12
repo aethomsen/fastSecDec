@@ -258,6 +258,30 @@ pub struct NormalizedTermV1 {
     pub regular: NativeAtomId,
     pub powers: Vec<NativeAtomId>,
     pub factors: Vec<NormalizedFactorV1>,
+    /// Optional compact polynomial-numerator transport. Empty legacy records
+    /// serialize exactly as before this inspection field was introduced.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub numerators: Vec<NormalizedNumeratorV1>,
+}
+/// Source-linked polynomial clearing for an unbounded chart. These digests and
+/// local finite expressions are inspection lineage, not reconstructed proofs.
+/// The bulk original numerator and homogeneous template are never copied here.
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct NormalizedNumeratorV1 {
+    pub source_term: usize,
+    pub source_factor_count: usize,
+    pub source_factors: Vec<usize>,
+    pub source_coordinates: Vec<NativeSymbolId>,
+    pub source: Digest,
+    pub template: Digest,
+    pub regular: NativeAtomId,
+    /// Degree bounds in source_coordinates order; these need not be minimal.
+    pub degrees: Vec<u32>,
+    /// Exact integer contributions in the endpoint's integration-axis order.
+    pub powers: Vec<i64>,
+    pub transport: Digest,
+    pub denominator_proofs: Vec<Digest>,
 }
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -282,6 +306,9 @@ impl NormalizedEndpointV1 {
             for factor in &mut term.factors {
                 f(&mut factor.source)?;
                 f(&mut factor.exponent)?;
+            }
+            for numerator in &mut term.numerators {
+                f(&mut numerator.regular)?;
             }
         }
         Ok(())

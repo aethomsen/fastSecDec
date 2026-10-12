@@ -14,33 +14,60 @@ use symgcad::{
     algebra::Algebra,
     domain::{certify_nonzero, derive_domain, verify_certificate},
 };
-pub(super) type Polynomial = MultivariatePolynomial<AlgebraicExtension<Q>, u32>;
-pub(super) type Ratio = RationalPolynomial<AlgebraicExtension<Q>, u32>;
-pub(super) fn pull(a: &Atom, from: &[Symbol], to: &[Atom]) -> Atom {
+pub(in crate::threshold::regularization) type Polynomial =
+    MultivariatePolynomial<AlgebraicExtension<Q>, u32>;
+pub(in crate::threshold::regularization) type Ratio =
+    RationalPolynomial<AlgebraicExtension<Q>, u32>;
+pub(in crate::threshold::regularization) fn pull(a: &Atom, from: &[Symbol], to: &[Atom]) -> Atom {
     a.replace_multiple(from.iter().zip(to).map(|(s, v)| {
         Replacement::new(Pattern::Literal(Atom::var(*s)), Pattern::Literal(v.clone()))
     }))
 }
-pub(super) struct Field {
+pub(in crate::threshold::regularization) struct Field {
     context: AlgebraicContext,
     variables: Arc<Vec<PolyVariable>>,
     symbols: Vec<Symbol>,
     primitive: Symbol,
     interval: [Rational; 2],
+    bounds: Vec<[Rational; 2]>,
 }
 impl Field {
-    pub(super) fn context(&self) -> &AlgebraicContext {
+    pub(in crate::threshold::regularization) fn context(&self) -> &AlgebraicContext {
         &self.context
     }
-    pub(super) fn interval(&self) -> &[Rational; 2] {
+    pub(in crate::threshold::regularization) fn interval(&self) -> &[Rational; 2] {
         &self.interval
     }
-    pub(super) fn new(
+    pub(in crate::threshold::regularization) fn new(
         constants: &[Atom],
         symbols: &[Symbol],
         primitive: Symbol,
         w: &Work<'_>,
     ) -> Result<Self> {
+        Self::new_with_bounds(
+            constants,
+            symbols,
+            primitive,
+            &vec![[Rational::zero(), Rational::one()]; symbols.len()],
+            &Rational::from((1, 1_000_000)),
+            w,
+        )
+    }
+    pub(in crate::threshold::regularization) fn new_with_bounds(
+        constants: &[Atom],
+        symbols: &[Symbol],
+        primitive: Symbol,
+        bounds: &[[Rational; 2]],
+        precision: &Rational,
+        w: &Work<'_>,
+    ) -> Result<Self> {
+        if symbols.len() != bounds.len() || bounds.iter().any(|b| b[0] >= b[1]) || *precision <= 0 {
+            return Err(invalid("native coefficient-box roles/bounds/precision"));
+        }
+        w.budget.rational(precision)?;
+        for q in bounds.iter().flatten() {
+            w.budget.rational(q)?;
+        }
         if symbols.contains(&symbolica::transcendental::root_var()) {
             return Err(invalid(
                 "chart role collides with native root polynomial variable",
@@ -86,7 +113,7 @@ impl Field {
                     .root(i)
                     .ok_or_else(|| invalid("native primitive embedding"))?,
             };
-            root = root.refined(&Rational::from((1, 1_000_000)));
+            root = root.refined(precision);
             if !matches!(
                 root.classify_location(),
                 symbolica::poly::univariate::RootLocation::Real
@@ -105,6 +132,7 @@ impl Field {
             symbols: symbols.to_vec(),
             primitive,
             interval,
+            bounds: bounds.to_vec(),
         })
     }
     fn bounded(&self, p: &Polynomial, w: &Work<'_>) -> Result<()> {
@@ -124,7 +152,11 @@ impl Field {
         }
         Ok(())
     }
-    pub(super) fn ratio(&mut self, a: &Atom, w: &Work<'_>) -> Result<Ratio> {
+    pub(in crate::threshold::regularization) fn ratio(
+        &mut self,
+        a: &Atom,
+        w: &Work<'_>,
+    ) -> Result<Ratio> {
         w.atom(a)?;
         let before = self.context.field().clone();
         let r = self
@@ -140,7 +172,11 @@ impl Field {
         self.bounded(&r.denominator, w)?;
         Ok(r)
     }
-    pub(super) fn polynomial(&mut self, a: &Atom, w: &Work<'_>) -> Result<Polynomial> {
+    pub(in crate::threshold::regularization) fn polynomial(
+        &mut self,
+        a: &Atom,
+        w: &Work<'_>,
+    ) -> Result<Polynomial> {
         let r = self.ratio(a, w)?;
         if !r.denominator.is_constant() {
             return Err(invalid("expected native polynomial after fan pullback"));
@@ -151,7 +187,7 @@ impl Field {
         }
         Ok(q)
     }
-    pub(super) fn expression(&self, p: &Polynomial) -> Result<Atom> {
+    pub(in crate::threshold::regularization) fn expression(&self, p: &Polynomial) -> Result<Atom> {
         if p.variables() != &self.variables || p.ring() != self.context.field() {
             return Err(invalid(
                 "polynomial uses a different selected coefficient field",
@@ -171,23 +207,52 @@ impl Field {
             }))
         }
     }
-    pub(super) fn support(p: &Polynomial) -> Result<fastsecdec_sectors::PolynomialSupport> {
+    pub(in crate::threshold::regularization) fn support(
+        p: &Polynomial,
+    ) -> Result<fastsecdec_sectors::PolynomialSupport> {
+        Self::support_in(p, p.nvars())
+    }
+    pub(in crate::threshold::regularization) fn support_in(
+        p: &Polynomial,
+        axes: usize,
+    ) -> Result<fastsecdec_sectors::PolynomialSupport> {
+        if axes > p.nvars() {
+            return Err(invalid("support integration-role prefix"));
+        }
         fastsecdec_sectors::PolynomialSupport::new(
             p.into_iter()
-                .map(|m| m.exponents.iter().map(|e| i64::from(*e)).collect())
+                .map(|m| m.exponents[..axes].iter().map(|e| i64::from(*e)).collect())
                 .collect(),
         )
         .map_err(native)
     }
-    pub(super) fn extract(&self, p: &Polynomial, w: &Work<'_>) -> Result<(Polynomial, Vec<u32>)> {
+    pub(in crate::threshold::regularization) fn extract(
+        &self,
+        p: &Polynomial,
+        w: &Work<'_>,
+    ) -> Result<(Polynomial, Vec<u32>)> {
+        self.extract_in(p, p.nvars(), w)
+    }
+    pub(in crate::threshold::regularization) fn extract_in(
+        &self,
+        p: &Polynomial,
+        axes: usize,
+        w: &Work<'_>,
+    ) -> Result<(Polynomial, Vec<u32>)> {
         self.bounded(p, w)?;
         if p.is_zero() {
             return Err(unsupported("zero geometric pullback"));
         }
-        let powers = (0..p.nvars())
-            .map(|i| p.degree_bounds(i).0)
-            .collect::<Vec<_>>();
-        let m = p.monomial(p.ring().one(), powers.clone());
+        if axes > p.nvars() {
+            return Err(invalid("valuation integration-role prefix"));
+        }
+        let powers = (0..axes).map(|i| p.degree_bounds(i).0).collect::<Vec<_>>();
+        let full = powers
+            .iter()
+            .copied()
+            .chain(std::iter::repeat_n(0, p.nvars() - axes))
+            .collect();
+        let m = p.monomial(p.ring().one(), full);
         let (q, r) = p.quot_rem(&m, false);
         if !r.is_zero() {
             return Err(invalid("native monomial division remainder"));
@@ -209,8 +274,23 @@ impl Field {
             })
             .sum()
     }
-    pub(super) fn unit(&self, p: &Polynomial, w: &Work<'_>) -> Result<ClosedUnit> {
+    pub(in crate::threshold::regularization) fn unit(
+        &self,
+        p: &Polynomial,
+        w: &Work<'_>,
+    ) -> Result<ClosedUnit> {
+        self.unit_with_margins(p, &[4, 8, 16, 32], w)
+    }
+    pub(in crate::threshold::regularization) fn unit_with_margins(
+        &self,
+        p: &Polynomial,
+        margin_bits: &[u32],
+        w: &Work<'_>,
+    ) -> Result<ClosedUnit> {
         self.bounded(p, w)?;
+        if margin_bits.is_empty() || margin_bits.iter().any(|b| *b > 256) {
+            return Err(invalid("closed-unit margin proposal allowance"));
+        }
         let symbols = self
             .symbols
             .iter()
@@ -232,9 +312,9 @@ impl Field {
             .map_err(native)?;
         let mut constraints = Vec::new();
         for (i, [lo, hi]) in self
-            .symbols
+            .bounds
             .iter()
-            .map(|_| [Rational::zero(), Rational::one()])
+            .cloned()
             .chain([self.interval.clone()])
             .enumerate()
         {
@@ -244,9 +324,12 @@ impl Field {
         }
         let domain = derive_domain(&algebra, &constraints, &[]).map_err(native)?;
         for sign in [1i8, -1] {
-            for k in [4, 8, 16, 32] {
+            for k in margin_bits {
                 w.check()?;
-                let margin = Rational::from((1, 1i64 << k));
+                let margin = Rational::one()
+                    / Rational::from(
+                        symbolica::domains::integer::Integer::from(2).pow(u64::from(*k)),
+                    );
                 let target = &pp * &pp.constant(Rational::from(i64::from(sign)))
                     - pp.constant(margin.clone());
                 if let Some(certificate) =
@@ -269,7 +352,7 @@ impl Field {
         }
         Err(unsupported("native closed residual margin not obtained"))
     }
-    pub(super) fn receipt(
+    pub(in crate::threshold::regularization) fn receipt(
         &self,
         origin: FactorOrigin,
         source: Atom,

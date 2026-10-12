@@ -181,6 +181,36 @@ impl MapDescriptor {
                     atom(f.exponent, &g.expressions, tables)?;
                     f.certificate.validate()?;
                 }
+                budget.nodes(term.numerators.len())?;
+                let mut numerator_factors = BTreeSet::new();
+                for n in &term.numerators {
+                    if n.source_term != term.source_term
+                        || n.degrees.len() != g.images.len()
+                        || n.source_coordinates.len() != n.degrees.len()
+                        || n.powers.len() != g.coordinates.len()
+                    {
+                        return Err(invalid("numerator source-term or dimension association"));
+                    }
+                    symbols(&n.source_coordinates, tables, budget)?;
+                    budget.refs(n.source_factors.len())?;
+                    budget.refs(n.degrees.len())?;
+                    budget.refs(n.powers.len())?;
+                    budget.refs(n.denominator_proofs.len())?;
+                    ordered(&n.source_factors, "numerator source factors")?;
+                    if n.source_factors
+                        .iter()
+                        .any(|i| *i >= n.source_factor_count || !numerator_factors.insert(*i))
+                    {
+                        return Err(invalid("numerator source-factor association"));
+                    }
+                    atom(n.regular, &g.expressions, tables)?;
+                    n.source.validate()?;
+                    n.template.validate()?;
+                    n.transport.validate()?;
+                    for proof in &n.denominator_proofs {
+                        proof.validate()?;
+                    }
+                }
             }
         }
         Ok(())

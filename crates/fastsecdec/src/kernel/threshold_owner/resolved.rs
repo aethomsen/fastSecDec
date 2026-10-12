@@ -87,43 +87,15 @@ impl ThresholdMetadata {
             .collect::<Result<BTreeMap<_, _>, KernelError>>()?;
         let canonicalize = |a: &Atom| canonical(a, &renames);
         let options = bound.options();
-        let policy = serde_json::json!({"mode":options.mode,"subtraction":options.subtraction,"max_order":options.max_order,"max_subtractions_per_axis":options.max_subtractions_per_axis,"max_subtraction_terms":options.max_subtraction_terms,"coefficient_expansion":options.coefficient_expansion});
+        let policy = continuation_policy(options);
         let actual_options = digest("threshold-resolved-continuation-policy-v1", &policy)?;
-        let strip = certificate.convergence_strip();
-        let witness = certificate.prefactor_witness();
-        let common = digest(
-            "threshold-resolved-common-domain-v1",
-            &serde_json::json!({
-                "strip":[strip.lower().map(ToString::to_string),strip.upper().map(ToString::to_string)],
-                "witness":witness.rational_witness().epsilon().to_string(),
-                "gamma":witness.gamma_witnesses().iter().map(|g|(g.term(),g.factor(),g.argument_value().to_string(),g.pole_distance().map(ToString::to_string))).collect::<Vec<_>>()
-            }),
+        let common = common_domain(
+            certificate.convergence_strip(),
+            certificate.prefactor_witness(),
         )?;
         let definitions = bound.definitions();
-        let functions = digest(
-            "threshold-resolved-functions-v1",
-            &definitions
-                .iter()
-                .map(|d| {
-                    (
-                        d.head.get_name(),
-                        d.tags.iter().map(&canonicalize).collect::<Vec<_>>(),
-                        d.formals.iter().map(|s| s.get_name()).collect::<Vec<_>>(),
-                        canonicalize(&d.body),
-                        &d.orders,
-                        d.always_inline,
-                    )
-                })
-                .collect::<Vec<_>>(),
-        )?;
-        let roots = certificate.callback_scope();
-        let mut helpers = roots
-            .saved()
-            .into_iter()
-            .map(|(_, bytes)| m::Digest(blake3::hash(&bytes).to_hex().to_string()))
-            .collect::<Vec<_>>();
-        helpers.sort();
-        helpers.dedup();
+        let functions = function_digest(&definitions, &canonicalize)?;
+        let helpers = root_helpers(&certificate.callback_scope());
         let source = m::Digest(request.source_identity().map_err(invalid)?);
         let raw = digest("threshold-native-solve-evidence-v1", owner.native_result())?;
         let problem = digest("threshold-native-problem-v1", request.problem())?;
@@ -248,49 +220,18 @@ impl ThresholdMetadata {
                     )?,
                 });
             }
-            let geometry_proof = digest("threshold-resolved-closed-factor-margins-v1",&chart.factors().iter().map(|f| {
-                let unit = |u: &crate::threshold::regularization::projective_family::ClosedUnit| {
-                    serde_json::json!({"expression":canonicalize(u.expression()),"sign":u.sign(),"margin":u.margin().to_string(),"polynomial":u.polynomial().to_expression().to_canonical_string(),"constraints":u.constraints().iter().map(|p|p.to_expression().to_canonical_string()).collect::<Vec<_>>(),"certificate":u.certificate()})
-                };
-                serde_json::json!({"role":format!("{:?}",f.origin()),"source":canonicalize(f.source()),"powers":f.powers(),"numerator":unit(f.numerator()),"denominator":unit(f.denominator())})
-            }).collect::<Vec<_>>())?;
-            let terms = chart
-                .terms()
-                .iter()
-                .map(|t| {
-                    let mut factors = Vec::new();
-                    for f in chart.factors() {
-                        if let FactorOrigin::Factor { term, factor } = f.origin()
-                            && term == t.source_index()
-                        {
-                            let exponent = request
-                                .projective_preparation()
-                                .and_then(|p| p.terms().get(term))
-                                .and_then(|t| t.factors().get(factor))
-                                .map(|f| f.exponent())
-                                .ok_or_else(|| invalid("resolved prepared factor association"))?;
-                            factors.push(m::NormalizedFactorV1 {
-                                source_term: term,
-                                source_factor: factor,
-                                source: push(&mut atoms, f.source().clone()),
-                                exponent: push(&mut atoms, exponent.clone()),
-                                certificate: geometry_proof.clone(),
-                            });
-                        }
-                    }
-                    Ok(m::NormalizedTermV1 {
-                        source_term: t.source_index(),
-                        prefactor: push(&mut atoms, t.prefactor().clone()),
-                        regular: push(&mut atoms, t.regular().clone()),
-                        powers: t
-                            .powers()
-                            .iter()
-                            .map(|p| push(&mut atoms, p.clone()))
-                            .collect(),
-                        factors,
-                    })
-                })
-                .collect::<Result<Vec<_>, KernelError>>()?;
+            let geometry_proof = factor_margins(chart.factors(), &canonicalize)?;
+            let source_terms = request
+                .projective_preparation()
+                .ok_or_else(|| invalid("resolved prepared factor association"))?
+                .terms();
+            let terms = normalized_terms(
+                chart.terms(),
+                chart.factors(),
+                source_terms,
+                &mut atoms,
+                &geometry_proof,
+            )?;
             let endpoint = m::NormalizedEndpointV1 {
                 regulator,
                 terms,
@@ -411,4 +352,112 @@ impl ThresholdMetadata {
         };
         Self::issued(manifest, atoms, symbols, semantic, orders)
     }
+}
+
+// Common native projections shared by complete resolved issuers. These helpers
+// consume issued values; they do not admit geometry or change old recipe bytes.
+pub(super) fn continuation_policy(
+    options: &crate::generation::GenerationOptions,
+) -> serde_json::Value {
+    serde_json::json!({"mode":options.mode,"subtraction":options.subtraction,"max_order":options.max_order,"max_subtractions_per_axis":options.max_subtractions_per_axis,"max_subtraction_terms":options.max_subtraction_terms,"coefficient_expansion":options.coefficient_expansion})
+}
+
+pub(super) fn common_domain(
+    strip: &crate::threshold::regularization::ConvergenceStrip,
+    witness: &crate::threshold::regularization::meromorphic::MeromorphicWitness,
+) -> Result<m::Digest, KernelError> {
+    digest(
+        "threshold-resolved-common-domain-v1",
+        &serde_json::json!({
+            "strip":[strip.lower().map(ToString::to_string),strip.upper().map(ToString::to_string)],
+            "witness":witness.rational_witness().epsilon().to_string(),
+            "gamma":witness.gamma_witnesses().iter().map(|g|(g.term(),g.factor(),g.argument_value().to_string(),g.pole_distance().map(ToString::to_string))).collect::<Vec<_>>()
+        }),
+    )
+}
+
+pub(super) fn function_digest(
+    definitions: &[crate::threshold::continued::Definition],
+    canonicalize: &impl Fn(&Atom) -> String,
+) -> Result<m::Digest, KernelError> {
+    digest(
+        "threshold-resolved-functions-v1",
+        &definitions
+            .iter()
+            .map(|d| {
+                (
+                    d.head.get_name(),
+                    d.tags.iter().map(canonicalize).collect::<Vec<_>>(),
+                    d.formals.iter().map(|s| s.get_name()).collect::<Vec<_>>(),
+                    canonicalize(&d.body),
+                    &d.orders,
+                    d.always_inline,
+                )
+            })
+            .collect::<Vec<_>>(),
+    )
+}
+
+pub(super) fn root_helpers(roots: &crate::kernel::algebraic::Scope) -> Vec<m::Digest> {
+    let mut helpers = roots
+        .saved()
+        .into_iter()
+        .map(|(_, bytes)| m::Digest(blake3::hash(&bytes).to_hex().to_string()))
+        .collect::<Vec<_>>();
+    helpers.sort();
+    helpers.dedup();
+    helpers
+}
+
+pub(super) fn factor_margins(
+    factors: &[crate::threshold::regularization::projective_family::FactorReceipt],
+    canonicalize: &impl Fn(&Atom) -> String,
+) -> Result<m::Digest, KernelError> {
+    digest("threshold-resolved-closed-factor-margins-v1", &factors.iter().map(|f| {
+        let unit = |u: &crate::threshold::regularization::projective_family::ClosedUnit| {
+            serde_json::json!({"expression":canonicalize(u.expression()),"sign":u.sign(),"margin":u.margin().to_string(),"polynomial":u.polynomial().to_expression().to_canonical_string(),"constraints":u.constraints().iter().map(|p|p.to_expression().to_canonical_string()).collect::<Vec<_>>(),"certificate":u.certificate()})
+        };
+        serde_json::json!({"role":format!("{:?}",f.origin()),"source":canonicalize(f.source()),"powers":f.powers(),"numerator":unit(f.numerator()),"denominator":unit(f.denominator())})
+    }).collect::<Vec<_>>())
+}
+
+pub(super) fn normalized_terms(
+    terms: &[crate::threshold::regularization::projective_family::NormalizedTerm],
+    factors: &[crate::threshold::regularization::projective_family::FactorReceipt],
+    source_terms: &[crate::parametric::ParametricTerm],
+    atoms: &mut Vec<Atom>,
+    geometry_proof: &m::Digest,
+) -> Result<Vec<m::NormalizedTermV1>, KernelError> {
+    terms
+        .iter()
+        .map(|t| {
+            let mut projected = Vec::new();
+            for f in factors {
+                if let FactorOrigin::Factor { term, factor } = f.origin()
+                    && term == t.source_index()
+                {
+                    let exponent = source_terms
+                        .get(term)
+                        .and_then(|t| t.factors().get(factor))
+                        .map(|f| f.exponent())
+                        .ok_or_else(|| invalid("resolved prepared factor association"))?;
+                    projected.push(m::NormalizedFactorV1 {
+                        source_term: term,
+                        source_factor: factor,
+                        source: push(atoms, f.source().clone()),
+                        exponent: push(atoms, exponent.clone()),
+                        certificate: geometry_proof.clone(),
+                    });
+                }
+            }
+            Ok(m::NormalizedTermV1 {
+                source_term: t.source_index(),
+                prefactor: push(atoms, t.prefactor().clone()),
+                regular: push(atoms, t.regular().clone()),
+                powers: t.powers().iter().map(|p| push(atoms, p.clone())).collect(),
+                factors: projected,
+                numerators: Vec::new(),
+            })
+        })
+        .collect()
 }

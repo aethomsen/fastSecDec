@@ -4990,3 +4990,20 @@ untrusted durable evidence; successful observations never replace fresh replay.
 Existing affine/cube record bytes are unchanged. Independent source/ecosystem
 review and 36 threshold GCAD controls pass, including cold-process restoration.
 Automatic generation routing remains a separate integration step.
+
+## Complete positive-projective paired families (2026-10-12)
+
+The [family review](reviews/no-deformation-positive-projective-family.md)
+records source-bound complete cell admission, native algebraic root branches,
+symbolic numerator transport and Taylor/IBP continuation. Symbolica's existing
+coefficient fields, exact polynomial operations, differentiation, callbacks and
+codecs perform the algebra. Native sector maps and symGCAD certificates retain
+their existing authority. A genuine quartic control exercises the general-degree
+issuer; automatic discovery remains a separate and narrower capability.
+
+Compact artifact version 8 preserves actual HEPKit source provenance and local
+map/root/numerator information without retaining global proof trees in runtime
+workers. Independent source, scientific and ecosystem reviews cover both the
+family issuer and artifact adapter. Existing version 7 restoration remains
+supported. The complete general resolver, auxiliary-regulator treatment and
+physical double-box results remain outstanding.

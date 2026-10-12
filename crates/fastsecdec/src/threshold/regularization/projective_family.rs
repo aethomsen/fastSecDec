@@ -3,10 +3,10 @@
 //! The sufficient class has constant algebraic first-axis bounds and rational
 //! linear later-axis bounds. Native algebraic fields preserve selected constants;
 //! native cube fans and replayed closed-box margins resolve every chart face.
-mod algebra;
+pub(super) mod algebra;
 mod continuation;
 mod density;
-mod geometry;
+pub(super) mod geometry;
 #[cfg(test)]
 mod tests;
 
@@ -23,16 +23,16 @@ use symbolica::{
 };
 
 pub use regular::{Error, Result};
-fn native(e: impl std::fmt::Display) -> Error {
+pub(super) fn native(e: impl std::fmt::Display) -> Error {
     Error::Native(e.to_string())
 }
-fn unsupported(s: impl Into<String>) -> Error {
+pub(super) fn unsupported(s: impl Into<String>) -> Error {
     Error::Unsupported(s.into())
 }
-fn invalid(s: impl Into<String>) -> Error {
+pub(super) fn invalid(s: impl Into<String>) -> Error {
     Error::Invalid(s.into())
 }
-fn prefactor_error(e: meromorphic::Error) -> Error {
+pub(super) fn prefactor_error(e: meromorphic::Error) -> Error {
     match e {
         meromorphic::Error::Invalid(s) => invalid(s),
         meromorphic::Error::Unsupported(s) => unsupported(s),
@@ -72,16 +72,16 @@ pub enum Progress {
     Chart(usize),
     Continue(usize),
 }
-struct Work<'a> {
-    limits: &'a Limits,
-    budget: regular::Budget,
-    observer: &'a mut dyn FnMut(Progress) -> ControlFlow<()>,
+pub(super) struct Work<'a> {
+    pub(super) limits: &'a Limits,
+    pub(super) budget: regular::Budget,
+    pub(super) observer: &'a mut dyn FnMut(Progress) -> ControlFlow<()>,
 }
 impl Work<'_> {
-    fn check(&self) -> Result<()> {
+    pub(super) fn check(&self) -> Result<()> {
         self.budget.check()
     }
-    fn emit(&mut self, p: Progress) -> Result<()> {
+    pub(super) fn emit(&mut self, p: Progress) -> Result<()> {
         self.check()?;
         if (self.observer)(p).is_break() {
             Err(Error::Cancelled)
@@ -89,7 +89,7 @@ impl Work<'_> {
             Ok(())
         }
     }
-    fn atom(&self, a: &Atom) -> Result<()> {
+    pub(super) fn atom(&self, a: &Atom) -> Result<()> {
         self.check()?;
         let mut n = 0usize;
         a.visitor(&mut |_| {
@@ -118,12 +118,12 @@ pub enum FactorOrigin {
 /// A replayed strict margin on the full cube and a selected primitive-root box.
 #[derive(Debug)]
 pub struct ClosedUnit {
-    expression: Atom,
-    polynomial: symgcad::algebra::Poly,
-    constraints: Vec<symgcad::algebra::Poly>,
-    sign: i8,
-    margin: Rational,
-    certificate: symgcad::domain::DomainCertificate,
+    pub(super) expression: Atom,
+    pub(super) polynomial: symgcad::algebra::Poly,
+    pub(super) constraints: Vec<symgcad::algebra::Poly>,
+    pub(super) sign: i8,
+    pub(super) margin: Rational,
+    pub(super) certificate: symgcad::domain::DomainCertificate,
 }
 impl ClosedUnit {
     pub fn expression(&self) -> &Atom {
@@ -147,11 +147,11 @@ impl ClosedUnit {
 }
 #[derive(Debug)]
 pub struct FactorReceipt {
-    origin: FactorOrigin,
-    source: Atom,
-    powers: Vec<i64>,
-    numerator: ClosedUnit,
-    denominator: ClosedUnit,
+    pub(super) origin: FactorOrigin,
+    pub(super) source: Atom,
+    pub(super) powers: Vec<i64>,
+    pub(super) numerator: ClosedUnit,
+    pub(super) denominator: ClosedUnit,
 }
 impl FactorReceipt {
     pub fn origin(&self) -> FactorOrigin {
@@ -201,10 +201,10 @@ impl CellGeometry {
     }
 }
 pub struct NormalizedTerm {
-    term: usize,
-    prefactor: Atom,
-    regular: Atom,
-    powers: Vec<Atom>,
+    pub(super) term: usize,
+    pub(super) prefactor: Atom,
+    pub(super) regular: Atom,
+    pub(super) powers: Vec<Atom>,
 }
 impl NormalizedTerm {
     pub fn source_index(&self) -> usize {

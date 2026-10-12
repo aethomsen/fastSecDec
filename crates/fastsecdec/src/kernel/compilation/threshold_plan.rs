@@ -137,6 +137,24 @@ impl ThresholdCompilationPlan {
             settings,
         )
     }
+    /// Stage/compile a complete issued positive-projective family. The genuine
+    /// homogeneous source and closed atlas are projected during preparation;
+    /// detached jobs and restored samplers retain only native local records.
+    pub fn prepare_projective_pair_family(
+        bound: &crate::threshold::regularization::projective_pair_family::ContinuedProjectivePairFamily<'_>,
+        staging: &Path,
+        maximum: i32,
+        precision: PrecisionPolicy,
+        settings: CompilationSettings,
+    ) -> Result<Self, KernelError> {
+        Self::prepare_source(
+            crate::threshold::continued::ContinuedSource::PositiveProjective(bound),
+            staging,
+            maximum,
+            precision,
+            settings,
+        )
+    }
     fn prepare_source(
         source: crate::threshold::continued::ContinuedSource<'_>,
         staging: &Path,
@@ -154,8 +172,7 @@ impl ThresholdCompilationPlan {
         if staging.read_dir().map_err(failure)?.next().is_some() {
             return Err(failure("staging directory must be empty"));
         }
-        let request = source.request();
-        let parent = request.source_identity().map_err(failure)?;
+        let parent = source.authority().source_identity().map_err(failure)?;
         let mut records = Vec::new();
         let mut exact = BTreeMap::<i32, Atom>::new();
         for chart in 0..source.charts().len() {

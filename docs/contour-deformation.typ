@@ -292,6 +292,9 @@ campaign executables precede the loader-cache update in section 4.
 #include "no-contour-results.typ"
 
 #pagebreak()
+#include "no-contour-massive-sunrise-control.typ"
+
+#pagebreak()
 #include "no-contour-gghh-feasibility.typ"
 
 #pagebreak()

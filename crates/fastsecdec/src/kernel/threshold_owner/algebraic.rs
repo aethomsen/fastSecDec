@@ -55,6 +55,9 @@ impl ThresholdMetadata {
             ContinuedSource::Rational(b) => Self::from_bound(b, staged, orders),
             ContinuedSource::Algebraic(b) => Self::from_family(b, staged, orders),
             ContinuedSource::Projective(b) => Self::from_projective_family(b, staged, orders),
+            ContinuedSource::PositiveProjective(b) => {
+                Self::from_positive_projective_family(b, staged, orders)
+            }
         }
     }
     fn from_family(
@@ -396,6 +399,7 @@ impl ThresholdMetadata {
                         .map(|a| push(&mut atoms, a.clone()))
                         .collect(),
                     factors,
+                    numerators: Vec::new(),
                 });
             }
             let roots = g

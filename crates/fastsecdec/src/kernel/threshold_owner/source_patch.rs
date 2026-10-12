@@ -1,7 +1,10 @@
 //! Borrowed native preparation facts shared by rational and algebraic lineage.
-//! This projects an already admitted request; it never constructs a new gauge.
+//! This projects an already admitted owner; it never constructs a new gauge.
 use super::*;
-use crate::threshold::gcad::{DomainOrigin, GcadRequest};
+use crate::threshold::{
+    continued::SourceAuthority,
+    gcad::{DomainOrigin, GcadRequest, PositiveProjectiveQuotient},
+};
 
 pub(super) struct SourcePatch<'a> {
     pub coordinates: &'a [Symbol],
@@ -9,6 +12,37 @@ pub(super) struct SourcePatch<'a> {
     pub positive_measure: Atom,
 }
 impl<'a> SourcePatch<'a> {
+    /// The actual coordinate map from anchor ratios to the original simplex.
+    /// Issued anchor densities already cancel this Jacobian by homogeneity;
+    /// metadata records it without multiplying it into the density again.
+    pub fn from_positive_projective(
+        owner: &'a PositiveProjectiveQuotient,
+    ) -> Result<Self, KernelError> {
+        SourceAuthority::PositiveProjective(owner)
+            .source_identity()
+            .map_err(invalid)?;
+        let preparation = owner.preparation();
+        let original = preparation.input().parameters();
+        let expected = original
+            .iter()
+            .enumerate()
+            .filter_map(|(i, s)| (i != preparation.anchor_index()).then_some(*s))
+            .collect::<Vec<_>>();
+        if preparation.coordinates() != expected
+            || preparation.normalized_images().len() != original.len()
+            || preparation.images().len() != original.len()
+            || preparation.measure_jacobian() != &Atom::one()
+        {
+            return Err(invalid(
+                "positive-projective source/anchor patch association",
+            ));
+        }
+        Ok(Self {
+            coordinates: preparation.coordinates(),
+            images: preparation.normalized_images().to_vec(),
+            positive_measure: preparation.simplex_jacobian().clone(),
+        })
+    }
     pub fn from_request(request: &'a GcadRequest) -> Result<Self, KernelError> {
         let coordinates = request.domain().coordinates();
         match request.domain().origin() {

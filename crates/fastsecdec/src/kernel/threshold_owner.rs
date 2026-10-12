@@ -737,6 +737,8 @@ pub(crate) use local::{StagedTablePlan, StagedTables};
 #[cfg(feature = "threshold-decomposition")]
 mod algebraic;
 #[cfg(feature = "threshold-decomposition")]
+mod positive_projective;
+#[cfg(feature = "threshold-decomposition")]
 mod resolved;
 
 #[cfg(feature = "threshold-decomposition")]
