@@ -112,5 +112,21 @@
     "secondary_native_seconds": 900,
     "secondary_requested_evaluations": 241606656,
     "secondary_partial_policy": "MC clean native deadline, full coverage and fixed design; strict allocation incomplete retained, actual-N heuristic only"
+  },
+  "supported_sunrise_extension": {
+    "timed_arms": 2,
+    "executable_sha256": "3cf81e4bd92052b0f1019cd7e3ee065afc02d92efc4266953a7efdb3577fa43c",
+    "previous_instrumented_arms": 40,
+    "new_total_instrumented_arms": 42,
+    "secondary_requested_evaluations": 26566656,
+    "secondary_actual_evaluations": {
+      "qmc": 26566656,
+      "discrete_mc": 26566656
+    },
+    "secondary_native_seconds": {
+      "qmc": 59.851107538,
+      "discrete_mc": 122.960373064
+    },
+    "secondary_policy": "Complete pilot-selected native allocations; display rescaling to existing round target remains a square-root heuristic"
   }
 }

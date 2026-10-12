@@ -3,7 +3,7 @@
 
 #let overview-data = json("benchmark-overview-results.json")
 #block(width: 100%, inset: 8pt, fill: rgb("edf4f7"), radius: 3pt)[
-  *All 40 admitted timed arms complete.* The no-contour routes marked unsupported
+  *All 42 admitted timed arms complete.* The no-contour routes marked unsupported
   or in preparation remain unfinished. A dash is an unavailable measurement,
   never a zero. The opening tables use the new finite-coefficient campaign only.
   Historical studies below retain their original points, settings and resources;
@@ -89,6 +89,10 @@ secondary arm, QMC completed all 241,606,656 planned evaluations in 402.311
 seconds; MC saved 40,550,400 at its clean 900-second deadline (904.709 seconds
 including drain). That MC allocation remains incomplete. Neither secondary
 time is described as a 600-second measurement.
+The new sunrise no-contour secondary arms both completed their pilot-selected
+26,566,656 evaluations, in 59.851 seconds for QMC and 122.960 seconds for MC.
+Their correction to the same round work target is explicitly heuristic; the
+separate timed confirmations still run for approximately 600 seconds.
 
 The timed-call column counts observed logical sector-integrand evaluations,
 including reported pilot and discarded work. Precision-rescue backend calls
@@ -147,7 +151,8 @@ input inventory describe reproduction. These measured binaries use the pinned
 symGCAD revision `644a560e69a064f811fa93aff33a247ea7fcdfca`. The original 38
 instrumented timed arms use executable `cf9eb450`; the subsequently admitted
 triangle no-contour arms use `35c92289`, with their distinct source/build receipt.
-The latter retains normal stability checks and precision rescue in checked
+The subsequently admitted sunrise no-contour arms use `3cf81e4b`.
+The triangle executable retains normal stability checks and precision rescue in checked
 costs and integration, even when the raw f64 evaluation is much cheaper.
 Its timed QMC run rescued 115,307,844 of 340,410,368 logical calls (33.9%);
 the MC run rescued all 61,915,136 calls, with zero failures and maximum precision
@@ -155,17 +160,24 @@ the MC run rescued all 61,915,136 calls, with zero failures and maximum precisio
 144 / 0. The deterministic profiling coordinates triggered no rescue. These
 are different sampling workloads; the archive has no per-trigger rescue reason
 histogram. The checked integration clock retains this overhead.
+The new sunrise timed QMC run rescued 103,781,710 of 306,384,896 calls (33.9%);
+MC rescued all 106,426,368 calls. Both reached 256 bits with zero failures.
+Their weighted-check / additional-replay counts were 8 / 6 and 48 / 0.
 
 == Current admission limits
-The bubble and triangle now have complete no-contour integration rows. The
+The bubble, triangle and massless sunrise now have complete no-contour integration rows. The
 triangle uses its unchanged native HEPKit graph input, four freshly verified
 source cells, and 18 endpoint charts; its quoted generation time includes the
 complete publication step. Fresh-process loading and separate QMC/MC
 confirmations use that actual artifact. The earlier unsupported attempt is
 retained as historical evidence rather than overwritten.
+The sunrise uses its unchanged native graph, one verified source cell and six
+endpoint charts. Its separately seeded confirmations agree with the retained
+analytic identity under the reported full-covariance diagnostics.
 
-The frozen benchmark CLI still reports “Unsupported” for box, sunrise and kite
-before invoking GCAD. These are implementation gaps, not rejected physical
+The original frozen benchmark CLI reported “Unsupported” for box and kite
+before invoking GCAD; their table rows still await completed new artifacts and
+numerical checks. These are implementation gaps, not rejected physical
 integrals or evidence of GCAD infeasibility. Separate native geometry probes
 have already solved triangle and box; ongoing generic route work is not
 substituted for a completed artifact or a numerical row. The existing native

@@ -1,6 +1,6 @@
 # Twenty-five-core finite-coefficient benchmark protocol
 
-Status: all 40 admitted instrumented timed arms are complete, with frozen
+Status: all 42 admitted instrumented timed arms are complete, with frozen
 dependency, executable and recorded run plans. Generation, explicit-Off costs
 and confirmation estimates are recorded; unsupported no-contour routes remain
 unfinished. No earlier historical number is relabelled as a measurement of this
@@ -260,3 +260,16 @@ with another run or retuned from confirmation values.
 The user now allows a five-hour (18,000-second) double-box generation cutoff.
 This applies to subsequent preparation attempts only; completed attempt
 receipts and the primary 600-second integration comparison remain unchanged.
+
+## Subsequently admitted massless sunrise route
+
+The unchanged native graph now produces one verified cell and six endpoint
+charts. Its generation, profile and confirmations use frozen executable
+`3cf81e4b`, distinct from both earlier campaign executables. Two fresh native
+600-second QMC/MC arms retain complete call, weight and covariance diagnostics.
+Independent pilots selected 26,566,656 accepted evaluations for each secondary
+arm; both completed that allocation (59.851 s QMC and 122.960 s MC). Their larger
+display correction to the existing round work target remains a square-root
+heuristic, not a new allocation or measured QMC convergence law. All four seeds
+are disjoint from the pilots and prior source-acceptance check. The analytic
+reference and every original benchmark estimate remain unchanged.

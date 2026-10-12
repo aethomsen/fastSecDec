@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "status": "Instrumented campaign checkpoint; 118 accepted native estimates",
-  "campaign_preview_sha256": "fdab9f7023bc2f0ba43c775bfd8c5ff9fab8ce79ad17e90c8c59b09453dea283",
-  "complete_private_audit_sha256": "9ea388d2208d23893dc7cedfa936006e52a6db7b3e404219a744a51bf80b3316",
+  "status": "Instrumented campaign checkpoint; 122 accepted native estimates",
+  "campaign_preview_sha256": "6e67b05088b12058bbe5741e821d098757b5e04dcc91760cf3045552c0cea1e9",
+  "complete_private_audit_sha256": "48b8b27433c526e2bad757a5e37c3392b4087f850aea6aad782254292af502b5",
   "native_helper": "crates/fastsecdec/examples/benchmark_compatibility.rs",
   "reference_inventory_sha256": "0a45bf54b72d9300462db9dc2f7903d9febe8537ed4ec22f1248c48941c26c6c",
   "semantics": {
@@ -14,7 +14,7 @@
     "maximum_all_order_reference_distance": 3.077433343072288,
     "secondary_work": "Separately reviewed clean-cap partial allocations may enter with native full-vector covariance; an overlapping prefix is excluded when a completed continuation is used."
   },
-  "accepted_runs": 118,
+  "accepted_runs": 122,
   "topologies": [
     {
       "topology": "bubble",
@@ -372,9 +372,9 @@
     {
       "topology": "sunrise",
       "label": "Massless sunrise",
-      "runs": 18,
+      "runs": 22,
       "comparisons": {
-        "count": 153,
+        "count": 231,
         "rounding_sensitive_or_singular": 0,
         "maximum_covariance_distance": 3.2359067977115696,
         "largest_diagnostic": {
@@ -425,7 +425,7 @@
         }
       },
       "reference_comparisons": {
-        "count": 18,
+        "count": 22,
         "rounding_sensitive_or_singular": 0,
         "maximum_covariance_distance": 3.077433343072288,
         "largest_diagnostic": {
