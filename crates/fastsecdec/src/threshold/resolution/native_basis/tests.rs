@@ -106,3 +106,134 @@ fn native_basis_shape_and_spair_allocation_caps() {
 
 #[path = "membership_tests.rs"]
 mod membership_tests;
+
+#[test]
+fn native_order_conversion_resolves_localized_unit_ideal_with_unused_roles() {
+    let r = Arc::new(
+        Ring::new(
+            (0..9)
+                .map(|i| symbol!(format!("unit_order::x{i}")))
+                .collect(),
+            vec![0],
+        )
+        .unwrap(),
+    );
+    let p = |s: &str| {
+        r.atom(&Atom::parse(s, "unit_order", Default::default()).unwrap())
+            .unwrap()
+    };
+    // Captured degree-five component call; x1,x5,x7 are the only active roles.
+    let input = [
+        "x1*(x1-1)*(x1^3-x1+1)",
+        "x5*(1-x1+x1^2-x1^4)-1",
+        "x7*(x1-x1^3)-1",
+        "-12*x5*x7^2-3*x7^2*x1^2-4*x5-4*x5*x1+12*x7^2+3*x7^2*x1+4*x5*x7+4*x7",
+    ]
+    .map(p);
+    let out = checked_via_fglm(&input, &mut b()).unwrap();
+    assert_eq!(out, vec![r.one()]);
+    assert_eq!(out[0].variables(), r.one().variables());
+    assert!(input.iter().all(|p| p.reduce(&out).is_zero()));
+}
+
+#[test]
+fn native_fglm_nontrivial_basis_preserves_requested_lex_order() {
+    let r = Arc::new(
+        Ring::new(
+            vec![symbol!("basis_order::x"), symbol!("basis_order::y")],
+            vec![],
+        )
+        .unwrap(),
+    );
+    let input = ["x^2-y", "y^2-2"].map(|s| {
+        r.atom(&Atom::parse(s, "basis_order", Default::default()).unwrap())
+            .unwrap()
+    });
+    let direct = checked_ordered(&input, &mut b()).unwrap();
+    let converted = checked_via_fglm(&input, &mut b()).unwrap();
+    assert_eq!(converted, direct);
+    assert!(GroebnerBasis::is_groebner_basis(&converted));
+    assert!(
+        converted
+            .iter()
+            .any(|p| p.degree(0) == 0 && p.degree(1) > 0)
+    );
+}
+
+#[test]
+fn native_fglm_positive_dimensional_fallback_and_resource_admission() {
+    let r = Arc::new(
+        Ring::new(
+            vec![symbol!("basis_bound::x"), symbol!("basis_bound::y")],
+            vec![1],
+        )
+        .unwrap(),
+    );
+    let p = |s: &str| {
+        r.atom(&Atom::parse(s, "basis_bound", Default::default()).unwrap())
+            .unwrap()
+    };
+    let input = [p("x*y")];
+    let grev = checked_ordered(
+        &input
+            .iter()
+            .map(|p| p.reorder::<GrevLexOrder>())
+            .collect::<Vec<_>>(),
+        &mut b(),
+    )
+    .unwrap();
+    assert_eq!(fglm_workspace(&grev, &mut b()).unwrap(), None);
+    assert_eq!(
+        checked_via_fglm(&input, &mut b()).unwrap(),
+        checked_ordered(&input, &mut b()).unwrap()
+    );
+    let finite = [p("x^9"), p("y^9")];
+    let mut capped = Budget::new(Limits {
+        max_terms: 64,
+        ..Limits::default()
+    });
+    assert!(matches!(
+        checked_via_fglm(&finite, &mut capped),
+        Err(Error::ResourceIncomplete("native FGLM workspace bound"))
+    ));
+    let mut capped = Budget::new(Limits {
+        max_operations: 0,
+        ..Limits::default()
+    });
+    assert!(matches!(
+        checked_via_fglm(&input, &mut capped),
+        Err(Error::ResourceIncomplete("operation budget"))
+    ));
+    let mut capped = Budget::new(Limits {
+        max_total_ideal_slots: 0,
+        ..Limits::default()
+    });
+    assert!(matches!(
+        checked_via_fglm(&input, &mut capped),
+        Err(Error::ResourceIncomplete("total ideal allocation budget"))
+    ));
+}
+
+#[test]
+fn default_basis_preserves_direct_lex_budget_accounting() {
+    let r = Arc::new(
+        Ring::new(
+            vec![symbol!("basis_default::x"), symbol!("basis_default::y")],
+            vec![1],
+        )
+        .unwrap(),
+    );
+    let input = [r
+        .atom(&Atom::parse("x*y", "basis_default", Default::default()).unwrap())
+        .unwrap()];
+    let mut baseline = b();
+    let expected = checked_ordered(&input, &mut baseline).unwrap();
+    let mut exact = Budget::new(Limits {
+        max_operations: baseline.operations(),
+        max_total_ideal_slots: baseline.ideal_slots(),
+        ..Limits::default()
+    });
+    assert_eq!(checked(&input, &mut exact).unwrap(), expected);
+    assert_eq!(exact.operations(), baseline.operations());
+    assert_eq!(exact.ideal_slots(), baseline.ideal_slots());
+}

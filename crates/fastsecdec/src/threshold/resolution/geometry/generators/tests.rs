@@ -132,3 +132,52 @@ fn generator_presentation_quotient_zero_unit_and_resource_refusal() {
         Err(Error::Invalid(_))
     ));
 }
+
+#[test]
+fn retained_normalization_basis_keeps_source_roles_marks_and_two_way_checks() {
+    let (r, local) = fixture();
+    let x = r.coordinate(0).unwrap();
+    let source = marked(&r, vec![x.clone(), x.pow(2)], 3);
+    let receipt =
+        VerifiedGeneratorPresentation::prepare(local.clone(), source.clone(), &mut budget())
+            .unwrap();
+    let normalized = receipt.normalization();
+    assert!(Arc::ptr_eq(normalized.source(), &source));
+    assert!(Arc::ptr_eq(normalized.normalizer().local(), &local));
+    let good = marked(&r, vec![x.clone()], 3);
+    let mut reused = budget();
+    assert!(normalized.verify_candidate(&good, &mut reused).unwrap());
+    let mut rebuilt = budget();
+    assert!(
+        normalized
+            .normalizer()
+            .verify_candidate(&source, &good, &mut rebuilt)
+            .unwrap()
+    );
+    assert!(reused.operations() < rebuilt.operations());
+    assert!(reused.ideal_slots() < rebuilt.ideal_slots());
+    // Each membership direction is necessary: neither zero nor unit is (x).
+    for bad in [marked(&r, vec![], 3), marked(&r, vec![r.one()], 3)] {
+        assert!(!normalized.verify_candidate(&bad, &mut budget()).unwrap());
+    }
+    assert!(matches!(
+        normalized.verify_candidate(&marked(&r, vec![x], 2), &mut budget()),
+        Err(Error::Invalid(_))
+    ));
+    let foreign =
+        Arc::new(Ring::new(vec![symbol!("retained_normalization::foreign")], vec![]).unwrap());
+    assert!(matches!(
+        normalized.verify_candidate(&marked(&foreign, vec![foreign.one()], 3), &mut budget()),
+        Err(Error::Invalid(_))
+    ));
+    assert!(matches!(
+        normalized.verify_candidate(
+            &good,
+            &mut Budget::new(Limits {
+                max_operations: 0,
+                ..Limits::default()
+            })
+        ),
+        Err(Error::ResourceIncomplete("operation budget"))
+    ));
+}

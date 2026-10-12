@@ -41,6 +41,17 @@ impl VerifiedQuotientNormalization {
     pub fn progress(&self) -> &NormalizationProgress {
         &self.progress
     }
+    /// Verify a proposal against this receipt's exact retained original source
+    /// and localization. The original basis is already checked and immutable;
+    /// candidate construction and both directions of membership are repeated.
+    pub fn verify_candidate(&self, candidate: &MarkedIdeal, budget: &mut Budget) -> Result<bool> {
+        self.normalizer.admit_candidate(&self.source, candidate)?;
+        let original = self.progress.original_basis.as_ref().ok_or(Error::Invalid(
+            "complete normalization has no original basis",
+        ))?;
+        self.normalizer
+            .verify_against_original(&self.source, candidate, original, budget)
+    }
 }
 #[derive(Clone, Debug)]
 pub enum NormalizationOutcome {
@@ -131,7 +142,11 @@ impl QuotientNormalizer {
     ) -> Result<Arc<MarkedIdeal>> {
         progress.stage = "original quotient basis";
         let total = self.relations.sum(source.ideal(), budget)?;
-        let original = basis(&total, budget)?;
+        // This original quotient presentation can make direct native Lex F4
+        // expensive even when the resulting ideal is the unit ideal. Use the
+        // explicit verified strategy here; all other basis calls stay direct.
+        let native = super::super::native_basis::checked_via_fglm(total.generators(), budget)?;
+        let original = Arc::new(Ideal::new(total.ring().clone(), native, budget)?);
         progress.original_basis = Some(original.clone());
         progress.stage = "native quotient normal forms";
         budget.reserve_slots(original.generators().len())?;
@@ -177,6 +192,11 @@ impl QuotientNormalizer {
         candidate: &MarkedIdeal,
         budget: &mut Budget,
     ) -> Result<bool> {
+        self.admit_candidate(source, candidate)?;
+        let original = basis(&self.relations.sum(source.ideal(), budget)?, budget)?;
+        self.verify_against_original(source, candidate, &original, budget)
+    }
+    fn admit_candidate(&self, source: &MarkedIdeal, candidate: &MarkedIdeal) -> Result<()> {
         if source.mark() != candidate.mark()
             || source.ideal().ring() != self.local.ring()
             || candidate.ideal().ring() != self.local.ring()
@@ -191,7 +211,24 @@ impl QuotientNormalizer {
         {
             self.local.supports(f)?;
         }
-        let a = basis(&self.relations.sum(source.ideal(), budget)?, budget)?;
+        Ok(())
+    }
+    fn verify_against_original(
+        &self,
+        source: &MarkedIdeal,
+        candidate: &MarkedIdeal,
+        original: &Ideal,
+        budget: &mut Budget,
+    ) -> Result<bool> {
+        if original.ring() != self.local.ring() {
+            return Err(Error::Invalid("retained normalization basis ring"));
+        }
+        // A retained proof avoids allocation/construction, not the current
+        // caller's polynomial-size admission for native reduction operands.
+        budget.count(original.generators().len())?;
+        for polynomial in original.generators() {
+            budget.poly(polynomial)?;
+        }
         let b = basis(&self.relations.sum(candidate.ideal(), budget)?, budget)?;
         for f in source.ideal().generators() {
             if !reduces_to_zero(f, &b, budget)? {
@@ -199,7 +236,7 @@ impl QuotientNormalizer {
             }
         }
         for f in candidate.ideal().generators() {
-            if !reduces_to_zero(f, &a, budget)? {
+            if !reduces_to_zero(f, original, budget)? {
                 return Ok(false);
             }
         }

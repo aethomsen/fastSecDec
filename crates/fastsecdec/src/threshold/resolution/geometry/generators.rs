@@ -50,7 +50,7 @@ impl VerifiedGeneratorPresentation {
                 .ok_or(Error::ResourceIncomplete(
                     "generator presentation check count",
                 ))?;
-            if normalizer.verify_candidate(normalization.source(), &proposal, b)? {
+            if normalization.verify_candidate(&proposal, b)? {
                 b.reserve_slots(proposal.ideal().generators().len())?;
                 selected = proposal.ideal().generators().to_vec();
             }
@@ -60,7 +60,7 @@ impl VerifiedGeneratorPresentation {
             normalization.source().mark(),
             b,
         )?);
-        if !normalizer.verify_candidate(normalization.source(), &selected, b)? {
+        if !normalization.verify_candidate(&selected, b)? {
             return Err(Error::Invalid("generator presentation final equality"));
         }
         candidate_checks = candidate_checks

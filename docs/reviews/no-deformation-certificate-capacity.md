@@ -57,3 +57,10 @@ The alternative source-sector-first trial reached its original five-hour outer
 limit without a completed solve or fresh verification. Its retained projection
 and cache evidence is diagnostic, not a completed decomposition. The already
 verified original projective geometry remains the basis of the endpoint work.
+
+Subsequent resolution milestone: the source-owned native quotient-basis
+optimization resolves the degree-five stall without increasing its limits.
+The complete consuming threshold suite now passes 424 controls, with zero
+failures and six existing diagnostic tests ignored. The earlier incomplete
+run above remains its historical result; see the
+[native quotient-basis review](no-deformation-native-quotient-basis.md).

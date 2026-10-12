@@ -5072,3 +5072,20 @@ when the new bucket is absent. Independent persistence/ecosystem and consumer
 reviews pass, as do focused status, saved-result, execution and checkpoint
 controls, strict core/CLI Clippy and the native Python typecheck. No new
 performance or live Python presentation-test result is claimed.
+
+## Native quotient basis and retained source proofs (2026-10-12)
+
+The [quotient-basis review](reviews/no-deformation-native-quotient-basis.md)
+records explicit native GrevLex/FGLM construction for original-quotient
+normalization and reuse of its immutable verified basis. Other callers retain
+direct Lex and existing budget accounting. Symbolica owns construction, order
+conversion, reduction and closure; candidate proposals still undergo both
+directions of ideal membership with the actual marked source and localization.
+No parallel algebra implementation or dependency patch was introduced.
+
+Independent source/API review and focused negative controls pass. The shared
+threshold suite now completes with 424 passed, zero failed and six existing
+diagnostic tests ignored, alongside strict all-target core Clippy and formatting.
+The broader candidate that regressed work budgets was withdrawn before this
+narrower change. General collision/tower resolution and full double-box
+endpoint admission remain outstanding.
