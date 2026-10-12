@@ -37,21 +37,30 @@ up to 256 bits, and no failures, unstable points or cutoff zeros. All 16
 complete replica vectors and their 36-entry covariance were independently
 checked. Earlier incomplete diagnostic allocations were not pooled.
 
-An optimized native Eager build repeated the same archive, lattice, seed and
-253,952 points in *97.83848 sampling seconds* and *101.49132 outer seconds*,
-with a *24 MiB* observed process peak. All estimates, replica vectors,
-covariances and non-timing diagnostics matched exactly, including the precision
-rescues. This is the same statistical realization, not additional independent
-data, and the two runs are not pooled. The observed sampling-time ratio is
-2.82 for this single matched build comparison; it is not a general speed claim.
+An optimized Eager build repeated the same archive and points in *97.83848
+sampling seconds* and *101.49132 outer seconds*, with a *24 MiB* observed peak.
+All non-timing payloads matched exactly. A genuinely issued *SymJIT O2*
+archive then sampled the same points in *97.32653 seconds* (*100.95468 outer*,
+*30.18 MiB* observed peak): no material timing improvement in this single
+comparison. All means and replica vectors agree; the largest covariance
+difference is $1.22 times 10^(-24)$. The repeated points are correlated and
+are never pooled or counted as additional independent data.
+
+SymJIT preparation took 3.94 seconds with a 33 MiB process peak, including saved-proof verification and
+publication of a new 2.05 MB archive, excluding the original solve. All 62
+restored sectors retain their native SymJIT backend. The same 133,764 points
+required rescue (52.67%); the ten slowest sectors used 62.94 seconds, seven
+rescuing every point. These diagnostics do not establish the cause of rescue.
 
 These clocks are not comparable to the optimized 25-core, approximately
 ten-minute arms in the overview, and no square-root time extrapolation is
-applied. Automatic CLI routing and a genuinely compiled SymJIT archive remain
-separate gates.
+applied. Ordinary and serial CLI generation now produce all 62 charts, and a
+separate cold process restores one selected record. Their clocks are outside
+this control.
 The general algebraic resolver, mixed-mass kite and complete double-box
 no-contour results remain unfinished.
 
 Compact results and exact settings are retained in
-`docs/no-contour-massive-sunrise-control.json`; the public input card is
+`docs/no-contour-massive-sunrise-control.json`. The native no-contour CLI card is
+`examples/no_deformation/massive_sunrise.toml`; the contour reference card is
 `examples/no_deformation/benchmarks/controls/massive_sunrise.toml`.
