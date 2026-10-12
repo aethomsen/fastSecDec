@@ -38,6 +38,13 @@ native exact reduction and symGCAD certificates, and the additional proof
 obligations for completeness. Distinguish current capabilities and measured
 scratch evidence from proposed equality-aware CAD and family resolution.
 
+The next documentation request reorganizes the benchmark PDF as a cohesive
+chaptered report, preserving its opening benchmark tables unchanged and first.
+Audit the scientific narrative and remove superseded or irrelevant material
+from the rendered report; retain reproducible historical measurements in their
+source records. This is an editorial milestone, not a renewed numerical
+campaign or expansion of the implementation scope.
+
 ## Threshold benchmark campaign completion (2026-10-12)
 
 The user assigned the following active goal. It prioritizes complete physical

@@ -5200,3 +5200,15 @@ equality strata, family resolution and remainder proofs. No new CAS or
 implementation was added; the proposal retains Symbolica algebra and native
 graph/density objects. Existing GCAD speed measurements are explicitly not
 claimed as region-analysis improvements.
+
+## Benchmark report consolidation (2026-10-12)
+
+The [editorial audit](reviews/benchmark-report-reorganization.md) reorganizes
+the report into six chapters after the unchanged opening tables. Independent
+structure, results and theory reviews preserve native ownership and scientific
+scope: Symbolica/Numerica supply algebra, evaluators and statistics; HEPKit and
+Linnet supply graph/input primitives; symGCAD supplies its stated certificates.
+No algorithm, reference calculation, dependency or numerical record changed.
+Historical experiments remain source evidence rather than new capabilities or
+current benchmark rows. The general resolver and equality-section gaps remain
+explicit in the consolidated limitations and research chapters.
