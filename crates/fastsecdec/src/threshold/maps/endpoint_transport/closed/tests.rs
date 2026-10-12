@@ -236,3 +236,73 @@ fn closed_scalar_refuses_unresolved_zero_and_transactional_limits() {
         Err(Error::Cancelled)
     ));
 }
+
+#[test]
+fn retained_margin_constructor_preserves_complete_scalar_family() {
+    use crate::threshold::maps::normalized::algebra::Ring;
+    use symgcad::domain::{certify_nonzero, derive_domain};
+    let transport = source(false);
+    let original = ClosedScalarChart::prepare(
+        transport.issued_chart(0).unwrap(),
+        &Limits::default(),
+        OptimizationSettings::default(),
+        || ControlFlow::Continue(()),
+    )
+    .unwrap();
+    let roles = original.proof_box().roles().to_vec();
+    let ring = Ring::with_names(roles.clone(), &["saved_axis".into()]).unwrap();
+    let constraints = vec!["saved_axis".to_string(), "1-saved_axis".to_string()];
+    let cs = constraints
+        .iter()
+        .map(|s| ring.native.parse(s).unwrap())
+        .collect::<Vec<_>>();
+    let domain = derive_domain(&ring.native, &cs, &[]).unwrap();
+    let b = Budget::new(Default::default());
+    let mut selected = 0;
+    let imported = ClosedScalarChart::prepare_with_unit_evidence(
+        transport.issued_chart(0).unwrap(),
+        &Limits::default(),
+        OptimizationSettings::default(),
+        || ControlFlow::Continue(()),
+        |p| {
+            selected += 1;
+            let margin = Rational::from((1, 4));
+            let poly = ring.polynomial(&(p - Atom::num(margin.clone())), &b)?;
+            let cert = certify_nonzero(&ring.native, &poly, &domain, &Default::default())
+                .unwrap()
+                .unwrap();
+            Ok(Some(Arc::new(RetainedMargin::from_json(
+                roles.clone(),
+                constraints.clone(),
+                margin,
+                serde_json::to_vec_pretty(&cert).unwrap().into(),
+                1_000_000,
+            )?)))
+        },
+    )
+    .unwrap();
+    assert!(selected > 0);
+    assert!(Arc::ptr_eq(
+        imported.chart().transport(),
+        original.chart().transport()
+    ));
+    assert_eq!(imported.regulator(), original.regulator());
+    assert_eq!(imported.strip().lower(), original.strip().lower());
+    assert_eq!(imported.strip().upper(), original.strip().upper());
+    for (a, b) in imported.terms().iter().zip(original.terms()) {
+        assert_eq!(a.source_index(), b.source_index());
+        same(a.prefactor(), b.prefactor());
+        same(a.regular_body(), b.regular_body());
+        assert_eq!(a.powers(), b.powers());
+    }
+    assert!(matches!(
+        ClosedScalarChart::prepare_with_unit_evidence(
+            transport.issued_chart(0).unwrap(),
+            &Limits::default(),
+            OptimizationSettings::default(),
+            || ControlFlow::Continue(()),
+            |_| Ok(None)
+        ),
+        Err(Error::Unsupported(_))
+    ));
+}

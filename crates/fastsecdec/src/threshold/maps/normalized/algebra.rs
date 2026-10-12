@@ -24,15 +24,23 @@ pub(crate) struct Ring {
 }
 impl Ring {
     pub fn new(symbols: Vec<Symbol>) -> Result<Self> {
-        if symbols.iter().collect::<BTreeSet<_>>().len() != symbols.len() {
-            return Err(Error::Invalid("distinct polynomial roles required".into()));
+        let names = (0..symbols.len())
+            .map(|i| format!("n{i}"))
+            .collect::<Vec<_>>();
+        Self::with_names(symbols, &names)
+    }
+    /// Preserve the native frame of retained certificates; alias conversion and
+    /// its exact role/preflight checks are otherwise identical to `new`.
+    pub(crate) fn with_names(symbols: Vec<Symbol>, names: &[String]) -> Result<Self> {
+        if symbols.len() != names.len()
+            || symbols.iter().collect::<BTreeSet<_>>().len() != symbols.len()
+            || names.iter().collect::<BTreeSet<_>>().len() != names.len()
+        {
+            return Err(Error::Invalid(
+                "distinct complete polynomial roles required".into(),
+            ));
         }
-        let native = Algebra::new(
-            &(0..symbols.len())
-                .map(|i| format!("n{i}"))
-                .collect::<Vec<_>>(),
-        )
-        .map_err(super::native)?;
+        let native = Algebra::new(names).map_err(super::native)?;
         let aliases = native
             .variables
             .iter()

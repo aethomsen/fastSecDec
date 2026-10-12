@@ -5,6 +5,7 @@
 //! closed factor before exposing symbolic continuation or publication.
 mod admission;
 mod continuation;
+pub mod discovery;
 mod geometry;
 mod leaves;
 mod numerator;

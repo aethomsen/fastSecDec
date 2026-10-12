@@ -8,7 +8,7 @@ mod program;
 mod tests;
 use super::{
     Error, FactorLink, IssuedEndpointChart, Result,
-    factors::{self, MarginProof, ProofBox},
+    factors::{self, MarginProof, ProofBox, RetainedMargin},
 };
 use crate::threshold::maps::regular::Budget;
 use crate::{
@@ -90,6 +90,8 @@ impl ClosedTerm {
         &self.powers
     }
 }
+type EvidenceProvider<'a> = dyn FnMut(&Atom) -> Result<Option<Arc<RetainedMargin>>> + 'a;
+
 pub struct ClosedScalarChart {
     chart: IssuedEndpointChart,
     proof_box: ProofBox,
@@ -138,7 +140,31 @@ impl ClosedScalarChart {
         chart: IssuedEndpointChart,
         limits: &Limits,
         settings: OptimizationSettings,
+        progress: impl FnMut() -> ControlFlow<()>,
+    ) -> Result<Arc<Self>> {
+        Self::prepare_inner(chart, limits, settings, progress, None)
+    }
+    /// Admit caller-retained native proofs against obligations derived from this
+    /// genuine chart. Missing evidence remains unsupported; this entrypoint does
+    /// not perform discovery. Positive constants retain exact Rational admission.
+    ///
+    /// The callback only selects a candidate. Native polynomial equality, frame,
+    /// domain inclusion and certificate replay establish its authority here.
+    pub fn prepare_with_unit_evidence(
+        chart: IssuedEndpointChart,
+        limits: &Limits,
+        settings: OptimizationSettings,
+        progress: impl FnMut() -> ControlFlow<()>,
+        mut evidence: impl FnMut(&Atom) -> Result<Option<Arc<RetainedMargin>>>,
+    ) -> Result<Arc<Self>> {
+        Self::prepare_inner(chart, limits, settings, progress, Some(&mut evidence))
+    }
+    fn prepare_inner(
+        chart: IssuedEndpointChart,
+        limits: &Limits,
+        settings: OptimizationSettings,
         mut progress: impl FnMut() -> ControlFlow<()>,
+        mut evidence: Option<&mut EvidenceProvider<'_>>,
     ) -> Result<Arc<Self>> {
         let budget = Budget::new(limits.factors.algebra.clone());
         let mut check = || {
@@ -168,7 +194,15 @@ impl ClosedScalarChart {
             signs[factor.identity()] = factor.expected_sign();
         }
         let domain = ProofBox::whole_chart(&chart, &budget)?;
-        let require = |p: &Atom| {
+        let mut require = |p: &Atom| {
+            if let Some(supply) = evidence.as_deref_mut()
+                && symbolica::domains::rational::Rational::try_from(p.as_view()).is_err()
+            {
+                let candidate = supply(p)?.ok_or_else(|| {
+                    Error::Unsupported("retained whole-box unit evidence unavailable".into())
+                })?;
+                return domain.admit_retained(p, candidate, &budget);
+            }
             domain.propose(p,&limits.factors.fallback_margin,&budget)?.ok_or_else(||Error::Unsupported("closed scalar residual lacks a positive whole-box margin; refinement remains required".into()))
         };
         let mut units = Vec::new();

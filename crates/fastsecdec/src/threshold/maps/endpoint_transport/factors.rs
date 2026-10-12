@@ -12,7 +12,7 @@ use crate::threshold::{
     gcad::ProjectiveFactorAuthority,
     maps::regular::{Budget, Limits as AlgebraLimits},
 };
-pub use real::{MarginEvidence, MarginProof, ProofBox};
+pub use real::{MarginEvidence, MarginProof, ProofBox, RetainedMargin};
 pub use restriction::{RelativeFace, RestrictedFactor};
 use std::{collections::BTreeMap, ops::ControlFlow, sync::Arc};
 use symbolica::{atom::Atom, domains::rational::Rational};

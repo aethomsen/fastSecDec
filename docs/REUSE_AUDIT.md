@@ -5007,3 +5007,21 @@ workers. Independent source, scientific and ecosystem reviews cover both the
 family issuer and artifact adapter. Existing version 7 restoration remains
 supported. The complete general resolver, auxiliary-regulator treatment and
 physical double-box results remain outstanding.
+
+## Automatic projective proposals and retained native proofs (2026-10-12)
+
+The [discovery review](reviews/no-deformation-positive-projective-discovery.md)
+records coefficient-driven map proposals using native resultants, polynomial
+content/primitive operations and exact reconstruction. Only the existing full
+family issuer certifies them. Its initial automatic quadratic class is narrower
+than the arbitrary-degree root machinery; no topology or cell-count constants
+replace geometry checks.
+
+The [retained-proof review](reviews/no-deformation-retained-margin-replay.md)
+records replay of unchanged symGCAD certificates in their original named frame.
+Actual chart polynomials, roles, positive margins and closed-domain inclusion
+are checked before native verification. No proof format, parser, CAS or
+geometry owner was duplicated. Independent reviews passed; the combined
+consuming build passes 44 endpoint-transport and nine family/discovery tests,
+strict all-target core Clippy and formatting. Complete double-box endpoint
+closure and automatic CLI routing remain outstanding.

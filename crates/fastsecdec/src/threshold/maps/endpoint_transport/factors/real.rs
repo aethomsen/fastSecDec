@@ -12,6 +12,8 @@ use symgcad::{
     algebra::Poly,
     domain::{Domain, DomainCertificate, verify_certificate},
 };
+mod retained;
+pub use retained::RetainedMargin;
 #[cfg(test)]
 mod tests;
 
@@ -25,6 +27,8 @@ const SMALLER_MARGIN_TRIALS: usize = 12;
 pub enum MarginEvidence {
     Constant(Rational),
     Native(Box<DomainCertificate>),
+    /// Original named frame and bytes are retained, never rewritten as n0,...
+    Retained(std::sync::Arc<RetainedMargin>),
 }
 #[derive(Debug)]
 pub struct MarginProof {
@@ -56,6 +60,7 @@ impl MarginProof {
                     return Err(Error::Invalid("constant margin replay differs".into()));
                 }
             }
+            MarginEvidence::Retained(proposal) => proposal.replay(&target, domain, b)?,
             MarginEvidence::Native(c) => {
                 let (ring, constraints, _) = domain
                     .native
