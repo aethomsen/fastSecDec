@@ -25,6 +25,7 @@ pub fn get_citations() -> Vec<Citation> {
     vec![
         Citation {
             id: "https://github.com/alphal00p/fastSecDec".into(),
+            url: "https://github.com/alphal00p/fastSecDec".into(),
             reference: "FastSecDec contributors. FastSecDec: Rust sector decomposition and numerical integration. https://github.com/alphal00p/fastSecDec.".into(),
             bibtex: include_str!("../../../citations/fastsecdec.bib").trim().into(),
             reasons: vec!["Native FastSecDec generation or kernel loading was used.".into()],
@@ -33,6 +34,7 @@ pub fn get_citations() -> Vec<Citation> {
         },
         Citation {
             id: "doi:10.1016/j.cpc.2017.09.015".into(),
+            url: "https://doi.org/10.1016/j.cpc.2017.09.015".into(),
             reference: "S. Borowka, G. Heinrich, S. Jahn, S. P. Jones, M. Kerner, J. Schlenk and T. Zirke. pySecDec: a toolbox for the numerical evaluation of multi-scale integrals. Computer Physics Communications 222 (2018), 313. doi:10.1016/j.cpc.2017.09.015.".into(),
             bibtex: include_str!("../../../citations/pysecdec.bib").trim().into(),
             reasons: vec!["Reference sector-decomposition implementation that informed FastSecDec's development and scientific cross-checks.".into()],
@@ -41,6 +43,7 @@ pub fn get_citations() -> Vec<Citation> {
         },
         Citation {
             id: "doi:10.1016/j.cpc.2010.04.001".into(),
+            url: "https://doi.org/10.1016/j.cpc.2010.04.001".into(),
             reference: "T. Kaneko and T. Ueda. A geometric method of sector decomposition. Computer Physics Communications 181 (2010), 1352–1361. doi:10.1016/j.cpc.2010.04.001.".into(),
             bibtex: include_str!("../../../citations/kaneko-ueda.bib").trim().into(),
             reasons: vec!["Geometric sector decomposition using polynomial exponent supports, normal cones and simplicial monomial maps.".into()],
@@ -49,6 +52,7 @@ pub fn get_citations() -> Vec<Citation> {
         },
         Citation {
             id: "doi:10.1016/S0550-3213(00)00429-6".into(),
+            url: "https://doi.org/10.1016/S0550-3213(00)00429-6".into(),
             reference: "T. Binoth and G. Heinrich. An automatized algorithm to compute infrared divergent multi-loop integrals. Nuclear Physics B 585 (2000), 741–759. doi:10.1016/S0550-3213(00)00429-6.".into(),
             bibtex: include_str!("../../../citations/binoth-heinrich.bib").trim().into(),
             reasons: vec!["Endpoint Taylor subtraction and Laurent coefficients of dimensionally regulated sector integrals.".into()],
