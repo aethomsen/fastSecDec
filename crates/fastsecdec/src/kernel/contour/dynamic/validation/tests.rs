@@ -195,6 +195,89 @@ fn fixture_with_hidden_dependency() -> Fixture {
 }
 
 #[test]
+fn every_distinct_candidate_is_certified_in_every_saved_context() {
+    let mut fixture = fixture(false);
+    let mut descriptor = (*fixture.prepared.descriptor).clone();
+    let mut second = descriptor.clone();
+    second.remap_charts(&[1]).unwrap();
+    descriptor.merge(second).unwrap();
+    fixture.prepared.descriptor = Arc::new(descriptor);
+    let bundle = fixture.bundle();
+    let specification = fixture.specification(&fixture.coordinates[..1], bundle.clone());
+    let contexts = specification.bindings[0].len();
+    assert_eq!(contexts, 2);
+    let candidate = fixture.candidate(0.3, 0.75);
+    let adjacent = Rational::try_from(candidate.to_f64().next_up()).unwrap();
+    assert_ne!(candidate, adjacent);
+    let mut validation = Validation::new(specification);
+    assert!(
+        validation.evaluate(&[0.3, 0.8, 1., 1.], || {
+            dynamic::observation::record(&bundle, candidate.clone(), 53).unwrap();
+            dynamic::observation::record(&bundle, candidate.clone(), 53).unwrap();
+            dynamic::observation::record(&bundle, adjacent, 53).unwrap();
+            dynamic::observation::record(&bundle, candidate, 106).unwrap();
+        }),
+        "{:?}",
+        validation.last_error
+    );
+    let coverage = validation.coverage().unwrap();
+    assert_eq!(coverage.checked_arguments, 3 * contexts);
+    assert_eq!(coverage.bundles.len(), 1);
+    assert_eq!(coverage.contexts.len(), contexts);
+    assert!(
+        coverage
+            .contexts
+            .iter()
+            .all(|context| context.checked_arguments == 3)
+    );
+}
+
+#[test]
+fn one_bad_candidate_rejects_the_attempt_even_when_another_is_valid() {
+    let fixture = fixture(false);
+    let bundle = fixture.bundle();
+    let candidate = fixture.candidate(0.3, 0.75);
+    for (wrong, reason) in [
+        (
+            &candidate / &Rational::from(2),
+            "intended-root approximation accuracy",
+        ),
+        (
+            &candidate * &Rational::from(100),
+            "outside the sufficient causal radius",
+        ),
+    ] {
+        let mut validation =
+            Validation::new(fixture.specification(&fixture.coordinates[..1], bundle.clone()));
+        let invalid_follows_valid = wrong > candidate;
+        assert!(!validation.evaluate(&[0.3, 0.8, 1., 1.], || {
+            dynamic::observation::record(&bundle, candidate.clone(), 53).unwrap();
+            dynamic::observation::record(&bundle, wrong, 53).unwrap();
+        }));
+        assert!(
+            validation.last_error.as_ref().unwrap().contains(reason),
+            "{:?}",
+            validation.last_error
+        );
+        assert!(validation.coverage().is_none());
+        if invalid_follows_valid {
+            assert_eq!(
+                validation.checked_arguments,
+                validation.specification.bindings[0].len() + 1
+            );
+        }
+        // A failed candidate is not retained into the next precision/sample attempt.
+        assert!(
+            validation.evaluate(&[0.3, 0.8, 1., 1.], || {
+                dynamic::observation::record(&bundle, candidate.clone(), 53).unwrap();
+            }),
+            "{:?}",
+            validation.last_error
+        );
+    }
+}
+
+#[test]
 fn actual_callback_attempts_restore_nested_state_and_clone_independent_counters() {
     let fixture = fixture(false);
     let bundle = fixture.bundle();

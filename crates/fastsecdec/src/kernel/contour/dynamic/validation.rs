@@ -279,7 +279,10 @@ impl Validation {
                 return Err(reason);
             }
         };
-        let indexed = candidates.iter().enumerate().collect::<Vec<_>>();
+        let indexed = candidates
+            .iter()
+            .map(|(index, candidate)| (*index, candidate))
+            .collect::<Vec<_>>();
         let bundles = self
             .specification
             .requests

@@ -162,6 +162,86 @@ mod tests {
     use symbolica::domains::rational::Rational;
 
     #[test]
+    fn equivalent_native_arithmetic_paths_retain_each_rounded_candidate() {
+        use symbolica::{
+            evaluate::{FunctionMap, FunctionRegistrationOptions, InliningPolicy},
+            function,
+        };
+        let helper = RootProgram::build(1).unwrap();
+        let _owner = ProgramScope::new(std::slice::from_ref(&helper)).enter();
+        let x = symbol!("requested_rounding::x");
+        let s = symbol!("requested_rounding::s");
+        let l = symbol!("requested_rounding::l");
+        let arg = symbol!("requested_rounding::arg");
+        let plus_offset = symbol!("requested_rounding::plus_offset");
+        let identity = symbol!("requested_rounding::identity");
+        let mut functions = FunctionMap::new();
+        functions
+            .add_function_with_options(
+                plus_offset,
+                vec![arg],
+                Atom::var(arg) + 1024,
+                FunctionRegistrationOptions::new().inlining(InliningPolicy::Never),
+            )
+            .unwrap();
+        functions
+            .add_function_with_options(
+                identity,
+                vec![arg],
+                function!(plus_offset, Atom::var(arg)) - 1024,
+                FunctionRegistrationOptions::new().inlining(InliningPolicy::Never),
+            )
+            .unwrap();
+        let original = strength(&helper, &[Atom::var(x)], &Atom::var(s), &Atom::var(l)).unwrap();
+        let mut lookup = Lookup::default();
+        lookup
+            .insert(&"a".repeat(64), &original, &[x], &[vec![]])
+            .unwrap();
+        let requests = observation::Requests::new([lookup.bundle(&original).unwrap()]).unwrap();
+        let expression = lookup.lower(&original, symbol()).unwrap();
+        // Both native paths represent the same exact coefficient x. Keeping
+        // the alias body prevents symbolic cancellation of (x + 1024) - 1024, just
+        // as retained native jet bodies can round equivalent paths differently.
+        let other = expression
+            .replace(Atom::var(x))
+            .with(function!(identity, Atom::var(x)));
+        let exact = Atom::evaluator_multiple(
+            &[expression, other],
+            &[Atom::var(x), Atom::var(s), Atom::var(l)],
+        )
+        .function_map(functions)
+        .build()
+        .unwrap();
+        let mut plain = exact.clone().map_coeff(&|value| value.re.to_f64());
+        let mut checked = {
+            let _mode = Mode::checked().enter();
+            exact.map_coeff(&|value| value.re.to_f64())
+        };
+        let mut expected = [0.; 2];
+        let mut actual = [0.; 2];
+        plain.evaluate(&[1.3, 0.8, 1.], &mut expected);
+        assert!(expected.iter().all(|value| value.is_finite()));
+        assert_ne!(
+            expected[0], expected[1],
+            "fixture must exercise distinct native rounding"
+        );
+        let (observations, failure) = super::super::isolated_attempt(|| {
+            let attempt = requests.begin();
+            checked.evaluate(&[1.3, 0.8, 1.], &mut actual);
+            attempt.finish()
+        });
+        assert!(failure.is_none(), "{failure:?}");
+        assert_eq!(actual, expected);
+        let observations = observations.unwrap();
+        assert_eq!(observations.len(), 2);
+        for value in actual {
+            assert!(observations.iter().any(|(index, candidate)| *index == 0
+                && candidate.bits == 53
+                && candidate.lambda == Rational::try_from(value).unwrap()));
+        }
+    }
+
+    #[test]
     fn observation_mode_is_chosen_at_mapping_and_plain_callbacks_do_not_capture() {
         let helper = RootProgram::build(2).unwrap();
         let _owner = ProgramScope::new(std::slice::from_ref(&helper)).enter();
@@ -209,7 +289,7 @@ mod tests {
         assert_eq!(plain_output, checked_output);
         assert_eq!(observations.len(), 1);
         assert_eq!(
-            observations[0].lambda,
+            observations[0].1.lambda,
             Rational::try_from(plain_output[0]).unwrap()
         );
         // Same parsed program, new numeric domain, and a cloned checked owner.

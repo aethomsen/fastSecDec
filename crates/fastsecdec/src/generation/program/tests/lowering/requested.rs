@@ -104,8 +104,9 @@ fn check_vectors(native_jit: bool) {
                 )
                 .unwrap();
                 // Numerical jets visit distinct physical faces even when the
-                // radius values coincide. Each face executes one root; repeated
-                // derivatives and Laurent outputs must share that evaluation.
+                // radius values coincide. Repeated derivatives and Laurent
+                // outputs retain the same request identity for each face.
+                // Distinct rounded candidates for that identity are all observed.
                 assert_eq!(
                     bundles.len(),
                     if subtraction == SubtractionStrategy::Taylor {
@@ -241,11 +242,18 @@ fn check_attempt(requests: &observation::Requests, bits: u32, evaluate: impl FnO
     });
     assert!(failure.is_none(), "native callback: {failure:?}");
     let candidates = result.unwrap();
-    assert_eq!(candidates.len(), requests.bundles().count());
+    assert_eq!(
+        candidates
+            .iter()
+            .map(|(index, _)| *index)
+            .collect::<std::collections::BTreeSet<_>>()
+            .len(),
+        requests.bundles().count()
+    );
     assert!(
         candidates
             .iter()
-            .all(|candidate| { candidate.lambda > 0 && candidate.bits == bits })
+            .all(|(_, candidate)| { candidate.lambda > 0 && candidate.bits == bits })
     );
 }
 

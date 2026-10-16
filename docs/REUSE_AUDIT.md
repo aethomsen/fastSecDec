@@ -5212,3 +5212,33 @@ No algorithm, reference calculation, dependency or numerical record changed.
 Historical experiments remain source evidence rather than new capabilities or
 current benchmark rows. The general resolver and equality-section gaps remain
 explicit in the consolidated limitations and research chapters.
+
+## Repeated dynamic-candidate observations (2026-10-16)
+
+The [independent observation review](reviews/dynamic-candidate-observation.typ)
+records the source-contract defect exposed by equivalent native arithmetic
+paths with different rounded centres. The existing observation owner now keeps
+each distinct exact `(Rational centre, precision bits)` pair and passes it to
+the unchanged all-context causal-radius and intended-root certificates. Exact
+duplicates share an obligation; the explicit 1024-candidate bound fails the
+whole attempt on overflow. Numerical return values, root solvers, precision
+policies, contour settings and public schemas are unchanged.
+
+The implementation reuses Symbolica/Numerica exact conversions and evaluators,
+the existing request/attempt/certificate owners and a standard ordered set.
+HEPKit/Linnet graph and Python adapter ownership is unchanged; no parallel
+algebra, graph, numerical helper or worker pool was added. Independent scientific,
+safety and ecosystem-reuse reviews found no blocker. All 59 focused tests pass,
+including native arithmetic aliases, three candidates across two saved contexts,
+unsafe and inaccurate candidates, bounded storage, retry/unwind/thread isolation,
+and native Laurent-vector evaluation. The linked review records exact test
+filters and build scope. This correctness milestone does not establish a new
+full-integral convergence or variance result.
+
+Strict production-library Clippy passes. Strict workspace/all-target Clippy
+remains blocked by three diagnostics in unchanged CLI code under Rust 1.99.0;
+the strict library/all-test check encounters eleven unchanged test diagnostics.
+The review records those limits; no full-workspace or strict all-test lint pass
+is claimed. The scoped library/all-test rerun passes with only
+`clippy::chunks_exact_to_as_chunks` allowed and all other warnings denied.
+Formatting and diff whitespace checks pass.
