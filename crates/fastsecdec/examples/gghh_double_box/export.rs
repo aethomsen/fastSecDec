@@ -1,5 +1,6 @@
 //! Native serialization and the example's explicit external projection.
 
+use idenso::tensor::SymbolicTensor;
 use std::{collections::BTreeMap, fmt::Write, path::Path, sync::Arc};
 
 use fastsecdec::{
@@ -43,13 +44,13 @@ pub fn projected(raw: &FeynmanDiagram) -> Result<FeynmanDiagram> {
         ports.push((external.index, symbols::hedge_index().call((hedge.0, 1))));
     }
     ports.sort_by_key(|(index, _)| *index);
-    if ports.len() != 2 || !raw.projector().is_one() {
+    if ports.len() != 2 || !raw.projector().expression().is_one() {
         return Err("unexpected amputated external layout".into());
     }
     let lorentz = Minkowski {}.new_rep(4);
     let color = ColorAdjoint {}.new_rep(8);
     let color_projector = color.id(&ports[0].1, &ports[1].1);
-    let numerator = super::color::contract(raw.numerator(), &color_projector)?;
+    let numerator = super::color::contract(raw.numerator().expression(), &color_projector)?;
     let mut projector = Atom::one();
     for ((_, index), name) in ports.into_iter().zip(point::auxiliaries()) {
         projector *= lorentz.vector(name.as_view(), [index]);
@@ -58,8 +59,8 @@ pub fn projected(raw: &FeynmanDiagram) -> Result<FeynmanDiagram> {
     // No extra symmetry factor, color average or spin average is introduced.
     Ok(raw
         .clone()
-        .with_numerator(numerator)?
-        .with_projector(projector)
+        .with_numerator(SymbolicTensor::infer(numerator)?)?
+        .with_projector(SymbolicTensor::infer(projector)?)
         .with_overall_factor(evaluate_overall_factor(raw.overall_factor().as_view())))
 }
 

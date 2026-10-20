@@ -13,6 +13,7 @@ use fastsecdec::{
         },
     },
 };
+use idenso::tensor::SymbolicTensor;
 use spenso::structure::representation::{Minkowski, RepName};
 use std::{collections::BTreeMap, io::Cursor, ops::ControlFlow, path::Path, sync::Arc};
 use symbolica::{domains::float::Float, parse, symbol};
@@ -48,10 +49,13 @@ fn point(bits: u32, tensor: bool, payload: bool) -> Arc<GraphPoint> {
         let numerator = if tensor { a * &vector } else { a };
         let projector = if tensor { c * &vector } else { c };
         diagram = diagram
-            .with_numerator_fragments([(vertex, numerator)], [(edge, b)])
+            .with_numerator_fragments(
+                [(vertex, SymbolicTensor::infer(numerator).unwrap())],
+                [(edge, SymbolicTensor::infer(b).unwrap())],
+            )
             .unwrap()
-            .with_projector(projector)
-            .with_numerator_prefactor(d)
+            .with_projector(SymbolicTensor::infer(projector).unwrap())
+            .with_numerator_prefactor(SymbolicTensor::infer(d).unwrap())
             .with_overall_factor(f);
     }
     let gamma = symbolica::transcendental::gamma();
@@ -213,7 +217,12 @@ fn policy_refuses_structural_float_and_unprojected_tensor_before_solve() {
         label,
     ] {
         let mut p = (*base).clone();
-        p.diagram = Arc::new(p.diagram.as_ref().clone().with_projector(bad));
+        p.diagram = Arc::new(
+            p.diagram
+                .as_ref()
+                .clone()
+                .with_projector(SymbolicTensor::infer(bad).unwrap()),
+        );
         let before = p.diagram.to_json().unwrap();
         let dir = tempfile::tempdir().unwrap();
         let err = generation::prepare_graph(Arc::new(p.clone()), options(true), dir.path(), |p| {
@@ -227,7 +236,12 @@ fn policy_refuses_structural_float_and_unprojected_tensor_before_solve() {
         assert_eq!(dir.path().read_dir().unwrap().count(), 0);
     }
     let mut p = (*point(53, true, true)).clone();
-    p.diagram = Arc::new(p.diagram.as_ref().clone().with_projector(Atom::one()));
+    p.diagram = Arc::new(
+        p.diagram
+            .as_ref()
+            .clone()
+            .with_projector(SymbolicTensor::infer(Atom::one()).unwrap()),
+    );
     let dir = tempfile::tempdir().unwrap();
     assert!(
         generation::prepare_graph(Arc::new(p), options(true), dir.path(), |p| {

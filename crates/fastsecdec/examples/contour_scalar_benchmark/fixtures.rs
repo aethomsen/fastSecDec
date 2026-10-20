@@ -1,4 +1,5 @@
 //! Native graph inputs and independent references; no generation or sampling.
+use idenso::tensor::SymbolicTensor;
 use std::{
     collections::{BTreeMap, HashMap},
     error::Error,
@@ -288,7 +289,7 @@ pub fn build(name: &str) -> Result<Fixture> {
                 .diagram()
                 .as_ref()
                 .clone()
-                .with_numerator(Atom::one())?;
+                .with_numerator(SymbolicTensor::infer(Atom::one())?)?;
             let graph = GraphIntegral::new(Arc::new(scalar), source.family().kinematics())?
                 .with_scalar_values(&BTreeMap::from([(symbol!("UFO::mt"), Atom::Zero)]))?;
             (

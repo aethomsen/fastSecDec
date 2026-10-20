@@ -34,4 +34,5 @@ blake3.workspace = true
 toml.workspace = true
 
 [dev-dependencies]
+idenso.workspace = true
 libc = "0.2"

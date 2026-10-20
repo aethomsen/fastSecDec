@@ -797,7 +797,7 @@ dependencies = [
 [[package]]
 name = "dot-parser"
 version = "0.5.1"
-source = "git+https://github.com/ValentinHirschi/gammaloop?rev=9f8b1e50016a58d04e712c34569ea936c44e179a#9f8b1e50016a58d04e712c34569ea936c44e179a"
+source = "git+https://github.com/alphal00p/gammaloop?branch=feynkit#d39d9bf206d8f858efedc9281f034cddb50c51fa"
 dependencies = [
  "either",
  "pest",
@@ -951,6 +951,7 @@ dependencies = [
  "fastsecdec",
  "feynkit-graph",
  "feynkit-model",
+ "idenso",
  "libc",
  "numerica",
  "ratatui",
@@ -997,7 +998,7 @@ dependencies = [
 [[package]]
 name = "feynkit-amplitude"
 version = "0.1.0"
-source = "git+https://github.com/ValentinHirschi/gammaloop?rev=9f8b1e50016a58d04e712c34569ea936c44e179a#9f8b1e50016a58d04e712c34569ea936c44e179a"
+source = "git+https://github.com/alphal00p/gammaloop?branch=feynkit#d39d9bf206d8f858efedc9281f034cddb50c51fa"
 dependencies = [
  "feynkit-graph",
  "feynkit-model",
@@ -1011,7 +1012,7 @@ dependencies = [
 [[package]]
 name = "feynkit-generator"
 version = "0.1.0"
-source = "git+https://github.com/ValentinHirschi/gammaloop?rev=9f8b1e50016a58d04e712c34569ea936c44e179a#9f8b1e50016a58d04e712c34569ea936c44e179a"
+source = "git+https://github.com/alphal00p/gammaloop?branch=feynkit#d39d9bf206d8f858efedc9281f034cddb50c51fa"
 dependencies = [
  "bincode",
  "bincode-trait-derive",
@@ -1031,10 +1032,11 @@ dependencies = [
 [[package]]
 name = "feynkit-graph"
 version = "0.1.0"
-source = "git+https://github.com/ValentinHirschi/gammaloop?rev=9f8b1e50016a58d04e712c34569ea936c44e179a#9f8b1e50016a58d04e712c34569ea936c44e179a"
+source = "git+https://github.com/alphal00p/gammaloop?branch=feynkit#d39d9bf206d8f858efedc9281f034cddb50c51fa"
 dependencies = [
  "feynkit-kinematics",
  "feynkit-model",
+ "idenso",
  "itertools 0.14.0",
  "linnet",
  "nu-ansi-term",
@@ -1049,7 +1051,7 @@ dependencies = [
 [[package]]
 name = "feynkit-kinematics"
 version = "0.1.0"
-source = "git+https://github.com/ValentinHirschi/gammaloop?rev=9f8b1e50016a58d04e712c34569ea936c44e179a#9f8b1e50016a58d04e712c34569ea936c44e179a"
+source = "git+https://github.com/alphal00p/gammaloop?branch=feynkit#d39d9bf206d8f858efedc9281f034cddb50c51fa"
 dependencies = [
  "linnet",
  "numerica",
@@ -1062,7 +1064,7 @@ dependencies = [
 [[package]]
 name = "feynkit-model"
 version = "0.1.0"
-source = "git+https://github.com/ValentinHirschi/gammaloop?rev=9f8b1e50016a58d04e712c34569ea936c44e179a#9f8b1e50016a58d04e712c34569ea936c44e179a"
+source = "git+https://github.com/alphal00p/gammaloop?branch=feynkit#d39d9bf206d8f858efedc9281f034cddb50c51fa"
 dependencies = [
  "bincode",
  "bincode-trait-derive",
@@ -1079,7 +1081,7 @@ dependencies = [
 [[package]]
 name = "feynkit-tensor"
 version = "0.1.0"
-source = "git+https://github.com/ValentinHirschi/gammaloop?rev=9f8b1e50016a58d04e712c34569ea936c44e179a#9f8b1e50016a58d04e712c34569ea936c44e179a"
+source = "git+https://github.com/alphal00p/gammaloop?branch=feynkit#d39d9bf206d8f858efedc9281f034cddb50c51fa"
 dependencies = [
  "feynkit-graph",
  "idenso",
@@ -1189,8 +1191,7 @@ dependencies = [
 [[package]]
 name = "graphica"
 version = "3.0.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "118912fe5e24df9c7f36c1211bdeb1a803013b312cc149bd1794b9a0e4ef9c78"
+source = "git+https://github.com/symbolica-dev/symbolica?branch=codex%2Fcommunity-evaluator-composition#23688d6d78cf78dc62e28d829726b62edfd86ef2"
 dependencies = [
  "ahash",
  "dyn-clone",
@@ -1254,7 +1255,7 @@ dependencies = [
 [[package]]
 name = "idenso"
 version = "0.3.0"
-source = "git+https://github.com/ValentinHirschi/gammaloop?rev=9f8b1e50016a58d04e712c34569ea936c44e179a#9f8b1e50016a58d04e712c34569ea936c44e179a"
+source = "git+https://github.com/alphal00p/gammaloop?branch=feynkit#d39d9bf206d8f858efedc9281f034cddb50c51fa"
 dependencies = [
  "ahash",
  "base64",
@@ -1453,7 +1454,7 @@ dependencies = [
 [[package]]
 name = "linnet"
 version = "0.17.0"
-source = "git+https://github.com/ValentinHirschi/gammaloop?rev=9f8b1e50016a58d04e712c34569ea936c44e179a#9f8b1e50016a58d04e712c34569ea936c44e179a"
+source = "git+https://github.com/alphal00p/gammaloop?branch=feynkit#d39d9bf206d8f858efedc9281f034cddb50c51fa"
 dependencies = [
  "ahash",
  "bincode",
@@ -1720,7 +1721,7 @@ dependencies = [
 [[package]]
 name = "numerica"
 version = "3.0.1"
-source = "git+https://github.com/ValentinHirschi/symbolica?rev=ae0c82b7bda670fdb9f6229226bd47b13bb49a20#ae0c82b7bda670fdb9f6229226bd47b13bb49a20"
+source = "git+https://github.com/symbolica-dev/symbolica?branch=codex%2Fcommunity-evaluator-composition#23688d6d78cf78dc62e28d829726b62edfd86ef2"
 dependencies = [
  "ahash",
  "astro-float",
@@ -2519,7 +2520,7 @@ checksum = "02ef091d4e8b981dbaa4cc17789d00b53d5d2c001ae689f14e6093f30c529036"
 [[package]]
 name = "spenso"
 version = "0.6.0"
-source = "git+https://github.com/ValentinHirschi/gammaloop?rev=9f8b1e50016a58d04e712c34569ea936c44e179a#9f8b1e50016a58d04e712c34569ea936c44e179a"
+source = "git+https://github.com/alphal00p/gammaloop?branch=feynkit#d39d9bf206d8f858efedc9281f034cddb50c51fa"
 dependencies = [
  "ahash",
  "append-only-vec",
@@ -2562,7 +2563,7 @@ dependencies = [
 [[package]]
 name = "spenso-hep-lib"
 version = "0.1.7"
-source = "git+https://github.com/ValentinHirschi/gammaloop?rev=9f8b1e50016a58d04e712c34569ea936c44e179a#9f8b1e50016a58d04e712c34569ea936c44e179a"
+source = "git+https://github.com/alphal00p/gammaloop?branch=feynkit#d39d9bf206d8f858efedc9281f034cddb50c51fa"
 dependencies = [
  "ahash",
  "idenso",
@@ -2575,7 +2576,7 @@ dependencies = [
 [[package]]
 name = "spenso-macros"
 version = "0.3.2"
-source = "git+https://github.com/ValentinHirschi/gammaloop?rev=9f8b1e50016a58d04e712c34569ea936c44e179a#9f8b1e50016a58d04e712c34569ea936c44e179a"
+source = "git+https://github.com/alphal00p/gammaloop?branch=feynkit#d39d9bf206d8f858efedc9281f034cddb50c51fa"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -2618,7 +2619,7 @@ dependencies = [
 [[package]]
 name = "symbolica"
 version = "3.0.1"
-source = "git+https://github.com/ValentinHirschi/symbolica?rev=ae0c82b7bda670fdb9f6229226bd47b13bb49a20#ae0c82b7bda670fdb9f6229226bd47b13bb49a20"
+source = "git+https://github.com/symbolica-dev/symbolica?branch=codex%2Fcommunity-evaluator-composition#23688d6d78cf78dc62e28d829726b62edfd86ef2"
 dependencies = [
  "ahash",
  "append-only-vec",
@@ -2664,7 +2665,7 @@ dependencies = [
 [[package]]
 name = "symbolica-utils"
 version = "0.1.0"
-source = "git+https://github.com/ValentinHirschi/gammaloop?rev=9f8b1e50016a58d04e712c34569ea936c44e179a#9f8b1e50016a58d04e712c34569ea936c44e179a"
+source = "git+https://github.com/alphal00p/gammaloop?branch=feynkit#d39d9bf206d8f858efedc9281f034cddb50c51fa"
 dependencies = [
  "bincode",
  "bincode-trait-derive",

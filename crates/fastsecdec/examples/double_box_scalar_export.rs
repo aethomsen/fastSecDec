@@ -1,5 +1,6 @@
 //! Reproduce the scalar D05 DOT using the native HEPKit graph serializer.
 use fastsecdec::{Atom, FeynmanDiagram, Model, ParameterCard};
+use idenso::tensor::SymbolicTensor;
 use std::{error::Error, path::PathBuf, sync::Arc};
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -23,20 +24,20 @@ fn main() -> Result<(), Box<dyn Error>> {
     // measure and Feynman parameterization signs are applied later, unchanged.
     let scalar = physical
         .clone()
-        .with_projector(Atom::one())
+        .with_projector(SymbolicTensor::infer(Atom::one())?)
         .with_overall_factor(Atom::one())
-        .with_numerator_prefactor(Atom::one())
-        .with_numerator(Atom::one())?;
+        .with_numerator_prefactor(SymbolicTensor::infer(Atom::one())?)
+        .with_numerator(SymbolicTensor::infer(Atom::one())?)?;
     scalar.validate()?;
     assert_eq!(scalar.id(), physical.id());
     let dot = scalar.to_dot()?;
     let restored = FeynmanDiagram::from_dot(model, &dot)?;
     restored.validate()?;
     assert_eq!(restored.id(), physical.id());
-    assert!(restored.numerator().is_one());
-    assert!(restored.projector().is_one());
+    assert!(restored.numerator().expression().is_one());
+    assert!(restored.projector().expression().is_one());
     assert!(restored.overall_factor().is_one());
-    assert!(restored.numerator_prefactor().is_one());
+    assert!(restored.numerator_prefactor().expression().is_one());
     assert_eq!(restored.to_json()?, scalar.to_json()?);
     if let Some(parent) = output.parent() {
         std::fs::create_dir_all(parent)?;

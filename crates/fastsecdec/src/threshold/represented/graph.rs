@@ -203,12 +203,12 @@ impl ExactRepresentedGraphInput {
             // native validation can contract or combine any of these expressions.
             for (role, expression) in [
                 ("overall_factor", original.diagram.overall_factor()),
-                ("numerator", original.diagram.numerator()),
+                ("numerator", original.diagram.numerator().expression()),
                 (
                     "numerator_prefactor",
-                    original.diagram.numerator_prefactor(),
+                    original.diagram.numerator_prefactor().expression(),
                 ),
-                ("projector", original.diagram.projector()),
+                ("projector", original.diagram.projector().expression()),
                 ("integration_dimension", &original.dimension),
             ] {
                 require_exact(&mut work, expression, role.into())?;
@@ -216,14 +216,14 @@ impl ExactRepresentedGraphInput {
             for (id, vertex) in original.diagram.vertices() {
                 require_exact(
                     &mut work,
-                    &vertex.numerator,
+                    vertex.numerator.expression(),
                     format!("vertex_numerator:{}", id.0),
                 )?;
             }
             for (id, _, edge) in original.diagram.edges() {
                 require_exact(
                     &mut work,
-                    &edge.numerator,
+                    edge.numerator.expression(),
                     format!("edge_numerator:{}", id.0),
                 )?;
             }

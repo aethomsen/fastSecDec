@@ -3,6 +3,7 @@ use fastsecdec::{
     input::{GraphIntegral, GraphSymanzik},
 };
 use feynkit_graph::symbols;
+use idenso::tensor::SymbolicTensor;
 use std::{collections::BTreeMap, sync::Arc};
 use symbolica::parse;
 
@@ -52,9 +53,12 @@ fn massive_bubble_retains_physical_sign_and_ignores_numerator_weights() {
         .diagram()
         .as_ref()
         .clone()
-        .with_numerator(parse!(
-            "gammalooprs::K(0,spenso::mink(4,mu))*gammalooprs::K(0,spenso::mink(4,mu))"
-        ))
+        .with_numerator(
+            SymbolicTensor::infer(parse!(
+                "gammalooprs::K(0,spenso::mink(4,mu))*gammalooprs::K(0,spenso::mink(4,mu))"
+            ))
+            .unwrap(),
+        )
         .unwrap();
     let loop_graph = GraphIntegral::new_with_scalar_values(
         Arc::new(loop_graph),

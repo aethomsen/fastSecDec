@@ -27,9 +27,10 @@ blake3 = "1.8"
 tempfile = "3"
 
 [patch.crates-io]
+graphica = { git = "https://github.com/symbolica-dev/symbolica", branch = "codex/community-evaluator-composition" }
 # Share one public Symbolica owner across the HEPKit dependency graph.
-symbolica = { git = "https://github.com/ValentinHirschi/symbolica", rev = "ae0c82b7bda670fdb9f6229226bd47b13bb49a20" }
-numerica = { git = "https://github.com/ValentinHirschi/symbolica", rev = "ae0c82b7bda670fdb9f6229226bd47b13bb49a20" }
+symbolica = { git = "https://github.com/symbolica-dev/symbolica", branch = "codex/community-evaluator-composition" }
+numerica = { git = "https://github.com/symbolica-dev/symbolica", branch = "codex/community-evaluator-composition" }
 symjit = { git = "https://github.com/ValentinHirschi/symjit_changes_for_pyamplicol", rev = "d74993ffd76a6fc322a7bcf3963fa786783a38a8" }
 # Match HEPKit's optional Spenso Wasm dependency source; no plugin feature is selected.
 symbolica-typst-plugin = { git = "https://github.com/symbolica-dev/symbolica-typst-plugin", rev = "57b7455b37c30f4f87353c0073e49f5225e937ab" }
@@ -76,12 +77,3 @@ path = "../../crates/fastsecdec/tests/generation_session.rs"
 [[test]]
 name = "numerical_dual"
 path = "../../crates/fastsecdec/tests/numerical_dual.rs"
-
-# Keep all incoming HEPKit types on the tested native owner, including transitive Git edges.
-[patch."https://github.com/alphal00p/gammaloop"]
-feynkit-graph = { git = "https://github.com/ValentinHirschi/gammaloop", rev = "9f8b1e50016a58d04e712c34569ea936c44e179a" }
-feynkit-kinematics = { git = "https://github.com/ValentinHirschi/gammaloop", rev = "9f8b1e50016a58d04e712c34569ea936c44e179a" }
-feynkit-model = { git = "https://github.com/ValentinHirschi/gammaloop", rev = "9f8b1e50016a58d04e712c34569ea936c44e179a" }
-idenso = { git = "https://github.com/ValentinHirschi/gammaloop", rev = "9f8b1e50016a58d04e712c34569ea936c44e179a" }
-linnet = { git = "https://github.com/ValentinHirschi/gammaloop", rev = "9f8b1e50016a58d04e712c34569ea936c44e179a" }
-spenso = { git = "https://github.com/ValentinHirschi/gammaloop", rev = "9f8b1e50016a58d04e712c34569ea936c44e179a" }

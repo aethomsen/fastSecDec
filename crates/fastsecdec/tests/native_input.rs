@@ -1,3 +1,4 @@
+use idenso::tensor::SymbolicTensor;
 use std::{collections::BTreeMap, sync::Arc};
 
 use fastsecdec::{
@@ -129,9 +130,12 @@ fn graph_weights_are_applied_once_without_automorphism_division() {
 fn tensor_contraction_reuses_native_momentum_and_dimension() {
     let diagram = FeynmanDiagram::from_dot(model(), BUBBLE)
         .unwrap()
-        .with_numerator(parse!(
-            "gammalooprs::K(0,spenso::mink(4,mu))*gammalooprs::K(0,spenso::mink(4,mu))"
-        ))
+        .with_numerator(
+            SymbolicTensor::infer(parse!(
+                "gammalooprs::K(0,spenso::mink(4,mu))*gammalooprs::K(0,spenso::mink(4,mu))"
+            ))
+            .unwrap(),
+        )
         .unwrap();
     let integral = GraphIntegral::new(Arc::new(diagram), &kinematics()).unwrap();
     let numerator = integral
@@ -160,7 +164,9 @@ fn tensor_contraction_reuses_native_momentum_and_dimension() {
 fn residual_free_indices_are_rejected() {
     let diagram = FeynmanDiagram::from_dot(model(), BUBBLE)
         .unwrap()
-        .with_numerator(parse!("gammalooprs::K(0,spenso::mink(4,mu))"))
+        .with_numerator(
+            SymbolicTensor::infer(parse!("gammalooprs::K(0,spenso::mink(4,mu))")).unwrap(),
+        )
         .unwrap();
     let integral = GraphIntegral::new(Arc::new(diagram), &kinematics()).unwrap();
     assert!(matches!(
@@ -228,7 +234,7 @@ fn atomic_scalar_point_admits_zero_builtin_width_and_preserves_native_family() {
     "#,
         )
         .unwrap()
-        .with_numerator(Atom::one())
+        .with_numerator(SymbolicTensor::infer(Atom::one()).unwrap())
         .unwrap(),
     );
     let basis = diagram.loop_momentum_basis();

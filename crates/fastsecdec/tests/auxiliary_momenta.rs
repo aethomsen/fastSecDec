@@ -1,4 +1,5 @@
 //! Gaussian helicity sources checked against HEPKit's transverse projector.
+use idenso::tensor::SymbolicTensor;
 use std::{collections::BTreeMap, sync::Arc};
 
 use fastsecdec::{
@@ -43,7 +44,7 @@ fn input(e2_squared: Atom, mutual: Atom) -> (GraphIntegral, [Atom; 2]) {
         .diagram()
         .as_ref()
         .clone()
-        .with_numerator(numerator)
+        .with_numerator(SymbolicTensor::infer(numerator).unwrap())
         .unwrap();
     (
         GraphIntegral::new(Arc::new(diagram), &kin).unwrap(),
@@ -80,7 +81,7 @@ fn transverse_helicity_sources_match_native_reducer_with_degenerate_gram() {
         let reduced = TensorReducer::new(parse!("auxiliary_test::D"))
             .with_integrated_head(symbols::loop_momentum())
             .with_external_vector(parse!("gammalooprs::P(1,spenso::mink(auxiliary_test::D))"))
-            .reduce(original.diagram().numerator().as_view())
+            .reduce(original.diagram().numerator().expression().as_view())
             .unwrap();
         assert!(reduced.is_fully_contracted());
         let numerator = original.family().kinematics().apply(&reduced.expression());
@@ -88,7 +89,7 @@ fn transverse_helicity_sources_match_native_reducer_with_degenerate_gram() {
             .diagram()
             .as_ref()
             .clone()
-            .with_numerator(numerator)
+            .with_numerator(SymbolicTensor::infer(numerator).unwrap())
             .unwrap();
         let control =
             GraphIntegral::new(Arc::new(diagram), original.family().kinematics()).unwrap();

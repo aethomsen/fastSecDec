@@ -42,11 +42,10 @@ must not be carried into ordinary-source checks.
 
 | Owner | Selected source |
 |---|---|
-| Symbolica | Public `community`-based fork revision `ae0c82b7bda670fdb9f6229226bd47b13bb49a20`, retaining native evaluator composition, ball domains, prepared roots, shared direct-vector evaluation, independent callback environments and single-pass elimination of dependent duplicate instructions, plus [fractional-series, F4 and resultant corrections](reviews/no-deformation-dependencies.md) and [checked native uncertainty range](reviews/no-deformation-numerical-range.md); [upstream contour PRs](reviews/contour-upstream-prs.md) |
-| FeynKit / Linnet / Spenso ecosystem | Public fork revision `9f8b1e50016a58d04e712c34569ea936c44e179a`, retaining the native kinematics mapper in [PR #131](https://github.com/alphal00p/gammaloop/pull/131) and citation URLs in [PR #128](https://github.com/alphal00p/gammaloop/pull/128), plus the immutable numerator-prefactor setter in [PR #132](https://github.com/alphal00p/gammaloop/pull/132); [adoption evidence](reviews/no-deformation-represented-graph-payloads.md) |
-| Numerica | Same public owner revision as Symbolica, with narrow tracked `hypot`, certified real-ball square-root fixes and checked uncertainty range from [PR #9](https://github.com/symbolica-dev/numerica/pull/9) |
+| Symbolica | Official `codex/community-evaluator-composition` branch, locked at `23688d6d78cf78dc62e28d829726b62edfd86ef2` ([PR #99](https://github.com/symbolica-dev/symbolica/pull/99)), supplies the current Community kernel and evaluator composition. Native FastSecDec remains blocked on the prepared-root and shared direct-vector prerequisites below |
+| FeynKit / Linnet / Spenso ecosystem | Official `alphal00p/gammaloop` `feynkit` branch, locked at `d39d9bf206d8f858efedc9281f034cddb50c51fa`; graph numerators, prefactors and projectors now retain their native structured tensor interfaces |
+| Numerica / Graphica | Same official repository, branch and locked revision as Symbolica, shared by all three consumer roots |
 | symGCAD | Optional native geometry dependency, public revision `3baffa7134334c62b45a6b8df9198004060be715`: compatible `bef2a9e6` owner plus explicit capacity for the retained double-box certificates; [capacity and validation review](reviews/no-deformation-certificate-capacity.md), [generation budgets](reviews/no-deformation-generation-budgets.md) and [base adoption review](reviews/no-deformation-latest-symgcad.md). Shares the consuming workspace's Symbolica identity |
-| Graphica | Registry 3.0.1 |
 | SymJIT | Compatible minimum `2.27.0`; public Git revision `d74993ffd76a6fc322a7bcf3963fa786783a38a8` supplies the complex callback fix, existing Rust API entrypoint and compatible long-label codec pending upstream release |
 | OneLOop | Public `main`, locked at `27c3723434b7d99cf70ce612b0b8041d3f5c0e78`; development-only reference provider |
 | one-loop-reduce | Public source, locked at `b53a70776a43bd14c6562c52a03bc4909568e473`; development-only reference provider |
@@ -56,15 +55,23 @@ workspace's resolved lockfile. No `FASTSECDEC_*_SOURCE_ROOT` variables are neede
 for normal builds. Developers deliberately selecting local path dependencies
 must supply matching source roots for their source-state fingerprints.
 
-The three FastSecDec consumer roots also select that public FeynKit revision
-through `[patch."https://github.com/alphal00p/gammaloop"]`. This keeps direct
-and transitive native graph, kinematic and algebra types on one owner; changing
-only a direct dependency to a revision would leave duplicate owners through
-other ecosystem crates. A downstream host must make the same selection in its
-own root manifest. No unpublished checkout or source-rewriting script is used.
-The newer upstream Python graph renderer adds rendering/font/image packages to
-the binding lockfile; the numerical and portable validation roots remain free
-of Python and that rendering stack.
+The three consumer roots use the same upstream FeynKit branch and lock its exact
+revision. The former fork patch tables are removed. Downstream Community hosts
+own their root patches and must select the same native graph and kernel owners.
+Python rendering dependencies remain isolated from numerical and portable roots.
+
+This migration is a draft dependency integration. PR #99 alone does not contain
+all native APIs already used by FastSecDec main. The focused native build stops
+on missing `BracketedRootConvergence`, `BracketedRootOptions`,
+`BracketedRootTermination`, `nsolve_bracketed`, and `evaluate_multiple_with_prec`.
+The existing published prerequisites are Symbolica [PR #56](https://github.com/symbolica-dev/symbolica/pull/56)
+(prepared bracketed roots), [PR #71](https://github.com/symbolica-dev/symbolica/pull/71)
+(root observations), and [PR #59](https://github.com/symbolica-dev/symbolica/pull/59)
+(shared direct-vector evaluation). These native safety and evaluation paths are
+preserved; they are not replaced with local implementations or disabled to make
+this integration compile. Whole-extension and native scientific validation must
+be repeated after those APIs are available in the selected kernel. Historical
+numerical evidence below retains its original dependency identities.
 
 ## Portable and Python consumers
 

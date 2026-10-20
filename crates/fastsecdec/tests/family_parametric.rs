@@ -1,4 +1,5 @@
 //! Public native-family entry: exact projection, Gaussian moments and weights.
+use idenso::tensor::SymbolicTensor;
 use std::sync::Arc;
 
 use fastsecdec::{
@@ -131,10 +132,10 @@ fn graph_and_family_apply_native_weights_and_measure_exactly_once() {
         .diagram()
         .as_ref()
         .clone()
-        .with_numerator(Atom::num(5))
+        .with_numerator(SymbolicTensor::infer(Atom::num(5)).unwrap())
         .unwrap()
         .with_overall_factor(Atom::num(2))
-        .with_projector(Atom::num(3));
+        .with_projector(SymbolicTensor::infer(Atom::num(3)).unwrap());
     let graph = GraphIntegral::new(Arc::new(diagram), &kinematics)
         .unwrap()
         .with_measure_multiplier(Atom::num(7));

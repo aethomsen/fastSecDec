@@ -7,6 +7,7 @@ use fastsecdec::{
     parametric::ParametricIntegrand,
 };
 use feynkit_py::{PyFeynmanDiagram, PyIntegralFamily, PyKinematics};
+use idenso::tensor::SymbolicTensor;
 use pyo3::{prelude::*, types::PyDict};
 use symbolica::{
     api::python::PythonExpression,
@@ -34,12 +35,16 @@ pub(crate) fn with_diagram_expressions(
 ) -> PyResult<PyFeynmanDiagram> {
     let mut copied = diagram.as_diagram()?.clone();
     if let Some(value) = numerator {
+        let numerator =
+            SymbolicTensor::infer(value.expr.clone()).map_err(|e| error::native(py, "input", e))?;
         copied = copied
-            .with_numerator(value.expr.clone())
+            .with_numerator(numerator)
             .map_err(|e| error::native(py, "input", e))?;
     }
     if let Some(value) = projector {
-        copied = copied.with_projector(value.expr.clone());
+        let projector =
+            SymbolicTensor::infer(value.expr.clone()).map_err(|e| error::native(py, "input", e))?;
+        copied = copied.with_projector(projector);
     }
     if let Some(value) = overall_factor {
         copied = copied.with_overall_factor(value.expr.clone());

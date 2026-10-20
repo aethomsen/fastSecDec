@@ -36,7 +36,7 @@ pub(super) fn convert(
     // replacement density. All original precision remains in the witness.
     let _ = atom(
         work,
-        original.numerator(),
+        original.numerator().expression(),
         GraphLocation::OriginalAggregate {},
     )?;
     let mut vertices = Vec::new();
@@ -44,13 +44,16 @@ pub(super) fn convert(
         observe(work)?;
         vertices.push((
             id,
-            atom(
-                work,
-                &vertex.numerator,
-                GraphLocation::Payload {
-                    role: format!("vertex_numerator:{}", id.0),
-                },
-            )?,
+            vertex
+                .numerator
+                .with_checked_expression(atom(
+                    work,
+                    vertex.numerator.expression(),
+                    GraphLocation::Payload {
+                        role: format!("vertex_numerator:{}", id.0),
+                    },
+                )?)
+                .map_err(|e| Error::Invalid(e.to_string()))?,
         ));
     }
     let mut edges = Vec::new();
@@ -58,13 +61,15 @@ pub(super) fn convert(
         observe(work)?;
         edges.push((
             id,
-            atom(
-                work,
-                &edge.numerator,
-                GraphLocation::Payload {
-                    role: format!("edge_numerator:{}", id.0),
-                },
-            )?,
+            edge.numerator
+                .with_checked_expression(atom(
+                    work,
+                    edge.numerator.expression(),
+                    GraphLocation::Payload {
+                        role: format!("edge_numerator:{}", id.0),
+                    },
+                )?)
+                .map_err(|e| Error::Invalid(e.to_string()))?,
         ));
     }
     let mut global = |expression, role: &str| {
@@ -75,8 +80,17 @@ pub(super) fn convert(
             GraphLocation::Payload { role: role.into() },
         )
     };
-    let prefactor = global(original.numerator_prefactor(), "numerator_prefactor")?;
-    let projector = global(original.projector(), "projector")?;
+    let prefactor = original
+        .numerator_prefactor()
+        .with_checked_expression(global(
+            original.numerator_prefactor().expression(),
+            "numerator_prefactor",
+        )?)
+        .map_err(|e| Error::Invalid(e.to_string()))?;
+    let projector = original
+        .projector()
+        .with_checked_expression(global(original.projector().expression(), "projector")?)
+        .map_err(|e| Error::Invalid(e.to_string()))?;
     let overall = global(original.overall_factor(), "overall_factor")?;
     // Every source payload was bounded/admitted before native validation or
     // graph arithmetic. Original and exact diagrams remain distinct owners.

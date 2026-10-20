@@ -548,6 +548,7 @@ mod runtime_tests;
 #[cfg(test)]
 mod tests {
     use super::*;
+    use idenso::tensor::SymbolicTensor;
 
     #[test]
     fn runtime_example_points_preserve_frozen_reference_densities() {
@@ -738,7 +739,7 @@ products = [{left=1,right=1,value='-1'}]
             include_str!("../../../examples/graphs/bubble.dot"),
         )
         .unwrap()
-        .with_numerator(numerator)
+        .with_numerator(SymbolicTensor::infer(numerator).unwrap())
         .unwrap();
         fs::write(
             directory.path().join("graph.dot"),

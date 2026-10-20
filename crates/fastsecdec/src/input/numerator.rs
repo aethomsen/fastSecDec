@@ -1,7 +1,7 @@
 use feynkit_graph::FeynmanDiagram;
 use feynkit_kinematics::Kinematics;
-use idenso::tensor::{AlgebraContraction, AlgebraSettings, SymbolicTensor};
-use spenso::{network::parsing::AtomStructureExt, structure::TensorStructure};
+use idenso::tensor::{AlgebraContraction, AlgebraSettings};
+use spenso::structure::TensorStructure;
 use symbolica::atom::Atom;
 
 use crate::{Error, Result};
@@ -20,14 +20,18 @@ pub fn contract_numerator(
     kinematics: &Kinematics,
     settings: &AlgebraSettings,
 ) -> Result<Atom> {
-    let dimension = kinematics.dimension().to_symbolic();
-    let projected = (diagram.numerator()
-        * diagram.projector()
-        * diagram.numerator_prefactor()
-        * diagram.overall_factor())
-    .with_lorentz_dimension(dimension.as_view());
-    let routed = diagram.loop_momentum_basis().route_expression(&projected);
-    let tensor = SymbolicTensor::infer(routed)
+    let projected = diagram
+        .numerator()
+        .multiply(diagram.numerator_prefactor())
+        .and_then(|tensor| tensor.multiply(diagram.projector()))
+        .map_err(|error| Error::Tensor(error.to_string()))?
+        .with_lorentz_dimension(kinematics.dimension())
+        .map_err(|error| Error::Tensor(error.to_string()))?;
+    let routed = diagram
+        .loop_momentum_basis()
+        .route_expression(&(projected.expression() * diagram.overall_factor()));
+    let tensor = projected
+        .with_checked_expression(routed)
         .and_then(|tensor| tensor.simplify_algebra(settings))
         .and_then(|tensor| tensor.to_dots())
         .map_err(|error| Error::Tensor(error.to_string()))?;

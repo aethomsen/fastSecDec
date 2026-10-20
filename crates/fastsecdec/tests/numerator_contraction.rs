@@ -1,4 +1,5 @@
 //! Native contraction of indexed sums must reach Gaussian scalar products.
+use idenso::tensor::SymbolicTensor;
 use std::sync::Arc;
 
 use fastsecdec::{
@@ -30,14 +31,16 @@ fn dots_and_full_contract_connected_sums_and_preserve_graph_weights() {
     let pmu = rep.vector(p.as_view(), [Atom::num(1)]);
     let numerator = (&kmu + &pmu) * (Atom::num(2) * &kmu - Atom::num(3) * &pmu);
     let diagram = diagram
-        .with_numerator(numerator)
+        .with_numerator(SymbolicTensor::infer(numerator).unwrap())
         .unwrap()
-        .with_projector(Atom::num(5))
+        .with_projector(SymbolicTensor::infer(Atom::num(5)).unwrap())
+        .with_numerator_prefactor(SymbolicTensor::infer(Atom::num(13)).unwrap())
         .with_overall_factor(Atom::num(7));
+    let original = diagram.to_json().unwrap();
     let graph = GraphIntegral::new(Arc::new(diagram), &kin)
         .unwrap()
         .with_measure_multiplier(Atom::num(11));
-    let expected = Atom::num(35)
+    let expected = Atom::num(455)
         * (Atom::num(2) * kin.scalar_product(&k, &k).unwrap()
             - kin.scalar_product(&k, &p).unwrap()
             - Atom::num(3) * parse!("s"));
@@ -60,4 +63,5 @@ fn dots_and_full_contract_connected_sums_and_preserve_graph_weights() {
         densities.push(integrand.density());
     }
     assert!((densities[0].clone() - &densities[1]).expand().is_zero());
+    assert_eq!(graph.diagram().to_json().unwrap(), original);
 }
