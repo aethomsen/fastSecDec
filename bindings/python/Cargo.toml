@@ -29,6 +29,7 @@ python_stubgen = [
 fastsecdec = { path = "../../crates/fastsecdec", default-features = false }
 fastsecdec-sectors = { path = "../../crates/fastsecdec-sectors", default-features = false }
 feynkit-py = { git = "https://github.com/alphal00p/gammaloop", branch = "feynkit", default-features = false }
+spynso3 = { git = "https://github.com/alphal00p/gammaloop", branch = "feynkit", default-features = false }
 symbolica = { version = "3.0.1", default-features = false, features = ["python_export"] }
 # ABI and extension-module linking are owned by the consuming community host.
 pyo3 = { version = "0.28", features = ["multiple-pymethods"] }

@@ -8,6 +8,7 @@ use fastsecdec::{
 };
 use feynkit_py::{PyFeynmanDiagram, PyKinematics};
 use pyo3::{prelude::*, types::PyDict};
+use spynso3::expression::as_tensor;
 use symbolica::{api::python::PythonExpression, atom::AtomView};
 
 use super::error;
@@ -25,18 +26,20 @@ use super::error;
 pub(crate) fn with_diagram_expressions(
     py: Python<'_>,
     diagram: &PyFeynmanDiagram,
-    numerator: Option<&PythonExpression>,
-    projector: Option<&PythonExpression>,
+    numerator: Option<&Bound<'_, PythonExpression>>,
+    projector: Option<&Bound<'_, PythonExpression>>,
     overall_factor: Option<&PythonExpression>,
 ) -> PyResult<PyFeynmanDiagram> {
     let mut copied = diagram.as_diagram()?.clone();
     if let Some(value) = numerator {
+        let tensor = as_tensor(py, value.as_any())?;
         copied = copied
-            .with_numerator(value.expr.clone())
+            .with_numerator(tensor.borrow(py).structured().clone())
             .map_err(|e| error::native(py, "input", e))?;
     }
     if let Some(value) = projector {
-        copied = copied.with_projector(value.expr.clone());
+        let tensor = as_tensor(py, value.as_any())?;
+        copied = copied.with_projector(tensor.borrow(py).structured().clone());
     }
     if let Some(value) = overall_factor {
         copied = copied.with_overall_factor(value.expr.clone());

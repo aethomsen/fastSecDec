@@ -28,6 +28,20 @@ def test_public_types_use_canonical_module():
         assert getattr(sd, name).__module__ == "symbolica.community.hepkit.sector_decomposition"
 
 
+def test_diagram_expression_adapter_preserves_tensor_interfaces_and_ranked_zero():
+    from symbolica.community import tensor as sp
+
+    diagram = inputs.massive_triangle().diagram
+    vector = sp.TensorName.vector("fastsecdec_input::v")(sp.Representation.mink(4))
+    zero = vector.derivative(S("fastsecdec_input::absent"))
+    assert zero.rank == 1 and zero.to_expression() == E("0")
+    for source in (vector, zero):
+        copied = sd.with_diagram_expressions(diagram, projector=source)
+        restored = copied.projector_expression()
+        assert restored.structure.axes == source.structure.axes
+        assert restored.to_expression() == source.to_expression()
+
+
 def test_weighted_diagram_family_and_compatibility_generation_agree():
     value = inputs.massive_triangle()
     family = value.diagram.propagator_family(kinematics=value.kinematics)

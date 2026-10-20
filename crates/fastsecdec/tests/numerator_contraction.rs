@@ -7,6 +7,7 @@ use fastsecdec::{
     parametric::ParametricIntegrand,
 };
 use feynkit_graph::symbols;
+use idenso::tensor::SymbolicTensor;
 use spenso::structure::representation::{Minkowski, RepName};
 use symbolica::{parse, symbol};
 
@@ -30,14 +31,15 @@ fn dots_and_full_contract_connected_sums_and_preserve_graph_weights() {
     let pmu = rep.vector(p.as_view(), [Atom::num(1)]);
     let numerator = (&kmu + &pmu) * (Atom::num(2) * &kmu - Atom::num(3) * &pmu);
     let diagram = diagram
-        .with_numerator(numerator)
+        .with_numerator(SymbolicTensor::infer(numerator).unwrap())
         .unwrap()
-        .with_projector(Atom::num(5))
+        .with_projector(SymbolicTensor::infer(Atom::num(5)).unwrap())
+        .with_numerator_prefactor(SymbolicTensor::infer(Atom::num(13)).unwrap())
         .with_overall_factor(Atom::num(7));
     let graph = GraphIntegral::new(Arc::new(diagram), &kin)
         .unwrap()
         .with_measure_multiplier(Atom::num(11));
-    let expected = Atom::num(35)
+    let expected = Atom::num(455)
         * (Atom::num(2) * kin.scalar_product(&k, &k).unwrap()
             - kin.scalar_product(&k, &p).unwrap()
             - Atom::num(3) * parse!("s"));
@@ -60,4 +62,57 @@ fn dots_and_full_contract_connected_sums_and_preserve_graph_weights() {
         densities.push(integrand.density());
     }
     assert!((densities[0].clone() - &densities[1]).expand().is_zero());
+}
+
+#[test]
+fn typed_projector_contracts_the_numerator_interface() {
+    let model = Arc::new(
+        Model::from_json(include_str!("../../../examples/models/massless_phi3.json")).unwrap(),
+    );
+    let k = symbols::loop_momentum().call(0);
+    let p = symbols::external_momentum().call(1);
+    let kin = Kinematics::in_dimension(&parse!("D"))
+        .unwrap()
+        .with_mass_squared(&p, parse!("s"))
+        .unwrap();
+    let rep = Minkowski {}.new_rep(4);
+    let numerator = SymbolicTensor::infer(rep.vector(k.as_view(), [Atom::num(1)])).unwrap();
+    let projector = SymbolicTensor::infer(rep.vector(p.as_view(), [Atom::num(1)])).unwrap();
+    let diagram =
+        FeynmanDiagram::from_dot(model, include_str!("../../../examples/graphs/bubble.dot"))
+            .unwrap()
+            .with_numerator(numerator)
+            .unwrap()
+            .with_projector(projector)
+            .with_numerator_prefactor(SymbolicTensor::infer(Atom::num(3)).unwrap())
+            .with_overall_factor(Atom::num(5));
+    let graph = GraphIntegral::new(Arc::new(diagram), &kin).unwrap();
+    assert_eq!(
+        graph
+            .scalar_numerator(&NumeratorContraction::Dots.algebra_settings())
+            .unwrap(),
+        Atom::num(15) * kin.scalar_product(&k, &p).unwrap()
+    );
+}
+
+#[test]
+fn zero_with_an_open_tensor_interface_is_not_admitted_as_a_scalar() {
+    let model = Arc::new(
+        Model::from_json(include_str!("../../../examples/models/massless_phi3.json")).unwrap(),
+    );
+    let k = symbols::loop_momentum().call(0);
+    let rep = Minkowski {}.new_rep(4);
+    let tensor = SymbolicTensor::infer(rep.vector(k.as_view(), [Atom::num(1)])).unwrap();
+    let zero = tensor.with_algebra_result(Atom::Zero).unwrap();
+    assert_eq!(zero.rank(), 1);
+    let diagram =
+        FeynmanDiagram::from_dot(model, include_str!("../../../examples/graphs/bubble.dot"))
+            .unwrap()
+            .with_projector(zero);
+    let kin = Kinematics::in_dimension(&parse!("D")).unwrap();
+    let graph = GraphIntegral::new(Arc::new(diagram), &kin).unwrap();
+    assert!(matches!(
+        graph.scalar_numerator(&NumeratorContraction::Dots.algebra_settings()),
+        Err(fastsecdec::Error::FreeTensorIndices)
+    ));
 }
